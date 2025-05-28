@@ -1,0 +1,42 @@
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+  border: none;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+::selection {background-color: #A8F1FF;color: #1498b3;}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+/* theme-dark */
+body.dark {background-color: #242424;color: white;}
+body.dark button {background-color: #FFFA8D; color: black;}
+body.dark .top-bar {background-color: rgba(30, 30, 30, 0.7);}
+
+/* 공용 */
+button {
+  cursor: pointer;
+  background-color: #4ED7F1;
+  color: white;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* background-color: transparent; */
+}
+button:hover {
+  background-color: #3bb8d4;
+}

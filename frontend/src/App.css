@@ -1,0 +1,58 @@
+:root{
+  width: 100%;
+  margin: auto;
+  text-align: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 320px;
+  margin: auto;
+  padding: 1rem;
+  
+  /* test */
+  background-color: #6FE6FC;
+}
+
+/* TopBar */
+.top-bar {
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: end;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1rem 2rem;
+}
+.top-bar * {
+  margin: 0 0.5rem;
+  cursor: pointer;
+}
+
+/* Navigation */
+nav {
+  position: fixed;
+  bottom: 0;
+  z-index: 10;
+  width: 100vw;
+  padding: 1rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+nav ul.nav-list {
+  max-width: 1200px;
+  min-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+}
+nav ul.nav-list li a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
+nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
+nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
