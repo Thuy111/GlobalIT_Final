@@ -24,6 +24,7 @@ body {
 /* theme-dark */
 body.dark {background-color: #242424;color: white;}
 body.dark button {background-color: #FFFA8D; color: black;}
+body.dark button:hover {background-color: rgb(252, 215, 6);}
 body.dark .top-bar {background-color: rgba(30, 30, 30, 0.7);}
 
 /* 공용 */
