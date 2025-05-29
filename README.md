@@ -1,6 +1,6 @@
 # :fire: Final-Project
 
-![Image](.\docs\image.png)
+![Image](./docs/image.png)
 
 #### Project Name
 
