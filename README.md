@@ -1,6 +1,6 @@
 # :fire: Final-Project
 
-![Image](D:\TIL\pjt\GlobalIT_Final\docs\image.png)
+![Image](.\docs\image.png)
 
 #### Project Name
 
