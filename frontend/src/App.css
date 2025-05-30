@@ -12,7 +12,7 @@
   padding: 1rem;
   
   /* test */
-  background-color: #6FE6FC;
+  /* background-color: #6FE6FC; */
 }
 
 /* TopBar */
@@ -20,16 +20,31 @@
   width: 100vw;
   position: fixed;
   top: 0;
+  right: 0;
   z-index: 10;
   display: flex;
   justify-content: end;
   background-color: rgba(255, 255, 255, 0.7);
-  padding: 1rem 2rem;
+  padding: 1rem;
 }
 .top-bar * {
   margin: 0 0.5rem;
   cursor: pointer;
 }
+/* 토글 */
+.change-theme{margin: 10px 0 10px 10px ;display:flex;flex-direction: column;position: relative;}
+/* 기존의 checkbox 버튼 숨기기 */
+.toggle-input {display: none;}
+/* 토글 스타일 지정*/
+.toggle-label {position: relative;display: block;width: 40px;height: 24px;background-color: #4ED7F1;border-radius: 12px;cursor: pointer;transition: background-color 0.3s ease;}
+/* 토글 버튼 스타일 지정 */
+.toggle-label::before {content: "";position: absolute;top: 2px;left: 2px;width: 20px;height: 20px;background-color: white;border-radius: 50%;transition: transform 0.3s ease;}
+/* 토글 ON 스타일 지정*/
+.toggle-input:checked + .toggle-label {background-color: #FFFA8D;}
+.toggle-input:checked + .toggle-label::before {background-color: #FFFA8D;background-color: black;}
+/* 토글 ON인 경우에 버튼 위치 지정 */
+.toggle-input:checked + .toggle-label::before {transform: translateX(16px);}
+.toggle-text{position:absolute;left:-1.6rem;top: -2px;z-index: 1;}
 
 /* Navigation */
 nav {
