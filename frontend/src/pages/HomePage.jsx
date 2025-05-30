@@ -46,8 +46,8 @@ const Home = ({ isDarkMode, setIsDarkMode }) => {
     <>
       <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
       <div className="home">
-        {!isDarkMode && <img src="/logo.png" alt="Smash Logo" />}
-        {isDarkMode && <img src="/logo2.png" alt="Smash Logo" />}
+        {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
+        {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
         <h1>Welcome to the Home Page</h1>
         <p>This is the main page of our application.</p>
       </div>

@@ -1,0 +1,117 @@
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+  border: none;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+::selection {background-color: #A8F1FF;color: #1498b3;}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  margin-top: 80px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+/* theme-dark */
+body.dark {background-color: #242424;color: white;}
+body.dark button {background-color: #FFFA8D; color: black;}
+body.dark button:hover {background-color: rgb(252, 215, 6);}
+body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7) 60%, rgba(30, 30, 30, 0));}
+
+/* 공용 */
+button {
+  cursor: pointer;
+  background-color: #4ED7F1;
+  color: white;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* background-color: transparent; */
+}
+button:hover {
+  background-color: #3bb8d4;
+}
+
+:root{
+  width: 100%;
+  margin: auto;
+  text-align: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 320px;
+  margin: auto;
+  padding: 1rem;
+  
+  /* test */
+  /* background-color: #6FE6FC; */
+}
+
+/* TopBar */
+.top-bar {
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: end;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7) 60%, rgba(255, 255, 255, 0));
+  padding: 1rem;
+}
+.top-bar * {
+  margin: 0 0.5rem;
+  cursor: pointer;
+}
+/* 토글 */
+.change-theme{margin: 10px 0 10px 10px ;display:flex;flex-direction: column;position: relative;}
+/* 기존의 checkbox 버튼 숨기기 */
+.toggle-input {display: none;}
+/* 토글 스타일 지정*/
+.toggle-label {position: relative;display: block;width: 40px;height: 24px;background-color: #4ED7F1;border-radius: 12px;cursor: pointer;transition: background-color 0.3s ease;}
+/* 토글 버튼 스타일 지정 */
+.toggle-label::before {content: "";position: absolute;top: 2px;left: 2px;width: 20px;height: 20px;background-color: white;border-radius: 50%;transition: transform 0.3s ease;}
+/* 토글 ON 스타일 지정*/
+.toggle-input:checked + .toggle-label {background-color: #FFFA8D;}
+.toggle-input:checked + .toggle-label::before {background-color: #FFFA8D;background-color: black;}
+/* 토글 ON인 경우에 버튼 위치 지정 */
+.toggle-input:checked + .toggle-label::before {transform: translateX(16px);}
+.toggle-text{position:absolute;left:-1.6rem;top: -2px;z-index: 1;}
+
+/* Navigation */
+nav {
+  position: fixed;
+  bottom: 0;
+  z-index: 10;
+  width: 100vw;
+  padding: 1rem;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+nav ul.nav-list {
+  max-width: 1200px;
+  min-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+}
+nav ul.nav-list li a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
+nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
+nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}

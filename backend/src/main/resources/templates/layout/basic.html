@@ -14,7 +14,16 @@
     <!-- body -->
     <body>
         <div class="root">
+          <div class="container">
             <th:block th:replace = "${content}"></th:block>
+          </div>
+          <nav class="navigation">
+            <ul class="nav-list">
+              <li><a th:href="${@environment.getProperty('react.server.url')} + '/alarm'"><i className="fa-solid fa-bell"></i>알림</a></li>
+              <li class="active"><a th:href="${@environment.getProperty('react.server.url')} + '/'"><i className="fa-solid fa-bell"></i>홈</a></li>
+              <li><a th:href="${@environment.getProperty('react.server.url')} + '/profile'"><i className="fa-solid fa-bell"></i>프로필</a></li>
+            </ul>
+          </nav>
         </div>
     </body>
 
