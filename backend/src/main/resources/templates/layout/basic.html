@@ -68,7 +68,6 @@
         let theme = /*[[${theme}]]*/ 'light';  // "dark" or "light"
         console.log("Server-side theme:", theme);
 
-        console.log([[${theme}]]);
         // 로컬 스토리지에 저장된 다크 모드 설정을 확인하고, 서버에서 설정된 테마가 없을 경우 로컬 스토리지 값을 사용
         const hasServerTheme = /*[[${theme != null}]]*/ false;
         if (!hasServerTheme) {
