@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './layouts/Basic';
 import Home from './pages/HomePage';
 import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';

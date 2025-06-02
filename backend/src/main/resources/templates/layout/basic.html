@@ -7,25 +7,85 @@
       <link rel="icon" type="favicon" href="/frontend/public/icon.svg" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>SMaSh | Sports rentalMatching Service</title>
-      <!-- script -->
+      <!-- CSS -->
+      <link rel="stylesheet" href="/basic.css" />
+      <!-- fontawsome -->
       <script src="https://kit.fontawesome.com/e7c9242ec2.js" crossorigin="anonymous"></script>
+      <!-- jQuery -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+      <!-- axios -->
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
 
     <!-- body -->
-    <body>
+    <body th:classappend="${theme} == 'dark' ? 'dark' : ''">
         <div class="root">
           <div class="container">
             <th:block th:replace = "${content}"></th:block>
           </div>
           <nav class="navigation">
             <ul class="nav-list">
-              <li><a th:href="${@environment.getProperty('react.server.url')} + '/alarm'"><i className="fa-solid fa-bell"></i>알림</a></li>
-              <li class="active"><a th:href="${@environment.getProperty('react.server.url')} + '/'"><i className="fa-solid fa-bell"></i>홈</a></li>
-              <li><a th:href="${@environment.getProperty('react.server.url')} + '/profile'"><i className="fa-solid fa-bell"></i>프로필</a></li>
+              <li class="alarm">
+                <a th:href="${@environment.getProperty('front.server.url') + '/alarm'}">
+                  <i class="fa-solid fa-bell"></i>알림
+                </a>
+              </li>
+              <li class="home active">
+                <a th:href="${@environment.getProperty('front.server.url') + '/'}">
+                  <i class="fa-solid fa-house"></i>홈
+                </a>
+              </li>
+              <li class="profile">
+                <a th:href="${@environment.getProperty('front.server.url') + '/profile'}">
+                  <i class="fa-solid fa-user"></i>프로필
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
     </body>
+
+    <script>
+      $(document).ready(function(){
+        // 현재 페이지의 URL
+        var currentUrl = window.location.href;
+        //console.log("Current URL: " + currentUrl);
+        
+        // navigation 메뉴 활성화
+        if (currentUrl.includes('/request') || currentUrl.includes('/estimate')) {
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .home').addClass('active');
+        } else if (currentUrl.includes('/profile')) {
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .profile').addClass('active');
+        } else {
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .alarm').addClass('active');
+        }
+
+        // controller에서 설정한 테마를 가져와서 적용
+        // /**/ 를 사용하면 값이 있을때는 해당 값이 사용되고, 없을 때는 기본값이 사용됨
+        let theme = /*[[${theme}]]*/ 'light';  // "dark" or "light"
+        console.log("Server-side theme:", theme);
+
+        console.log([[${theme}]]);
+        // 로컬 스토리지에 저장된 다크 모드 설정을 확인하고, 서버에서 설정된 테마가 없을 경우 로컬 스토리지 값을 사용
+        const hasServerTheme = /*[[${theme != null}]]*/ false;
+        if (!hasServerTheme) {
+          const darkMode = JSON.parse(localStorage.getItem('darkMode'));
+          axios.post('/smash/theme', { theme: darkMode ? 'dark' : 'light' });
+        }
+
+        if (theme == 'dark'|| localStorage.getItem('darkMode') == true) {
+          localStorage.setItem('darkMode', JSON.stringify(true));
+          document.body.classList.add('dark');
+        } else {
+          localStorage.setItem('darkMode', JSON.stringify(false));
+          document.body.classList.remove('dark');
+        }
+        
+      });
+    </script>
 
   </th:block>
 </html>

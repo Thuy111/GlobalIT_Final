@@ -15,10 +15,10 @@ body {
   width: 100%;
   min-width: 320px;
   min-height: 100vh;
-  margin-top: 80px;
   display: flex;
   flex-direction: column;
   background-color: #fff;
+  padding-bottom: 84px;
 }
 
 /* theme-dark */
@@ -42,7 +42,7 @@ button:hover {
   background-color: #3bb8d4;
 }
 
-:root{
+.root{
   width: 100%;
   margin: auto;
   text-align: center;

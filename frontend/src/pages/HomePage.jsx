@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const TopBar = ({ isDarkMode, setIsDarkMode }) => {
   const [btnText, setBtnText] = useState('☀️');
@@ -22,10 +23,23 @@ const TopBar = ({ isDarkMode, setIsDarkMode }) => {
       document.body.classList.add('dark');
       localStorage.setItem('darkMode', JSON.stringify(true));
       setBtnText('🌙');
+
+      // spring boot로 전달 (axios 사용) + withCredentials 설정으로 세션 유지
+      axios.post(`${import.meta.env.VITE_API_URL}/smash/theme`, { theme: 'dark' }, { withCredentials: true })
+        .catch(error => {
+          console.error('There was an error updating the theme:', error);
+        });
+
     }else {
       document.body.classList.remove('dark');
       localStorage.setItem('darkMode', JSON.stringify(false));
       setBtnText('☀️');
+
+      // 위와 동일하게 spring boot로 전달
+      axios.post(`${import.meta.env.VITE_API_URL}/smash/theme`, { theme: 'light' }, { withCredentials: true })
+        .catch(error => {
+          console.error('There was an error updating the theme:', error);
+        });
     }
   };
 
