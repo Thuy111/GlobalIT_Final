@@ -34,6 +34,9 @@ public class Request {
     @Column(name = "use_region", length = 50, nullable = false)
     private String useRegion;
 
+    @Column(name = "is_delivery", nullable = false)
+    private Byte isDelivery;
+
     @Column(name = "is_done", nullable = false)
     private Byte isDone;
 
