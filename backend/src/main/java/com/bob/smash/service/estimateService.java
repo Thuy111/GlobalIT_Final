@@ -1,9 +1,11 @@
-package com.bob.service;
+package com.bob.smash.service;
 
 import java.util.List;
 
 import com.bob.smash.dto.estimateDTO;
 import com.bob.smash.entity.Estimate;
+import com.bob.smash.entity.PartnerInfo;
+import com.bob.smash.entity.Request;
 
 public interface estimateService {
   // 등록
@@ -21,9 +23,15 @@ public interface estimateService {
   default Estimate dtoToEntity(estimateDTO dto) {
     Estimate estimate = Estimate.builder()
         .idx(dto.getIdx())
+        .request(Request.builder().idx(dto.getRequestIdx()).build())
+        .partnerInfo(PartnerInfo.builder().bno(dto.getPartnerBno()).build())
         .title(dto.getTitle())
         .content(dto.getContent())
         .price(dto.getPrice())
+        .createdAt(dto.getCreatedAt())
+        .returnDate(dto.getReturnDate())
+        .isSelected(dto.getIsSelected() ? (byte) 1 : (byte) 0)
+        .isReturn(dto.getIsReturn() ? (byte) 1 : (byte) 0)
         .build();
 
     return estimate;
