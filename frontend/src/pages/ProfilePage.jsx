@@ -1,9 +1,12 @@
+import Login from './member/LoginPage';
+import Member from './MemberPage';
 
 const Profile = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+
   return (
     <div className="profile">
-      <h1>Welcome to the Profile Page</h1>
-      <p>This is the sub page of our application.</p>
+      {!user ? <Login /> : <Member />}
     </div>
   );
 }
