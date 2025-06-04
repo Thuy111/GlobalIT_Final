@@ -1,5 +1,7 @@
 package com.bob.service;
 
+import java.util.List;
+
 import com.bob.smash.dto.estimateDTO;
 import com.bob.smash.entity.Estimate;
 
@@ -16,14 +18,32 @@ public interface estimateService {
   void remove(Long id);
 
   // dto -> entity
-  default estimateDTO dtoToEntity(estimateDTO dto) {
+  default Estimate dtoToEntity(estimateDTO dto) {
     Estimate estimate = Estimate.builder()
-        .id(dto.getId())
+        .idx(dto.getIdx())
         .title(dto.getTitle())
         .content(dto.getContent())
         .price(dto.getPrice())
         .build();
 
     return estimate;
+  }
+
+  // entity -> dto
+  default estimateDTO entityToDto(Estimate estimate) {
+    estimateDTO dto = estimateDTO.builder()
+        .idx(estimate.getIdx())
+        .requestIdx(estimate.getRequest().getIdx())
+        .partnerBno(estimate.getPartnerInfo().getBno())
+        .title(estimate.getTitle())
+        .content(estimate.getContent())
+        .price(estimate.getPrice())
+        .createdAt(estimate.getCreatedAt())
+        .returnDate(estimate.getReturnDate())
+        .isSelected(estimate.getIsSelected() == 1)
+        .isReturn(estimate.getIsReturn() == 1)
+        .build();
+
+    return dto;
   }
 }
