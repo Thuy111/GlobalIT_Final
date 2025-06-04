@@ -18,10 +18,10 @@ public class IntroductionImage {
     @JoinColumn(name = "partner_bno", nullable = false)
     private PartnerInfo partnerInfo;
 
-    @Column(name = "is_main", nullable = false)
+    @Column(name = "is_main")
     private Byte isMain;
 
-	  @Column(name = "order_index", nullable = false)
+	  @Column(name = "order_index")
     private Integer orderIndex;
 
     @Column(name = "s_name", length = 150, nullable = false, unique = true)
