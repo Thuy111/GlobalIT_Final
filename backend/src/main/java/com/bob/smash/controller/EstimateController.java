@@ -23,6 +23,7 @@ public class EstimateController {
   public void list(Model model) {
     model.addAttribute("result", service.getList());
   }
+
   // 등록
   @GetMapping("/register")
   public void register() {}
@@ -32,6 +33,7 @@ public class EstimateController {
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/estimate/list";
   }
+  
   // 조회
   @GetMapping("/read")
   public void read(@RequestParam("idx") Integer idx, Model model) {
