@@ -2,25 +2,25 @@ package com.bob.smash.service;
 
 import java.util.List;
 
-import com.bob.smash.dto.estimateDTO;
+import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.PartnerInfo;
 import com.bob.smash.entity.Request;
 
-public interface estimateService {
+public interface EstimateService {
   // 등록
-  Long register(estimateDTO dto);
+  Long register(EstimateDTO dto);
   // 조회
-  estimateDTO get(Long id);
+  EstimateDTO get(Long id);
   // 목록
-  List<estimateDTO> getList();
+  List<EstimateDTO> getList();
   // 수정
-  Long modify(estimateDTO dto);
+  Long modify(EstimateDTO dto);
   // 삭제
   void remove(Long id);
 
   // dto -> entity
-  default Estimate dtoToEntity(estimateDTO dto) {
+  default Estimate dtoToEntity(EstimateDTO dto) {
     Estimate estimate = Estimate.builder()
         .idx(dto.getIdx())
         .request(Request.builder().idx(dto.getRequestIdx()).build())
@@ -38,8 +38,8 @@ public interface estimateService {
   }
 
   // entity -> dto
-  default estimateDTO entityToDto(Estimate estimate) {
-    estimateDTO dto = estimateDTO.builder()
+  default EstimateDTO entityToDto(Estimate estimate) {
+    EstimateDTO dto = EstimateDTO.builder()
         .idx(estimate.getIdx())
         .requestIdx(estimate.getRequest().getIdx())
         .partnerBno(estimate.getPartnerInfo().getBno())

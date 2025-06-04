@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class estimateDTO {
+public class EstimateDTO {
   private Integer idx;
   private Integer requestIdx;
   private String partnerBno;
