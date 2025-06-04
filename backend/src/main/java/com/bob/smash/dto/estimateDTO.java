@@ -2,6 +2,15 @@ package com.bob.smash.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class estimateDTO {
   private Integer idx;
   private Integer requestIdx;
