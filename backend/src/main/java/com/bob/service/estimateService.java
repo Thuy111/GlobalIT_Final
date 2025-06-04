@@ -1,5 +1,7 @@
 package com.bob.service;
 
-public class estimateService {
-  
+import com.bob.smash.dto.estimateDTO;
+
+public interface estimateService {
+  Long register(estimateDTO dto);
 }
