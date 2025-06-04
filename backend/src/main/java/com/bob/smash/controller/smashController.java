@@ -31,9 +31,9 @@ public class SmashController {
     return "redirect:" + frontendUrl + "/";
   }
 
-  @GetMapping("/estimate/register")
+  @GetMapping("/estimate")
   public void estimateRegister() {
-    log.info("Smash estimate register page requested");
+    log.info("Smash estimate page requested");
   }
 
   @GetMapping("/request/register")
