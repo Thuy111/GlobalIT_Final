@@ -18,7 +18,7 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/smash")
 // @RequiredArgsConstructor // 자동주입
 @Log4j2
-public class smashController {
+public class SmashController {
   // service 주입
 
   // application.properties에서 Frontend URL 설정
