@@ -9,15 +9,15 @@ import com.bob.smash.entity.Request;
 
 public interface EstimateService {
   // 등록
-  Long register(EstimateDTO dto);
+  Integer register(EstimateDTO dto);
   // 조회
-  EstimateDTO get(Long id);
+  EstimateDTO get(Integer idx);
   // 목록
   List<EstimateDTO> getList();
   // 수정
-  Long modify(EstimateDTO dto);
+  Integer modify(EstimateDTO dto);
   // 삭제
-  void remove(Long id);
+  void remove(Integer idx);
 
   // dto -> entity
   default Estimate dtoToEntity(EstimateDTO dto) {
