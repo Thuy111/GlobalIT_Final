@@ -28,6 +28,17 @@ body.dark button:hover {background-color: rgb(252, 215, 6);}
 body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7) 60%, rgba(30, 30, 30, 0));}
 
 /* 공용 */
+.hidden {
+  font-size: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+}
 button {
   cursor: pointer;
   background-color: #4ED7F1;

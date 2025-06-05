@@ -11,6 +11,6 @@ public class GlobalModelAttributeAdvice {
     @ModelAttribute
     public void addThemeToModel(HttpSession session, Model model) {
         String theme = (String) session.getAttribute("theme");
-        model.addAttribute("theme", theme != null ? theme : "light");
+        model.addAttribute("theme", theme);
     }
 }
