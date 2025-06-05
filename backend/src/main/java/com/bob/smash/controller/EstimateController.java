@@ -14,9 +14,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/estimate")
+@RequestMapping("/smash/estimate")
 public class EstimateController {
   private final EstimateService service;  
+
+  @GetMapping("/")
+  public String estimate() {
+    return "redirect:/smash/estimate/list";
+  }
 
   // 목록
   @GetMapping("/list")
