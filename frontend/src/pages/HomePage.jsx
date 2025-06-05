@@ -3,6 +3,24 @@ import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import axios from 'axios';
 
+const Home = () => {
+  const { isDarkMode, setIsDarkMode } = useDarkMode();
+  return (
+    <>
+      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <div className="home">
+        {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
+        {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
+        <h1>Welcome to the Home Page</h1>
+        <p>This is the main page of our application.</p>
+      </div>
+    </>
+  );
+}
+
+export default Home;
+
+// TopBar Component (1회만 사용하므로, 별도 파일로 분리하지 않음)
 const TopBar = ({ isDarkMode, setIsDarkMode }) => {
   const [btnText, setBtnText] = useState('☀️');
   const [isChecked, setIsChecked] = useState(isDarkMode); 
@@ -51,20 +69,3 @@ const TopBar = ({ isDarkMode, setIsDarkMode }) => {
     </div>
   );
 }
-
-const Home = () => {
-  const { isDarkMode, setIsDarkMode } = useDarkMode();
-  return (
-    <>
-      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-      <div className="home">
-        {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
-        {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
-        <h1>Welcome to the Home Page</h1>
-        <p>This is the main page of our application.</p>
-      </div>
-    </>
-  );
-}
-
-export default Home;
