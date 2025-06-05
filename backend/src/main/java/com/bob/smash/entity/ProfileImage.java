@@ -11,6 +11,9 @@ import lombok.*;
 @ToString
 public class ProfileImage {
     @Id
+    private Long memberId;
+
+    @MapsId
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
