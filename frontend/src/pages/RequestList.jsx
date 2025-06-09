@@ -21,7 +21,7 @@ function RequestList() {
         <div
           key={item.idx}
           style={{
-            border: "2px solid #ccc",
+            border: "1px solid #ccc",
             borderRadius: "10px",
             padding: "10px",
             marginBottom: "10px",
