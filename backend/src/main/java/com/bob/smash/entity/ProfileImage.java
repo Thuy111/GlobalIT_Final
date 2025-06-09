@@ -11,7 +11,8 @@ import lombok.*;
 @ToString
 public class ProfileImage {
     @Id
-    private Long memberId;
+    @Column(length = 100)
+    private String memberId;
 
     @MapsId
     @OneToOne
