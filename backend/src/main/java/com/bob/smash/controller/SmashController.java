@@ -38,7 +38,6 @@ public class SmashController {
   
   @GetMapping("/request")
   public String request() {
-    log.info("Smash request page requested");
     return "redirect:/smash/request/list";
   }
 
@@ -53,6 +52,6 @@ public class SmashController {
   public void setTheme(@RequestBody ThemeDTO themeDTO, HttpSession session) {
     String theme = themeDTO.getTheme();
     session.setAttribute("theme", theme);
-    System.out.println("테마는 ==========" + theme);
+    // System.out.println("테마는 ==========" + theme);
   }
 }
