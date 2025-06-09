@@ -38,6 +38,12 @@ public class Estimate {
     @Column(name = "return_date", nullable = false)
     private LocalDateTime returnDate;
 
+    @Column(name = "is_delivery", nullable = false)
+    private Byte isDelivery;
+
+    @Column(name = "is_visit", nullable = false)
+    private Byte isVisit;
+
     @Column(name = "is_selected", nullable = false)
     private Byte isSelected;
 
