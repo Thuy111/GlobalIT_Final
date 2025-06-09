@@ -5,6 +5,8 @@ import Layout from './layouts/Basic';
 import Home from './pages/HomePage';
 import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';
+
+
 import './App.css';
 
 function App() {

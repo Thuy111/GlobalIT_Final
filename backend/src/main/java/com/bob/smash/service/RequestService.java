@@ -1,11 +1,21 @@
 package com.bob.smash.service;
 
+// 추후 DTO 통합
+import com.bob.smash.dto.RequestListDTO;
+import com.bob.smash.entity.Request;
+import com.bob.smash.repository.RequestRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Member;
-import com.bob.smash.entity.Request;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
 public interface RequestService {
-
     // Request 등록
     Integer register(RequestDTO requestDTO, Member member);
 
