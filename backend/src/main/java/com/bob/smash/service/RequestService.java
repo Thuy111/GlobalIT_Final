@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public interface RequestService {
 
     // Request List 조회
@@ -32,6 +31,7 @@ public interface RequestService {
                 .createdAt(java.time.LocalDateTime.now())
                 .useDate(dto.getUseDate())
                 .useRegion(dto.getUseRegion())
+                // .isDelivery(dto.getIsDelivery())
                 .isDone((byte) 0)
                 .isGet((byte) 0)
                 .build();
@@ -45,6 +45,7 @@ public interface RequestService {
                 .content(entity.getContent())
                 .useDate(entity.getUseDate())
                 .useRegion(entity.getUseRegion())
+                // .isDelivery(entity.getIsDelivery())
                 .emailId(entity.getMember().getEmailId())
                 .build();
     }

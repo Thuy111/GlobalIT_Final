@@ -5,7 +5,7 @@ function RequestList() {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/requests")
+    axios.get("http://localhost:8080/smash/requests")
       .then((res) => {
         setRequests(res.data);
       })
