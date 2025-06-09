@@ -3,6 +3,31 @@
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
-    <h1 style="margin: 6rem;">Estimate List PAGE</h1>
+    <div class="estimate_container">
+      <h1>견적서 목록 <span>(몇개)</span></h1>
+      <p>Estimate List PAGE</p>
+      <hr>
+  
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>내용</th>
+            <th>날짜</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- <tr th:each="estimate : ${result}">
+            <td th:text="${estimate.idx}"></td>
+            <td th:text="${estimate.title}"></td>
+            <td th:text="${estimate.content}"></td>
+            <td th:text="${#dates.format(estimate.createdAt, 'yyyy-MM-dd HH:mm')}"></td> -->
+          </tr>
+        </tbody>
+      </table>
+  
+      <a th:href="@{/smash/estimate/register}">등록</a>
+    </div>
   </th:block>
 </th:block>

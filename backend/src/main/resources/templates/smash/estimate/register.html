@@ -3,6 +3,46 @@
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
-    <h1 style="margin: 6rem;">Estimate Register PAGE</h1>
+    <div class="estimate_container">
+      <h1>견적서 작성</h1>
+      <p>Estimate Register PAGE</p>
+      <hr>
+  
+      <form th:action="@{/smash/estimate/register}" method="post">
+        <input type="hidden" name="request_idx" required>
+        <input type="hidden" name="partner_bno" required>
+        <br>
+  
+        <label for="title">제목</label>
+        <input type="text" name="title" required>
+        <br>
+  
+        <label for="content">내용</label>
+        <textarea name="content" required></textarea>
+        <br>
+  
+        <label for="price">가격</label>
+        <input type="text" name="price" required>
+        <br>
+  
+        <label for="return_date">반납 날짜</label>
+        <input type="datetime-local" name="return_date" required>
+        <br>
+  
+        <label for="created_at">등록 날짜</label>
+        <input type="datetime-local" id="datetime" name="created_at" readonly>
+        <br>
+  
+        <button type="submit">등록</button>
+    </div>
+
+      <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          const now = new Date();
+          const offset = now.getTimezoneOffset();
+          now.setMinutes(now.getMinutes() - offset); // 시간대 보정
+          document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+        });
+      </script>
   </th:block>
 </th:block>
