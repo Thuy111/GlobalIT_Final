@@ -1,4 +1,4 @@
-// import Login from './member/LoginPage';
+import Login from './member/LoginPage';
 import Member from './profile/UserProfile';
 
 const Profile = () => {
@@ -6,8 +6,8 @@ const Profile = () => {
 
   return (
     <div className="profile">
-      {/* {!user ? <Login /> : <Member />} */}
-      <Member />
+      {!user ? <Login /> : <Member />}
+      {/* <Member /> */}
     </div>
   );
 }
