@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import com.bob.smash.dto.RequestDTO;
+import com.bob.smash.dto.RequestListDTO;
 import com.bob.smash.entity.Image;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
@@ -13,14 +14,36 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
 
-    private final RequestRepository requestRepository;
+    private final RequestRepository requestRepository; // 주입
     // private final ImageRepository imageRepository;
+
+    @Override
+    public List<RequestListDTO> getRequestList() {
+        return requestRepository.findAll()
+                .stream()
+                .map(request -> new RequestListDTO(
+                        request.getIdx(),
+                        request.getTitle(),
+                        request.getCreatedAt().toLocalDate() // LocalDate로 변환
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public Request save(Request request) {
+        return requestRepository.save(request);
+    }
+
+    public Request getById(Integer id) {
+        return requestRepository.findById(id).orElse(null);
+    }
 
     @Override
     public Integer register(RequestDTO requestDTO, Member member) {

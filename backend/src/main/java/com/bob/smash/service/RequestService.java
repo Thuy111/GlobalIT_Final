@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public interface RequestService {
+
+    // Request List 조회
+    List<RequestListDTO> getRequestList();
+
     // Request 등록
     Integer register(RequestDTO requestDTO, Member member);
 
