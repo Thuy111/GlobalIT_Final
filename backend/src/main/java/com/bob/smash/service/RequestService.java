@@ -1,11 +1,13 @@
 package com.bob.smash.service;
 
 import com.bob.smash.dto.RequestListDTO;
+import com.bob.smash.entity.Request;
 import com.bob.smash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -13,13 +15,22 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
 
-    public Page<RequestListDTO> getRequestList(int page, int size) {
-        return requestRepository
-                .findAllByOrderByCreatedAtDesc(PageRequest.of(page, size))
-                .map(r -> new RequestListDTO(
-                        r.getIdx(),
-                        r.getTitle(),
-                        r.getCreatedAt().toLocalDate()
-                ));
+    public List<RequestListDTO> getRequestList() {
+        return requestRepository.findAll()
+                .stream()
+                .map(request -> new RequestListDTO(
+                        request.getIdx(),
+                        request.getTitle(),
+                        request.getCreatedAt().toLocalDate() // LocalDate로 변환
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public Request save(Request request) {
+        return requestRepository.save(request);
+    }
+
+    public Request getById(Integer id) {
+        return requestRepository.findById(id).orElse(null);
     }
 }

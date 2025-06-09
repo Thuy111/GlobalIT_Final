@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import axios from 'axios';
+import RequestList from '../pages/RequestList';
 
 const Home = () => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
@@ -11,8 +12,7 @@ const Home = () => {
       <div className="home">
         {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
         {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
-        <h1>Welcome to the Home Page</h1>
-        <p>This is the main page of our application.</p>
+        <RequestList />
       </div>
     </>
   );

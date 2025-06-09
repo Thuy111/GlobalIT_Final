@@ -5,7 +5,7 @@ import Layout from './layouts/Basic';
 import Home from './pages/HomePage';
 import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';
-import RequestListPage from './pages/RequestListPage';
+
 
 import './App.css';
 
@@ -36,7 +36,6 @@ function App() {
         { path: '/', element: <Home isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} /> },
         { path: '/alarm', element: <Alarm /> },
         { path: '/profile', element: <Profile /> },
-         { path: '/requests', element: <RequestListPage /> },
       ],
     },
   ];
