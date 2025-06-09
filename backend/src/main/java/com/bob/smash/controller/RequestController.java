@@ -22,7 +22,7 @@ public class RequestController {
 
     @GetMapping("/")
   public String estimate() {
-    return "redirect:/smash/request/list";
+    return "redirect:/smash/request/listTest";
   }
 
   //등록
@@ -37,6 +37,6 @@ public class RequestController {
         // TODO: 실제 로그인된 사용자로부터 Member 객체 조회
         Member dummyMember = Member.builder().emailId("test@example.com").build(); // 임시 코드
         requestService.register(requestDTO, dummyMember);
-        return "redirect:/smash/request/list"; // 저장 후 홈 또는 목록으로 이동
+        return "redirect:/smash/request/listTest"; // 저장 후 홈 또는 목록으로 이동
     }
 }
