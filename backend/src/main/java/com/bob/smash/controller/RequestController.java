@@ -44,19 +44,21 @@ public class RequestController {
         Member dummyMember = Member.builder().emailId("test@example.com").build(); // 임시 코드
         requestService.register(requestDTO, dummyMember);
         return "redirect:/smash/request/listTest"; // 저장 후 홈 또는 목록으로 이동
+    }
 
     @GetMapping
     public List<RequestListDTO> getAllRequests() {
         return requestService.getRequestList();
     }
 
-    @PostMapping
-    public Request createRequest(@RequestBody Request request) {
-        return requestService.save(request);
-    }
+    // @PostMapping
+    // public Request createRequest(@RequestBody Request request) {
+    //     return requestService.save(request);
+    // }
 
-    @GetMapping("/{id}")
-    public Request getRequestById(@PathVariable Integer id) {
-        return requestService.getById(id);
-    }
+    // @GetMapping("/{id}")
+    // public Request getRequestById(@PathVariable Integer id) {
+    //     return requestService.getById(id);
+    // }
 }
+
