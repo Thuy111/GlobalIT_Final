@@ -35,10 +35,11 @@ public class SmashController {
   public String estimate() {
     return "redirect:/smash/estimate/list";
   }
-
-  @GetMapping("/request/register")
-  public void request() {
+  
+  @GetMapping("/request")
+  public String request() {
     log.info("Smash request page requested");
+    return "redirect:/smash/request/list";
   }
 
   @GetMapping("/profile/update")
