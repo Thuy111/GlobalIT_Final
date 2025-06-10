@@ -18,8 +18,8 @@ public class Member {
     @Column(length = 30, nullable = false, unique = true)
     private String nickname;
 
-    @Column(length = 30, nullable = false)
-    private String name;
+    // @Column(length = 30, nullable = false)
+    // private String name;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
