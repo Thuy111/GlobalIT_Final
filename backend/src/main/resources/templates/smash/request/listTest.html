@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
+  <th:block th:fragment="content">
+
+    <h1 class="mt-4">의뢰서 목록</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">No</th>
+          <th scope="col">제목</th>
+          <th scope="col">내용</th>
+          <th scope="col">대여 날짜</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="dto : ${result}">
+          <td>[[${dto.idx}]]</td>
+          <td>
+            <a th:href="@{/request/read(idx=${dto.idx})}" style="font-weight: normal;">
+              [[${dto.title}]]
+            </a>
+          </td>
+          <td>[[${#strings.abbreviate(dto.content, 0, 50)}]]</td>
+          <td>[[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <span class="mt-4">
+      <a th:href="@{/request/register}" class="btn btn-outline-primary register-btn">
+        의뢰 작성
+      </a>
+    </span>
+
+    <!-- 등록 성공 모달 -->
+    <div class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">알림</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><span id="modal-num"></span>번 의뢰가 등록되었습니다.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      var msg = [[${msg}]];
+      if (msg) {
+        document.getElementById('modal-num').innerText = msg;
+        $(".modal").modal();
+      }
+
+      $('.modal').on('hidden.bs.modal', function () {
+        $('.register-btn').focus();
+      });
+    </script>
+
+  </th:block>
+</th:block>

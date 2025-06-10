@@ -12,7 +12,7 @@ import java.util.List;
 public interface RequestService {
 
     // 등록
-    Integer register(RequestDTO dto,Member member);
+    Integer register(RequestDTO dto, Member member);
 
     // 상세보기
     RequestDTO get(Integer idx);
