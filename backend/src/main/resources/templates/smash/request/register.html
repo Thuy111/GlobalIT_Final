@@ -18,28 +18,27 @@
     <div class="container mt-5" style="max-width: 480px;">
       <h4 class="mb-4 font-weight-bold">&lt; 의뢰서 작성 &gt;</h4>
 
-      <form th:action="@{/request/register}" method="post">
-    <div>
-        <label>제목</label>
-        <input type="text" name="title" class="form-control" required>
-    </div>
+      <form th:action="@{smash/request/register}" method="post">
+        <div>
+            <label>제목</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
 
-    <div>
-        <label>내용</label>
-        <textarea name="content" class="form-control" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
-    </div>
+        <div>
+            <label>내용</label>
+            <textarea name="content" class="form-control" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
+        </div>
 
-    <div>
-        <label>대여 날짜</label>
-        <input type="datetime-local" name="useDate" class="form-control" required>
-    </div>
+        <div>
+            <label>대여 날짜</label>
+            <input type="datetime-local" name="useDate" class="form-control" required>
+        </div>
 
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">등록</button>
-    </div>
-</form>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">등록</button>
+        </div>
+   </form>
 
-      
     </div>
     <!-- end --------->
      
