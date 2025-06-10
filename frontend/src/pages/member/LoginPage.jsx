@@ -6,7 +6,6 @@ const Login = () => {
   const baseUrl = import.meta.env.VITE_API_URL;
 
   return (
-    <>
       <div className="sign_container">
 
         <div className="logo_img">
@@ -16,16 +15,15 @@ const Login = () => {
         </div>
         <section>
           <h2>로그인</h2>
-          <a className="login-btn" href="/oauth2/authorization/google">Google로 로그인</a>
-          <a className="login-btn" href="http://localhost:8080/oauth2/authorization/kakao">Kakao로 로그인</a>
+          <a className="login-btn" href={`${baseUrl}/oauth2/authorization/google`}>Google로 로그인</a>
+          <a className="login-btn" href={`${baseUrl}/oauth2/authorization/kakao`}>Kakao로 로그인</a>
         </section>
         <section>
           <h2>회원가입</h2>
-          <a className="login-btn" href="http://localhost:8080/oauth2/authorization/google">Google로 회원가입</a>
-          <a className="login-btn" href="http://localhost:8080/oauth2/authorization/kakao">Kakao로 회원가입</a>
+          <a className="login-btn" href={`${baseUrl}/oauth2/authorization/google`}>Google로 회원가입</a>
+          <a className="login-btn" href={`${baseUrl}/oauth2/authorization/kakao`}>Kakao로 회원가입</a>
         </section>
       </div>
-    </>
   )
 }
 
