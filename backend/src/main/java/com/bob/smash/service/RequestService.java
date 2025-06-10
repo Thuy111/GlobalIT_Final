@@ -1,52 +1,47 @@
 package com.bob.smash.service;
 
-// 추후 DTO 통합
-import com.bob.smash.dto.RequestListDTO;
-import com.bob.smash.entity.Request;
-import com.bob.smash.repository.RequestRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Member;
+import com.bob.smash.entity.Request;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public interface RequestService {
 
-    // Request List 조회
-    List<RequestListDTO> getRequestList();
+    // 등록
+    Integer register(RequestDTO dto,Member member);
 
-    // Request 등록
-    Integer register(RequestDTO requestDTO, Member member);
+    // 상세보기
+    RequestDTO get(Integer idx);
 
-    // DTO → Entity
+    // 목록 조회
+    List<RequestDTO> getList();
+
+    // DTO → Entity 변환
     default Request dtoToEntity(RequestDTO dto, Member member) {
         return Request.builder()
-                .member(member)
+                .idx(dto.getIdx())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .createdAt(java.time.LocalDateTime.now())
                 .useDate(dto.getUseDate())
-                .useRegion(dto.getUseRegion())
-                // .isDelivery(dto.getIsDelivery())
+                .useRegion("서울") // 예시값, 추후 DTO에 추가되면 수정
                 .isDone((byte) 0)
                 .isGet((byte) 0)
+                .createdAt(LocalDateTime.now())
+                .member(member)
                 .build();
     }
 
-    // Entity → DTO
-    default RequestDTO entityToDto(Request entity) {
+    // Entity → DTO 변환
+    default RequestDTO entityToDto(Request request) {
         return RequestDTO.builder()
-                .idx(entity.getIdx())
-                .title(entity.getTitle())
-                .content(entity.getContent())
-                .useDate(entity.getUseDate())
-                .useRegion(entity.getUseRegion())
-                // .isDelivery(entity.getIsDelivery())
-                .emailId(entity.getMember().getEmailId())
+                .idx(request.getIdx())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .useDate(request.getUseDate())
                 .build();
     }
 }
