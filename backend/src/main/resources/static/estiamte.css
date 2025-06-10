@@ -1,4 +1,3 @@
-.estimate_container hr {
-  border-style: inset;
-  border-width: 1px;
+.estimate_container .estimate_header {
+  border-bottom: 1px solid #000;
 }
