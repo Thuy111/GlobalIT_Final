@@ -40,4 +40,11 @@ public class Request {
 
     @Column(name = "is_get", nullable = false)
     private Byte isGet;
+
+    public void changeTitle(String title) {this.title = title;}
+    public void changeContent(String content) {this.content = content;}
+    public void changeUseDate(LocalDateTime useDate) {this.useDate = useDate;}
+    public void changeUseRegion(String useRegion) {this.useRegion = useRegion;}
+    public void changeIsDone(Byte isDone) {this.isDone = isDone;}
+    public void changeIsGet(Byte isGet) {this.isGet = isGet;}
 }

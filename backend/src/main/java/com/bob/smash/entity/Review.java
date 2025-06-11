@@ -34,4 +34,8 @@ public class Review {
 
     @Column(name = "is_modify", nullable = false)
     private Byte isModify;
+
+    public void changeStar(Byte star) {this.star = star;}
+    public void changeComment(String comment) {this.comment = comment;}
+    public void changeIsModify(Byte isModify) {this.isModify = isModify;}
 }
