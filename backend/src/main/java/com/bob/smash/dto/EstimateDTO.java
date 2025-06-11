@@ -12,14 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstimateDTO {
+  // 견적서 정보
   private Integer idx;
-  private Integer requestIdx;
-  private String partnerBno;
   private String title;
   private String content;
+  private Boolean isDelivery;
+  private Boolean isPickup;
   private Integer price;
-  private LocalDateTime createdAt;
   private LocalDateTime returnDate;
+  private LocalDateTime createdAt;
   private Boolean isSelected;
   private Boolean isReturn;
+  // 의뢰서 정보
+  private Integer requestIdx;
+  private String requestMemberId;
+  // 파트너 업체 정보
+  private String partnerBno;
+  private String partnerName;
+  private String partnerTel;
+  private String partnerRegion;
 }

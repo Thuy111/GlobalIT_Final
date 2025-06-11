@@ -41,15 +41,12 @@ public class EstimateServiceImpl implements EstimateService {
   // 수정
   @Override
   public Integer modify(EstimateDTO dto) {
-    // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'modify'");
   }
 
   // 삭제
   @Override
   public void remove(Integer idx) {
-    // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'remove'");
   }
-  
 }

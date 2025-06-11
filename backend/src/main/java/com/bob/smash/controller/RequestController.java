@@ -1,64 +1,83 @@
 package com.bob.smash.controller;
 
-//추후 각자 DTO 통일할 것
-//찬영
-import com.bob.smash.dto.RequestListDTO;
-import com.bob.smash.service.RequestService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import com.bob.smash.entity.Request;
-//탄튀
-import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Member;
+import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.service.RequestService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.security.Principal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/smash/requests")
+@Controller
+@RequestMapping("/smash/request")
 @RequiredArgsConstructor
+@Slf4j
 public class RequestController {
-    //자동 주입
-    private final RequestService requestService; 
+
+    private final RequestService requestService;
+    private final MemberRepository memberRepository; //thêm
 
     @GetMapping("/")
     public String estimate() {
-      return "redirect:/smash/request/listTest";
+    return "redirect:/smash/request/listTest";
+  }
+
+    // 의뢰서 목록 보기
+    @GetMapping("/listTest")
+    public String list(Model model) {
+        List<RequestDTO> result = requestService.getList();
+        model.addAttribute("result", result);
+        // return "redirect:/smash/request/listTest"; 
+        return "smash/request/listTest";
     }
 
-    //등록
+    // 의뢰서 작성 폼 보기
     @GetMapping("/register")
-    public String showForm(Model model) {
-        model.addAttribute("requestDTO", new RequestDTO());
-        return "smash/request/register";
+    public String register() {
+        return "/smash/request/register";
     }
 
+    // 의뢰서 등록 처리
     @PostMapping("/register")
-    public String submitForm(@ModelAttribute RequestDTO requestDTO, Principal principal) {
-        // TODO: 실제 로그인된 사용자로부터 Member 객체 조회
-        Member dummyMember = Member.builder().emailId("test@example.com").build(); // 임시 코드
-        requestService.register(requestDTO, dummyMember);
-        return "redirect:/smash/request/listTest"; // 저장 후 홈 또는 목록으로 이동
-    }
+    // public String register(@ModelAttribute RequestDTO requestDTO, Model model) {
+    //      log.info("📝 Received RequestDTO: {}", requestDTO); // debug DTO
 
-    @GetMapping
-    public List<RequestListDTO> getAllRequests() {
-        return requestService.getRequestList();
-    }
 
-    // @PostMapping
-    // public Request createRequest(@RequestBody Request request) {
-    //     return requestService.save(request);
+    //     Integer savedIdx = requestService.register(requestDTO, null);
+
+    //      log.info("✅ Saved Request with idx: {}", savedIdx); // debug DB 저장 결과
+
+    //     model.addAttribute("msg", savedIdx);
+    //     return "redirect:/smash/request/listTest";
     // }
+    public String register(@ModelAttribute RequestDTO requestDTO,
+                       @AuthenticationPrincipal OAuth2User oauth2User,
+                       Model model) {
 
-    // @GetMapping("/{id}")
-    // public Request getRequestById(@PathVariable Integer id) {
-    //     return requestService.getById(id);
-    // }
+    String email = oauth2User.getAttribute("email");
+    log.info(" Logged in email: {}", email);
+
+    Member member = memberRepository.findByEmailId(email)
+                      .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다"));
+
+    Integer savedIdx = requestService.register(requestDTO, member);
+    model.addAttribute("msg", savedIdx);
+
+    return "redirect:/smash/request/listTest";
 }
 
+    //  의뢰서 상세 보기
+    // @GetMapping("/read")
+    // public String read(@RequestParam("idx") Integer idx, Model model) {
+    //     RequestDTO dto = requestService.get(idx);
+    //     model.addAttribute("dto", dto);
+    //     return "request/read";  // templates/request/read.html
+    // }
+}

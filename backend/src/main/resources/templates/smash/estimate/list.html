@@ -4,28 +4,35 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>견적서 목록 <span>(몇개)</span></h1>
-      <p>Estimate List PAGE</p>
-      <hr>
+      <div class="estimate_header">
+        <h1>견적서 목록 <span>(몇개)</span></h1>
+        <p>Estimate List PAGE</p>
+      </div>
   
-      <table class="table table-bordered">
-        <thead>
+      <div class="estimate_box" th:each="estimate : ${result}">
+        <p><span>제목: </span>[[${estimate.title}]]</p>
+        <p><span>가격: </span>[[${estimate.price}]]원</p>
+        <p><span>내용</span><br>[[${estimate.content}]]</p>
+        <table>
           <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>내용</th>
-            <th>날짜</th>
+            <th>업체 이름</th>
+            <td th:text="${estimate.partnerName}"></td>
           </tr>
-        </thead>
-        <tbody>
-          <!-- <tr th:each="estimate : ${result}">
-            <td th:text="${estimate.idx}"></td>
-            <td th:text="${estimate.title}"></td>
-            <td th:text="${estimate.content}"></td>
-            <td th:text="${#dates.format(estimate.createdAt, 'yyyy-MM-dd HH:mm')}"></td> -->
+          <tr>
+            <th>업체 연락처</th>
+            <td th:text="${estimate.partnerTel}"></td>
           </tr>
-        </tbody>
-      </table>
+          <tr>
+            <th>업체 주소</th>
+            <td th:text="${estimate.partnerRegion}"></td>
+          </tr>
+          <tr>
+            <th>반납 날짜</th>
+            <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
+          </tr>
+        </table>
+        <p>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.createdAt)}]]</p>
+      </div>
   
       <a th:href="@{/smash/estimate/register}">등록</a>
     </div>

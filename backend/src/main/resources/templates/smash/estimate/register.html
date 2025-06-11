@@ -4,37 +4,42 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>견적서 작성</h1>
+      <h1>〈 견적서 작성</h1>
       <p>Estimate Register PAGE</p>
       <hr>
   
       <form th:action="@{/smash/estimate/register}" method="post">
-        <input type="hidden" name="request_idx" required>
-        <input type="hidden" name="partner_bno" required>
-        <br>
+        <input type="text" name="requestIdx" value="1" required><br>
+        <input type="text" name="partnerBno" value="234-56-78901" required><br>
+        <input type="hidden" name="isSelected" value="false">
+        <input type="checkbox" name="isSelected" value="true">낙찰<br>
+        <input type="hidden" name="isReturn" value="false">
+        <input type="checkbox" name="isReturn" value="true">반납<br>
+        
+        <label for="title">제목</label><br>
+        <input type="text" name="title" required><br>
+        
+        <label for="content">내용</label><br>
+        <textarea name="content" required></textarea><br>
+        
+        <label>대여 방법<br>
+          <input type="hidden" name="isDelivery" value="false">
+          <input type="checkbox" name="isDelivery" value="true">배달<br>
+          <input type="hidden" name="isPickup" value="false">
+          <input type="checkbox" name="isPickup" value="true">픽업<br>
+        </label>
   
-        <label for="title">제목</label>
-        <input type="text" name="title" required>
-        <br>
+        <label for="price">가격</label><br>
+        <input type="text" name="price" required>원<br>
   
-        <label for="content">내용</label>
-        <textarea name="content" required></textarea>
-        <br>
+        <label for="returnDate">반납 날짜</label><br>
+        <input type="datetime-local" name="returnDate" required><br>
   
-        <label for="price">가격</label>
-        <input type="text" name="price" required>
-        <br>
+        <input type="datetime-local" id="datetime" name="createdAt" readonly><br>
   
-        <label for="return_date">반납 날짜</label>
-        <input type="datetime-local" name="return_date" required>
-        <br>
-  
-        <label for="created_at">등록 날짜</label>
-        <input type="datetime-local" id="datetime" name="created_at" readonly>
-        <br>
-  
-        <button type="submit">등록</button>
+        <button type="submit">작성 완료</button>
     </div>
+    <a href="/smash/estimate/list">돌아가기</a>
 
       <script>
         window.addEventListener('DOMContentLoaded', () => {

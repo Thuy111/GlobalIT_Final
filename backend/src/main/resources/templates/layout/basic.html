@@ -4,7 +4,7 @@
     <!-- head -->
     <head>
       <meta charset="UTF-8" />
-      <link rel="icon" type="favicon" href="/frontend/public/icon.svg" />
+      <link rel="icon" href="/icon/favicon.ico" type="image/x-icon" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>SMaSh | Sports rentalMatching Service</title>
       <!-- CSS -->
@@ -68,7 +68,7 @@
         // controller에서 설정한 테마를 가져와서 적용
         // /**/ 를 사용하면 값이 있을때는 해당 값이 사용되고, 없을 때는 기본값이 사용됨
         let theme = /*[[${theme}]]*/ 'light';  // "dark" or "light"
-        console.log("Server-side theme:", theme);
+        // console.log("Server-side theme:", theme);
 
         // 로컬 스토리지에 저장된 다크 모드 설정을 확인하고, 서버에서 설정된 테마가 없을 경우 로컬 스토리지 값을 사용
         const hasServerTheme = /*[[${theme != null}]]*/ false;
