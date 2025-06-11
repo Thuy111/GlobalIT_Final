@@ -4,15 +4,15 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>〈 견적서 작성</h1>
-      <p>Estimate Register PAGE</p>
-      <hr>
+      <h1>
+        <a href="/smash/estimate/list">〈 </a>
+        견적서 작성
+      </h1>
   
       <form th:action="@{/smash/estimate/register}" method="post">
         <input type="text" name="requestIdx" value="1" required><br>
         <input type="text" name="partnerBno" value="234-56-78901" required><br>
-        <input type="hidden" name="isSelected" value="false">
-        <input type="checkbox" name="isSelected" value="true">낙찰<br>
+        <input type="text" name="isSelected" value="0">
         <input type="hidden" name="isReturn" value="false">
         <input type="checkbox" name="isReturn" value="true">반납<br>
         

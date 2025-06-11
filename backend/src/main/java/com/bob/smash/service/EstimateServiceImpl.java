@@ -23,19 +23,19 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
 
+  // 목록
+  @Override
+  public List<EstimateDTO> getList() {
+    List<Estimate> result = repository.findAll();
+    return result.stream().map(estimate -> entityToDto(estimate)).toList();
+  }
+  
   // 조회
   @Override
   public EstimateDTO get(Integer idx) {
     Estimate estimate = repository.findById(idx)
                                   .orElseThrow(() -> new IllegalArgumentException(idx+"번 견적서를 찾을 수 없습니다."));
     return entityToDto(estimate);
-  }
-
-  // 목록
-  @Override
-  public List<EstimateDTO> getList() {
-    List<Estimate> result = repository.findAll();
-    return result.stream().map(estimate -> entityToDto(estimate)).toList();
   }
 
   // 수정
