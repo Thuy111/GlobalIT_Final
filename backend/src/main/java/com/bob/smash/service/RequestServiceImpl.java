@@ -27,6 +27,7 @@ public class RequestServiceImpl implements RequestService {
     Request entity = dtoToEntity(dto, member);
     Request saved = requestRepository.save(entity);
     return saved.getIdx();
+
     }
 
     // 상세 조회
