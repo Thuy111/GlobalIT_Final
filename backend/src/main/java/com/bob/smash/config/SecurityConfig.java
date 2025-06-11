@@ -1,3 +1,5 @@
+package com.bob.smash.config;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +14,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.bob.smash.repository.MemberRepository;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.bob.smash.config.CustomOAuth2SuccessHandler;
+import com.bob.smash.config.CustomOAuth2SuccessHandler; // new로 작성시, 타입은 사용하지만 클래스 이름을 사용하지 않아서 never used 경고가 발생 (직접 참조X)
 
 import org.springframework.security.config.Customizer;
 
@@ -25,9 +28,8 @@ public class SecurityConfig {
     @Value("${front.server.url}")
     private String frontServerUrl;  // application.properties에서 값 주입
 
-
     private final MemberRepository memberRepository;
-
+    
     public SecurityConfig(MemberRepository memberRepository) {
       this.memberRepository = memberRepository;
     }  
@@ -35,17 +37,22 @@ public class SecurityConfig {
     // SecurityFilterChain 빈 등록
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("✅ filterChain Bean 등록됨!");
+        
         http
+            .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
+            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 서버에서는 보통 비활성화)
             .cors(Customizer.withDefaults()) // CORS 설정 적용
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/smash/**", "/templates/**").permitAll()  // smash 경로와 templates 폴더 모두 접근 허용 "/**/*.html" 사용시, 모든 HTML 파일 접근 허용
-                .anyRequest().permitAll() // 나머지 모든 요청 허용
+                .requestMatchers("/**").permitAll()
+                // .anyRequest().authenticated()  // 인증 필요
+
                 // .authenticated() : 요청에 대해 인증 필요
                 // .permitAll() : 요청에 대해 인증 불필요
             )
             // 로그인 설정 (커스텀)
             .oauth2Login(oauth2 -> oauth2
-                // .defaultSuccessUrl(frontServerUrl+"/smash/profile", true)  // 로그인 성공 시 무조건 이동
+                .loginPage("/login-page")
                 .successHandler(new CustomOAuth2SuccessHandler(memberRepository))
                 .failureUrl(frontServerUrl + "/profile")  // 로그인 실패 시 이동할 URL
             )

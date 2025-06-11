@@ -25,10 +25,15 @@ public class SmashController {
   @Value("${front.server.url}")
   private String frontendUrl;
 
+  @GetMapping("")
+  public String index1() {
+    log.info(frontendUrl + "로 리다이렉트합니다.");
+    return "redirect:" + frontendUrl;
+  }
   @GetMapping("/")
-  public String index() {
-    log.info("Smash index page requested");
-    return "redirect:" + frontendUrl + "/";
+  public String index2() {
+    log.info(frontendUrl + "로 리다이렉트합니다.");
+    return "redirect:" + frontendUrl;
   }
 
   @GetMapping("/estimate")

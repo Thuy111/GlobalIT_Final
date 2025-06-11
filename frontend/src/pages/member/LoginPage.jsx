@@ -18,11 +18,11 @@ const Login = () => {
           <a className="login-btn" href={`${baseUrl}/oauth2/authorization/google`}>Google로 로그인</a>
           <a className="login-btn" href={`${baseUrl}/oauth2/authorization/kakao`}>Kakao로 로그인</a>
         </section>
-        <section>
+        {/* <section>
           <h2>회원가입</h2>
           <a className="login-btn" href={`${baseUrl}/oauth2/authorization/google`}>Google로 회원가입</a>
           <a className="login-btn" href={`${baseUrl}/oauth2/authorization/kakao`}>Kakao로 회원가입</a>
-        </section>
+        </section> */}
       </div>
   )
 }
