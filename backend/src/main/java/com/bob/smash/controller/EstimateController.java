@@ -35,16 +35,34 @@ public class EstimateController {
   @GetMapping("/register")
   public void register() {}
   @PostMapping("/register")
-  public String registerEstimate(EstimateDTO dto, RedirectAttributes rttr) {
+  public String estimateRegister(EstimateDTO dto, RedirectAttributes rttr) {
     log.info("견적서 등록 요청: {}", dto);
     Integer idx = service.register(dto);
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
   
-  // 조회
-  @GetMapping("/read")
-  public void read(@RequestParam("idx") Integer idx, Model model) {
+  // 상태(isReturn, isSelected) 수정
+  @PostMapping("/status")
+  public String estimateStatus(@RequestParam("idx") Integer idx,
+                               @RequestParam("isReturn") Boolean isReturn,
+                               @RequestParam("isSelected") Byte isSelected,
+                                RedirectAttributes rttr) {
+    log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isReturn, isSelected);
+    
+    EstimateDTO dto = service.get(idx);
+    dto.setIsReturn(isReturn);
+    dto.setIsSelected(isSelected);
+    
+    service.modify(dto);
+    
+    rttr.addFlashAttribute("message", "견적서 상태가 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
+
+  // (조회)수정을 위한 페이지로 이동
+  @GetMapping("/update")
+  public void update(@RequestParam("idx") Integer idx, Model model) {
     EstimateDTO dto = service.get(idx);
     model.addAttribute("dto", dto);
   }

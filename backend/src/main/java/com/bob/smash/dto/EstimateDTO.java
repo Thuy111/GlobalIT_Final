@@ -21,7 +21,7 @@ public class EstimateDTO {
   private Integer price;
   private LocalDateTime returnDate;
   private LocalDateTime createdAt;
-  private Boolean isSelected;
+  private Byte isSelected;
   private Boolean isReturn;
   // 의뢰서 정보
   private Integer requestIdx;
