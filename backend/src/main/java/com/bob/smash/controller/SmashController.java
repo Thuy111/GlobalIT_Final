@@ -31,17 +31,6 @@ public class SmashController {
     return "redirect:" + frontendUrl + "/";
   }
 
-  @GetMapping("/estimate")
-  public String estimate() {
-    return "redirect:/smash/estimate/list";
-  }
-  
-  @GetMapping("/request")
-  public String request() {
-    log.info("Smash request page requested");
-    return "redirect:/smash/request/list";
-  }
-
   @GetMapping("/profile/update")
   public void profileUpdate() {
     log.info("Smash profile update page requested");
