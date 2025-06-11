@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface RequestService {
@@ -19,6 +20,9 @@ public interface RequestService {
 
     // 목록 조회
     List<RequestDTO> getList();
+
+    // ⭐ 무한스크롤용 페이지네이션 메서드 추가
+    Map<String, Object> getPagedRequestList(int page, int size,String search);
 
     // DTO → Entity 변환
     default Request dtoToEntity(RequestDTO dto, Member member) {
