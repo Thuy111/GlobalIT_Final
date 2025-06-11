@@ -29,4 +29,9 @@ public class PartnerInfo {
 
     @Column(length = 3000, nullable = false)
     private String description;
+
+    public void changeName(String name) {this.name = name;}
+    public void changeTel(String tel) {this.tel = tel;}
+    public void changeRegion(String region) {this.region = region;}
+    public void changeDescription(String description) {this.description = description;}
 }

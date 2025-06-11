@@ -40,4 +40,8 @@ public class Member {
     public enum LoginType {
         google, kakao
     }
+
+    public void changeNickname(String nickname) {this.nickname = nickname;}
+    public void changeTel(String tel) {this.tel = tel;}
+    public void changeRegion(String region) {this.region = region;}
 }

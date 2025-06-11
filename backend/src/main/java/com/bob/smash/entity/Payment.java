@@ -48,4 +48,6 @@ public class Payment {
     public enum PayType {
         kakao, toss
     }
+    
+    public void changeStatus(Status status) {this.status = status;}
 }

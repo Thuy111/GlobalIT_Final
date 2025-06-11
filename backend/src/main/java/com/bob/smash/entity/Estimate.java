@@ -49,4 +49,13 @@ public class Estimate {
 
     @Column(name = "is_return", nullable = false)
     private Byte isReturn;
+
+    public void changeTitle(String title) {this.title = title;}
+    public void changeContent(String content) {this.content = content;}
+    public void changePrice(Integer price) {this.price = price;}
+    public void changeReturnDate(LocalDateTime returnDate) {this.returnDate = returnDate;}
+    public void changeIsDelivery(Byte isDelivery) {this.isDelivery = isDelivery;}
+    public void changeIsPickup(Byte isPickup) {this.isPickup = isPickup;}
+    public void changeIsSelected(Byte isSelected) {this.isSelected = isSelected;}
+    public void changeIsReturn(Byte isReturn) {this.isReturn = isReturn;}
 }

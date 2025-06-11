@@ -38,4 +38,6 @@ public class Notification {
     public enum TargetType {
         request, estimate, review
     }
+
+    public void changeIsRead(Byte isRead) {this.isRead = isRead;}
 }
