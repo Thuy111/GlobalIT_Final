@@ -1,0 +1,4 @@
+.sign_container i {margin-right: 0.5rem;}
+.sign_container .login_section h2 {font-size: 24px;margin: 2rem auto 1rem auto; font-weight: bold;}
+.sign_container .login-box {display: flex;flex-direction: column;margin: 1rem;width: 180px;margin: auto;}
+.sign_container .login-box .login-btn {margin-top: 1rem;}

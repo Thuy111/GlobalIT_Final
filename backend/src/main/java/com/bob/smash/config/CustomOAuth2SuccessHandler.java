@@ -48,6 +48,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         try{
             if("kakao".equals(registrationId)) { // 카카오 로그인인 경우
+                System.out.println("Kakao 로그인 처리 중...");
+
                 Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
                 email = (String) kakaoAccount.get("email");  // 필수
                 // name = (String) kakaoAccount.get("name");
@@ -61,6 +63,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     region = (String) address.get("address_name");
                 }
             }else{ // 구글 로그인인 경우
+                System.out.println("Google 로그인 처리 중...");
                 email = (String) oauthUser.getAttribute("email");
             }
     
@@ -71,13 +74,37 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     
             // 이메일로 회원 조회
             Optional<Member> existMemberWithEmail = memberRepository.findByEmailId(email);
+
+            // 전화번호가 없으면 프론트에서 번호 입력 페이지로 보내기 / DB에 이메일이 존재할 경우 그냥 return
+            if (phone == null || phone.isBlank()) {
+                if (existMemberWithEmail.isPresent()) { // 이미 회원가입된 이메일이면
+                    System.out.println("===전화번호는 없지만 이메일로 기존 회원이므로 리다이렉트===");
+                    response.sendRedirect(frontServerUrl + "/profile"); // 또는 로그인 후 가야 할 기본 페이지
+                    return;
+                }
+
+                System.out.println("===전화번호가 없으므로 프론트로 리다이렉트===");
+                // 세션에 이메일 등 최소 정보 저장 (또는 JWT 발급)
+                request.getSession().setAttribute("email", email);
+                request.getSession().setAttribute("provider", registrationId);
+                request.getSession().setAttribute("nickname", generateUniqueNickname());
+                
+                // 인증 정보 제거
+                // request.getSession().invalidate(); 
+                // SecurityContextHolder.clearContext();
+
+                // 프론트 서버로 리다이렉트 (전화번호 입력 페이지)
+                response.sendRedirect(frontServerUrl + "/member/authenticated");
+                return;
+            }   
+            // 전화번호로 회원 조회
             Optional<Member> existMemberWithTel = Optional.empty();
             if (phone != null) {
                 existMemberWithTel = memberRepository.findByTel(phone);
             }
     
             // 만약 회원이 존재하지 않으면 새로 생성
-            if (existMemberWithEmail.isEmpty()&&existMemberWithTel.isEmpty()) {
+            if (existMemberWithEmail.isEmpty() && existMemberWithTel.isEmpty()) { // 중복되는 이메일이나 전화번호가 없을 때만 회원 생성
                 Member.LoginType loginType;
                 // 로그인 타입 설정
                 switch (registrationId) {
@@ -101,6 +128,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     
             // 로그인 성공 후 원하는 페이지로 리다이렉트
             response.sendRedirect(frontServerUrl + "/profile"); // 프로필 페이지
+            return;
             
         }catch (Exception e) { // 로그인 실패 처리
             System.out.println("OAuth2 로그인 실패: " + e.getMessage());
@@ -112,6 +140,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
             // 실패 페이지 리다이렉트
             response.sendRedirect(frontServerUrl + "/profile?error=SignupFailed");
+            return;
         }
     }
 
@@ -166,12 +195,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     // 번호 가공 메서드 (+부터 공백까지 제거)
     private String formatPhoneNumber(String phone) {
+        if (phone == null || phone.isEmpty()) {
+            return null; // 전화번호가 없으면 null 반환
+        }
         // 숫자만 남기기
         String onlyNumbers = phone.replaceAll("[^0-9]", "");
         if (onlyNumbers.startsWith("82")) { // 한국 번호로 변환
             onlyNumbers = "0" + onlyNumbers.substring(2);
         }
-
         return onlyNumbers;
     }
 }
