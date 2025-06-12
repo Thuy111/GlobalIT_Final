@@ -90,8 +90,7 @@ public class RequestServiceImpl implements RequestService {
     // 전체 목록 조회////////////////////////////////////
     @Override
     public List<RequestDTO> getList() {   
-        List<Request> list = requestRepository.findAll();
-        // return list.stream().map(this::entityToDto).collect(Collectors.toList());
+        List<Request> list = requestRepository.findAll();        
         return list.stream().map(request -> {
         List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
                 return entityToDto(request, hashtags);
