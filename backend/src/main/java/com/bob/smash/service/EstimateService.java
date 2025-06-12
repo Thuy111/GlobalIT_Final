@@ -10,10 +10,12 @@ import com.bob.smash.entity.Request;
 public interface EstimateService {
   // 등록
   Integer register(EstimateDTO dto);
-  // 조회
-  EstimateDTO get(Integer idx);
   // 목록
   List<EstimateDTO> getList();
+  // 반납 현황 수정
+  Integer returnStatus(EstimateDTO dto);
+  // 조회
+  EstimateDTO get(Integer idx);
   // 수정
   Integer modify(EstimateDTO dto);
   // 삭제

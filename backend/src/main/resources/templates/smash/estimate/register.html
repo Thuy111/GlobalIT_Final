@@ -10,44 +10,41 @@
       </h1>
   
       <form th:action="@{/smash/estimate/register}" method="post">
-        <input type="text" name="requestIdx" value="1" required><br>
-        <input type="text" name="partnerBno" value="234-56-78901" required><br>
-        <input type="text" name="isSelected" value="0">
+        <input type="hidden" name="requestIdx" value="1" required>
+        <input type="hidden" name="partnerBno" value="234-56-78901" required>
+        <input type="hidden" name="isSelected" value="0">
         <input type="hidden" name="isReturn" value="false">
-        <input type="checkbox" name="isReturn" value="true">반납<br>
+        <input type="hidden" id="datetime" name="createdAt">
         
         <label for="title">제목</label><br>
         <input type="text" name="title" required><br>
         
         <label for="content">내용</label><br>
         <textarea name="content" required></textarea><br>
+
+        <label for="price">가격</label><br>
+        <input type="text" name="price" required>원<br>
         
         <label>대여 방법<br>
           <input type="hidden" name="isDelivery" value="false">
-          <input type="checkbox" name="isDelivery" value="true">배달<br>
+          <input type="checkbox" name="isDelivery" value="true">배달
           <input type="hidden" name="isPickup" value="false">
           <input type="checkbox" name="isPickup" value="true">픽업<br>
         </label>
   
-        <label for="price">가격</label><br>
-        <input type="text" name="price" required>원<br>
-  
         <label for="returnDate">반납 날짜</label><br>
         <input type="datetime-local" name="returnDate" required><br>
   
-        <input type="datetime-local" id="datetime" name="createdAt" readonly><br>
-  
         <button type="submit">작성 완료</button>
     </div>
-    <a href="/smash/estimate/list">돌아가기</a>
-
-      <script>
-        window.addEventListener('DOMContentLoaded', () => {
-          const now = new Date();
-          const offset = now.getTimezoneOffset();
-          now.setMinutes(now.getMinutes() - offset); // 시간대 보정
-          document.getElementById('datetime').value = now.toISOString().slice(0, 16);
-        });
-      </script>
+    
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        now.setMinutes(now.getMinutes() - offset); // 시간대 보정
+        document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+      });
+    </script>
   </th:block>
 </th:block>

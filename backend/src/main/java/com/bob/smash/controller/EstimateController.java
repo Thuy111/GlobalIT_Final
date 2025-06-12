@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Log4j2
 @Controller
@@ -42,28 +44,46 @@ public class EstimateController {
     return "redirect:/smash/estimate/list";
   }
   
-  // 상태(isReturn, isSelected) 수정
-  @PostMapping("/status")
-  public String estimateStatus(@RequestParam("idx") Integer idx,
+  // 반납 상태(isReturn) 수정
+  @PostMapping("/return")
+  public String estimateReturn(@RequestParam("idx") Integer idx,
                                @RequestParam("isReturn") Boolean isReturn,
-                               @RequestParam("isSelected") Byte isSelected,
-                                RedirectAttributes rttr) {
-    log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isReturn, isSelected);
+                               RedirectAttributes rttr) {
+    log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
     
     EstimateDTO dto = service.get(idx);
     dto.setIsReturn(isReturn);
-    dto.setIsSelected(isSelected);
     
-    service.modify(dto);
+    service.returnStatus(dto);
     
-    rttr.addFlashAttribute("message", "견적서 상태가 수정되었습니다. (ID: " + idx + ")");
+    rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
 
-  // (조회)수정을 위한 페이지로 이동
+  // 수정
   @GetMapping("/update")
   public void update(@RequestParam("idx") Integer idx, Model model) {
     EstimateDTO dto = service.get(idx);
     model.addAttribute("dto", dto);
   }
+  @PostMapping("/modify")
+  public String modify() {
+    return "redirect:/smash/estimate/list";
+  }
+  
+  // 낙찰 상태(isSelected) 수정
+  // @PostMapping("/status")
+  // public String estimateStatus(@RequestParam("idx") Integer idx,
+  //                              @RequestParam("isSelected") Byte isSelected,
+  //                               RedirectAttributes rttr) {
+  //   log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isSelected);
+    
+  //   EstimateDTO dto = service.get(idx);
+  //   dto.setIsSelected(isSelected);
+    
+  //   // service.modify(dto);
+    
+  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+  //   return "redirect:/smash/estimate/list";
+  // }
 }

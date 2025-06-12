@@ -37,11 +37,11 @@
               <tr>
                 <th>대여 방법</th>
                 <td>
-                  <span class="delivery" th:if="${estimate.isDelivery}">배달 가능</span>
-                  <span class="delivery" th:if="${!estimate.isDelivery}">배달 불가</span>
+                  <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                  <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
                   /
-                  <span class="pickup" th:if="${estimate.isPickup}">픽업 가능</span>
-                  <span class="pickup" th:if="${!estimate.isPickup}">픽업 불가</span>
+                  <span class="pickup" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                  <span class="pickup" th:if="${estimate.isPickup == false}">픽업 불가</span>
                 </td>
               </tr>
             </table>
@@ -61,22 +61,25 @@
               </tr>
             </table>
             <p class="estimate_date">
-              <span th:if="${estimate.isReturn}">반납 완료</span>
-              <span th:if="${!estimate.isReturn}">반납 대기중</span>
+              <span th:if="${estimate.isSelected == 0}">낙찰 대기중</span>
+              <span th:if="${estimate.isSelected == 1}">낙찰 실패</span>
+              <span th:if="${estimate.isSelected == 2}">낙찰 완료</span>
+              /
+              <span th:if="${estimate.isReturn == true}">반납 완료</span>
+              <span th:if="${estimate.isReturn == false}">반납 대기중</span>
               <br>
               [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.createdAt)}]]
             </p>
           </div>
-          <form th:action="@{/smash/estimate/status}" method="post">
+          <form th:action="@{/smash/estimate/return}" method="post">
             <input type="hidden" name="idx" th:value="${estimate.idx}" />
-            <input type="hidden" name="isReturn" th:value="${!estimate.isReturn}" />
-            <input type="hidden" name="isSelected" th:value="${estimate.isSelected}" />
-            <button type="submit">반납 상태 토글</button>
+            <input type="hidden" name="isReturn" th:value="true" />
+            <button type="submit">반납 확인</button>
           </form>
         </div>
       </div>
   
-      <a th:href="@{/smash/estimate/register}">등록</a>
+      <a th:href="@{/smash/estimate/register}">새로운 견적서 등록</a>
     </div>
   </th:block>
 </th:block>
