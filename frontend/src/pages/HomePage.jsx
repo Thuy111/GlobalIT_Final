@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useNavigate  } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import axios from 'axios';
 import RequestList from '../pages/RequestList';
 
-const Home = () => {
+const Home = ({ user }) => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   
   return (
     <>
-      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} user={user} />
       <div className="home">
         {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
         {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
@@ -23,33 +23,19 @@ const Home = () => {
 export default Home;
 
 // TopBar Component (1회만 사용하므로, 별도 파일로 분리하지 않음)
-const TopBar = ({ isDarkMode, setIsDarkMode }) => {
+const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
+  const baseUrl = import.meta.env.VITE_API_URL;
   const [btnText, setBtnText] = useState('☀️');
   const [isChecked, setIsChecked] = useState(isDarkMode); 
-  const baseUrl = import.meta.env.VITE_API_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     // 로그인 상태 확인
-    const checkLoginStatus = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}/smash/member/user`, { withCredentials: true });
-        if (response.data) {
-          // 유저정보
-          console.log('User is logged in:', response.data);
-          setIsLoggedIn(true);
-        } else {
-          console.log('User is not logged in');
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Error checking login status:', error);
-        setIsLoggedIn(false);
-      }
-    };
-    checkLoginStatus();
-  }, []);
+    if(user) {
+      setIsLoggedIn(true);
+    }else setIsLoggedIn(false);
+  }, [user]);
 
   // toggle 유지
   useEffect(() => {
@@ -88,8 +74,9 @@ const TopBar = ({ isDarkMode, setIsDarkMode }) => {
     try {
       await axios.post(`${baseUrl}/logout`, {}, { withCredentials: true });
       setIsLoggedIn(false);
-      console.log('로그아웃 성공');
-      navigate('/'); // 로그아웃 후 홈으로 리다이렉트
+      alert('로그아웃 되었습니다.');
+      // 로그아웃 후 홈으로 새로고침
+      window.location.href = '/';
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }
