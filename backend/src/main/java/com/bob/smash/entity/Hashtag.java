@@ -13,7 +13,7 @@ public class Hashtag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idx;
-
+    
     @Column(length = 100, nullable = false)
     private String tag;
 }

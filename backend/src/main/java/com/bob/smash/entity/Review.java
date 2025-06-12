@@ -15,25 +15,25 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estimate_idx", nullable = false)
     private Estimate estimate;
 
-    @Column(nullable = false)
+    @Column(length = 5, nullable = false)
     private Byte star;
 
     @Column(length = 3000, nullable = false)
     private String comment;
     
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "is_modify", nullable = false)
-    private Byte isModify;
+    @Column(name = "is_modify", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    private Byte isModify=0; // 0: 미 수정, 1: 수정됨
 
     public void changeStar(Byte star) {this.star = star;}
     public void changeComment(String comment) {this.comment = comment;}
