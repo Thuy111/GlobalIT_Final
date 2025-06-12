@@ -12,33 +12,39 @@ import com.bob.smash.dto.ThemeDTO;
 
 import jakarta.servlet.http.HttpSession;
 // import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.log4j.Log4j2; 
 
 @Controller
 @RequestMapping("/smash")
 // @RequiredArgsConstructor // 자동주입
 @Log4j2
-public class smashController {
+public class SmashController {  
   // service 주입
 
   // application.properties에서 Frontend URL 설정
   @Value("${front.server.url}")
   private String frontendUrl;
 
+  @GetMapping("")
+  public String index1() {
+    log.info(frontendUrl + "로 리다이렉트합니다.");
+    return "redirect:" + frontendUrl;
+  }
   @GetMapping("/")
-  public String index() {
-    log.info("Smash index page requested");
-    return "redirect:" + frontendUrl + "/";
+  public String index2() {
+    log.info(frontendUrl + "로 리다이렉트합니다.");
+    return "redirect:" + frontendUrl;
   }
 
-  @GetMapping("/estimate/register")
-  public void estimateRegister() {
-    log.info("Smash estimate register page requested");
+  @GetMapping("/estimate")
+  public String estimate() {
+    return "redirect:/smash/estimate/list";
   }
 
-  @GetMapping("/request/register")
-  public void request() {
+  @GetMapping("/request")
+  public String request() {
     log.info("Smash request page requested");
+    return "redirect:/smash/request/list";
   }
 
   @GetMapping("/profile/update")

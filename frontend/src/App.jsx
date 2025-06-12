@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import Layout from './layouts/Basic';
 import Home from './pages/HomePage';
 import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';
+
+
 import './App.css';
 
 function App() {
@@ -40,7 +43,9 @@ function App() {
   const router = createBrowserRouter(routes);
 
   return (
+    <DarkModeProvider>
       <RouterProvider router={router} />
+    </DarkModeProvider>
   )
 }
 
