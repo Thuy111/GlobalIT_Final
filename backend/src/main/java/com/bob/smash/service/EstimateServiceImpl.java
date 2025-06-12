@@ -23,6 +23,23 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
 
+  // 목록
+  @Override
+  public List<EstimateDTO> getList() {
+    List<Estimate> result = repository.findAll();
+    return result.stream().map(estimate -> entityToDto(estimate)).toList();
+  }
+
+  // 반납 현황 수정
+  @Override
+  public Integer returnStatus(EstimateDTO dto) {
+    Estimate estimate = repository.findById(dto.getIdx())
+                                  .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
+    estimate.changeIsReturn(Boolean.TRUE.equals(dto.getIsReturn()) ? (byte) 1 : (byte) 0);
+    repository.save(estimate);
+    return estimate.getIdx();
+  }
+  
   // 조회
   @Override
   public EstimateDTO get(Integer idx) {
@@ -31,17 +48,18 @@ public class EstimateServiceImpl implements EstimateService {
     return entityToDto(estimate);
   }
 
-  // 목록
-  @Override
-  public List<EstimateDTO> getList() {
-    List<Estimate> result = repository.findAll();
-    return result.stream().map(estimate -> entityToDto(estimate)).toList();
-  }
-
   // 수정
   @Override
   public Integer modify(EstimateDTO dto) {
-    throw new UnsupportedOperationException("Unimplemented method 'modify'");
+    Estimate estimate = repository.getReferenceById(dto.getIdx());
+    estimate.changeTitle(dto.getTitle());
+    estimate.changeContent(dto.getContent());
+    estimate.changePrice(dto.getPrice());
+    estimate.changeIsDelivery(dto.getIsDelivery() ? (byte) 1 : (byte) 0);
+    estimate.changeIsPickup(dto.getIsPickup() ? (byte) 1 : (byte) 0);
+    estimate.changeReturnDate(dto.getReturnDate());
+    repository.save(estimate);
+    return estimate.getIdx();
   }
 
   // 삭제

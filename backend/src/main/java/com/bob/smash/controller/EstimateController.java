@@ -35,17 +35,53 @@ public class EstimateController {
   @GetMapping("/register")
   public void register() {}
   @PostMapping("/register")
-  public String registerEstimate(EstimateDTO dto, RedirectAttributes rttr) {
-    log.info("견적서 등록 요청: {}", dto);
+  public String estimateRegister(EstimateDTO dto, RedirectAttributes rttr) {
+    // log.info("견적서 등록 요청: {}", dto);
     Integer idx = service.register(dto);
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
   
-  // 조회
-  @GetMapping("/read")
-  public void read(@RequestParam("idx") Integer idx, Model model) {
+  // 반납 상태(isReturn) 수정
+  @PostMapping("/return")
+  public String estimateReturn(@RequestParam("idx") Integer idx,
+                               @RequestParam("isReturn") Boolean isReturn,
+                               RedirectAttributes rttr) {
+    // log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
+    EstimateDTO dto = service.get(idx);
+    dto.setIsReturn(isReturn);
+    service.returnStatus(dto);
+    rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
+
+  // 수정
+  @GetMapping("/update")
+  public void update(@RequestParam("idx") Integer idx, Model model) {
     EstimateDTO dto = service.get(idx);
     model.addAttribute("dto", dto);
   }
+  @PostMapping("/modify")
+  public String modify(EstimateDTO dto) {
+    // log.info("견적서 수정 요청: {}", dto);
+    service.modify(dto);
+    // log.info("견적서 수정 완료: {}", dto);
+    return "redirect:/smash/estimate/list";
+  }
+  
+  // 낙찰 상태(isSelected) 수정
+  // @PostMapping("/status")
+  // public String estimateStatus(@RequestParam("idx") Integer idx,
+  //                              @RequestParam("isSelected") Byte isSelected,
+  //                               RedirectAttributes rttr) {
+  //   log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isSelected);
+    
+  //   EstimateDTO dto = service.get(idx);
+  //   dto.setIsSelected(isSelected);
+    
+  //   // service.modify(dto);
+    
+  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+  //   return "redirect:/smash/estimate/list";
+  // }
 }

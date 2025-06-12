@@ -10,10 +10,12 @@ import com.bob.smash.entity.Request;
 public interface EstimateService {
   // 등록
   Integer register(EstimateDTO dto);
-  // 조회
-  EstimateDTO get(Integer idx);
   // 목록
   List<EstimateDTO> getList();
+  // 반납 현황 수정
+  Integer returnStatus(EstimateDTO dto);
+  // 조회
+  EstimateDTO get(Integer idx);
   // 수정
   Integer modify(EstimateDTO dto);
   // 삭제
@@ -32,7 +34,7 @@ public interface EstimateService {
                                 .returnDate(dto.getReturnDate())
                                 .isDelivery(Boolean.TRUE.equals(dto.getIsDelivery()) ? (byte) 1 : (byte) 0)
                                 .isPickup(Boolean.TRUE.equals(dto.getIsPickup()) ? (byte) 1 : (byte) 0)
-                                .isSelected(Boolean.TRUE.equals(dto.getIsSelected()) ? (byte) 1 : (byte) 0)
+                                .isSelected(dto.getIsSelected())
                                 .isReturn(Boolean.TRUE.equals(dto.getIsReturn()) ? (byte) 1 : (byte) 0)
                                 .build();
     return estimate;
@@ -49,7 +51,7 @@ public interface EstimateService {
                                  .returnDate(estimate.getReturnDate())
                                  .isDelivery(estimate.getIsDelivery() == 1)
                                  .isPickup(estimate.getIsPickup() == 1)
-                                 .isSelected(estimate.getIsSelected() == 1)
+                                 .isSelected(estimate.getIsSelected())
                                  .isReturn(estimate.getIsReturn() == 1)
                                  .requestIdx(estimate.getRequest().getIdx())
                                  .requestMemberId(estimate.getRequest().getMember().getEmailId())

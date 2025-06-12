@@ -1,7 +1,6 @@
 package com.bob.smash.entity;
 
 import java.io.Serializable;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,13 +13,14 @@ import lombok.*;
 @IdClass(HashtagMapping.PK.class)
 public class HashtagMapping {
     @Id
-    @ManyToOne
-    @JoinColumn(name = "hashtag_idx")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hashtag_idx", nullable = false)
     private Hashtag hashtag;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "request_idx")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_idx", nullable = false)
+
     private Request request;
 
     @EqualsAndHashCode

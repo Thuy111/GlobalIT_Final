@@ -4,37 +4,82 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <div class="estimate_header">
-        <h1>견적서 목록 <span>(몇개)</span></h1>
-        <p>Estimate List PAGE</p>
+      <h1>
+        <a href="#">〈 </a>
+        견적서 목록 <span>(?개)</span>
+      </h1>
+      <hr>
+      <div class="estimate_list">
+        <div class="estimate_box" th:each="estimate : ${result}">
+          <div class="estimate_card">
+            <div class="estimate_header">
+              <div class="estimate_meta">
+                <span class="standby" th:if="${estimate.isSelected == 0}">낙찰 대기</span>
+                <span class="unselected" th:if="${estimate.isSelected == 1}">미 낙찰</span>
+                <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
+                <b class="estimate_title">[[${estimate.title}]]</b>
+              </div>
+              <div>
+                <a th:href="@{/smash/estimate/update(idx=${estimate.idx})}">수정</a>
+                <a th:href="@{/smash/estimate/delete(idx=${estimate.idx})}">삭제</a>
+              </div>
+            </div>
+            <p class="estimate_content">[[${estimate.content}]]</p>
+            <table>
+              <tr>
+                <th>제시 가격</th>
+                <td>[[${estimate.price}]]원</td>
+              </tr>
+              <tr>
+                <th>반납 기한</th>
+                <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
+              </tr>
+              <tr>
+                <th>대여 방법</th>
+                <td>
+                  <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                  <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
+                  /
+                  <span class="pickup" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                  <span class="pickup" th:if="${estimate.isPickup == false}">픽업 불가</span>
+                </td>
+              </tr>
+            </table>
+            <table>
+              <caption>업체 정보</caption>
+              <tr>
+                <th>이름</th>
+                <td th:text="${estimate.partnerName}"></td>
+              </tr>
+              <tr>
+                <th>연락처</th>
+                <td th:text="${estimate.partnerTel}"></td>
+              </tr>
+              <tr>
+                <th>주소</th>
+                <td th:text="${estimate.partnerRegion}"></td>
+              </tr>
+            </table>
+            <p class="estimate_date">
+              <span th:if="${estimate.isSelected == 0}">낙찰 대기중</span>
+              <span th:if="${estimate.isSelected == 1}">낙찰 실패</span>
+              <span th:if="${estimate.isSelected == 2}">낙찰 완료</span>
+              /
+              <span th:if="${estimate.isReturn == true}">반납 완료</span>
+              <span th:if="${estimate.isReturn == false}">반납 대기중</span>
+              <br>
+              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.createdAt)}]]
+            </p>
+          </div>
+          <form th:action="@{/smash/estimate/return}" method="post">
+            <input type="hidden" name="idx" th:value="${estimate.idx}" />
+            <input type="hidden" name="isReturn" th:value="true" />
+            <button type="submit">반납 확인</button>
+          </form>
+        </div>
       </div>
   
-      <div class="estimate_box" th:each="estimate : ${result}">
-        <p><span>제목: </span>[[${estimate.title}]]</p>
-        <p><span>가격: </span>[[${estimate.price}]]원</p>
-        <p><span>내용</span><br>[[${estimate.content}]]</p>
-        <table>
-          <tr>
-            <th>업체 이름</th>
-            <td th:text="${estimate.partnerName}"></td>
-          </tr>
-          <tr>
-            <th>업체 연락처</th>
-            <td th:text="${estimate.partnerTel}"></td>
-          </tr>
-          <tr>
-            <th>업체 주소</th>
-            <td th:text="${estimate.partnerRegion}"></td>
-          </tr>
-          <tr>
-            <th>반납 날짜</th>
-            <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
-          </tr>
-        </table>
-        <p>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.createdAt)}]]</p>
-      </div>
-  
-      <a th:href="@{/smash/estimate/register}">등록</a>
+      <a th:href="@{/smash/estimate/register}">새로운 견적서 등록</a>
     </div>
   </th:block>
 </th:block>

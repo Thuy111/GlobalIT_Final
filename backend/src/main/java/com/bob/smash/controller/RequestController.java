@@ -7,6 +7,7 @@ import com.bob.smash.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/smash/request")
@@ -60,7 +62,19 @@ public class RequestController {
     model.addAttribute("msg", savedIdx);
 
     return "redirect:/smash/request/listTest";
-}
+    }
+
+    // ⭐ 추가
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> getPagedRequests(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search){
+
+        return ResponseEntity.ok(requestService.getPagedRequestList(page, size, search));
+    }
+
+
 
     //  의뢰서 상세 보기
     @GetMapping("/detail")

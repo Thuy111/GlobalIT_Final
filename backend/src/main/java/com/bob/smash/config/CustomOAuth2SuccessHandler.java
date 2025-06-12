@@ -8,23 +8,26 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final MemberRepository memberRepository;
+    private final String frontServerUrl;
 
-    @Value("${front.server.url}")
-    private String frontServerUrl;  // application.properties에서 값 주입
-
-    public CustomOAuth2SuccessHandler(MemberRepository memberRepository) {
+    public CustomOAuth2SuccessHandler(MemberRepository memberRepository, @Value("${front.server.url}") String frontServerUrl) {
         this.memberRepository = memberRepository;
+        this.frontServerUrl = frontServerUrl;
     }
 
     @Override
@@ -34,57 +37,82 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oauthUser = oauthToken.getPrincipal(); // OAuth2User 객체를 통해 사용자 정보에 접근
 
+        System.out.println("@@@ OAuth2 로그인 성공: " + oauthUser.getAttributes());
+
         // OAuth2User에서 필요한 정보 추출
         String registrationId = oauthToken.getAuthorizedClientRegistrationId(); // "google" or "kakao"
         String email = null;
         // String name = null;
         String phone = null;
         String region = null;
-        if("kakao".equals(registrationId)) { // 카카오 로그인인 경우
-            Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
-            email = (String) kakaoAccount.get("email");  // 필수
-            // name = (String) kakaoAccount.get("name");
-            phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
-            region = null;
 
-            // 주소(배송지) 정보가 있다면 꺼내기
-            Object addressObj = kakaoAccount.get("address");
-            Map<String, Object> address = null;
-            if (addressObj instanceof Map) { // 주소 정보가 Map 형태로 존재하는 경우 (not null)
-                address = (Map<String, Object>) addressObj;
-                region = (String) address.get("address_name");
+        try{
+            if("kakao".equals(registrationId)) { // 카카오 로그인인 경우
+                Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
+                email = (String) kakaoAccount.get("email");  // 필수
+                // name = (String) kakaoAccount.get("name");
+                phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
+
+                // 주소(배송지) 정보가 있다면 꺼내기
+                Object addressObj = kakaoAccount.get("address");
+                Map<String, Object> address = null;
+                if (addressObj instanceof Map) { // 주소 정보가 Map 형태로 존재하는 경우 (not null)
+                    address = (Map<String, Object>) addressObj;
+                    region = (String) address.get("address_name");
+                }
+            }else{ // 구글 로그인인 경우
+                email = (String) oauthUser.getAttribute("email");
             }
-        }
-
-        // 이메일로 DB 조회 (필드는 emailId 기준)
-        email = oauthUser.getAttribute("email");
-        Optional<Member> memberOptional = memberRepository.findByEmailId(email);
-
-        // 만약 회원이 존재하지 않으면 새로 생성
-        if (memberOptional.isEmpty()) {
-            Member.LoginType loginType;
-            // 로그인 타입 설정
-            switch (registrationId) {
-                case "kakao" -> loginType = Member.LoginType.kakao;
-                default -> loginType = Member.LoginType.google; // 기본값 설정
+    
+            if(email == null) {// 이메일이 없는 경우, 로그인 실패 처리
+                response.sendRedirect(frontServerUrl + "/profile?error=EmailNotFound");
+                return;
             }
+    
+            // 이메일로 회원 조회
+            Optional<Member> existMemberWithEmail = memberRepository.findByEmailId(email);
+            Optional<Member> existMemberWithTel = Optional.empty();
+            if (phone != null) {
+                existMemberWithTel = memberRepository.findByTel(phone);
+            }
+    
+            // 만약 회원이 존재하지 않으면 새로 생성
+            if (existMemberWithEmail.isEmpty()&&existMemberWithTel.isEmpty()) {
+                Member.LoginType loginType;
+                // 로그인 타입 설정
+                switch (registrationId) {
+                    case "kakao" -> loginType = Member.LoginType.kakao;
+                    default -> loginType = Member.LoginType.google; // 기본값 설정
+                }
+    
+                Member newMember = Member.builder()
+                    .emailId(email)
+                    // .name(oauthUser.getAttribute("name"))
+                    .nickname(generateUniqueNickname())  // 유니크 닉네임
+                    .createdAt(LocalDateTime.now())
+                    .loginType(loginType)
+                    .role((byte) 0) // 기본 역할 설정 (0: 일반 사용자)
+                    .tel(formatPhoneNumber(phone))
+                    .region(region)
+                    .build();
+    
+                memberRepository.save(newMember);
+            }
+    
+            // 로그인 성공 후 원하는 페이지로 리다이렉트
+            response.sendRedirect(frontServerUrl + "/profile"); // 프로필 페이지
+            
+        }catch (Exception e) { // 로그인 실패 처리
+            System.out.println("OAuth2 로그인 실패: " + e.getMessage());
+            e.printStackTrace(); // 로깅
 
-            Member newMember = Member.builder()
-                .emailId(email)
-                // .name(oauthUser.getAttribute("name"))
-                .nickname(generateUniqueNickname())  // 유니크 닉네임
-                .createdAt(LocalDateTime.now())
-                .loginType(loginType)
-                .role((byte) 0) // 기본 역할 설정 (0: 일반 사용자)
-                .tel(phone)
-                .region(region)
-                .build();
+            // 인증 정보 제거
+            request.getSession().invalidate(); 
+            SecurityContextHolder.clearContext();
 
-            memberRepository.save(newMember);
+            // 실패 페이지 리다이렉트
+            response.sendRedirect(frontServerUrl + "/profile?error=SignupFailed");
         }
-
-        // 로그인 성공 후 원하는 페이지로 리다이렉트
-        response.sendRedirect(frontServerUrl + "/smash/profile"); // 프로필 페이지
     }
 
     // 닉네임 생성 메서드
@@ -134,6 +162,17 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         } while (memberRepository.existsByNickname(nickname) && attempt < 10); // 최대 10회 시도
     
         return nickname;
+    }
+
+    // 번호 가공 메서드 (+부터 공백까지 제거)
+    private String formatPhoneNumber(String phone) {
+        // 숫자만 남기기
+        String onlyNumbers = phone.replaceAll("[^0-9]", "");
+        if (onlyNumbers.startsWith("82")) { // 한국 번호로 변환
+            onlyNumbers = "0" + onlyNumbers.substring(2);
+        }
+
+        return onlyNumbers;
     }
 }
 

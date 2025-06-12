@@ -1,3 +1,85 @@
+/* 견적서 페이지 제목 영역 */
+.estimate_container h1 {
+  font-size: 2em;
+  text-align: left;
+}
+.estimate_container h1 a {
+  color: inherit;
+  font-size: 1em;
+}
+.estimate_container h1 span {
+  color: dimgrey;
+  font-size: 0.8em;
+}
+.estimate_container hr {
+  border-style: inset;
+  border-width: 1px;
+  border-color: black;
+  margin-top: 0.5em;
+  margin-bottom: 3em;
+}
+/* 견적서 목록 영역 */
+.estimate_container .estimate_box {
+  margin-bottom: 2em;
+}
+.estimate_container .estimate_box .estimate_card {
+  border-radius: 1.5em;
+  box-shadow: 2px 2px 5px;
+  margin: 1em;
+  padding: 1em;
+  text-align: left;
+}
+.estimate_container .estimate_card .estimate_date {
+  text-align: right;
+  font-size: 0.8em;
+}
+.estimate_container .estimate_card table caption {
+  text-align: left;
+}
+/* 견적서 상태+제목+수정/삭제 버튼 표시 영역 */
 .estimate_container .estimate_header {
-  border-bottom: 1px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+.estimate_container .estimate_header .estimate_meta {
+  display: flex;
+  align-items: end;
+}
+.estimate_container .estimate_header .estimate_title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.estimate_container .estimate_header span {
+  border: 2px solid;
+  border-radius: 2em;
+  font-size: 0.8em;
+  font-weight: bolder;
+  text-align: center;
+  display: inline-block;
+  width: 6em;
+  margin-right: 0.6em;
+  padding: 0.3em;
+}
+.estimate_container .estimate_header span.standby {
+  color: darkgrey;
+  border-color: darkgrey;
+}
+.estimate_container .estimate_header span.unselected {
+  color: red;
+  border-color: red;
+}
+.estimate_container .estimate_header span.selected {
+  color: green;
+  border-color: green;
+}
+/* 통합 버튼 */
+.estimate_container .estimate_box form {
+  text-align: right;
+  margin-right: 2.5em;
+}
+/* 견적서 작성/수정 영역 */
+.estimate_container form {
+  text-align: left;
 }
