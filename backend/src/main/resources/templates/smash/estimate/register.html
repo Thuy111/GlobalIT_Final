@@ -8,42 +8,72 @@
         <a href="/smash/estimate/list">〈 </a>
         견적서 작성
       </h1>
+      
+      <div class="estimate_form">
+        <form th:action="@{/smash/estimate/register}" method="post">
+          <input type="hidden" name="requestIdx" value="1" required>
+          <input type="hidden" name="partnerBno" value="234-56-78901" required>
+          <input type="hidden" name="isSelected" value="0">
+          <input type="hidden" name="isReturn" value="false">
+          <input type="hidden" class="datetime" name="createdAt">
+          <input type="hidden" class="datetime" name="modifiedAt">
+          
+          <label for="title">제목</label><br>
+          <input type="text" name="title" required><br>
+          
+          <label for="content">내용</label><br>
+          <textarea name="content" required></textarea><br>
   
-      <form th:action="@{/smash/estimate/register}" method="post">
-        <input type="hidden" name="requestIdx" value="1" required>
-        <input type="hidden" name="partnerBno" value="234-56-78901" required>
-        <input type="hidden" name="isSelected" value="0">
-        <input type="hidden" name="isReturn" value="false">
-        <input type="hidden" id="datetime" name="createdAt">
-        
-        <label for="title">제목</label><br>
-        <input type="text" name="title" required><br>
-        
-        <label for="content">내용</label><br>
-        <textarea name="content" required></textarea><br>
-
-        <label for="price">가격</label><br>
-        <input type="text" name="price" required>원<br>
-        
-        <label>대여 방법<br>
-          <input type="hidden" name="isDelivery" value="false">
-          <input type="checkbox" name="isDelivery" value="true">배달
-          <input type="hidden" name="isPickup" value="false">
-          <input type="checkbox" name="isPickup" value="true">픽업<br>
-        </label>
-  
-        <label for="returnDate">반납 날짜</label><br>
-        <input type="datetime-local" name="returnDate" required><br>
-  
-        <button type="submit">작성 완료</button>
+          <label for="price">가격</label><br>
+          <input type="text" name="price" required>원<br>
+          
+          <label>대여 방법<br>
+            <input type="checkbox" name="isDelivery" value="true">배달
+            <input type="checkbox" name="isPickup" value="true">픽업<br>
+          </label>
+    
+          <label for="returnDate">반납 날짜</label><br>
+          <input type="datetime-local" name="returnDate" required><br>
+    
+          <button type="submit">작성 완료</button>
+        </form>
+      </div>
     </div>
     
     <script>
-      window.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener("DOMContentLoaded", function () {
+        // 현재 시간을 모든 datetime input에 입력
         const now = new Date();
         const offset = now.getTimezoneOffset();
-        now.setMinutes(now.getMinutes() - offset); // 시간대 보정
-        document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+        now.setMinutes(now.getMinutes() - offset);
+        const datetimeInputs = document.getElementsByClassName('datetime');
+        const datetimeValue = now.toISOString().slice(0, 16);
+        for (let i = 0; i < datetimeInputs.length; i++) {
+          datetimeInputs[i].value = datetimeValue;
+        }
+
+        // 입력값 검증
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function (e) {
+          const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
+          const isPickup = form.querySelector('input[name="isPickup"]').checked;
+          // 둘 다 체크되지 않았을 경우 전송 막기
+          if (!isDelivery && !isPickup) {
+            e.preventDefault(); // submit 막기
+            alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+          }
+          // 체크되지 않은 항목은 'false'로 전송
+          ['isDelivery', 'isPickup'].forEach(name => {
+            const checkbox = form.querySelector(`input[name="${name}"]`);
+            if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
+              const hidden = document.createElement("input");
+              hidden.type = "hidden";
+              hidden.name = name;
+              hidden.value = "false";
+              form.appendChild(hidden);
+            }
+          });
+        });
       });
     </script>
   </th:block>

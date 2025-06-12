@@ -74,6 +74,12 @@
   color: green;
   border-color: green;
 }
+/* 업체 정보 + 수정날짜 표시 영역 */
+.estimate_container .estimate_footer {
+  display: flex;
+  justify-content: space-between;
+  align-items:end;
+}
 /* 통합 버튼 */
 .estimate_container .estimate_box form {
   text-align: right;
