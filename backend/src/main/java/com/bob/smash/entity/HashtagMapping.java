@@ -15,12 +15,12 @@ import lombok.*;
 public class HashtagMapping {
     @Id
     @ManyToOne
-    @JoinColumn(name = "hashtag_idx", insertable = false, updatable = false)
+    @JoinColumn(name = "hashtag_idx")
     private Hashtag hashtag;
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "request_idx", insertable = false, updatable = false)
+    @JoinColumn(name = "request_idx")
     private Request request;
 
     @EqualsAndHashCode

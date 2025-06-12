@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <header>
+  <!-- Bootstrap 4 CSS -->
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+   <!-- CSS -->
+   <link rel="stylesheet" href="@{/request.css}" />
+
+
+</header>
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+  <th:block th:fragment="content">
+
+    <div class="request_container">
+      <div>        
+        <p>의뢰서</p>
+      </div>
+  
+      <div class="request_box" th:each="request : ${result}">
+         <th scope="row" style="font-weight: normal;">
+
+          <a th:href="@{/smash/request/detail(idx = ${request.idx},
+               )}"
+          >
+             <p class="border"><span>제목: </span>[[${request.title}]]</p>
+          </a>
+
+
+
+        <!-- <p class="border"><span>제목: </span>[[${request.title}]]</p> -->
+        <p><span>해스태그: </span>[[${request.hashtags}]]</p>
+        <p><span> 내용: </span>[[${request.content}]]</p>
+        <p><span>대여 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(request.useDate)}]]</p>
+        
+        <!-- DTO, service 와 관련 됨 -->
+        <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(request.createdAt)}]]</p> 
+      </div>
+    </div>
+
+  </th:block>
+</th:block>

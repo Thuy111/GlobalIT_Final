@@ -1,12 +1,18 @@
 package com.bob.smash.service;
 
 import com.bob.smash.dto.RequestDTO;
+import com.bob.smash.entity.Hashtag;
+import com.bob.smash.entity.HashtagMapping;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
+import com.bob.smash.repository.HashtagMappingRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public interface RequestService {
@@ -36,12 +42,21 @@ public interface RequestService {
     }
 
     // Entity → DTO 변환
-    default RequestDTO entityToDto(Request request) {
+    default RequestDTO entityToDto(Request request,List<Hashtag> hashtags) {
+        //hashtags 묶음
+        String hashtagStr = hashtags.stream()
+            .map(tag -> "#" + tag.getTag())
+            .collect(Collectors.joining(" "));
+
+
         return RequestDTO.builder()
-                .idx(request.getIdx())
-                .title(request.getTitle())
-                .content(request.getContent())
-                .useDate(request.getUseDate())
-                .build();
+            .idx(request.getIdx())
+            .title(request.getTitle())
+            .content(request.getContent())
+            .useDate(request.getUseDate())
+            .createdAt(request.getCreatedAt())
+            .hashtags(hashtagStr)
+            .hashtagList(hashtags)
+            .build();
     }
 }
