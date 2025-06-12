@@ -70,18 +70,27 @@ public class EstimateController {
   }
   
   // 낙찰 상태(isSelected) 수정
-  // @PostMapping("/status")
-  // public String estimateStatus(@RequestParam("idx") Integer idx,
-  //                              @RequestParam("isSelected") Byte isSelected,
-  //                               RedirectAttributes rttr) {
-  //   log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isSelected);
-    
-  //   EstimateDTO dto = service.get(idx);
-  //   dto.setIsSelected(isSelected);
-    
-  //   // service.modify(dto);
-    
-  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
-  //   return "redirect:/smash/estimate/list";
-  // }
+  @PostMapping("/selectStatus")
+  public String estimateSelect(@RequestParam("idx") Integer idx,
+                               @RequestParam("isSelected") Byte isSelected,
+                                RedirectAttributes rttr) {
+    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);
+    if (isSelected == null) {
+      isSelected = 0; // 기본값 설정
+    }    
+    EstimateDTO dto = service.get(idx);
+    dto.setIsSelected(isSelected);
+      // service.modify(dto);
+      rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
+
+  // 삭제
+  @PostMapping("/delete")
+  public String delete(@RequestParam("idx") Integer idx, RedirectAttributes rttr) {
+    // log.info("견적서 삭제 요청: idx={}", idx);
+    service.delete(idx);
+    rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
 }

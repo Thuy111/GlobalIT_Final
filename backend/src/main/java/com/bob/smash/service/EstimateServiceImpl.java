@@ -65,7 +65,7 @@ public class EstimateServiceImpl implements EstimateService {
 
   // 삭제
   @Override
-  public void remove(Integer idx) {
-    throw new UnsupportedOperationException("Unimplemented method 'remove'");
+  public void delete(Integer idx) {
+    repository.deleteById(idx);
   }
 }

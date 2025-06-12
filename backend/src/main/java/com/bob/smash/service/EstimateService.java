@@ -19,7 +19,7 @@ public interface EstimateService {
   // 수정
   Integer modify(EstimateDTO dto);
   // 삭제
-  void remove(Integer idx);
+  void delete(Integer idx);
 
   // dto -> entity
   default Estimate dtoToEntity(EstimateDTO dto) {
