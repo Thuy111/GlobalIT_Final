@@ -20,12 +20,12 @@ public class EstimateDTO {
   private Boolean isPickup;
   private Integer price;
   private LocalDateTime returnDate;
-  private LocalDateTime createdAt;
   private Byte isSelected;
   private Boolean isReturn;
+  private LocalDateTime createdAt;
+  private LocalDateTime modifiedAt;
   // 의뢰서 정보
   private Integer requestIdx;
-  private String requestMemberId;
   // 파트너 업체 정보
   private String partnerBno;
   private String partnerName;

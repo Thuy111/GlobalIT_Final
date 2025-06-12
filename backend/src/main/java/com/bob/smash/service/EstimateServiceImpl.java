@@ -58,6 +58,7 @@ public class EstimateServiceImpl implements EstimateService {
     estimate.changeIsDelivery(dto.getIsDelivery() ? (byte) 1 : (byte) 0);
     estimate.changeIsPickup(dto.getIsPickup() ? (byte) 1 : (byte) 0);
     estimate.changeReturnDate(dto.getReturnDate());
+    estimate.changeModifiedAt(dto.getModifiedAt());
     repository.save(estimate);
     return estimate.getIdx();
   }
