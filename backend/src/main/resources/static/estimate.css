@@ -29,10 +29,6 @@
   padding: 1em;
   text-align: left;
 }
-.estimate_container .estimate_card .estimate_date {
-  text-align: right;
-  font-size: 0.8em;
-}
 .estimate_container .estimate_card table caption {
   text-align: left;
 }
@@ -74,11 +70,16 @@
   color: green;
   border-color: green;
 }
-/* 업체 정보 + 수정날짜 표시 영역 */
-.estimate_container .estimate_footer {
+.estimate_container .estimate_header .estimate_actions {
   display: flex;
-  justify-content: space-between;
-  align-items:end;
+}
+.estimate_container .estimate_header .estimate_actions form {
+  margin-right: 0.5em;
+}
+.estimate_container .estimate_card .estimate_date {
+  font-size: 0.8em;
+  text-align: right;
+  color: dimgrey;
 }
 /* 통합 버튼 */
 .estimate_container .estimate_box form {
