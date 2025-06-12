@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.bind.annotation.RequestBody;
-
 
 @Log4j2
 @Controller
@@ -38,7 +36,7 @@ public class EstimateController {
   public void register() {}
   @PostMapping("/register")
   public String estimateRegister(EstimateDTO dto, RedirectAttributes rttr) {
-    log.info("견적서 등록 요청: {}", dto);
+    // log.info("견적서 등록 요청: {}", dto);
     Integer idx = service.register(dto);
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
@@ -49,13 +47,10 @@ public class EstimateController {
   public String estimateReturn(@RequestParam("idx") Integer idx,
                                @RequestParam("isReturn") Boolean isReturn,
                                RedirectAttributes rttr) {
-    log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
-    
+    // log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
     EstimateDTO dto = service.get(idx);
     dto.setIsReturn(isReturn);
-    
     service.returnStatus(dto);
-    
     rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
@@ -67,7 +62,10 @@ public class EstimateController {
     model.addAttribute("dto", dto);
   }
   @PostMapping("/modify")
-  public String modify() {
+  public String modify(EstimateDTO dto) {
+    // log.info("견적서 수정 요청: {}", dto);
+    service.modify(dto);
+    // log.info("견적서 수정 완료: {}", dto);
     return "redirect:/smash/estimate/list";
   }
   

@@ -51,7 +51,15 @@ public class EstimateServiceImpl implements EstimateService {
   // 수정
   @Override
   public Integer modify(EstimateDTO dto) {
-    throw new UnsupportedOperationException("Unimplemented method 'modify'");
+    Estimate estimate = repository.getReferenceById(dto.getIdx());
+    estimate.changeTitle(dto.getTitle());
+    estimate.changeContent(dto.getContent());
+    estimate.changePrice(dto.getPrice());
+    estimate.changeIsDelivery(dto.getIsDelivery() ? (byte) 1 : (byte) 0);
+    estimate.changeIsPickup(dto.getIsPickup() ? (byte) 1 : (byte) 0);
+    estimate.changeReturnDate(dto.getReturnDate());
+    repository.save(estimate);
+    return estimate.getIdx();
   }
 
   // 삭제
