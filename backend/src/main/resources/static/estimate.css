@@ -18,7 +18,7 @@
   margin-top: 0.5em;
   margin-bottom: 3em;
 }
-/* 견적서 영역 */
+/* 견적서 목록 영역 */
 .estimate_container .estimate_box {
   margin-bottom: 2em;
 }
@@ -78,4 +78,8 @@
 .estimate_container .estimate_box form {
   text-align: right;
   margin-right: 2.5em;
+}
+/* 견적서 작성/수정 영역 */
+.estimate_container form {
+  text-align: left;
 }
