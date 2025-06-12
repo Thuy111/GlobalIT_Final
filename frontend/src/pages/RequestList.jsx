@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import '../styles/RequestList.css';
 
 
 function RequestList() {
@@ -39,7 +40,6 @@ function RequestList() {
           placeholder="무엇을 찾으시나요?"
         />
       </form>
-
   {request.map(item => (
     <div key={item.idx} className="request-card">
       <div className="request-dday">{item.dDay}</div>
@@ -53,6 +53,7 @@ function RequestList() {
       </div>
 
       <p className="request-content">{item.content}</p>
+      <div>{item.hashtags.join(" ")}</div>
     </div>
   ))}
 </div>

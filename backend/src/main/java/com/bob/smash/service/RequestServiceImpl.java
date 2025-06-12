@@ -117,6 +117,10 @@ public class RequestServiceImpl implements RequestService {
                     LocalDate createdAt = request.getCreatedAt().toLocalDate();
                     LocalDate useDate = request.getUseDate().toLocalDate(); 
                     String dDay = calculateDDay(createdAt, useDate);
+                   List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
+                    List<String> hashtagList = hashtags.stream()
+        .map(tag -> "#" + tag.getTag())
+        .collect(Collectors.toList());
 
                     return new RequestListDTO(
                         request.getIdx(),
@@ -125,7 +129,8 @@ public class RequestServiceImpl implements RequestService {
                         request.getIsDone(),
                         createdAt,
                         useDate,
-                        dDay
+                        dDay,
+                        hashtagList
                     );
                 })
                 .collect(Collectors.toList());
