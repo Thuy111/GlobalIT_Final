@@ -1,0 +1,122 @@
+/* RequestList */
+.request-container {
+  padding: 20px;
+}
+
+/* 검색 폼 */
+.request-container .request-search-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+    align-items: center; 
+  justify-content: center;
+}
+
+.request-container .request-search-form input {
+  width: 50%;
+  height: 60px;
+  border-radius: 30px;
+  font-size: 16px;
+  background-color: #f0f0f0;
+  padding-left:30px;
+}
+.request-container .request-search-form input::placeholder {
+  text-align: left; 
+  padding-left: 0; 
+  color: #999;
+}
+.request-container .request-search-form input:focus {
+  outline: none; 
+  border: 1.5px solid #4ED7F1;
+  box-shadow: 0 0 5px #a7c7e7;
+}
+
+/* 카드 스타일 */
+.request-container .request-card {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 16px 20px 16px 20px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* D-day */
+.request-container .request-dday {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-weight: bold;
+  color: #ff5c5c;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  padding: 4px 8px;
+  background-color: #f0f0f0;
+  font-size: 14px;
+}
+
+/* 날짜 */
+.request-container .request-date {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 정렬 */
+.request-container .request-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: 100px; 
+  margin-bottom: 8px;
+}
+
+/* 타이틀 */
+.request-container .request-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 상태 */
+.request-container .request-status {
+  font-size: 12px;
+  white-space: nowrap;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+
+.request-container .request-status.pending {
+  color: #ff9900; /* 낙찰대기 */
+  border: 1px solid #ff9900;
+}
+
+.request-container .request-status.failed {
+  color: #ff4d4d; /* 미낙찰 */
+  border: 1px solid #ff4d4d;
+}
+
+.request-container .request-status.completed {
+  color: #4caf50; /* 낙찰완료 */
+  border: 1px solid #4caf50;
+}
+
+/* 내용 */
+.request-container .request-content {
+  margin-left: 100px; 
+  color: #333;
+  margin-top: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* /RequestList */
+
