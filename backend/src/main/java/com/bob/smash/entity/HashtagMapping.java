@@ -20,6 +20,7 @@ public class HashtagMapping {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_idx", nullable = false)
+
     private Request request;
 
     @EqualsAndHashCode
