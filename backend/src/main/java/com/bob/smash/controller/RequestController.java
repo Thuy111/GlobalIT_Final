@@ -35,8 +35,7 @@ public class RequestController {
     @GetMapping("/listTest")
     public String list(Model model) {
         List<RequestDTO> result = requestService.getList();
-        model.addAttribute("result", result);
-        // return "redirect:/smash/request/listTest"; 
+        model.addAttribute("result", result); 
         return "smash/request/listTest";
     }
 
@@ -48,17 +47,7 @@ public class RequestController {
 
     // 의뢰서 등록 처리
     @PostMapping("/register")
-    // public String register(@ModelAttribute RequestDTO requestDTO, Model model) {
-    //      log.info("📝 Received RequestDTO: {}", requestDTO); // debug DTO
-
-
-    //     Integer savedIdx = requestService.register(requestDTO, null);
-
-    //      log.info("✅ Saved Request with idx: {}", savedIdx); // debug DB 저장 결과
-
-    //     model.addAttribute("msg", savedIdx);
-    //     return "redirect:/smash/request/listTest";
-    // }
+   
     public String register(@ModelAttribute RequestDTO requestDTO,
                        @AuthenticationPrincipal OAuth2User oauth2User,
                        Model model) {
@@ -88,10 +77,10 @@ public class RequestController {
 
 
     //  의뢰서 상세 보기
-    // @GetMapping("/read")
-    // public String read(@RequestParam("idx") Integer idx, Model model) {
-    //     RequestDTO dto = requestService.get(idx);
-    //     model.addAttribute("dto", dto);
-    //     return "request/read";  // templates/request/read.html
-    // }
+    @GetMapping("/detail")
+    public String detail(@RequestParam("idx") Integer idx, Model model) {
+        RequestDTO dto = requestService.get(idx);
+        model.addAttribute("dto", dto);
+        return "/smash/request/detail";  
+    }
 }

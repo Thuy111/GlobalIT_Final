@@ -2,6 +2,7 @@ package com.bob.smash.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,7 @@ import com.bob.smash.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.bob.smash.config.CustomOAuth2SuccessHandler; // new로 작성시, 타입은 사용하지만 클래스 이름을 사용하지 않아서 never used 경고가 발생 (직접 참조X)
+import com.bob.smash.config.CustomOAuth2SuccessHandler;
 
 import org.springframework.security.config.Customizer;
 
@@ -30,6 +31,9 @@ public class SecurityConfig {
 
     private final MemberRepository memberRepository;
     
+    @Autowired
+    private CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    
     public SecurityConfig(MemberRepository memberRepository) {
       this.memberRepository = memberRepository;
     }  
@@ -37,7 +41,7 @@ public class SecurityConfig {
     // SecurityFilterChain 빈 등록
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("✅ filterChain Bean 등록됨!");
+        System.out.println("@@@ filterChain Bean 등록됨!");
         
         http
             .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
@@ -53,7 +57,7 @@ public class SecurityConfig {
             // 로그인 설정 (커스텀)
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login-page")
-                .successHandler(new CustomOAuth2SuccessHandler(memberRepository))
+                .successHandler(customOAuth2SuccessHandler)
                 .failureUrl(frontServerUrl + "/profile")  // 로그인 실패 시 이동할 URL
             )
             // 로그아웃 설정

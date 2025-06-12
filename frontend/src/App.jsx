@@ -5,45 +5,45 @@ import Layout from './layouts/Basic';
 import Home from './pages/HomePage';
 import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';
-
-
+import Authenticated from './pages/member/AuthenticatedPage';
+import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved === null ? false : JSON.parse(saved);
-  });
-  // localStorage에 값이 없을 경우 false 저장
-  useEffect(() => {
-    const saved = localStorage.getItem('darkMode');
-    if (saved === null) {
-      localStorage.setItem('darkMode', JSON.stringify(false));
-    }
-    if(isDarkMode ) {
-      document.body.classList.add('dark');
-    }
-    else {
-      document.body.classList.remove('dark');
-    }
-  }, []);
-  
+  const baseUrl = import.meta.env.VITE_API_URL;
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // null: 로딩 중
+  const [user, setUser] = useState(null);
+
   // routing
   const routes = [
     {
       element: <Layout />,
       children: [
-        { path: '/', element: <Home isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} /> },
+        { path: '/', element: <Home user={user} /> },
         { path: '/alarm', element: <Alarm /> },
-        { path: '/profile', element: <Profile /> },
+        { path: '/profile', element: <Profile user={user} /> },
+        { path: '/member/authenticated', element: <Authenticated /> },
       ],
     },
   ];
 
-  const router = createBrowserRouter(routes);
+  // 로그인 상태 확인
+  useEffect(() => {
+    axios.get(`${baseUrl}/smash/member/check`, { withCredentials: true })
+      .then(res => {
+        setUser(res.data);
+        setIsLoggedIn(true);
+      })
+      .catch(() => {
+        setIsLoggedIn(false);
+      });
+  }, []);
+  
 
+  const router = createBrowserRouter(routes);
   return (
     <DarkModeProvider>
+      {!isLoggedIn===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
       <RouterProvider router={router} />
     </DarkModeProvider>
   )

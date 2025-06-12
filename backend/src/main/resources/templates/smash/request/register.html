@@ -15,6 +15,7 @@
  <div class="request_container">
 
   <!-- 전체 내용----------------------------------------------------------------->
+   <div class="request_container">
     <div class="container mt-5" style="max-width: 480px;">
       <h4 class="mb-4 font-weight-bold">&lt; 의뢰서 작성 &gt;</h4>
 
@@ -22,6 +23,12 @@
         <div>
             <label>제목</label>
             <input type="text" name="title" class="form-control" required>
+        </div>
+
+          <!-- 해시태그 -->
+        <div class="form-group">
+          <label for="hashtag">해시태그 <small class="text-muted">(띄어쓰기 기준으로 적용)</small></label>
+          <input type="text" id="hashtag" class="form-control"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
         </div>
 
         <div>
@@ -34,12 +41,12 @@
             <input type="datetime-local" name="useDate" class="form-control" required>
         </div>
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">등록</button>
+        <div>
+            <button type="submit" class="btn btn-dark btn-block mt-4">작성 완료</button>
         </div>
-   </form>
-
+    </form>
     </div>
+  </div>
     <!-- end --------->
      
   </div>

@@ -4,5 +4,20 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
     <h1 style="margin: 6rem;">Request Detail PAGE</h1>
+
+    <div class="request_container">
+      <div>        
+        <p>의뢰서</p>
+      </div>  
+   
+        <p><span>제목: </span>[[${dto.title}]]</p>
+        <p><span>해시태그: </span>[[${dto.hashtags}]]</p>
+        <p><span>내용: </span>[[${dto.content}]]</p>
+        <p><span>대여 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.useDate)}]]</p>
+        <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.createdAt)}]]</p>
+
+      </div>
+    </div>
+
   </th:block>
 </th:block>

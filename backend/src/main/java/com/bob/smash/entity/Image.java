@@ -13,16 +13,16 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idx;
-
+    
     @Column(name = "s_name", length = 150, nullable = false, unique = true)
     private String sName;
-
+    
     @Column(name = "o_name", length = 255, nullable = false)
     private String oName;
 
     @Column(length = 500, nullable = false)
     private String path;
-
+    
     @Column(length = 10, nullable = false)
     private String type;
 

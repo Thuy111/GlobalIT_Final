@@ -40,6 +40,7 @@ body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7)
   z-index: -1;
 }
 button, [class*="btn"] {
+  height: 40px;
   cursor: pointer;
   background-color: #4ED7F1;
   color: white;
@@ -51,4 +52,27 @@ button, [class*="btn"] {
 }
 button:hover, [class*="btn"]:hover {
   background-color: #3bb8d4;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
+
+.loading i {
+  font-size: 2rem;
+  color: rgb(236, 236, 236);
+  animation: loading-spin 2s linear infinite;
+}
+@keyframes loading-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
