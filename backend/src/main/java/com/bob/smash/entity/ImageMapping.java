@@ -1,7 +1,6 @@
 package com.bob.smash.entity;
 
 import java.io.Serializable;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,15 +14,15 @@ import lombok.*;
 public class ImageMapping {
     @Id
     @Enumerated(EnumType.STRING)
-    @Column(name = "target_type", nullable = false, length = 10)
+    @Column(name = "target_type", length = 10, nullable = false)
     private TargetType targetType;
 
     @Id
     @Column(name = "target_idx", nullable = false)
     private Integer targetIdx;
-
+    
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_idx", nullable = false)
     private Image image;
 

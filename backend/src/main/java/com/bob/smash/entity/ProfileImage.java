@@ -13,7 +13,7 @@ public class ProfileImage {
     @Id
     @Column(length = 100)
     private String memberId;
-
+    
     @MapsId
     @OneToOne
     @JoinColumn(name = "member_id", nullable = false)

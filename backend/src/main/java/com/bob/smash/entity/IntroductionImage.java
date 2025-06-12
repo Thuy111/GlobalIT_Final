@@ -13,17 +13,17 @@ public class IntroductionImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idx;
-
-    @ManyToOne
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "partner_bno", nullable = false)
     private PartnerInfo partnerInfo;
-
+    
     @Column(name = "is_main")
     private Byte isMain;
-
-	  @Column(name = "order_index")
+    
+	@Column(name = "order_index")
     private Integer orderIndex;
-
+    
     @Column(name = "s_name", length = 150, nullable = false, unique = true)
     private String sName;
 
@@ -32,7 +32,7 @@ public class IntroductionImage {
 
     @Column(length = 500, nullable = false)
     private String path;
-
+    
     @Column(length = 10, nullable = false)
     private String type;
 
