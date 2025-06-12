@@ -38,4 +38,12 @@ public class IntroductionImage {
 
     @Column(nullable = false)
     private Integer size;
+
+    public void changeIsMain(Byte isMain) {this.isMain = isMain;}
+    public void changeOrderIndex(Integer orderIndex) {this.orderIndex = orderIndex;}
+    public void changeSName(String sName) {this.sName = sName;}
+    public void changeOName(String oName) {this.oName = oName;}
+    public void changePath(String path) {this.path = path;}
+    public void changeType(String type) {this.type = type;}
+    public void changeSize(Integer size) {this.size = size;}
 }
