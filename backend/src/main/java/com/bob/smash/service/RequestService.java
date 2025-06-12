@@ -2,12 +2,11 @@ package com.bob.smash.service;
 
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Hashtag;
-import com.bob.smash.entity.HashtagMapping;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
-import com.bob.smash.repository.HashtagMappingRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -41,6 +40,7 @@ public interface RequestService {
                 .useRegion("서울") // 예시값, 추후 DTO에 추가되면 수정
                 .isDone((byte) 0)
                 .isGet((byte) 0)
+                .isModify((byte) 0)
                 .createdAt(LocalDateTime.now())
                 .member(member)
                 .build();
