@@ -28,4 +28,10 @@ public class Image {
 
     @Column(nullable = false)
     private Integer size;
+
+    public void changeSName(String sName) {this.sName = sName;}
+    public void changeOName(String oName) {this.oName = oName;}
+    public void changePath(String path) {this.path = path;}
+    public void changeType(String type) {this.type = type;}
+    public void changeSize(Integer size) {this.size = size;}
 }
