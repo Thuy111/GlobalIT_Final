@@ -1,5 +1,6 @@
 package com.bob.smash.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,40 +58,11 @@ public class ImageServiceImpl implements ImageService {
   // (등록-다중)여러 이미지 + 매핑 동시
   @Override
   public List<ImageDTO> uploadAndMapImages(String targetType, Integer targetIdx, List<MultipartFile> files) {
-    // 반환할 DTO 리스트 생성
-    List<ImageDTO> result = new java.util.ArrayList<>();
-    // 파일 저장 경로 생성(한 번만)
-    String uploadDir = System.getProperty("user.dir") + "/uploads/" + LocalDate.now();
-    File dir = new File(uploadDir);
-    if (!dir.exists()) dir.mkdirs();
-    // 각각의 파일에 대해 반복 처리
+    List<ImageDTO> result = new ArrayList<>();
     for (MultipartFile file : files) {
-      // 이미지 유효성 검사
-      if (!validateImage(file)) {
-        // 여러 파일 중 하나라도 유효하지 않으면 예외 발생(원한다면 continue로 넘어갈 수도 있음)
-        throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다: " + file.getOriginalFilename());
-      }
-      // UUID를 조합해 저장 파일명 생성
-      String originalFilename = file.getOriginalFilename();
-      String uuid = UUID.randomUUID().toString();
-      String saveName = uuid + "_" + originalFilename;
-      // 실제 저장할 파일 객체 생성
-      File dest = new File(dir, saveName);
-      // 파일 저장
-      try {
-        file.transferTo(dest);
-      } catch (Exception e) {
-        throw new RuntimeException("이미지 저장 실패: " + originalFilename, e);
-      }
-      // 엔티티로 변환/DB 저장
-      Image image = toImageEntity(file, uploadDir, saveName, originalFilename);
-      image = imageRepository.save(image);
-      ImageMapping mapping = toImageMappingEntity(targetType, targetIdx, image);
-      mapping = imageMappingRepository.save(mapping);
-      // DTO 변환 후 결과 리스트에 추가
-      result.add(entityToDto(image, mapping));
+      // 각 파일에 대해 단건 등록 메서드 호출 후 list에 추가
+      result.add(uploadAndMapImage(targetType, targetIdx, file));
     }
-    // 결과 리스트 반환
     return result;
   }
 
@@ -113,8 +85,7 @@ public class ImageServiceImpl implements ImageService {
   }
   // (수정-다중)게시글에서 여러 이미지 교체
   @Override
-  public List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx,
-      Map<Integer, MultipartFile> updateMap) {
+  public List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap) {
     throw new UnsupportedOperationException("Unimplemented method 'updateImagesOfTarget'");
   }
 
