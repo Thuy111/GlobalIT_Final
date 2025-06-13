@@ -1,42 +1,48 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../styles/UserProfile.css';
-import DefaultImage from '../../assets/images/default-profile.png'
+import DefaultImage from '../../assets/images/default-profile.png';
 
 const UserProfile = () => {
   const baseUrl = import.meta.env.VITE_API_URL;
   const [info, setInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(`${baseUrl}/smash/profile`, {
-          withCredentials: true
+          withCredentials: true,
         });
         setInfo(res.data);
         console.log('프로필 정보:', res.data);
       } catch (err) {
+        setError('프로필을 불러오는 데 실패했습니다. 다시 시도해주세요.');
         console.error('프로필 불러오기 실패:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
   }, []);
 
-  if (!info) return <div>로딩 중...</div>;
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="profile_container">
       <div className="profile_main_container">
         <h1>마이페이지</h1>
         <div className="profile_inform">
-            <div className="profile_inform_img">
-                <img
-                    src={info.profileImageUrl || DefaultImage}
-                    alt="프로필"
-                    className="profile_image"
-                />
-            </div>
+          <div className="profile_inform_img">
+            <img
+              src={info.profileImageUrl || DefaultImage}
+              alt="프로필"
+              className="profile_image"
+            />
+          </div>
 
           <div className="profile_inform_text">
             <p className="profile_inform_nickname">{info.nickname}</p>
