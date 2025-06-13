@@ -31,7 +31,7 @@ public class RequestController {
     return "redirect:/smash/request/listTest";
   }
 
-    // 의뢰서 목록 보기
+    // 의뢰서 목록 보기//////////////////////////
     @GetMapping("/listTest")
     public String list(Model model) {
         List<RequestDTO> result = requestService.getList();
@@ -39,7 +39,7 @@ public class RequestController {
         return "smash/request/listTest";
     }
 
-    // 의뢰서 작성 폼 보기
+    // 의뢰서 작성 폼 보기////////////////////////////
     @GetMapping("/register")
     public String register() {
         return "/smash/request/register";
@@ -48,15 +48,21 @@ public class RequestController {
     // 의뢰서 등록 처리
     @PostMapping("/register")
    
-    public String register(@ModelAttribute RequestDTO requestDTO,
-                       @AuthenticationPrincipal OAuth2User oauth2User,
-                       Model model) {
+    public String register(@ModelAttribute RequestDTO requestDTO,                        
+                         @RequestParam("detailAddress") String detailAddress, //detail 주소
+                         @AuthenticationPrincipal OAuth2User oauth2User,
+                         Model model) {
 
     String email = oauth2User.getAttribute("email");
     log.info(" Logged in email: {}", email);
 
     Member member = memberRepository.findByEmailId(email)
                       .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다"));
+
+
+    // 메인주소와 detail 주소 묶어서 DB에 저장
+    String fullAddress = requestDTO.getUseRegion() + " " + detailAddress;
+    requestDTO.setUseRegion(fullAddress);                  
 
     Integer savedIdx = requestService.register(requestDTO, member);
     model.addAttribute("msg", savedIdx);
@@ -76,7 +82,7 @@ public class RequestController {
 
 
 
-    //  의뢰서 상세 보기
+    //  의뢰서 상세 보기//////////////////////////
     @GetMapping("/detail")
     public String detail(@RequestParam("idx") Integer idx, Model model) {
         RequestDTO dto = requestService.get(idx);

@@ -44,15 +44,52 @@
             <input type="datetime-local" name="useDate" class="form-control" required>
         </div>
 
-        <div>
-            <button type="submit" class="btn btn-dark btn-block mt-4">작성 완료</button>
-        </div>
-    </form>
-    </div>
+       <!-- 대여 지역 -->
+         <div class="form-group">
+          <label for="useRegion">대여 지역</label>
+          <div class="input-group mb-2">
+            <input type="text" 
+                  class="form-control" 
+                  id="useRegion" 
+                  name="useRegion"                
+                  placeholder="주소를 검색해주세요" 
+                  readonly 
+                  required>
+            <div class="input-group-append">
+              <button type="button" class="btn btn-dark" onclick="execDaumPostcode()">주소 찾기</button>
+            </div>
+          </div>
+
+          <input type="text" 
+                class="form-control" 
+                id="detailAddress" 
+                name="detailAddress" 
+                placeholder="상세 주소를 입력하세요" 
+                required>
+        </div>   
+
+         <!-- 제출 버튼 -->
+        <button type="submit" class="btn btn-dark btn-block mt-4">작성 완료</button>
+
+      </form>
   </div>
-    <!-- end --------->
-     
-  </div>
+
+  
+   <!-- 주소 불려오기 -->
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+      function execDaumPostcode() {
+        new daum.Postcode({
+          oncomplete: function(data) {
+            // 주소 받아오기
+            document.getElementById("useRegion").value = data.address;
+            document.getElementById("detailAddress").focus();
+          }
+        }).open();
+      }
+    </script>
+
+
   </th:block>
 </th:block>
 </body>
