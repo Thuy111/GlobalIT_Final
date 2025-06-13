@@ -10,7 +10,7 @@
       </h1>
       
       <div class="estimate_form">
-        <form th:action="@{/smash/estimate/register}" method="post">
+        <form th:action="@{/smash/estimate/register}" enctype="multipart/form-data" method="post">
           <input type="hidden" name="requestIdx" value="1" required>
           <input type="hidden" name="partnerBno" value="234-56-78901" required>
           <input type="hidden" name="isSelected" value="0">
@@ -18,6 +18,9 @@
           <input type="hidden" class="datetime" name="createdAt">
           <input type="hidden" class="datetime" name="modifiedAt">
           
+          <label for="imageFiles">이미지 첨부</label><br>
+          <input type="file" name="imageFiles" multiple><br>
+
           <label for="title">제목</label><br>
           <input type="text" name="title" required><br>
           
