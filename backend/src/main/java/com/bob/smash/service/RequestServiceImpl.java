@@ -16,15 +16,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page; // ⭐ 추가
-import org.springframework.data.domain.PageRequest; // ⭐ 추가
-import org.springframework.data.domain.Pageable; // ⭐ 추가
-import org.springframework.data.domain.Sort; // ⭐ 추가
-import java.util.Map; // ⭐ 추가
 
-import java.util.HashMap; // ⭐ 추가
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,10 +44,6 @@ public class RequestServiceImpl implements RequestService {
     private final HashtagRepository hashtagRepository;
     private final HashtagMappingRepository hashtagMappingRepository;
 
-
-    @Value("${com.bob.upload.path}")
-    private String uploadPath;
-   
 
     // 등록///////////////////////////////////////////////////
     @Override
@@ -83,7 +81,7 @@ public class RequestServiceImpl implements RequestService {
 
     // 상세 페이지 조회/////////////////////////////////////
     @Override
-    public RequestDTO get(Integer idx) {    
+    public RequestDTO get(Integer idx) {
         Optional<Request> result = requestRepository.findById(idx);
 
         //** hashtag**********************/
@@ -100,7 +98,7 @@ public class RequestServiceImpl implements RequestService {
 
     // 전체 목록 조회////////////////////////////////////
     @Override
-    public List<RequestDTO> getList() {   
+    public List<RequestDTO> getList() {
         List<Request> list = requestRepository.findAll();        
         return list.stream().map(request -> {
         List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
@@ -108,14 +106,12 @@ public class RequestServiceImpl implements RequestService {
         }).collect(Collectors.toList());
     }
 
-    // ⭐ 무한스크롤용 페이지네이션 기능 구현
+    // 무한스크롤용 페이지네이션 기능 구현
     @Override
     public Map<String, Object> getPagedRequestList(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
         Page<Request> requestPage;
 
-        // 🔍 검색어가 있을 경우 title에 포함된 항목만 조회
         if (search != null && !search.isBlank()) {
             requestPage = requestRepository.findByTitleContaining(search, pageable);
         } else {
@@ -124,11 +120,26 @@ public class RequestServiceImpl implements RequestService {
 
         List<RequestListDTO> requestDTOs = requestPage.getContent()
                 .stream()
-                .map(request -> new RequestListDTO(
+                .map(request -> {
+                    LocalDate createdAt = request.getCreatedAt().toLocalDate();
+                    LocalDate useDate = request.getUseDate().toLocalDate(); 
+                    String dDay = calculateDDay(createdAt, useDate);
+                   List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
+                    List<String> hashtagList = hashtags.stream()
+        .map(tag -> "#" + tag.getTag())
+        .collect(Collectors.toList());
+
+                    return new RequestListDTO(
                         request.getIdx(),
                         request.getTitle(),
-                        request.getCreatedAt().toLocalDate()
-                ))
+                        request.getContent(),
+                        request.getIsDone(),
+                        createdAt,
+                        useDate,
+                        dDay,
+                        hashtagList
+                    );
+                })
                 .collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
@@ -140,4 +151,11 @@ public class RequestServiceImpl implements RequestService {
         return response;
     }
 
+    // D-DAY 계산 함수
+    private String calculateDDay(LocalDate createdAt, LocalDate useDate) {
+        long days = ChronoUnit.DAYS.between(createdAt, useDate);
+        if (days == 0) return "D-DAY";
+        else if (days > 0) return "D-" + days;
+        else return "D+" + Math.abs(days);
+    }
 }

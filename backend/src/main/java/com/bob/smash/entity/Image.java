@@ -27,5 +27,11 @@ public class Image {
     private String type;
 
     @Column(nullable = false)
-    private Integer size;
+    private Long size;
+
+    public void changeSName(String sName) {this.sName = sName;}
+    public void changeOName(String oName) {this.oName = oName;}
+    public void changePath(String path) {this.path = path;}
+    public void changeType(String type) {this.type = type;}
+    public void changeSize(Long size) {this.size = size;}
 }

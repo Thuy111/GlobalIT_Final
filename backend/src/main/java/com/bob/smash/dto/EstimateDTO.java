@@ -1,6 +1,7 @@
 package com.bob.smash.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,15 +21,17 @@ public class EstimateDTO {
   private Boolean isPickup;
   private Integer price;
   private LocalDateTime returnDate;
-  private LocalDateTime createdAt;
   private Byte isSelected;
   private Boolean isReturn;
+  private LocalDateTime createdAt;
+  private LocalDateTime modifiedAt;
   // 의뢰서 정보
   private Integer requestIdx;
-  private String requestMemberId;
   // 파트너 업체 정보
   private String partnerBno;
   private String partnerName;
   private String partnerTel;
   private String partnerRegion;
+  // 이미지 정보
+  private List<ImageDTO> images;
 }

@@ -12,6 +12,7 @@
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/modify}" method="post">
           <input type="hidden" name="idx" th:value="${dto.idx}" readonly>
+          <input type="hidden" class="datetime" name="modifiedAt" readonly>
 
           <label for="title">제목</label><br>
           <input type="text" name="title" th:value="${dto.title}" required><br>
@@ -24,7 +25,7 @@
           
           <label>대여 방법<br>
             <input type="checkbox" name="isDelivery" value="true" th:checked="${dto.isDelivery == true}">배달
-            <input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업
+            <input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업<br>
           </label>
     
           <label for="returnDate">반납 날짜</label><br>
@@ -37,22 +38,30 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("form");
+        // 현재 시간을 모든 datetime input에 입력
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        now.setMinutes(now.getMinutes() - offset);
+        const datetimeInputs = document.getElementsByClassName('datetime');
+        const datetimeValue = now.toISOString().slice(0, 16);
+        for (let i = 0; i < datetimeInputs.length; i++) {
+          datetimeInputs[i].value = datetimeValue;
+        }
 
+        // 입력값 검증
+        const form = document.querySelector("form");
         form.addEventListener("submit", function (e) {
           const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
           const isPickup = form.querySelector('input[name="isPickup"]').checked;
-
           // 둘 다 체크되지 않았을 경우 전송 막기
           if (!isDelivery && !isPickup) {
             e.preventDefault(); // submit 막기
             alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
           }
-
           // 체크되지 않은 항목은 'false'로 전송
           ['isDelivery', 'isPickup'].forEach(name => {
             const checkbox = form.querySelector(`input[name="${name}"]`);
-            if (!checkbox.checked) {
+            if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
               const hidden = document.createElement("input");
               hidden.type = "hidden";
               hidden.name = name;

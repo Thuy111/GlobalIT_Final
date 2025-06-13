@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import '../styles/RequestList.css';
+
 
 function RequestList() {
   const baseUrl = import.meta.env.VITE_API_URL;
@@ -12,7 +14,7 @@ function RequestList() {
         params: { search }
       })
       .then((res) => {
-        setRequest(res.data.request); 
+        setRequest(res.data.request);
       })
       .catch((err) => {
         console.error("요청 실패:", err);
@@ -20,42 +22,41 @@ function RequestList() {
   };
 
   useEffect(() => {
-    fetchRequests(); // 초기 로딩 시 전체 조회
+    fetchRequests(); // 초기 로딩
   }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchRequests(); // 검색 버튼 눌렀을 때
+    fetchRequests();
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <form onSubmit={handleSearch} style={{ marginBottom: "20px" }}>
+    <div className="request-container">
+      <form onSubmit={handleSearch} className="request-search-form">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="검색어를 입력하세요"
+          placeholder="무엇을 찾으시나요?"
         />
-        <button type="submit">검색</button>
       </form>
+  {request.map(item => (
+    <div key={item.idx} className="request-card">
+      <div className="request-dday">{item.dDay}</div>
+      <div className="request-date">{item.createdAt}</div>
 
-      {request.map((item) => (
-        <div
-          key={item.idx}
-          style={{
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-            padding: "10px",
-            marginBottom: "10px",
-          }}
-        >
-          <h3>{item.title}</h3>
-          <p>{item.createdAt}</p>
-        </div>
-      ))}
+      <div className="request-header">
+        <h3 className="request-title">{item.title}</h3>
+      <p className={`request-status ${item.isDone === 0 ? 'pending' : item.isDone === 1 ? 'failed' : item.isDone === 2 ? 'completed' : ''}`}>
+        {item.isDone === 0 ? "낙찰대기" : item.isDone === 1 ? "미낙찰" : item.isDone === 2 ? "낙찰완료" : "알 수 없음"}
+      </p>
+      </div>
+
+      <p className="request-content">{item.content}</p>
+      <div>{item.hashtags.join(" ")}</div>
     </div>
+  ))}
+</div>
   );
 }
-
 export default RequestList;

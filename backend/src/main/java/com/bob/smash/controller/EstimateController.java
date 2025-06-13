@@ -2,15 +2,20 @@ package com.bob.smash.controller;
 
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.service.EstimateService;
+import com.bob.smash.service.EstimateServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import org.springframework.ui.Model;
+
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Log4j2
@@ -25,19 +30,25 @@ public class EstimateController {
     return "redirect:/smash/estimate/list";
   }
 
-  // 목록
+  // 목록(이미지 포함)
   @GetMapping("/list")
   public void list(Model model) {
-    model.addAttribute("result", service.getList());
+    model.addAttribute("result", service.getListWithImage());
   }
 
-  // 등록
+  // 등록(이미지 포함)
   @GetMapping("/register")
   public void register() {}
   @PostMapping("/register")
-  public String estimateRegister(EstimateDTO dto, RedirectAttributes rttr) {
-    // log.info("견적서 등록 요청: {}", dto);
-    Integer idx = service.register(dto);
+  public String estimateRegister(EstimateDTO dto,
+                                 @RequestParam(name = "imageFiles", required = false) List<MultipartFile> imageFiles,
+                                 RedirectAttributes rttr)  {
+    Integer idx;
+    if (imageFiles != null && !imageFiles.isEmpty() && !imageFiles.get(0).isEmpty()) {
+      idx = service.registerWithImage(dto, imageFiles);
+    } else {
+      idx = service.register(dto);
+    }
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
@@ -70,18 +81,27 @@ public class EstimateController {
   }
   
   // 낙찰 상태(isSelected) 수정
-  // @PostMapping("/status")
-  // public String estimateStatus(@RequestParam("idx") Integer idx,
-  //                              @RequestParam("isSelected") Byte isSelected,
-  //                               RedirectAttributes rttr) {
-  //   log.info("견적서 상태 수정 요청: idx={}, isReturn={}, isSelected={}", idx, isSelected);
-    
-  //   EstimateDTO dto = service.get(idx);
-  //   dto.setIsSelected(isSelected);
-    
-  //   // service.modify(dto);
-    
-  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
-  //   return "redirect:/smash/estimate/list";
-  // }
+  @PostMapping("/selectStatus")
+  public String estimateSelect(@RequestParam("idx") Integer idx,
+                               @RequestParam("isSelected") Byte isSelected,
+                                RedirectAttributes rttr) {
+    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);
+    if (isSelected == null) {
+      isSelected = 0; // 기본값 설정
+    }    
+    EstimateDTO dto = service.get(idx);
+    dto.setIsSelected(isSelected);
+      // service.modify(dto);
+      rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
+
+  // 삭제
+  @PostMapping("/delete")
+  public String delete(@RequestParam("idx") Integer idx, RedirectAttributes rttr) {
+    // log.info("견적서 삭제 요청: idx={}", idx);
+    service.delete(idx);
+    rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
 }

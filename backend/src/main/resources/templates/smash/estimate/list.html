@@ -6,7 +6,7 @@
     <div class="estimate_container">
       <h1>
         <a href="#">〈 </a>
-        견적서 목록 <span>(?개)</span>
+        견적서 목록<span>([[${#lists.size(result)}]]개)</span>
       </h1>
       <hr>
       <div class="estimate_list">
@@ -19,12 +19,17 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
                 <b class="estimate_title">[[${estimate.title}]]</b>
               </div>
-              <div>
-                <a th:href="@{/smash/estimate/update(idx=${estimate.idx})}">수정</a>
-                <a th:href="@{/smash/estimate/delete(idx=${estimate.idx})}">삭제</a>
+              <div class="estimate_actions">
+                <form th:action="@{/smash/estimate/update}" method="get">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit">수정</button>
+                </form>
+                <form th:action="@{/smash/estimate/delete}" method="post" id="delete-${estimate.idx}">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit">삭제</button>
+                </form>
               </div>
             </div>
-            <p class="estimate_content">[[${estimate.content}]]</p>
             <table>
               <tr>
                 <th>제시 가격</th>
@@ -45,6 +50,12 @@
                 </td>
               </tr>
             </table>
+            <p class="estimate_content">[[${estimate.content}]]</p>
+            <div class="estimate_images_box" th:if="${estimate.images != null}">
+              <div class="estimate_image" th:each="image : ${estimate.images}">
+                <img th:src="@{${image.url}}" alt="첨부 이미지"/>
+              </div>
+            </div>
             <table>
               <caption>업체 정보</caption>
               <tr>
@@ -61,17 +72,18 @@
               </tr>
             </table>
             <p class="estimate_date">
+              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
+              <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
+              <span th:if="${estimate.isSelected != null}"><br></span>
               <span th:if="${estimate.isSelected == 0}">낙찰 대기중</span>
               <span th:if="${estimate.isSelected == 1}">낙찰 실패</span>
               <span th:if="${estimate.isSelected == 2}">낙찰 완료</span>
-              /
+              <span th:if="${estimate.isReturn != null}"> / </span>
               <span th:if="${estimate.isReturn == true}">반납 완료</span>
               <span th:if="${estimate.isReturn == false}">반납 대기중</span>
-              <br>
-              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.createdAt)}]]
             </p>
           </div>
-          <form th:action="@{/smash/estimate/return}" method="post">
+          <form th:action="@{/smash/estimate/return}" method="post" id="return-${estimate.idx}">
             <input type="hidden" name="idx" th:value="${estimate.idx}" />
             <input type="hidden" name="isReturn" th:value="true" />
             <button type="submit">반납 확인</button>
@@ -80,6 +92,29 @@
       </div>
   
       <a th:href="@{/smash/estimate/register}">새로운 견적서 등록</a>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // 삭제 confirm
+          const deleteForms = document.querySelectorAll("form[id^='delete-']");
+          deleteForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+              if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
+                e.preventDefault();
+              }
+            });
+          });
+          // 반납 confirm
+          const returnForms = document.querySelectorAll("form[id^='return-']");
+          returnForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+              if (!confirm("반납을 확인 처리하시겠습니까?")) {
+                e.preventDefault();
+              }
+            });
+          });
+        });
+      </script>
     </div>
   </th:block>
 </th:block>
