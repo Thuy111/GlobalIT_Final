@@ -22,6 +22,8 @@ public class ImageServiceImpl implements ImageService {
   private final ImageRepository imageRepository;
   private final ImageMappingRepository imageMappingRepository;
 
+  // 🛠️ 파일 저장/삭제 코드 중복으로 리팩토링 필요(여유 있을 때 확인)
+
   // (등록-단건)이미지 + 매핑 동시
   @Override
   public ImageDTO uploadAndMapImage(String targetType, Integer targetIdx, MultipartFile file) {
@@ -174,12 +176,12 @@ public class ImageServiceImpl implements ImageService {
     }
   }
 
-  // 미사용/임시 이미지 삭제
+  // 미사용/임시 이미지 삭제(🚧추후 구현 필요)
   @Override
   public void deleteUnusedImages() {
     throw new UnsupportedOperationException("Unimplemented method 'deleteUnusedImages'");
   }
-  // 이미지 이름 중복 검사
+  // 이미지 이름 중복 검사(🚧추후 구현 필요)
   @Override
   public boolean okImageName(String sName) {
     throw new UnsupportedOperationException("Unimplemented method 'okImageName'");
