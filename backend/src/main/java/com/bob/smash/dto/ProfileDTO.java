@@ -1,13 +1,18 @@
 package com.bob.smash.dto;
 
-import lombok.*;
+import com.bob.smash.entity.Member;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class ProfileDTO {
-    private String emailId;
+    private String email;
     private String nickname;
-    private String loginType;
-    private String profileImagePath;
-    private String userType; // USER OR PARTNER
+    private Member.LoginType loginType;
+    private boolean isPartner;
+    private String profileImageUrl; // path + sName 조합
 }
