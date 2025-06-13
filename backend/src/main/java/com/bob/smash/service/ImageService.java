@@ -1,5 +1,6 @@
 package com.bob.smash.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,10 +38,11 @@ public interface ImageService {
   
   // Image entity 생성
   default Image toImageEntity(MultipartFile file, String uploadDir, String saveName, String originalFilename) {
+    String webPath = "/" + LocalDate.now() + "/" + saveName;
     return Image.builder()
                 .sName(saveName)
                 .oName(originalFilename)
-                .path(uploadDir + "/" + saveName)
+                .path(webPath)
                 .type(file.getContentType())
                 .size(file.getSize())
                 .build();

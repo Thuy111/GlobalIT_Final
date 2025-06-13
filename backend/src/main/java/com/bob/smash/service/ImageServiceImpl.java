@@ -29,7 +29,7 @@ public class ImageServiceImpl implements ImageService {
         throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
     }
     // 파일 저장 경로 생성(예: /uploads/날짜(2025-06-12)/uuid_파일명)
-    String uploadDir = "D:/uploads/" + LocalDate.now();
+    String uploadDir = System.getProperty("user.dir") + "/uploads/" + LocalDate.now();
     // 원본 파일명과 UUID를 조합해 저장 파일명 생성(중복방지)
     String originalFilename = file.getOriginalFilename();
     String uuid = UUID.randomUUID().toString();
@@ -60,7 +60,7 @@ public class ImageServiceImpl implements ImageService {
     // 반환할 DTO 리스트 생성
     List<ImageDTO> result = new java.util.ArrayList<>();
     // 파일 저장 경로 생성(한 번만)
-    String uploadDir = "D:/uploads/" + LocalDate.now();
+    String uploadDir = System.getProperty("user.dir") + "/uploads/" + LocalDate.now();
     File dir = new File(uploadDir);
     if (!dir.exists()) dir.mkdirs();
     // 각각의 파일에 대해 반복 처리
