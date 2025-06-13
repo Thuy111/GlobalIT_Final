@@ -37,7 +37,8 @@ public interface RequestService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .useDate(dto.getUseDate())
-                .useRegion("서울") // 예시값, 추후 DTO에 추가되면 수정
+                // .useRegion("서울") // 예시값, 추후 DTO에 추가되면 수정
+                .useRegion(dto.getUseRegion()) //  DTO에서 꺼냄
                 .isDone((byte) 0)
                 .isGet((byte) 0)
                 .isModify((byte) 0)
@@ -60,6 +61,7 @@ public interface RequestService {
             .content(request.getContent())
             .useDate(request.getUseDate())
             .createdAt(request.getCreatedAt())
+            .useRegion(request.getUseRegion())
             .hashtags(hashtagStr)
             .hashtagList(hashtags)
             .build();

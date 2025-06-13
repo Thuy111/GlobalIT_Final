@@ -13,6 +13,7 @@
         <p><span>제목: </span>[[${dto.title}]]</p>
         <p><span>해시태그: </span>[[${dto.hashtags}]]</p>
         <p><span>내용: </span>[[${dto.content}]]</p>
+        <p><span>지역: </span>[[${dto.useRegion}]]</p>
         <p><span>대여 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.useDate)}]]</p>
         <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.createdAt)}]]</p>
 
