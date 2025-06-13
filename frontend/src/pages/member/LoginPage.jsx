@@ -17,8 +17,12 @@ const Login = () => {
   useEffect(() => {
     // 쿼리 파라미터에서 'error'가 있는지 확인
     const error = query.get('error');
+    if(!error) return; // error가 없으면 아무것도 하지 않음
     if (error=="SignupFailed") {
       alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+    }else if(error.includes("AlreadyExists")) {
+      const loginType = error.replace("AlreadyExists", "");
+      alert(`이미 ${loginType}로 가입된 사용자입니다. ${loginType}로 로그인 합니다.`);
     }else if(error){
       console.error("로그인 중 오류 발생:", error);
     }

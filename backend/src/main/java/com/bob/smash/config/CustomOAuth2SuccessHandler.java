@@ -77,16 +77,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
             // 전화번호가 없으면 프론트에서 번호 입력 페이지로 보내기 / DB에 이메일이 존재할 경우 그냥 return
             if (phone == null || phone.isBlank()) {
-                if (existMemberWithEmail.isPresent()) { // 이미 회원가입된 이메일이면
-                    System.out.println("===전화번호는 없지만 이메일로 기존 회원이므로 리다이렉트===");
-                    response.sendRedirect(frontServerUrl + "/profile"); // 또는 로그인 후 가야 할 기본 페이지
+                if (existMemberWithEmail.isPresent()) { // 이미 회원가입된 이메일이면 (DB에 존재)
+                    System.out.println("===전화번호 X 이메일 O >>> 기존 회원 >>> 핸드폰 입력 페이지===");
+                    response.sendRedirect(frontServerUrl + "/member/authenticated"); // 프론트 전화번호 입력 페이지로 리다이렉트
                     return;
                 }
 
-                System.out.println("===전화번호가 없으므로 프론트로 리다이렉트===");
+                System.out.println("===전화번호X 이메일 X >>> 핸드폰 입력 페이지===");
                 // 세션에 이메일 등 최소 정보 저장 (또는 JWT 발급)
-                request.getSession().setAttribute("email", email);
-                request.getSession().setAttribute("provider", registrationId);
+                request.getSession().setAttribute("social_email", email);
+                request.getSession().setAttribute("social_provider", registrationId);
                 request.getSession().setAttribute("nickname", generateUniqueNickname());
                 
                 // 인증 정보 제거
@@ -100,17 +100,36 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             // 전화번호로 회원 조회
             Optional<Member> existMemberWithTel = Optional.empty();
             if (phone != null) {
-                existMemberWithTel = memberRepository.findByTel(phone);
+                existMemberWithTel = memberRepository.findByTel(formatPhoneNumber(phone)); // 포맷된 번호로 비교
+            }
+
+            System.out.println("전화번호로 회원조회 결과 ==============="+ existMemberWithTel );
+            
+            Member.LoginType loginType;
+            // 로그인 타입 설정
+            switch (registrationId) {
+                case "kakao" -> loginType = Member.LoginType.kakao;
+                default -> loginType = Member.LoginType.google; // 기본값 설정
+            }
+
+            if(existMemberWithEmail.isPresent() || existMemberWithTel.isPresent()){ // 로그인하려는 이메일이나 전화번호가 회원이 DB에 존재하는 경우
+                // 현재 가입한 계정과 현재 로그인 시도하는 계정의 login_type이 같다면, return
+                if (existMemberWithEmail.isPresent() && existMemberWithEmail.get().getLoginType() == loginType) {
+                    // 동일 로그인 타입으로 가입된 회원이므로, 세션에 정보 저장 후 리다이렉트
+                    System.out.println("===이미 존재하는 동일 회원===");
+                    response.sendRedirect(frontServerUrl + "/profile");
+                    return;
+                }
+
+                // 다른 계정으로 이미 존재하는 회원이므로, 세션에 정보 저장 후 리다이렉트
+                System.out.println("===이미 존재하는 다른계정 회원===");
+                response.sendRedirect(frontServerUrl + "/profile?error=" + existMemberWithTel.get().getLoginType().toString() + "AlreadyExists");
+                return;
             }
     
             // 만약 회원이 존재하지 않으면 새로 생성
             if (existMemberWithEmail.isEmpty() && existMemberWithTel.isEmpty()) { // 중복되는 이메일이나 전화번호가 없을 때만 회원 생성
-                Member.LoginType loginType;
-                // 로그인 타입 설정
-                switch (registrationId) {
-                    case "kakao" -> loginType = Member.LoginType.kakao;
-                    default -> loginType = Member.LoginType.google; // 기본값 설정
-                }
+                System.out.println("===새로운 회원 생성===");
     
                 Member newMember = Member.builder()
                     .emailId(email)
