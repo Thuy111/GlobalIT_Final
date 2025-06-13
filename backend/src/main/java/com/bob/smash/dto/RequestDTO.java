@@ -1,12 +1,8 @@
 package com.bob.smash.dto;
 
 import lombok.*;
-
 import java.time.LocalDateTime;
-
 import java.util.List;
-
-
 
 import com.bob.smash.entity.Hashtag;
 
@@ -22,16 +18,16 @@ public class RequestDTO {
     private String title;            // 제목
     private String content;          // 내용
     private LocalDateTime useDate;       // 대여 날짜
-
     private LocalDateTime createdAt; //의뢰서 생성날짜
+
+    // hashtag
     private List<Hashtag> hashtagList;
     private String hashtags; //해시태그 입력 (예: "운동 캠핑 자전거")
 
+    // 지역
+    private String useRegion; // 대여 지역 (주소 API로 가져오는 메인 주소)
 
-    private String useRegion;        // 대여 지역 (주소 API로 가져오는 메인 주소)
-    // private String detailAddress;    // 나머지 주소
-    
-
-       
-    
+    // 이미지 정보
+    private List<ImageDTO> images;  
+         
 }

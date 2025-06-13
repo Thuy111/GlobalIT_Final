@@ -8,6 +8,7 @@ import com.bob.smash.entity.Request;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,8 +19,8 @@ import java.util.Map;
 @Service
 public interface RequestService {
 
-    // 등록
-    Integer register(RequestDTO dto, Member member);
+    // 등록 (이미지 포함)
+    Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles);
 
     // 상세보기
     RequestDTO get(Integer idx);
