@@ -3,9 +3,12 @@
 <header>
   <!-- Bootstrap 4 CSS -->
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> 
+
 
    <!-- CSS -->
-   <link rel="stylesheet" href="@{/request.css}" />
+   <link rel="stylesheet" th:href="@{/request.css}" />
 
 
 </header>
@@ -20,6 +23,16 @@
       <h4 class="mb-4 font-weight-bold">&lt; 의뢰서 작성 &gt;</h4>
 
       <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
+
+        <!-- 이미지 -->         
+           <div id="image-preview-wrapper" class="image-preview-wrapper">
+              <label for="imageFiles" class="image-upload-box">
+                <!-- <img src="/images/camera-icon.png" alt="upload" /> -->
+                 <i class="fas fa-camera fa-2x"></i> 
+                <span><span id="image-count">0</span>/10</span>
+              </label>
+              <input type="file" id="imageFiles" name="imageFiles" multiple accept="image/*" hidden />
+           </div>
 
         <!-- 제목 -->
         <div>
@@ -88,6 +101,78 @@
         }).open();
       }
     </script>
+
+    <!-- 사진 preview -->
+    <script>
+      let selectedFiles = [];
+      const imageInput = document.getElementById('imageFiles');
+      const wrapper = document.getElementById('image-preview-wrapper');
+      const countSpan = document.getElementById('image-count');
+
+      imageInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+
+        // 사진 10개까지
+        if (selectedFiles.length + files.length > 10) {
+          alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+          return;
+        }
+
+        files.forEach(file => {
+          selectedFiles.push(file);
+          renderThumbnail(file);
+        });
+
+        updateCount();
+        refreshFileInput();
+      });
+
+      function renderThumbnail(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const thumb = document.createElement('div');
+          thumb.className = 'image-thumb';
+
+          const img = document.createElement('img');
+          img.src = e.target.result;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.innerText = '✕';
+          removeBtn.className = 'remove-btn';
+          removeBtn.onclick = () => {
+            wrapper.removeChild(thumb);
+            selectedFiles = selectedFiles.filter(f => f !== file);
+            updateCount();
+            refreshFileInput();
+          };
+
+          thumb.appendChild(img);
+          thumb.appendChild(removeBtn);
+
+          if (wrapper.querySelectorAll('.image-thumb').length === 0) {
+            const label = document.createElement('div');
+            label.className = 'label';
+            label.innerText = '대표사진';
+            thumb.appendChild(label);
+          }
+
+          wrapper.insertBefore(thumb, wrapper.querySelector('label'));
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function updateCount() {
+        countSpan.innerText = selectedFiles.length;
+      }
+
+      // Trick input type="file" sync with selectedFiles
+      function refreshFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(f => dataTransfer.items.add(f));
+        imageInput.files = dataTransfer.files;
+      }
+      </script>
+
 
 
   </th:block>
