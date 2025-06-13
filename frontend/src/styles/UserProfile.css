@@ -1,0 +1,35 @@
+/* 전체 초기화 */
+* {margin: 0; padding: 0;}
+
+/* Main Container */
+.profile_main_container{margin: 0 100px; display: flex; flex-direction: column;}
+
+/* Main Header */
+.profile_main_container h1{margin: 0 0 100px 0; text-align: left; font-size: 30px; font-weight: bold;}
+
+/* information box */
+.profile_main_container .profile_inform{display: flex; width: 60%; justify-content:space-around; margin: 0 auto 100px auto}
+
+/* profile image */
+.profile_image { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #ccc; object-fit: fill;}
+
+/* information text */
+.profile_inform .profile_inform_text{text-align: start;}
+.profile_inform_text p{padding: 10px; color: rgb(61, 61, 61); white-space: pre-wrap; text-indent: 10px;}
+.profile_inform_text .profile_inform_nickname{font-size: 18px; color: rgb(27, 27, 27); font-weight: 500; text-indent: 0;}
+
+/* information text theme-dark */
+body.dark .profile_inform_text p{padding: 10px; color: rgb(228, 228, 228); white-space: pre-wrap; text-indent: 10px;}
+body.dark .profile_inform_text .profile_inform_nickname{font-size: 18px; color: rgb(255, 255, 255); font-weight: 500; text-indent: 0;}
+
+/* 반응형 웹 */
+@media screen and (max-width : 580px) {
+    .profile_inform{display: flex; flex-direction: column; justify-content: center;}
+    .profile_inform .profile_inform_text{text-align: center;}
+}
+
+/* profile menu */
+.profile_account_setting{width: 70%; text-align: start; margin: 0 auto 40px auto}
+.profile_account_setting h2{font-size: 20px; font-weight: 500; padding-bottom: 15px;}
+.profile_account_setting ul li{padding: 10px; text-indent: 10px;}
+

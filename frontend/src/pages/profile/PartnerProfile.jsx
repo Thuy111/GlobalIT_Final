@@ -3,10 +3,10 @@
 const PartnerProfile = () => {
 
     return(
-        <div className="member-page">
-            <div className="member_main_container">
+        <div className="profile_container">
+            <div className="profile_main_container">
                 <h1>마이페이지</h1>
-                <div className="member_inform">
+                <div className="profile_inform">
                     <div className="inform_img">
                         {/* 이미지 파일 작성 <img src={info.profileImage} alt="프로필" /> */}
                     </div>

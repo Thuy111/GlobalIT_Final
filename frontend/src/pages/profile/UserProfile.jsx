@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../../styles/UserProfile.css';
+import DefaultImage from '../../assets/images/default-profile.png'
 
 const UserProfile = () => {
   const baseUrl = import.meta.env.VITE_API_URL;
@@ -24,25 +26,26 @@ const UserProfile = () => {
   if (!info) return <div>로딩 중...</div>;
 
   return (
-    <div className="member-page">
-      <div className="member_main_container">
+    <div className="profile_container">
+      <div className="profile_main_container">
         <h1>마이페이지</h1>
-        <div className="member_inform">
-          <div className="inform_img">
-            {info.profileImageUrl ? (
-              <img src={info.profileImageUrl} alt="프로필" />
-            ) : (
-              <div>기본 이미지</div>
-            )}
-          </div>
-          <div className="inform_text">
-            <p>닉네임: {info.nickname}</p>
-            <p>로그인 방식: {info.loginType}</p>
-            <p>파트너 여부: {info.isPartner ? '파트너' : '일반 회원'}</p>
+        <div className="profile_inform">
+            <div className="profile_inform_img">
+                <img
+                    src={info.profileImageUrl || DefaultImage}
+                    alt="프로필"
+                    className="profile_image"
+                />
+            </div>
+
+          <div className="profile_inform_text">
+            <p className="profile_inform_nickname">{info.nickname}</p>
+            <p>{info.loginType}</p>
+            <p>{info.isPartner ? '파트너' : '일반 회원'}</p>
           </div>
         </div>
 
-        <section className="account_setting">
+        <section className="profile_account_setting">
           <h2>SMaSh 이용 내역</h2>
           <ul>
             <li>작성 글</li>
@@ -51,7 +54,7 @@ const UserProfile = () => {
           </ul>
         </section>
 
-        <section className="account_setting">
+        <section className="profile_account_setting">
           <h2>계정 설정</h2>
           <ul>
             <li>개인 정보 수정</li>
