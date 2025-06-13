@@ -3,27 +3,32 @@ package com.bob.smash.service;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.HashtagMapping;
+
 import com.bob.smash.dto.RequestListDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
+
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page; // ⭐ 추가
 import org.springframework.data.domain.PageRequest; // ⭐ 추가
 import org.springframework.data.domain.Pageable; // ⭐ 추가
 import org.springframework.data.domain.Sort; // ⭐ 추가
 import java.util.Map; // ⭐ 추가
+
 import java.util.HashMap; // ⭐ 추가
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +38,14 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final MemberRepository memberRepository;
 
+    // hashtag
     private final HashtagRepository hashtagRepository;
     private final HashtagMappingRepository hashtagMappingRepository;
+
+
+    @Value("${com.bob.upload.path}")
+    private String uploadPath;
+   
 
     // 등록///////////////////////////////////////////////////
     @Override
@@ -42,7 +53,7 @@ public class RequestServiceImpl implements RequestService {
     Request entity = dtoToEntity(dto, member);
     Request saved = requestRepository.save(entity);
 
-    // 2. 해시태그 처리
+    // [1] 해시태그 처리
     if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
         String[] tags = dto.getHashtags().trim().split("\\s+");
 
@@ -65,7 +76,7 @@ public class RequestServiceImpl implements RequestService {
             }
         }
     }
-
+    
     return saved.getIdx();
 
     }

@@ -27,10 +27,6 @@ public class RequestDTO {
     private List<Hashtag> hashtagList;
     private String hashtags; //해시태그 입력 (예: "운동 캠핑 자전거")
 
-     
-    // private List<MultipartFile> imageFiles; //업로드된 이미지들 (많은 사진 업로드)
-    // private List<Image> imageList; // 저장된 이미지 정보를 응답으로 줄 때 사용
-
 
     // private String useRegion;        // 대여 지역 (주소 API로 가져오는 메인 주소)
     // private String detailAddress;    // 나머지 주소
