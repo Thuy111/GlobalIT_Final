@@ -1,6 +1,7 @@
 package com.bob.smash.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,4 +32,6 @@ public class EstimateDTO {
   private String partnerName;
   private String partnerTel;
   private String partnerRegion;
+  // 이미지 정보
+  private List<ImageDTO> images;
 }

@@ -2,6 +2,8 @@ package com.bob.smash.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.PartnerInfo;
@@ -10,12 +12,18 @@ import com.bob.smash.entity.Request;
 public interface EstimateService {
   // 등록
   Integer register(EstimateDTO dto);
+  // 등록(이미지 포함)
+  Integer registerWithImage(EstimateDTO dto, List<MultipartFile> imageFiles);
   // 목록
   List<EstimateDTO> getList();
+  // 목록(이미지 포함)
+  List<EstimateDTO> getListWithImage();
   // 반납 현황 수정
   Integer returnStatus(EstimateDTO dto);
   // 조회
   EstimateDTO get(Integer idx);
+  // 조회(이미지 포함)
+  EstimateDTO getWithImage(Integer idx);
   // 수정
   Integer modify(EstimateDTO dto);
   // 삭제
