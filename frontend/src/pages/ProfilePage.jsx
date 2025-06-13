@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Login from './member/LoginPage';
 import Member from './profile/UserProfile';
-import axios from 'axios';
 
 const Profile = ({ user }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

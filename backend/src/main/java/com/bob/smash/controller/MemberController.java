@@ -1,8 +1,6 @@
 package com.bob.smash.controller;
 
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bob.smash.entity.Member;
-import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.dto.MemberDTO;
+import com.bob.smash.service.MemberService;
+import com.bob.smash.service.MemberServiceImpl.DuplicateMemberException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,71 +24,78 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/smash/member")
 public class MemberController {
 
-  private final MemberRepository memberRepository;
+  private final MemberService memberService;
 
-  // 유저 정보 조회 API
+  // 현재 유저정보 + 유효성 체크
   @GetMapping("/check")
-  public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User user) {
+  public ResponseEntity<?> getCheckCurrentUser(@AuthenticationPrincipal OAuth2User user, HttpServletRequest request) {
       if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-      return ResponseEntity.ok(user.getAttributes()); // 혹은 MemberDTO로 반환
+      try{
+        memberService.checkUser(user, request);
+        return ResponseEntity.ok(user.getAttributes());// 혹은 MemberDTO로 반환
+      }catch(IllegalArgumentException e){
+        return ResponseEntity.ok().build(); // 로그인 하지 않은 상태에도 오류를 띄우지 않기 위해 OK로 처리
+      }
   }
 
+  // 현재 로그인된 유저 정보 조회 + DB 조회
+  @GetMapping("/currnet-user")
+  public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User user, HttpServletRequest request) {
+      if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      try {
+        MemberDTO memberDTO = memberService.getCurrentUser(user, null); // body는 사용하지 않으니 null 가능
+        return ResponseEntity.ok(memberDTO); // DTO 반환
+      } catch (IllegalArgumentException e) {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+      }
+  }
+
+  // 소셜로그인 번호만 등록
+  @PostMapping("/auth/register-phone")
+  public ResponseEntity<?> registerPhoneNumber(
+    @RequestBody Map<String, String> body,
+    HttpServletRequest request
+  ) {
+      try {
+          memberService.registerPhoneNumber(request, body);
+          return ResponseEntity.ok("전화번호가 등록되었습니다.");
+      } catch (IllegalArgumentException e) {
+          return ResponseEntity.badRequest().body(e.getMessage());
+      }
+  }
+
+  // 소셜 로그인 세션 정보 조회
   @GetMapping("/auth/session-info")
   public ResponseEntity<?> getSessionInfo(HttpServletRequest request) {
-      String email = (String) request.getSession().getAttribute("social_email");
-      String provider = (String) request.getSession().getAttribute("social_provider");
-      String nickname = (String) request.getSession().getAttribute("nickname");
+        String email = (String) request.getSession().getAttribute("social_email");
+        String provider = (String) request.getSession().getAttribute("social_provider");
+        String nickname = (String) request.getSession().getAttribute("nickname");
 
-      if (email == null || provider == null) {
-          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
-      }
+        if (email == null || provider == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Session expired");
+        }
 
-      return ResponseEntity.ok(Map.of(
-          "email", email,
-          "provider", provider,
-          "nickname", nickname
-      ));
-  }
+        return ResponseEntity.ok(Map.of(
+            "email", email,
+            "provider", provider,
+            "nickname", nickname
+        ));
+    }
 
+  // 소셜 로그인 회원가입 완료 처리
   @PostMapping("/auth/complete-social")
   public ResponseEntity<?> completeSocialSignup(
-          HttpServletRequest request,
-          @RequestBody Map<String, String> body
+    @RequestBody Map<String, String> body,
+    HttpServletRequest request
   ) {
-      // 프론트에서 보낸 정보 받기
-      String email = body.get("email");
-      String provider = body.get("provider");
-      String nickname = body.get("nickname");
-      String phone = body.get("phone");
-
-      if (email == null || provider == null || phone == null) {
-          return ResponseEntity.badRequest().body("정보 부족");
+      try {
+          memberService.completeSocialSignup(request, body);
+          return ResponseEntity.ok("회원가입이 완료되었습니다.");
+      } catch (DuplicateMemberException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage()); // 중복된 회원가입 시
+      } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
       }
-
-      Optional<Member> existMemberWithEmail = memberRepository.findByEmailId(email);
-      Optional<Member> existMemberWithTel = memberRepository.findByTel(phone);
-
-      boolean existMember = existMemberWithEmail.isPresent() && existMemberWithTel.isPresent(); // 이메일과 전화번호 모두 존재하는지 확인
-
-      if (existMember) {
-          return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 사용자");
-      }
-
-      Member.LoginType loginType = "kakao".equals(provider) ?
-              Member.LoginType.kakao : Member.LoginType.google;
-
-      Member newMember = Member.builder()
-              .emailId(email)
-              .nickname(nickname)
-              .createdAt(LocalDateTime.now())
-              .loginType(loginType)
-              .role((byte) 0)
-              .tel(phone)
-              .build();
-
-      memberRepository.save(newMember);
-      
-      return ResponseEntity.ok("회원가입 완료");
   }
 
 
