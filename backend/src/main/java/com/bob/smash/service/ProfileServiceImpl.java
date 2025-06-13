@@ -3,36 +3,43 @@ package com.bob.smash.service;
 import com.bob.smash.dto.ProfileDTO;
 import com.bob.smash.entity.*;
 import com.bob.smash.repository.*;
-import com.bob.smash.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService{
     
-    private final MemberRepository memberRepo;
-    private final ProfileImageRepository profileRepo;
-    private final PartnerInfoRepository partnerRepo;
+    private final MemberRepository memberRepository;
+    private final ProfileImageRepository profileImageRepository;
+    private final PartnerInfoRepository partnerInfoRepository;
 
     @Override
     public ProfileDTO getProfileByEmail (String emailId){
-        Member member = memberRepo.findById(emailId)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
+        Member member = memberRepository.findById(emailId)
+                        .orElseThrow(() -> {
+                            log.warn("회원 정보 조회 실패 - 존재하지 않는 emailId: {}", emailId);
+                            return new IllegalArgumentException("회원이 존재하지 않습니다.");
+    });
+        
+        boolean isPartner = partnerInfoRepository.findByMember_EmailId(emailId).isPresent();
 
-        ProfileImage profileImage = profileRepo.findByMember(member).orElse(null);
-         boolean isPartner = partnerRepo.findByMember(member).isPresent();
+        Optional<ProfileImage> profileOpt = profileImageRepository.findById(member.getEmailId());
 
-        String imagePath = profileImage != null
-            ? profileImage.getPath() + "/" + profileImage.getSName()
-            : null;
+        String profileImageUrl = profileOpt
+                .map(img -> img.getPath() + "/" + img.getSName())
+                .orElse(null);
 
-        return new ProfileDTO(
-            member.getEmailId(),
-            member.getNickname(),
-            member.getLoginType().name(),
-            imagePath,
-            isPartner ? "PARTNER" : "USER"
-        );
+
+        return  ProfileDTO.builder()
+                    .email(member.getEmailId())
+                    .nickname(member.getNickname())
+                    .loginType(member.getLoginType())
+                    .isPartner(isPartner)
+                    .profileImageUrl(profileImageUrl)
+                    .build();
     }
 }
