@@ -138,17 +138,40 @@ public class ImageServiceImpl implements ImageService {
   // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
   @Override
   public void deleteImagesByTarget(String targetType, Integer targetIdx) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImagesByTarget'");
+    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
+      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
+    );
+    for (ImageMapping mapping : mappings) {
+      Integer imageIdx = mapping.getImage().getIdx();
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
   }
   // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시
   @Override
   public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImageFromTarget'");
+    // 매핑 및 이미지 찾기
+    ImageMapping mapping = imageMappingRepository.findByImage(imageRepository.getReferenceById(imageIdx));
+    if (mapping == null) {
+      throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
+    }
+      Image image = mapping.getImage();
+    if (image == null) {
+      throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
+    }
+    // 실제 파일 삭제
+    String filePath = image.getPath() + "/" + image.getSName();
+    File file = new File(filePath);
+    if (file.exists()) file.delete();
+    // 매핑, 이미지 DB에서 삭제
+    imageMappingRepository.delete(mapping);
+    imageRepository.delete(image);
   }
   // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
   @Override
   public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImagesFromTarget'");
+    for (Integer imageIdx : imageIdxList) {
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
   }
 
   // 미사용/임시 이미지 삭제
