@@ -1,11 +1,18 @@
 package com.bob.smash.service;
 
-import com.bob.smash.dto.ProfileDTO;
-import com.bob.smash.entity.*;
-import com.bob.smash.repository.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.bob.smash.dto.ProfileDTO;
+import com.bob.smash.entity.Member;
+import com.bob.smash.entity.PartnerInfo;
+import com.bob.smash.entity.ProfileImage;
+import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.repository.PartnerInfoRepository;
+import com.bob.smash.repository.ProfileImageRepository;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,6 +35,10 @@ public class ProfileServiceImpl implements ProfileService{
         
     // 파트너 정보 여부 확인
         boolean isPartner = partnerInfoRepository.findByMember_EmailId(emailId).isPresent();
+        
+        Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
+        log.info("findByMember_EmailId({}) 결과: isPresent={}", emailId, partnerOpt.isPresent());
+
 
         // 프로필 이미지 조회
         Optional<ProfileImage> profileOpt = profileImageRepository.findById(member.getEmailId());
@@ -35,13 +46,27 @@ public class ProfileServiceImpl implements ProfileService{
                 .map(img -> img.getPath() + "/" + img.getSName())
                 .orElse(null); 
 
-        // ProfileDTO 생성 및 반환
-        return  ProfileDTO.builder()
-                    .email(member.getEmailId())
-                    .nickname(member.getNickname())
-                    .loginType(member.getLoginType())
-                    .isPartner(isPartner)
-                    .profileImageUrl(profileImageUrl)
-                    .build();
+        // // ProfileDTO 생성 및 반환
+        // return  ProfileDTO.builder()
+        //             .email(member.getEmailId())
+        //             .nickname(member.getNickname())
+        //             .loginType(member.getLoginType())
+        //             .isPartner(isPartner)
+        //             .profileImageUrl(profileImageUrl)
+        //             .build();
+
+    
+        ProfileDTO profileDTO = ProfileDTO.builder()
+            .email(member.getEmailId())
+            .nickname(member.getNickname())
+            .loginType(member.getLoginType())
+            .isPartner(isPartner)
+            .profileImageUrl(profileImageUrl)
+            .build();
+
+
+    log.info("ProfileDTO 반환값: {}", profileDTO);
+
+    return profileDTO;
     }
 }
