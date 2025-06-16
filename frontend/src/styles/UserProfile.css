@@ -26,10 +26,18 @@ body.dark .profile_inform_text .profile_inform_nickname{font-size: 18px; color: 
 @media screen and (max-width : 580px) {
     .profile_inform{display: flex; flex-direction: column; justify-content: center;}
     .profile_inform .profile_inform_text{text-align: center;}
+    .profile_partner_inform{display: flex; flex-direction: column; align-items: center; text-align: center;}
 }
 
 /* profile menu */
-.profile_account_setting{width: 70%; text-align: start; margin: 0 auto 40px auto}
+.profile_account_setting{width: 70%; text-align: start; margin: 0 auto 40px auto;}
 .profile_account_setting h2{font-size: 20px; font-weight: 500; padding-bottom: 15px;}
 .profile_account_setting ul li{padding: 10px; text-indent: 10px; cursor: pointer;}
 
+/* partner Information */
+.profile_partner_inform{display: flex; flex-direction: column; width: 70%; margin: 0 auto 60px auto; text-align: left; gap: 14px;}
+.profile_partner_inform h2{font-size: 20px; font-weight: 500;}
+.profile_partner_inform input{width: 300px; font-size: 15px;}
+
+
+.profile_blank{height: 100px; width: 100%;}

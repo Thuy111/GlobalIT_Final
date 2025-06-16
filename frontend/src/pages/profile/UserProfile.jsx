@@ -59,6 +59,8 @@ const UserProfile = ({ profile }) => {
             <li>계정 탈퇴</li>
           </ul>
         </section>
+
+        <div className="profile_blank"></div>
       </div>
     </div>
   );

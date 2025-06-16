@@ -33,12 +33,6 @@ public class ProfileServiceImpl implements ProfileService{
                             return new IllegalArgumentException("회원이 존재하지 않습니다.");
     });
         
-    // 파트너 정보 여부 확인
-        boolean isPartner = partnerInfoRepository.findByMember_EmailId(emailId).isPresent();
-        
-        Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
-        log.info("findByMember_EmailId({}) 결과: isPresent={}", emailId, partnerOpt.isPresent());
-
 
         // 프로필 이미지 조회
         Optional<ProfileImage> profileOpt = profileImageRepository.findById(member.getEmailId());
@@ -46,27 +40,31 @@ public class ProfileServiceImpl implements ProfileService{
                 .map(img -> img.getPath() + "/" + img.getSName())
                 .orElse(null); 
 
-        // // ProfileDTO 생성 및 반환
-        // return  ProfileDTO.builder()
-        //             .email(member.getEmailId())
-        //             .nickname(member.getNickname())
-        //             .loginType(member.getLoginType())
-        //             .isPartner(isPartner)
-        //             .profileImageUrl(profileImageUrl)
-        //             .build();
 
-    
-        ProfileDTO profileDTO = ProfileDTO.builder()
-            .email(member.getEmailId())
-            .nickname(member.getNickname())
-            .loginType(member.getLoginType())
-            .isPartner(isPartner)
-            .profileImageUrl(profileImageUrl)
-            .build();
+        // 파트너 정보 여부 확인
+        Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
+        log.info("findByMember_EmailId({}) 결과: isPresent={}", emailId, partnerOpt.isPresent());
 
+        boolean isPartner = partnerInfoRepository.findByMember_EmailId(emailId).isPresent();
+  
+        ProfileDTO.ProfileDTOBuilder builder = ProfileDTO.builder()
+                .email(member.getEmailId())
+                .nickname(member.getNickname())
+                .loginType(member.getLoginType())
+                .isPartner(isPartner)
+                .profileImageUrl(profileImageUrl);
+                
 
-    log.info("ProfileDTO 반환값: {}", profileDTO);
+        if (isPartner) {
+            PartnerInfo p = partnerOpt.get();
+            builder.bno(p.getBno());
+            builder.partnerName(p.getName());
 
-    return profileDTO;
+        }
+
+        ProfileDTO profileDTO = builder.build();
+
+        log.info("ProfileDTO 반환값: {}", profileDTO);
+        return profileDTO;
     }
 }
