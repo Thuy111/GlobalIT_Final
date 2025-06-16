@@ -40,7 +40,7 @@ public class RequestController {
         return "smash/request/listTest";
     }
 
-    // 의뢰서 작성 폼 보기////////////////////////////
+    // 의뢰서 작성 폼 보기//////////// ////////////////
     @GetMapping("/register")
     public String register() {
         return "/smash/request/register";
@@ -81,7 +81,7 @@ public class RequestController {
 
         return ResponseEntity.ok(requestService.getPagedRequestList(page, size, search));
     }
-
+    
 
 
     //  의뢰서 상세 보기//////////////////////////

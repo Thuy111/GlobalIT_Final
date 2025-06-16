@@ -163,6 +163,14 @@ public class RequestServiceImpl implements RequestService {
         response.put("totalPages", requestPage.getTotalPages());
         response.put("hasNext", requestPage.hasNext());
 
+        // ✅ 전체 해시태그 추가
+List<String> allHashtags = hashtagRepository.findAll()
+        .stream()
+        .map(Hashtag::getTag)
+        .distinct() 
+        .collect(Collectors.toList());
+response.put("hashtags", allHashtags);
+
         return response;
     }
 
