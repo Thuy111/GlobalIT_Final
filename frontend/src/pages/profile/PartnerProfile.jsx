@@ -35,11 +35,16 @@ const PartnerProfile = ({ profile }) => {
           </div>
         </div>
 
-        <div className="partner_infom">
+        <div className="profile_partner_inform">
           <h2>업체명</h2>
-          <p>{profile.companyName || '-'}</p>
+          <input type="text" 
+                 value={profile.partnerName || '-'} 
+                 readOnly />
+
           <h2>사업자 번호</h2>
-          <p>{profile.businessNumber || '-'}</p>
+          <input type="text" 
+                 value={profile.bno || '-'} 
+                 readOnly />
         </div>
 
         <section className="profile_account_setting">
@@ -59,6 +64,8 @@ const PartnerProfile = ({ profile }) => {
             <li>계정 탈퇴</li>
           </ul>
         </section>
+        
+        <div className="profile_blank"></div>
       </div>
     </div>
   );
