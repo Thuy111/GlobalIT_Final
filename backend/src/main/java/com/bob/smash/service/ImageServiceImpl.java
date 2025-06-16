@@ -22,6 +22,8 @@ public class ImageServiceImpl implements ImageService {
   private final ImageRepository imageRepository;
   private final ImageMappingRepository imageMappingRepository;
 
+  // 🛠️ 파일 저장/삭제 코드 중복으로 리팩토링 필요(여유 있을 때 확인)
+
   // (등록-단건)이미지 + 매핑 동시
   @Override
   public ImageDTO uploadAndMapImage(String targetType, Integer targetIdx, MultipartFile file) {
@@ -138,25 +140,48 @@ public class ImageServiceImpl implements ImageService {
   // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
   @Override
   public void deleteImagesByTarget(String targetType, Integer targetIdx) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImagesByTarget'");
+    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
+      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
+    );
+    for (ImageMapping mapping : mappings) {
+      Integer imageIdx = mapping.getImage().getIdx();
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
   }
   // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시
   @Override
   public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImageFromTarget'");
+    // 매핑 및 이미지 찾기
+    ImageMapping mapping = imageMappingRepository.findByImage(imageRepository.getReferenceById(imageIdx));
+    if (mapping == null) {
+      throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
+    }
+      Image image = mapping.getImage();
+    if (image == null) {
+      throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
+    }
+    // 실제 파일 삭제
+    String filePath = image.getPath() + "/" + image.getSName();
+    File file = new File(filePath);
+    if (file.exists()) file.delete();
+    // 매핑, 이미지 DB에서 삭제
+    imageMappingRepository.delete(mapping);
+    imageRepository.delete(image);
   }
   // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
   @Override
   public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteImagesFromTarget'");
+    for (Integer imageIdx : imageIdxList) {
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
   }
 
-  // 미사용/임시 이미지 삭제
+  // 미사용/임시 이미지 삭제(🚧추후 구현 필요)
   @Override
   public void deleteUnusedImages() {
     throw new UnsupportedOperationException("Unimplemented method 'deleteUnusedImages'");
   }
-  // 이미지 이름 중복 검사
+  // 이미지 이름 중복 검사(🚧추후 구현 필요)
   @Override
   public boolean okImageName(String sName) {
     throw new UnsupportedOperationException("Unimplemented method 'okImageName'");

@@ -83,17 +83,6 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
 
-  // 조회: 견적서 + 첨부 이미지 목록까지 DTO로 반환
-  public EstimateDTO getWithImage(Integer idx) {
-    Estimate estimate = repository.findById(idx)
-      .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
-    EstimateDTO dto = entityToDto(estimate);
-    // 이미지 목록 조회 및 DTO에 세팅
-    List<ImageDTO> images = imageService.getImagesByTarget("estimate", idx);
-    dto.setImages(images);
-    return dto;
-  }
-
   // 목록: 견적서 리스트 반환 (이미지 포함하고 싶으면 각 DTO에 이미지 세팅)
   public List<EstimateDTO> getListWithImage() {
     List<Estimate> result = repository.findAll();
@@ -106,5 +95,16 @@ public class EstimateServiceImpl implements EstimateService {
         return dto;
       })
       .toList();
+  }
+  
+  // 조회: 견적서 + 첨부 이미지 목록까지 DTO로 반환
+  public EstimateDTO getWithImage(Integer idx) {
+    Estimate estimate = repository.findById(idx)
+      .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
+    EstimateDTO dto = entityToDto(estimate);
+    // 이미지 목록 조회 및 DTO에 세팅
+    List<ImageDTO> images = imageService.getImagesByTarget("estimate", idx);
+    dto.setImages(images);
+    return dto;
   }
 }

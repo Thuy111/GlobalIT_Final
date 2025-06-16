@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class RequestController {
    
     public String register(@ModelAttribute RequestDTO requestDTO,                        
                          @RequestParam("detailAddress") String detailAddress, //detail 주소
+                         @RequestParam("imageFiles") List<MultipartFile> imageFiles, //사진
                          @AuthenticationPrincipal OAuth2User oauth2User,
                          Model model) {
 
@@ -64,7 +66,7 @@ public class RequestController {
     String fullAddress = requestDTO.getUseRegion() + " " + detailAddress;
     requestDTO.setUseRegion(fullAddress);                  
 
-    Integer savedIdx = requestService.register(requestDTO, member);
+    Integer savedIdx = requestService.register(requestDTO, member,imageFiles);
     model.addAttribute("msg", savedIdx);
 
     return "redirect:/smash/request/listTest";

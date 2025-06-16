@@ -15,8 +15,7 @@ import com.bob.smash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,10 +43,13 @@ public class RequestServiceImpl implements RequestService {
     private final HashtagRepository hashtagRepository;
     private final HashtagMappingRepository hashtagMappingRepository;
 
+    //사진
+    private final ImageService imageService;
+
 
     // 등록///////////////////////////////////////////////////
     @Override
-    public Integer register(RequestDTO dto, Member member) {
+    public Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles) {
     Request entity = dtoToEntity(dto, member);
     Request saved = requestRepository.save(entity);
 
@@ -73,6 +75,19 @@ public class RequestServiceImpl implements RequestService {
                 hashtagMappingRepository.save(mapping);
             }
         }
+    }
+
+     // [2] 이미지 업로드 및 매핑
+    if (imageFiles != null && !imageFiles.isEmpty()) {
+        imageFiles.stream()
+            .filter(file -> !file.isEmpty())
+            .forEach(file -> {
+                try {
+                    imageService.uploadAndMapImage("request", saved.getIdx(), file);
+                } catch (Exception e) {
+                    log.error("이미지 업로드 실패: {}", e.getMessage());
+                }
+            });
     }
     
     return saved.getIdx();
