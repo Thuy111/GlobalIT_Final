@@ -15,7 +15,7 @@
 <body>
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
   <th:block th:fragment="content">
- <div class="request_container">
+
 
   <!-- 전체 내용----------------------------------------------------------------->
    <div class="request_container">
@@ -23,9 +23,9 @@
       <h4 class="mb-4 font-weight-bold">&lt; 의뢰서 작성 &gt;</h4>
 
       <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
-
         <!-- 이미지 -->         
            <div id="image-preview-wrapper" class="image-preview-wrapper">
+            
               <label for="imageFiles" class="image-upload-box">
                 <!-- <img src="/images/camera-icon.png" alt="upload" /> -->
                  <i class="fas fa-camera fa-2x"></i> 
@@ -85,6 +85,7 @@
         <button type="submit" class="btn btn-dark btn-block mt-4">작성 완료</button>
 
       </form>
+    </div>
   </div>
 
   

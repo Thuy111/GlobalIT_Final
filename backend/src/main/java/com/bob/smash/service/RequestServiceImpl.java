@@ -1,15 +1,18 @@
 package com.bob.smash.service;
 
+import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.HashtagMapping;
-
+import com.bob.smash.entity.Image;
+import com.bob.smash.entity.ImageMapping;
+import com.bob.smash.entity.ImageMapping.TargetType;
 import com.bob.smash.dto.RequestListDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
-
+import com.bob.smash.repository.ImageMappingRepository;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +47,7 @@ public class RequestServiceImpl implements RequestService {
     private final HashtagMappingRepository hashtagMappingRepository;
 
     //사진
-    private final ImageService imageService;
+    private final ImageService imageService;   
 
 
     // 등록///////////////////////////////////////////////////
@@ -105,7 +108,18 @@ public class RequestServiceImpl implements RequestService {
 
         // hashtagrepository에서 꺼냄
         List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(idx);
-        return entityToDto(request, hashtags);
+        
+       // Request DTO 기본 변환 (이미지 제외)
+        RequestDTO dto = entityToDto(request, hashtags);
+
+        // 이미지 리스트 조회 
+        List<ImageDTO> images = imageService.getImagesByTarget("request", idx);
+
+        // 이미지 리스트 DTO에 세팅
+        dto.setImages(images);
+
+        return dto;
+
         }    
         return null;
     }

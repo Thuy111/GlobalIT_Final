@@ -1,5 +1,6 @@
 package com.bob.smash.service;
 
+
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.Member;
@@ -25,6 +26,7 @@ public interface RequestService {
     // 상세보기
     RequestDTO get(Integer idx);
 
+
     // 목록 조회
     List<RequestDTO> getList();
 
@@ -49,7 +51,7 @@ public interface RequestService {
     }
 
     // Entity → DTO 변환
-    default RequestDTO entityToDto(Request request,List<Hashtag> hashtags) {
+    default RequestDTO entityToDto(Request request,List<Hashtag> hashtags) {  //hashtag
         //hashtags 묶음
         String hashtagStr = hashtags.stream()
             .map(tag -> "#" + tag.getTag())
@@ -63,8 +65,8 @@ public interface RequestService {
             .useDate(request.getUseDate())
             .createdAt(request.getCreatedAt())
             .useRegion(request.getUseRegion())
-            .hashtags(hashtagStr)
-            .hashtagList(hashtags)
+            .hashtags(hashtagStr)  //묶음 Hashtag 추가
+            .hashtagList(hashtags)  //Hashtag 추가        
             .build();
     }
 }

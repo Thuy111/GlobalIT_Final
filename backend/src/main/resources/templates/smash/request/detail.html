@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <header>
+  <!-- Bootstrap 4 CSS -->
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> 
+
+
+   <!-- CSS -->
+   <link rel="stylesheet" th:href="@{/request.css}" />
+
+
+</header>
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
@@ -9,15 +21,17 @@
       <div>        
         <p>의뢰서</p>
       </div>  
-   
+        <div class="request_images_box" th:if="${not #lists.isEmpty(dto.images)}">
+              <div class="request_image" th:each="image : ${dto.images}">
+                <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+              </div>
+        </div>
         <p><span>제목: </span>[[${dto.title}]]</p>
         <p><span>해시태그: </span>[[${dto.hashtags}]]</p>
         <p><span>내용: </span>[[${dto.content}]]</p>
         <p><span>지역: </span>[[${dto.useRegion}]]</p>
         <p><span>대여 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.useDate)}]]</p>
-        <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.createdAt)}]]</p>
-
-      </div>
+        <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.createdAt)}]]</p>      
     </div>
 
   </th:block>
