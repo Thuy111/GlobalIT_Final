@@ -166,7 +166,7 @@ input[type="number"]:focus  {
 .toggle-input:checked + .toggle-label::before {background-color: #FFFA8D;background-color: black;}
 /* 토글 ON인 경우에 버튼 위치 지정 */
 .toggle-input:checked + .toggle-label::before {transform: translateX(16px);}
-.toggle-text{position:absolute;left:-1.6rem;top: -2px;z-index: 1;}
+.toggle-text{position:absolute;left:-1.6rem;top: 1px;z-index: 1;}
 
 /* Navigation */
 nav {

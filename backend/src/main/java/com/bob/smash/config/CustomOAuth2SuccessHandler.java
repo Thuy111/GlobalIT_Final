@@ -7,25 +7,41 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference; // 타입검사(안정성)
+
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
+    
+    private final OAuth2AuthorizedClientService authorizedClientService;
     private final MemberRepository memberRepository;
     private final String frontServerUrl;
-
-    public CustomOAuth2SuccessHandler(MemberRepository memberRepository, @Value("${front.server.url}") String frontServerUrl) {
+    
+    public CustomOAuth2SuccessHandler(
+        MemberRepository memberRepository, 
+        @Value("${front.server.url}") String frontServerUrl,
+        OAuth2AuthorizedClientService authorizedClientService
+    ) {
+        this.authorizedClientService = authorizedClientService;
         this.memberRepository = memberRepository;
         this.frontServerUrl = frontServerUrl;
     }
@@ -52,15 +68,50 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
                 Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
                 email = (String) kakaoAccount.get("email");  // 필수
-                // name = (String) kakaoAccount.get("name");
                 phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
 
-                // 주소(배송지) 정보가 있다면 꺼내기
-                Object addressObj = kakaoAccount.get("address");
-                Map<String, Object> address = null;
-                if (addressObj instanceof Map) { // 주소 정보가 Map 형태로 존재하는 경우 (not null)
-                    address = (Map<String, Object>) addressObj;
-                    region = (String) address.get("address_name");
+                // access token 가져오기
+                OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+                OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                        authToken.getAuthorizedClientRegistrationId(),
+                        authToken.getName()
+                );
+
+                String accessToken = authorizedClient.getAccessToken().getTokenValue();
+
+                // 배송지 API 호출
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(accessToken);
+                HttpEntity<?> entity = new HttpEntity<>(headers);
+
+                try {
+                    ResponseEntity<Map<String, Object>> adressResponse = restTemplate.exchange(
+                        "https://kapi.kakao.com/v1/user/shipping_address",
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<Map<String, Object>>() {}
+                    );
+
+                    Map<String, Object> responseBody = adressResponse.getBody();
+                    // System.out.println("배송지 응답 =================== " + responseBody);
+
+                    List<Map<String, Object>> addresses = (List<Map<String, Object>>) responseBody.get("shipping_addresses");
+
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Map<String, Object> firstAddress = addresses.get(0);
+                        String baseAddress = (String) firstAddress.get("base_address");
+                        String detailAddress = (String) firstAddress.get("detail_address");
+
+                        String fullAddress = (baseAddress != null ? baseAddress : "") 
+                                           + (detailAddress != null && !detailAddress.isEmpty() ? " " + detailAddress : "");
+                        region = fullAddress;
+                    }
+
+                    System.out.println("배송지 정보 =================== " + region);
+
+                } catch (Exception e) {
+                    System.out.println("배송지 정보 가져오기 실패: " + e.getMessage());
                 }
             }else{ // 구글 로그인인 경우
                 System.out.println("Google 로그인 처리 중...");
@@ -72,38 +123,31 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 return;
             }
     
-            // 이메일로 회원 조회
+            // 회원 조회
             Optional<Member> existMemberWithEmail = memberRepository.findByEmailId(email);
+            Optional<Member> existMemberWithTel = memberRepository.findByTel(formatPhoneNumber(phone));
+            Member existingMember = existMemberWithEmail.orElse(existMemberWithTel.orElse(null));
+
+            // DB에 저장된 전화번호 우선 사용
+            if (existingMember != null) {
+                phone = existingMember.getTel();
+            }
 
             // 전화번호가 없으면 프론트에서 번호 입력 페이지로 보내기 / DB에 이메일이 존재할 경우 그냥 return
             if (phone == null || phone.isBlank()) {
-                if (existMemberWithEmail.isPresent()) { // 이미 회원가입된 이메일이면 (DB에 존재)
-                    System.out.println("===전화번호 X 이메일 O >>> 기존 회원 >>> 핸드폰 입력 페이지===");
-                    response.sendRedirect(frontServerUrl + "/member/authenticated"); // 프론트 전화번호 입력 페이지로 리다이렉트
-                    return;
-                }
-
-                System.out.println("===전화번호X 이메일 X >>> 핸드폰 입력 페이지===");
-                // 세션에 이메일 등 최소 정보 저장 (또는 JWT 발급)
                 request.getSession().setAttribute("social_email", email);
                 request.getSession().setAttribute("social_provider", registrationId);
                 request.getSession().setAttribute("nickname", generateUniqueNickname());
-                
-                // 인증 정보 제거
-                // request.getSession().invalidate(); 
-                // SecurityContextHolder.clearContext();
 
-                // 프론트 서버로 리다이렉트 (전화번호 입력 페이지)
+                if (existingMember != null) {
+                    System.out.println("===전화번호 X 이메일 O >>> 기존 회원 >>> 핸드폰 입력 페이지===");
+                } else {
+                    System.out.println("===전화번호 X 이메일 X >>> 신규 회원 >>> 핸드폰 입력 페이지===");
+                }
+
                 response.sendRedirect(frontServerUrl + "/member/authenticated");
                 return;
-            }   
-            // 전화번호로 회원 조회
-            Optional<Member> existMemberWithTel = Optional.empty();
-            if (phone != null) {
-                existMemberWithTel = memberRepository.findByTel(formatPhoneNumber(phone)); // 포맷된 번호로 비교
             }
-
-            System.out.println("전화번호로 회원조회 결과 ==============="+ existMemberWithTel );
             
             Member.LoginType loginType;
             // 로그인 타입 설정
@@ -112,19 +156,17 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 default -> loginType = Member.LoginType.google; // 기본값 설정
             }
 
-            if(existMemberWithEmail.isPresent() || existMemberWithTel.isPresent()){ // 로그인하려는 이메일이나 전화번호가 회원이 DB에 존재하는 경우
-                // 현재 가입한 계정과 현재 로그인 시도하는 계정의 login_type이 같다면, return
-                if (existMemberWithEmail.isPresent() && existMemberWithEmail.get().getLoginType() == loginType) {
-                    // 동일 로그인 타입으로 가입된 회원이므로, 세션에 정보 저장 후 리다이렉트
+            // loginType 판단 후 비교
+            if (existingMember != null) {
+                if (isSameLoginType(existingMember, loginType)) { // 정상 로그인
                     System.out.println("===이미 존재하는 동일 회원===");
                     response.sendRedirect(frontServerUrl + "/profile");
                     return;
+                } else { // 다른 계정으로 로그인 요청
+                    System.out.println("===이미 존재하는 다른계정 회원===");
+                    response.sendRedirect(frontServerUrl + "/profile?error=" + existingMember.getLoginType() + "AlreadyExists");
+                    return;
                 }
-
-                // 다른 계정으로 이미 존재하는 회원이므로, 세션에 정보 저장 후 리다이렉트
-                System.out.println("===이미 존재하는 다른계정 회원===");
-                response.sendRedirect(frontServerUrl + "/profile?error=" + existMemberWithTel.get().getLoginType().toString() + "AlreadyExists");
-                return;
             }
     
             // 만약 회원이 존재하지 않으면 새로 생성
@@ -223,6 +265,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             onlyNumbers = "0" + onlyNumbers.substring(2);
         }
         return onlyNumbers;
+    }
+
+    // 현재 로그인 타입과 비교
+    private boolean isSameLoginType(Member member, Member.LoginType loginType) {
+        return member != null && member.getLoginType() == loginType;
     }
 }
 

@@ -33,13 +33,13 @@ function App() {
     // 검증 페이지에서는 유저 체크를 하지 않음
     if (location.pathname === "/member/authenticated") return;
     // 유저 정보가 있을 때만 요청
-    axios.get(`${baseUrl}/smash/member/currnet-user`, { withCredentials: true })
+    axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
       .then(res => {
         setUser(res.data);
         regUser(); // 로그인 상태 확인 함수 호출 (DB, 전화번호 존재 여부 확인)
       })
       .catch(err => {
-        console.warn("유저 인증 실패:", err);
+        // console.warn("유저 인증 실패:", err);
       }
     );
     
@@ -52,10 +52,10 @@ function App() {
           setUser(res.data);
           setIsLoggedIn(true);
         })
-        .catch(() => {
+        .catch((err) => {
           setIsLoggedIn(false);
           const msg = err.response?.data; // 백엔드에서 body로 보낸 메시지
-          console.warn("유저 인증 실패:", msg); // 예: "번호가 등록되지 않은 계정입니다."
+          // console.warn("유저 인증 실패:", msg); // 예: "번호가 등록되지 않은 계정입니다."
           if (msg) {
             alert(msg);
             if(msg.includes('번호')){

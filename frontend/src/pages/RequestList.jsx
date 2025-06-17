@@ -63,7 +63,7 @@
 
         {/* 해시태그 필터 */}
         <div className="hashtag-badge-container">
-          {hashtags.map((tag, index) => (
+          {hashtags &&hashtags.map((tag, index) => (
             <button
               key={index}
               className={`hashtag-badge ${selectedTag === tag ? "active" : ""}`}
