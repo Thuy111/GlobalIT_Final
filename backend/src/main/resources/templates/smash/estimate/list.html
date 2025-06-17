@@ -10,6 +10,7 @@
       </h1>
       <hr>
       <div class="estimate_list">
+        <a th:href="@{/smash/estimate/register}">새로운 견적서 등록</a>
         <div class="estimate_box" th:each="estimate : ${result}">
           <div class="estimate_card">
             <div class="estimate_header">
@@ -90,8 +91,6 @@
           </form>
         </div>
       </div>
-  
-      <a th:href="@{/smash/estimate/register}">새로운 견적서 등록</a>
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
