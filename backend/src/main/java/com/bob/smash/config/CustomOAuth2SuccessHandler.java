@@ -7,25 +7,41 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference; // 타입검사(안정성)
+
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
-
+    
+    private final OAuth2AuthorizedClientService authorizedClientService;
     private final MemberRepository memberRepository;
     private final String frontServerUrl;
-
-    public CustomOAuth2SuccessHandler(MemberRepository memberRepository, @Value("${front.server.url}") String frontServerUrl) {
+    
+    public CustomOAuth2SuccessHandler(
+        MemberRepository memberRepository, 
+        @Value("${front.server.url}") String frontServerUrl,
+        OAuth2AuthorizedClientService authorizedClientService
+    ) {
+        this.authorizedClientService = authorizedClientService;
         this.memberRepository = memberRepository;
         this.frontServerUrl = frontServerUrl;
     }
@@ -52,15 +68,50 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
                 Map<String, Object> kakaoAccount = oauthUser.getAttribute("kakao_account");
                 email = (String) kakaoAccount.get("email");  // 필수
-                // name = (String) kakaoAccount.get("name");
                 phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
 
-                // 주소(배송지) 정보가 있다면 꺼내기
-                Object addressObj = kakaoAccount.get("address");
-                Map<String, Object> address = null;
-                if (addressObj instanceof Map) { // 주소 정보가 Map 형태로 존재하는 경우 (not null)
-                    address = (Map<String, Object>) addressObj;
-                    region = (String) address.get("address_name");
+                // access token 가져오기
+                OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+                OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                        authToken.getAuthorizedClientRegistrationId(),
+                        authToken.getName()
+                );
+
+                String accessToken = authorizedClient.getAccessToken().getTokenValue();
+
+                // 배송지 API 호출
+                RestTemplate restTemplate = new RestTemplate();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(accessToken);
+                HttpEntity<?> entity = new HttpEntity<>(headers);
+
+                try {
+                    ResponseEntity<Map<String, Object>> adressResponse = restTemplate.exchange(
+                        "https://kapi.kakao.com/v1/user/shipping_address",
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<Map<String, Object>>() {}
+                    );
+
+                    Map<String, Object> responseBody = adressResponse.getBody();
+                    // System.out.println("배송지 응답 =================== " + responseBody);
+
+                    List<Map<String, Object>> addresses = (List<Map<String, Object>>) responseBody.get("shipping_addresses");
+
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Map<String, Object> firstAddress = addresses.get(0);
+                        String baseAddress = (String) firstAddress.get("base_address");
+                        String detailAddress = (String) firstAddress.get("detail_address");
+
+                        String fullAddress = (baseAddress != null ? baseAddress : "") 
+                                           + (detailAddress != null && !detailAddress.isEmpty() ? " " + detailAddress : "");
+                        region = fullAddress;
+                    }
+
+                    System.out.println("배송지 정보 =================== " + region);
+
+                } catch (Exception e) {
+                    System.out.println("배송지 정보 가져오기 실패: " + e.getMessage());
                 }
             }else{ // 구글 로그인인 경우
                 System.out.println("Google 로그인 처리 중...");
