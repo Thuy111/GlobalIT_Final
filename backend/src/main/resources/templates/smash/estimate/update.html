@@ -10,14 +10,22 @@
       </h1>
   
       <div class="estimate_form">
-        <form th:action="@{/smash/estimate/modify}" method="post">
+        <form th:action="@{/smash/estimate/modify}" enctype="multipart/form-data" method="post">
           <input type="hidden" name="idx" th:value="${dto.idx}" readonly>
           <input type="hidden" class="datetime" name="modifiedAt" readonly>
 
-          <div class="estimate_images_box" th:if="${not #lists.isEmpty(dto.images)}">
-            <div class="estimate_image" th:each="image : ${dto.images}">
-              <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+          <div id="attached_image_preview">
+            <div class="attached_image_area">
+              <div th:if="${#lists.isEmpty(dto.images)}">
+              </div>
+              <div class="attached_image" th:each="image : ${dto.images}">
+                <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+              </div>
             </div>
+            <label>
+              <i class="fa-solid fa-circle-plus"></i>
+              <input type="file" name="imageFiles" multiple hidden>
+            </label>
           </div>
 
           <label for="title">제목</label><br>

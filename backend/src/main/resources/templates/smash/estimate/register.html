@@ -18,28 +18,42 @@
           <input type="hidden" class="datetime" name="createdAt">
           <input type="hidden" class="datetime" name="modifiedAt">
 
-          <div id="imagePreview"></div>
-          
-          <label for="imageFiles">이미지 첨부</label><br>
-          <input type="file" name="imageFiles" id="imageFiles" multiple><br>
+          <div id="image_preview">
+            <div id="image_control">
+              <label id="upload_images">
+                <i class="fa-solid fa-camera"></i>
+                <br>
+                <span><span id="image_count">0</span>/10</span>
+                <input type="file" name="imageFiles" multiple hidden>
+              </label>
+              <p id="reset_images">이미지 초기화</p>
+            </div>
+            <div class="attached_image_area">
+            </div>
+          </div>
 
-          <label for="title">제목</label><br>
-          <input type="text" name="title" required><br>
+          <label>
+            제목<br>
+            <input type="text" name="title" required>
+          </label><br>
           
-          <label for="content">내용</label><br>
-          <textarea name="content" required></textarea><br>
+          <label>
+            내용<br>
+            <textarea name="content" required></textarea>
+          </label><br>
   
-          <label for="price">가격</label><br>
-          <input type="text" name="price" required>원<br>
+          <label>
+            가격<br>
+            <input type="text" name="price" required>원
+          </label><br>
           
-          <label>대여 방법<br>
-            <input type="checkbox" name="isDelivery" value="true">배달
-            <input type="checkbox" name="isPickup" value="true">픽업<br>
-          </label>
+          대여 방법<br>
+          <input type="checkbox" name="isDelivery" value="true">배달
+          <input type="checkbox" name="isPickup" value="true">픽업<br>
     
-          <label for="returnDate">반납 날짜</label><br>
+          반납 날짜<br>
           <input type="datetime-local" name="returnDate" required><br>
-    
+          
           <button type="submit">작성 완료</button>
         </form>
       </div>
@@ -47,25 +61,50 @@
     
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // 이미지 미리보기
-        const imageInput = document.getElementById('imageFiles');
-        const imagePreview = document.getElementById('imagePreview');
-        imageInput.addEventListener('change', function(event) {
-          imagePreview.innerHTML = '';  // 미리보기 초기화
+        // 첨부 이미지 관련
+        const imageInput = document.querySelector('input[name="imageFiles"]');
+        const attachedArea = document.querySelector('.attached_image_area');
+        const imageCountDisplay = document.getElementById('image_count');
+        const MAX_IMAGES = 10;
+        // 이미지 선택 시 미리보기 처리
+        imageInput.addEventListener('change', function (event) {
           const files = event.target.files;
-          if (files.length) {
+          if (files.length > MAX_IMAGES) {
+            alert("이미지는 최대 10개까지만 업로드할 수 있습니다.");
+            imageInput.value = '';
+            return;
+          }
+          // 기존 이미지 초기화
+          attachedArea.innerHTML = '';
+          if (files.length > 0) {
             Array.from(files).forEach(file => {
               const reader = new FileReader();
-              reader.onload = function(e) {
+              reader.onload = function (e) {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('attached_image');
                 const imgElement = document.createElement('img');
                 imgElement.src = e.target.result;
-                imgElement.style.width = '100px'; // 이미지 크기 조정
-                imgElement.style.marginRight = '10px';
-                imagePreview.appendChild(imgElement);
+                imgElement.alt = "첨부 이미지";
+                wrapper.appendChild(imgElement);
+                attachedArea.appendChild(wrapper);
               };
               reader.readAsDataURL(file);
             });
+            imageCountDisplay.textContent = files.length;
+          } else {
+            imageCountDisplay.textContent = '0';
           }
+        });
+
+        // 이미지 초기화 버튼 처리
+        const resetBtn = document.getElementById('reset_images');
+        resetBtn.addEventListener('click', function () {
+          imageInput.value = '';
+          attachedArea.innerHTML = '';
+          const noImageDiv = document.createElement('div');
+          noImageDiv.classList.add('no_image');
+          attachedArea.appendChild(noImageDiv);
+          imageCountDisplay.textContent = '0';
         });
 
         // 현재 시간을 모든 datetime input에 입력

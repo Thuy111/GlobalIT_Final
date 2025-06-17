@@ -65,12 +65,12 @@ button:hover {
 button:disabled, [class*="btn"]:disabled {
   background-color: #ccc;
   color: #666;
-  cursor: not-allowed;
+  cursor: default;
 }
-button:hover, [class*="btn"]:disabled:hover {
+button:disabled:hover, [class*="btn"]:disabled:hover {
   background-color: #ccc;
   color: #666;
-  cursor: not-allowed;
+  cursor: default;
 }
 
 input[type="text"],
@@ -108,6 +108,33 @@ input[type="number"]:focus  {
   
   /* test */
   /* background-color: #6FE6FC; */
+}
+
+.attached_image_area {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  height: 15em;
+  gap: 1em;
+  align-items: center;
+  padding: 0.5em 0;
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #eee;
+}
+.attached_image {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.attached_image img {
+  max-height: 100%;
+  max-width: 20em;
+  border-radius: 0.5em;
+  object-fit: contain;
+  box-shadow: 0 0.1em 0.5em #0002;
+  background: #fafafa;
 }
 
 /* TopBar */
