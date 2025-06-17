@@ -63,7 +63,7 @@
 
         {/* 해시태그 필터 */}
         <div className="hashtag-badge-container">
-          {hashtags &&hashtags.map((tag, index) => (
+          {hashtags&&hashtags.map((tag, index) => (
             <button
               key={index}
               className={`hashtag-badge ${selectedTag === tag ? "active" : ""}`}
@@ -77,24 +77,32 @@
         {/* 카드 리스트 */}
         {request.map(item => (
           <div key={item.idx} className="request-card">
-            <div className="request-dday">{item.dDay}</div>
-            <div className="request-date">{item.createdAt}</div>
+            <div className="request-dday">{item.dday}</div>
+            <div className="request-date">
+           {item.createdAt ? item.createdAt.split('T')[0] : ''}
+          </div>
 
             <div className="request-header">
               <h3 className="request-title">{item.title}</h3>
-              <p className={`request-status ${
-                item.isDone === 0 ? 'pending' :
-                item.isDone === 1 ? 'failed' :
-                item.isDone === 2 ? 'completed' : ''
+          <p className={`request-status ${
+           item.isDone === 0 ? 'pending' :
+            item.isDone === 1 ? 'completed' :
+                 'failed'
               }`}>
-                {item.isDone === 0 ? "낙찰대기" :
-                item.isDone === 1 ? "미낙찰" :
-                item.isDone === 2 ? "낙찰완료" : "알 수 없음"}
+            {item.isDone === 0 ? "낙찰대기" :
+            item.isDone === 1 ? "낙찰완료" :
+               "미낙찰"}
               </p>
+
             </div>
 
             <p className="request-content">{item.content}</p>
-            <div className="request-tags">{item.hashtags.join(" ")}</div>
+            <div className="request-tags">
+        {item.hashtags?.split(" ").map((tag, index) => (
+         <span key={index} className="hashtag-badge">{tag}</span>
+         ))}
+        </div>
+
           </div>
         ))}
       </div>
