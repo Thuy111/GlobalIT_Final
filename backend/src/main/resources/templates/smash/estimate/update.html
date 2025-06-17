@@ -14,35 +14,46 @@
           <input type="hidden" name="idx" th:value="${dto.idx}" readonly>
           <input type="hidden" class="datetime" name="modifiedAt" readonly>
 
-          <div id="attached_image_preview">
+          <div id="image_preview">
+            <div id="image_control">
+              <label id="upload_images">
+                <i class="fa-solid fa-camera"></i>
+                <span><span id="image_count">0</span>/10</span>
+                <input type="file" name="imageFiles" multiple hidden>
+              </label>
+              <p id="reset_images">이미지 초기화</p>
+              <input type="hidden" name="delete_images">
+            </div>
             <div class="attached_image_area">
               <div th:if="${#lists.isEmpty(dto.images)}">
               </div>
               <div class="attached_image" th:each="image : ${dto.images}">
                 <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+                <label>
+                  <i class="remove_image fa-solid fa-xmark"></i>
+                  <input type="checkbox" name="remove_check" th:value="${image.imageIdx}" hidden>
+                </label>
               </div>
             </div>
-            <label>
-              <i class="fa-solid fa-circle-plus"></i>
-              <input type="file" name="imageFiles" multiple hidden>
-            </label>
           </div>
 
-          <label for="title">제목</label><br>
-          <input type="text" name="title" th:value="${dto.title}" required><br>
+          <label for="title">제목<br>
+            <input type="text" name="title" th:value="${dto.title}" required>
+          </label><br>
           
-          <label for="content">내용</label><br>
-          <textarea name="content" th:text="${dto.content}" required></textarea><br>
+          <label for="content">내용<br>
+            <textarea name="content" th:text="${dto.content}" required></textarea>
+          </label><br>
   
-          <label for="price">가격</label><br>
-          <input type="text" name="price" th:value="${dto.price}" required>원<br>
+          <label for="price">가격<br>
+            <input type="text" name="price" th:value="${dto.price}" required>원
+          </label><br>
           
-          <label>대여 방법<br>
-            <input type="checkbox" name="isDelivery" value="true" th:checked="${dto.isDelivery == true}">배달
-            <input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업<br>
-          </label>
+          대여 방법<br>
+          <input type="checkbox" name="isDelivery" value="true" th:checked="${dto.isDelivery == true}">배달
+          <input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업<br>
     
-          <label for="returnDate">반납 날짜</label><br>
+          반납 날짜<br>
           <input type="datetime-local" name="returnDate" th:value="${dto.returnDate}" required><br>
     
           <button type="submit">수정 완료</button>
@@ -52,27 +63,123 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // 현재 시간을 모든 datetime input에 입력
+        // 요소 모음
+        const form = document.querySelector("form");
+        const attachedArea = document.querySelector(".attached_image_area");
+        const imageCountSpan = document.getElementById("image_count");
+        const uploadInput = document.querySelector('input[type="file"][name="imageFiles"]');
+        const deleteInput = document.querySelector('input[type="hidden"][name="delete_images"]');
+        const resetBtn = document.getElementById("reset_images");
+
+        // 시간 입력
         const now = new Date();
-        const offset = now.getTimezoneOffset();
-        now.setMinutes(now.getMinutes() - offset);
-        const datetimeInputs = document.getElementsByClassName('datetime');
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         const datetimeValue = now.toISOString().slice(0, 16);
-        for (let i = 0; i < datetimeInputs.length; i++) {
-          datetimeInputs[i].value = datetimeValue;
+        document.querySelectorAll('.datetime').forEach(input => input.value = datetimeValue);
+
+        // 1. 이미지 개수 표시
+        function updateImageCount() {
+          let existingCount = 0;
+          attachedArea.querySelectorAll(".attached_image").forEach(div => {
+            const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
+            if (!check || !check.checked) existingCount++;
+          });
+          let addedCount = attachedArea.querySelectorAll(".added_image").length;
+          imageCountSpan.textContent = existingCount + addedCount;
         }
 
-        // 입력값 검증
-        const form = document.querySelector("form");
+        // 2. 삭제할 이미지 목록 관리
+        function updateDeleteImagesInput() {
+          const removeIdxs = Array.from(
+            attachedArea.querySelectorAll('.attached_image input[type="checkbox"][name="remove_check"]:checked')
+          ).map(chk => chk.value);
+          deleteInput.value = removeIdxs.join(",");
+        }
+
+        // 3. 기존 이미지 삭제 UI
+        function setupExistingImageDeleteUI() {
+          attachedArea.querySelectorAll(".attached_image").forEach(imgDiv => {
+            const check = imgDiv.querySelector('input[type="checkbox"][name="remove_check"]');
+            const xIcon = imgDiv.querySelector(".remove_image");
+            if (!check || !xIcon) return;
+            function toggle() {
+              check.checked = !check.checked;
+              imgDiv.classList.toggle("remove_check", check.checked);
+              xIcon.className = check.checked
+                ? "remove_image fa-solid fa-plus"
+                : "remove_image fa-solid fa-xmark";
+              updateImageCount();
+              updateDeleteImagesInput();
+            }
+            xIcon.onclick = function (e) { e.preventDefault(); toggle(); };
+            check.onchange = function () { toggle(); };
+          });
+        }
+
+        // 4. 신규 이미지 업로드 및 미리보기
+        if (uploadInput) {
+          uploadInput.addEventListener("change", function () {
+            const files = Array.from(uploadInput.files);
+            let existingCount = 0;
+            attachedArea.querySelectorAll(".attached_image").forEach(div => {
+              const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
+              if (!check || !check.checked) existingCount++;
+            });
+            let addedCount = attachedArea.querySelectorAll(".added_image").length;
+            if ((existingCount + addedCount + files.length) > 10) {
+              alert("이미지는 최대 10개까지 첨부할 수 있습니다.");
+              uploadInput.value = "";
+              return;
+            }
+            files.forEach(file => {
+              const reader = new FileReader();
+              reader.onload = function (evt) {
+                const div = document.createElement("div");
+                div.className = "added_image";
+                div.innerHTML = `
+                  <img src="${evt.target.result}" alt="추가 이미지 미리보기"/>
+                  <i class="remove_image fa-solid fa-xmark"></i>
+                `;
+                div.querySelector(".remove_image").onclick = function () {
+                  div.remove();
+                  updateImageCount();
+                };
+                attachedArea.appendChild(div);
+                updateImageCount();
+              };
+              reader.readAsDataURL(file);
+            });
+          });
+        }
+
+        // 5. 이미지 초기화 버튼
+        if (resetBtn) {
+          resetBtn.onclick = function () {
+            attachedArea.querySelectorAll(".attached_image").forEach(div => {
+              const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
+              if (check && check.checked) {
+                check.checked = false;
+                div.classList.remove("remove_check");
+                div.querySelector(".remove_image").className = "remove_image fa-solid fa-xmark";
+              }
+            });
+            attachedArea.querySelectorAll(".added_image").forEach(div => div.remove());
+            if (uploadInput) uploadInput.value = "";
+            updateImageCount();
+            updateDeleteImagesInput();
+          };
+        }
+
+        // 6. 폼 제출 시 검증
         form.addEventListener("submit", function (e) {
+          e.preventDefault();// 🟢 폼 데이터 콘솔 출력을 위해 제출 막기
+          updateDeleteImagesInput();
           const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
           const isPickup = form.querySelector('input[name="isPickup"]').checked;
-          // 둘 다 체크되지 않았을 경우 전송 막기
-          if (!isDelivery && !isPickup) {
-            e.preventDefault(); // submit 막기
-            alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
-          }
-          // 체크되지 않은 항목은 'false'로 전송
+          // if (!isDelivery && !isPickup) {
+          //   e.preventDefault();
+          //   alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+          // }
           ['isDelivery', 'isPickup'].forEach(name => {
             const checkbox = form.querySelector(`input[name="${name}"]`);
             if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
@@ -83,7 +190,22 @@
               form.appendChild(hidden);
             }
           });
+          // 🟢 폼 데이터 콘솔 출력
+          const data = new FormData(form);
+          console.log('--- FormData 전송 값 ---');
+          for (let [key, value] of data.entries()) {
+            if (value instanceof File) {
+              console.log(key, value.name, value.size, value.type);
+            } else {
+              console.log(key, value);
+            }
+          }
         });
+
+        // 초기 세팅
+        setupExistingImageDeleteUI();
+        updateImageCount();
+        updateDeleteImagesInput();
       });
     </script>
   </th:block>
