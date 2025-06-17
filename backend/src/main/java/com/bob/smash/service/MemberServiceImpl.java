@@ -5,14 +5,19 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.entity.Member;
+import com.bob.smash.entity.Member.LoginType;
+import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,34 +30,39 @@ public class MemberServiceImpl implements MemberService {
 
   //  소셜로그인 이메일을 통한 유저정보 DTO 반환
   @Override
-  public MemberDTO getCurrentUser(OAuth2User user,  Map<String, String> body) {
-        System.out.println("user = " + user);
-        if (user == null) {
-            throw new IllegalArgumentException("로그인 정보가 없습니다.");
-        }
+  public MemberDTO getCurrentUser(OAuth2AuthenticationToken authentication) {
+    if (authentication == null) {
+        throw new IllegalArgumentException("로그인 정보가 없습니다.");
+    }
 
-        // OAuth2User에서 필요한 정보 추출 (카카오, 구글)
-        Map<String, Object> attributes = user.getAttributes();
+    OAuth2User user = authentication.getPrincipal();
+    Map<String, Object> attributes = user.getAttributes();
+
+    String email = null;
+    String registrationId = authentication.getAuthorizedClientRegistrationId(); // "kakao", "google"
+
+    if ("kakao".equals(registrationId)) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        String email = null;
-        if (kakaoAccount != null) { // 카카오 로그인인 경우
-            email = (String) kakaoAccount.get("email");
-        } else { // 구글 로그인인 경우
-            email = (String) attributes.get("email"); 
-        }
-        System.out.println("email = " + email);
+        email = (String) kakaoAccount.get("email");
+    } else if ("google".equals(registrationId)) {
+        email = (String) attributes.get("email");
+    }
 
-        Optional<Member> memberOpt = memberRepository.findByEmailId(email);
+    if (email == null) {
+        throw new IllegalArgumentException("이메일 정보를 찾을 수 없습니다.");
+    }
 
-        if (memberOpt.isEmpty()) {
-            throw new IllegalArgumentException("가입되지 않은 계정입니다.");
-        }
+    Optional<Member> memberOpt = memberRepository.findByEmailId(email);
+    if (memberOpt.isEmpty()) {
+        throw new IllegalArgumentException("가입되지 않은 계정입니다.");
+    }
 
-        Member member = memberOpt.get();
-        System.out.println("member = " + member);
+    MemberDTO dto = entityToDto(memberOpt.get());
 
-        // 필요한 정보를 DTO로 변환하여 반환
-        return entityToDto(member);
+    // 문자열을 enum으로 안전하게 변환
+    dto.setLoginType(LoginType.valueOf(registrationId));
+
+    return dto;
   }
 
   // 소셜 로그인 후 전화번호 등록
@@ -64,7 +74,7 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("전화번호가 누락되었습니다.");
         }
 
-        System.out.println("email = " + email);
+        // System.out.println("email = " + email);
 
         Optional<Member> memberOpt = memberRepository.findByEmailId(email);
 
@@ -73,20 +83,21 @@ public class MemberServiceImpl implements MemberService {
         }
 
         Member member = memberOpt.get();
-        member.setTel(phone);
+        member.changeTel(phone);
         memberRepository.save(member);
   }
 
   @Override
-  public void checkUser(OAuth2User user, HttpServletRequest request) { // (가입된 번호, DB 이메일 조회) 유효성 체크
+  public void checkUser(OAuth2AuthenticationToken user, HttpServletRequest request) { // (가입된 번호, DB 이메일 조회) 유효성 체크
         if (user == null) {
             System.out.println("!!! 유저 정보가 없습니다. ::: 401 ERROR !!!");
             // 유저 정보가 없을 경우, 인증 실패로 처리
             // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // OAuth2User에서 필요한 정보 추출 (카카오, 구글)
-        Map<String, Object> attributes = user.getAttributes();
+        // OAuth2AuthenticationToken에서 필요한 정보 추출 (카카오, 구글)
+        OAuth2User oauthUser = user.getPrincipal(); // 유저 객체 추출
+        Map<String, Object> attributes = oauthUser.getAttributes(); // 이제 안전하게 attributes 접근 가능
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         String email = null;
         if (kakaoAccount != null) { // 카카오 로그인인 경우
@@ -94,7 +105,7 @@ public class MemberServiceImpl implements MemberService {
         } else { // 구글 로그인인 경우
             email = (String) attributes.get("email"); 
         }
-        System.out.println("email = " + email);
+        // System.out.println("email = " + email);
         
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("가입되지 않은 계정입니다.");
@@ -115,6 +126,7 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+  // 소셜 로그인 회원가입 완료 + 중복 처리
   @Override
   public void completeSocialSignup(HttpServletRequest request, Map<String, String> body) {
         String email = body.get("email");
@@ -152,12 +164,55 @@ public class MemberServiceImpl implements MemberService {
                 .tel(phone)
                 .build();
 
-        memberRepository.save(newMember);
+        // .save()에 Transactional이 적용되어 있어 자동으로 커밋됨
+        // (단, 예외 발생 시 롤백되므로 여러 save 호출시에는 명시적으로 @Transactional을 사용해야 함)
+        memberRepository.save(newMember); 
     }
 
-    public class DuplicateMemberException extends RuntimeException {
-        public DuplicateMemberException(String message) {
-            super(message);
+    // 카카오 회원 탈퇴 및 연동 해제
+    @Transactional
+    @Override
+    public void unlinkAndDeleteKakaoMember(String accessToken, MemberDTO currentUser) {
+        // 1. 카카오 unlink 요청 보내기
+        WebClient.create()
+                .post()
+                .uri("https://kapi.kakao.com/v1/user/unlink")
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
+
+        // 2. 사용자 이메일 가져오기
+        // System.out.println("탈퇴 대상 ID = " + currentUser.getEmailId());
+        String email = currentUser.getEmailId();
+        System.out.println("email = " + email);
+        if (email == null) {
+            throw new IllegalStateException("카카오 계정에서 이메일 정보를 가져올 수 없습니다.");
         }
+
+        // 4. 이메일 기준으로 사용자 삭제
+        memberRepository.deleteByEmailId(email);
+    }
+
+    // 구글 회원 탈퇴 및 연동 해제
+    @Transactional
+    @Override
+    public void unlinkAndDeleteGoogleMember(String accessToken, MemberDTO currentUser) {
+        // 1. 토큰 폐기 요청 (revoke)
+        WebClient.create()
+            .post()
+            .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
+            .retrieve()
+            .bodyToMono(Void.class)
+            .block();
+
+        // 2. 사용자 이메일로 삭제
+        String email = currentUser.getEmailId();
+        System.out.println("email = " + email);
+        if (email == null) {
+            throw new IllegalStateException("구글 사용자 이메일이 존재하지 않습니다.");
+        }
+
+        memberRepository.deleteByEmailId(email);
     }
 }

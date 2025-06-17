@@ -82,6 +82,19 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
     }
   }
 
+  const secessionHandler = async () => {
+    if(!window.confirm('정말로 탈퇴하시겠습니까?')) return;
+    try {
+      await axios.delete(`${baseUrl}/smash/member/delete`, { withCredentials: true });
+      setIsLoggedIn(false);
+      alert('탈퇴가 완료되었습니다.');
+      // 탈퇴 후 홈으로 새로고침
+      window.location.href = '/';
+    } catch (error) {
+      console.error('탈퇴 실패:', error);
+    }
+  }
+
   return (
     <div className="top-bar">
       <div className="change-theme">
@@ -90,7 +103,12 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
         <label className="toggle-label" htmlFor="toggle"></label>
       </div>
       {isLoggedIn ?
-      (<button className="login-btn" onClick={logoutHandler}>로그아웃</button>)
+      (
+        <>
+          <button className="login-btn" onClick={logoutHandler}>로그아웃</button>
+          <button className="secession-btn" onClick={secessionHandler}>탈퇴하기</button>
+        </>
+      )
       :
       (<Link to="/profile"><button className="login-btn">로그인</button></Link>)}
       
