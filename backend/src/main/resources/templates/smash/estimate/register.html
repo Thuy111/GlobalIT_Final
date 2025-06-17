@@ -17,9 +17,11 @@
           <input type="hidden" name="isReturn" value="false">
           <input type="hidden" class="datetime" name="createdAt">
           <input type="hidden" class="datetime" name="modifiedAt">
+
+          <div id="imagePreview"></div>
           
           <label for="imageFiles">이미지 첨부</label><br>
-          <input type="file" name="imageFiles" multiple><br>
+          <input type="file" name="imageFiles" id="imageFiles" multiple><br>
 
           <label for="title">제목</label><br>
           <input type="text" name="title" required><br>
@@ -45,6 +47,27 @@
     
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // 이미지 미리보기
+        const imageInput = document.getElementById('imageFiles');
+        const imagePreview = document.getElementById('imagePreview');
+        imageInput.addEventListener('change', function(event) {
+          imagePreview.innerHTML = '';  // 미리보기 초기화
+          const files = event.target.files;
+          if (files.length) {
+            Array.from(files).forEach(file => {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const imgElement = document.createElement('img');
+                imgElement.src = e.target.result;
+                imgElement.style.width = '100px'; // 이미지 크기 조정
+                imgElement.style.marginRight = '10px';
+                imagePreview.appendChild(imgElement);
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+        });
+
         // 현재 시간을 모든 datetime input에 입력
         const now = new Date();
         const offset = now.getTimezoneOffset();

@@ -68,7 +68,7 @@ public class EstimateController {
   // 수정
   @GetMapping("/update")
   public void update(@RequestParam("idx") Integer idx, Model model) {
-    EstimateDTO dto = service.get(idx);
+    EstimateDTO dto = service.getWithImage(idx);
     model.addAttribute("dto", dto);
   }
   @PostMapping("/modify")
