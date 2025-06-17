@@ -65,12 +65,12 @@ button:hover {
 button:disabled, [class*="btn"]:disabled {
   background-color: #ccc;
   color: #666;
-  cursor: not-allowed;
+  cursor: default;
 }
-button:hover, [class*="btn"]:disabled:hover {
+button:disabled:hover, [class*="btn"]:disabled:hover {
   background-color: #ccc;
   color: #666;
-  cursor: not-allowed;
+  cursor: default;
 }
 
 input[type="text"],
@@ -110,6 +110,33 @@ input[type="number"]:focus  {
   /* background-color: #6FE6FC; */
 }
 
+.attached_image_area {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  height: 15em;
+  gap: 1em;
+  align-items: center;
+  padding: 0.5em 0;
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #eee;
+}
+.attached_image {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.attached_image img {
+  max-height: 100%;
+  max-width: 20em;
+  border-radius: 0.5em;
+  object-fit: contain;
+  box-shadow: 0 0.1em 0.5em #0002;
+  background: #fafafa;
+}
+
 /* TopBar */
 .top-bar {
   width: 100vw;
@@ -139,7 +166,7 @@ input[type="number"]:focus  {
 .toggle-input:checked + .toggle-label::before {background-color: #FFFA8D;background-color: black;}
 /* 토글 ON인 경우에 버튼 위치 지정 */
 .toggle-input:checked + .toggle-label::before {transform: translateX(16px);}
-.toggle-text{position:absolute;left:-1.6rem;top: -2px;z-index: 1;}
+.toggle-text{position:absolute;left:-1.6rem;top: 1px;z-index: 1;}
 
 /* Navigation */
 nav {

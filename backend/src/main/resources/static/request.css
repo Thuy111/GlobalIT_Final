@@ -1,10 +1,10 @@
+/* 의뢰서 등록 - 사진*************/
 .image-preview-wrapper {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
-
 .image-upload-box {
   width: 80px;
   height: 80px;
@@ -52,3 +52,34 @@
   text-align: center;
   width: 100%;
 }
+/* 의뢰서 등록 - 사진*/
+
+/* 의뢰서 상세페이지 사진********************/
+.request_images_box {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  height: 15em;      /* 250px -> 15.625em */
+  gap: 1em;              /* 16px -> 1em */
+  align-items: center;
+  padding: 0.5em 0;      /* 8px 0 -> 0.5em 0 */
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #eee;
+}
+.request_image {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.request_image img {
+  max-height: 100%;
+  max-width: 20em;    /* 300px -> 18.75em */
+  border-radius: 0.5em;  /* 8px -> 0.5em */
+  object-fit: contain;
+  box-shadow: 0 0.1em 0.5em #0002;   /* 2px 8px -> 0.125em 0.5em */
+  background: #fafafa;
+}
+
+/* 의뢰서 상세페이지 사진*/

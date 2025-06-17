@@ -15,11 +15,10 @@ const Authenticated = ({}) => {
   useEffect(() => {
     window.onload = () => {
       const currentUser = async () => { // 현재 로그인된 사용자의 정보를 가져옴
-        console.log('현재 사용자 정보 요청 중...');
         try {
-          const res = await axios.get(`${baseUrl}/smash/member/currnet-user`, { withCredentials: true });
+          const res = await axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true });
           if (res.data) {
-            console.log('현재 사용자 정보:', res.data);
+            // console.log('현재 사용자 정보:', res.data);
             setEmail(res.data.emailId);
           }
         } catch (err) {
