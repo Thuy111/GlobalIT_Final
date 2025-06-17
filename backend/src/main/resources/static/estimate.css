@@ -109,7 +109,8 @@
 }
 /* 통합 버튼 */
 .estimate_container .estimate_box form {
-  text-align: right;
+  display: flex;
+  justify-content: end;
   margin-right: 2.5em;
 }
 /* 견적서 작성/수정 영역 */
