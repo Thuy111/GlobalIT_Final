@@ -51,8 +51,8 @@
               </tr>
             </table>
             <p class="estimate_content">[[${estimate.content}]]</p>
-            <div class="estimate_images_box" th:if="${not #lists.isEmpty(estimate.images)}">
-              <div class="estimate_image" th:each="image : ${estimate.images}">
+            <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
+              <div class="attached_image" th:each="image : ${estimate.images}">
                 <img th:src="@{${image.path}}" alt="첨부 이미지"/>
               </div>
             </div>
