@@ -30,15 +30,15 @@ function App() {
 
   // 로그인 상태 확인
   useEffect(() => {
-    // 검증 페이지에서는 유저 체크를 하지 않음
+    // 검증 페이지에서는 return (나머지 페이지에서는 인증 필요 : 사용)
     if (location.pathname === "/member/authenticated") return;
 
+    // 현재 로그인된 유저의 DB 정보
     const checkUser = async () => {
-      // 유저 정보가 있을 때만 요청
       await axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
         .then(res => {
-          setUser(res.data);
-          regUser(); // 로그인 상태 확인 함수 호출 (DB, 전화번호 존재 여부 확인)
+          setUser(res.data); // Member 객체
+          regUser(); // 유저 유효성 검사 (번호등록, 가입여부 등)
         })
         .catch(err => {
           // console.warn("유저 인증 실패:", err);
@@ -47,12 +47,11 @@ function App() {
     }
     checkUser();
 
+    // 현재 유저의 유효성 검사
     const regUser = async () => {
-      // 백엔드에서 로그인 상태 확인
-      if (isLoggedIn !== null) return; // 이미 상태가 설정되어 있으면 중복 요청 방지
       await axios.get(`${baseUrl}/smash/member/check`, { withCredentials: true })
         .then(res => {
-          setIsLoggedIn(true);
+          if(res) setIsLoggedIn(true);
         })
         .catch((err) => {
           setIsLoggedIn(false);

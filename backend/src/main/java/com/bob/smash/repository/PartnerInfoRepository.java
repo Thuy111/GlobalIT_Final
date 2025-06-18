@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface PartnerInfoRepository extends JpaRepository<PartnerInfo, String> {
     Optional<PartnerInfo> findByMemberEmailId(String emailId); // 이메일로 파트너 정보 찾기
-    void deleteByMemberEmailId(String email); // 이메일로 파트너 정보 삭제
+    String findBnoByMember_EmailId(String emailId); // 이메일로 bno 조회
+    void deleteByMember_EmailId(String email); // 이메일로 파트너 정보 삭제
 }

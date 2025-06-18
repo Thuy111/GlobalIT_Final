@@ -42,10 +42,10 @@ public class ProfileServiceImpl implements ProfileService{
 
 
         // 파트너 정보 여부 확인
-        Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
-        log.info("findByMember_EmailId({}) 결과: isPresent={}", emailId, partnerOpt.isPresent());
+        Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMemberEmailId(emailId);
+        log.info("findByMemberEmailId({}) 결과: isPresent={}", emailId, partnerOpt.isPresent());
 
-        boolean isPartner = partnerInfoRepository.findByMember_EmailId(emailId).isPresent();
+        boolean isPartner = partnerInfoRepository.findByMemberEmailId(emailId).isPresent();
   
         ProfileDTO.ProfileDTOBuilder builder = ProfileDTO.builder()
                 .email(member.getEmailId())
