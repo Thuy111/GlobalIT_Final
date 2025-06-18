@@ -8,7 +8,6 @@ import com.bob.smash.entity.HashtagMapping;
 import com.bob.smash.entity.Image;
 import com.bob.smash.entity.ImageMapping;
 import com.bob.smash.entity.ImageMapping.TargetType;
-import com.bob.smash.dto.RequestListDTO;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;

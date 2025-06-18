@@ -8,6 +8,7 @@ const Profile = ({ user }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
 
   const isPartner = profileData?.partner;
 
@@ -16,6 +17,7 @@ const Profile = ({ user }) => {
   useEffect(() => {
     if (!user) {
       setLoading(false);
+      setIsLoggedIn(false);
       return;
     }
 
@@ -25,6 +27,7 @@ const Profile = ({ user }) => {
           withCredentials: true,
         });
         setProfileData(res.data);
+        setIsLoggedIn(true);
       } catch (err) {
         setError('프로필 정보를 불러오지 못했습니다.');
         console.error(err);
@@ -48,9 +51,9 @@ const Profile = ({ user }) => {
   return (
     <div className="profile">
       {isPartner ? (
-        <PartnerProfile profile={profileData} />
+        <PartnerProfile profile={profileData} setIsLoggedIn={setIsLoggedIn} />
       ) : (
-        <UserProfile profile={profileData} />
+        <UserProfile profile={profileData} setIsLoggedIn={setIsLoggedIn} />
       )}
     </div>
   );
