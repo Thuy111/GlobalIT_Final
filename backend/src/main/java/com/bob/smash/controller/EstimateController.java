@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 @RequestMapping("/smash/estimate")
 public class EstimateController {
-  private final EstimateService service;  
+  private final EstimateService service;
 
   @GetMapping("/")
   public String estimate() {
@@ -99,7 +99,7 @@ public class EstimateController {
   @PostMapping("/delete")
   public String delete(@RequestParam("idx") Integer idx, RedirectAttributes rttr) {
     // log.info("견적서 삭제 요청: idx={}", idx);
-    service.delete(idx);
+    service.deleteWithImage(idx);
     rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }

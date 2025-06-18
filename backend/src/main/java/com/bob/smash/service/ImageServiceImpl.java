@@ -22,7 +22,7 @@ public class ImageServiceImpl implements ImageService {
   private final ImageRepository imageRepository;
   private final ImageMappingRepository imageMappingRepository;
 
-  // 🛠️ 파일 저장/삭제 코드 중복으로 리팩토링 필요(여유 있을 때 확인)
+  // 🛠️ 파일 저장/파일 삭제 코드 중복으로 리팩토링 필요(의뢰서/견적서/리뷰 다 끝나고 여유 있을 때 확인)
 
   // (등록-단건)이미지 + 매핑 동시
   @Override
@@ -156,7 +156,7 @@ public class ImageServiceImpl implements ImageService {
     if (mapping == null) {
       throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
     }
-      Image image = mapping.getImage();
+    Image image = mapping.getImage();
     if (image == null) {
       throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
     }
