@@ -14,7 +14,7 @@ public interface MemberService {
   // 유저 정보 조회
   void checkUser(OAuth2AuthenticationToken user, HttpServletRequest request);
 
-  // 소셜로그인 이메일을 통한 유저정보 DTO 반환
+  // 소셜로그인 이메일을 통한 유저정보 DTO 반환 (DB에 없는 경우 null 반환)
   MemberDTO getCurrentUser(OAuth2AuthenticationToken authentication);
 
   // 소셜 회원가입 완료
@@ -27,6 +27,9 @@ public interface MemberService {
   void unlinkAndDeleteKakaoMember(String accessToken, MemberDTO currentUser);
   // 구글 회원 연동 해제
   void unlinkAndDeleteGoogleMember(String accessToken, MemberDTO currentUser);
+
+  // 현재 유저 정보를 세션에 저장
+  void saveCurrentUserToSession();
 
   // Dto → Entity 변환
   default Member dtoToEntity(MemberDTO dto) {

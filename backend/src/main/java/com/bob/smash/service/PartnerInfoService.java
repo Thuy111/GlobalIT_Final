@@ -1,0 +1,38 @@
+package com.bob.smash.service;
+
+import com.bob.smash.dto.PartnerInfoDTO;
+import com.bob.smash.entity.Member;
+import com.bob.smash.entity.PartnerInfo;
+
+public interface PartnerInfoService {
+  // 파트너 정보 조회
+  PartnerInfoDTO getPartnerInfo(String emailId);
+  // 파트너 삭제
+  void deleteByMemberEmail(String email);
+
+  // Dto → Entity 변환
+  default PartnerInfo dtoToEntity(PartnerInfoDTO dto) {
+    Member member = Member.builder().emailId(dto.getMemberId()).build();
+    return PartnerInfo.builder()
+                      .bno(dto.getBno())
+                      .name(dto.getName())
+                      .tel(dto.getTel())
+                      .region(dto.getRegion())
+                      .description(dto.getDescription())
+                      .visitCnt(dto.getVisitCnt())
+                      .member(member)
+                      .build();
+  }
+  // Entity → Dto 변환
+  default PartnerInfoDTO entityToDto(PartnerInfo entity) {
+    return PartnerInfoDTO.builder()
+                         .bno(entity.getBno())
+                         .name(entity.getName())
+                         .tel(entity.getTel())
+                         .region(entity.getRegion())
+                         .description(entity.getDescription())
+                         .visitCnt(entity.getVisitCnt())
+                         .memberId(entity.getMember().getEmailId())
+                         .build();
+  }
+}

@@ -5,18 +5,25 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.MemberDTO;
+import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Member.LoginType;
 import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
   private final MemberRepository memberRepository;
+  private final PartnerInfoService partnerInfoService;
 
   @Value("${front.server.url}")
   private String frontServerUrl;
@@ -53,10 +61,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     Optional<Member> memberOpt = memberRepository.findByEmailId(email);
-    if (memberOpt.isEmpty()) {
-        throw new IllegalArgumentException("가입되지 않은 계정입니다.");
-    }
-
+    if (memberOpt.isEmpty()) return null; // 회원이 존재하지 않으면 null 반환
     MemberDTO dto = entityToDto(memberOpt.get());
 
     // 문자열을 enum으로 안전하게 변환
@@ -110,9 +115,12 @@ public class MemberServiceImpl implements MemberService {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("가입되지 않은 계정입니다.");
         }
-        Optional<Member> memberOpt = memberRepository.findByEmailId(email);
 
-        Member member = memberOpt.get();
+        Optional<Member> memberOpt = memberRepository.findByEmailId(email);
+        // 회원 탈퇴 상태 체크
+        if (memberOpt.isEmpty()) return;
+       
+        Member member = memberOpt.orElse(null);
         if (member.getTel() == null) {
             throw new IllegalArgumentException("번호가 등록되지 않은 계정입니다.");
         }
@@ -148,7 +156,6 @@ public class MemberServiceImpl implements MemberService {
             request.getSession().invalidate();
             // 소셜로그인 연동 해제
 
-
             throw new DuplicateMemberException(loginType + "로 이미 가입된 회원입니다." + loginType + "로 로그인해주세요.");
         }
 
@@ -166,7 +173,10 @@ public class MemberServiceImpl implements MemberService {
 
         // .save()에 Transactional이 적용되어 있어 자동으로 커밋됨
         // (단, 예외 발생 시 롤백되므로 여러 save 호출시에는 명시적으로 @Transactional을 사용해야 함)
-        memberRepository.save(newMember); 
+        memberRepository.save(newMember);
+
+        // 세션에 사용자 정보 저장
+        saveCurrentUserToSession();
     }
 
     // 카카오 회원 탈퇴 및 연동 해제
@@ -190,7 +200,7 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalStateException("카카오 계정에서 이메일 정보를 가져올 수 없습니다.");
         }
 
-        // 4. 이메일 기준으로 사용자 삭제
+        // 3. 회원 삭제
         memberRepository.deleteByEmailId(email);
     }
 
@@ -213,6 +223,54 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalStateException("구글 사용자 이메일이 존재하지 않습니다.");
         }
 
+        // 3. 회원 삭제
         memberRepository.deleteByEmailId(email);
+    }
+
+    // 매번 `SecurityContextHolder`에서 직접 `OAuth2AuthenticationToken`을 꺼내는 메서드
+    private OAuth2AuthenticationToken getOAuth2AuthenticationToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+            return oauthToken;
+        }
+        return null; // 인증 정보가 없을 경우 null 반환
+    }
+
+    // CurrentUserDTO 저장 메서드
+    public void saveCurrentUserToSession() {
+        // 세션에 사용자 정보 저장
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpSession session = request.getSession();
+        MemberDTO user = getCurrentUser(getOAuth2AuthenticationToken());
+        // 유저 정보가 없으면 세션에 저장하지 않음
+        if (user == null) {
+            System.out.println("!!! 유저 정보가 없습니다. 세션에 저장하지 않습니다.");
+            return;
+        }
+
+        String email = user != null ? user.getEmailId() : null;
+        PartnerInfoDTO partnerInfo = partnerInfoService.getPartnerInfo(email); // 사업자번호가 존재하지 않는 경우 null
+        // System.out.println("session = " + session);
+        // System.out.println("user = " + user);
+        // System.out.println("partnerInfo = " + partnerInfo);
+        if (user != null){
+            CurrentUserDTO currentUser = null;
+            String bno = (partnerInfo != null) ? partnerInfo.getBno() : null;
+
+            if (partnerInfo == null) {
+                System.out.println("===파트너 정보가 없습니다.===");
+            } else {
+                System.out.println("===파트너 정보가 있습니다. 사업자번호: " + bno + "===");
+            }
+
+            currentUser = CurrentUserDTO.builder()
+                    .emailId(user.getEmailId())
+                    .nickname(user.getNickname())
+                    .role(user.getRole())
+                    .bno(bno)
+                    .build();
+
+            session.setAttribute("currentUser", currentUser);
+        }
     }
 }

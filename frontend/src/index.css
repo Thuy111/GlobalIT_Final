@@ -17,7 +17,7 @@ body {
   width: 100%;
   min-width: 320px;
   min-height: 100vh;
-  margin-top: 80px;
+  margin: 80px auto; /* 상단 바와 네비게이션 바를 고려하여 여백 추가 */
   display: flex;
   flex-direction: column;
   background-color: #fff;

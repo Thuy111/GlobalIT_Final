@@ -26,6 +26,7 @@ const Login = () => {
     }else if(error){
       console.error("로그인 중 오류 발생:", error);
     }
+    window.location.href = '/profile'; // error 삭제
   }, []);
   
 
