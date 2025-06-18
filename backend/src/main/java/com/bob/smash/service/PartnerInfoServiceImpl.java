@@ -8,6 +8,8 @@ import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.entity.PartnerInfo;
 import com.bob.smash.repository.PartnerInfoRepository;
 import com.bob.smash.repository.PaymentRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,7 +22,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   // 파트너 정보 조회
   @Override
   public PartnerInfoDTO getPartnerInfo(String emailId){
-    PartnerInfo partnerInfo = partnerInfoRepository.findByMemberEmailId(emailId).orElse(null);
+    PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(emailId).orElse(null);
     if (partnerInfo == null) {
       return null; // 파트너 정보가 없으면 null 반환
     }
@@ -29,6 +31,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
 
   // 파트너 삭제
   @Override
+  @Transactional
   public void deleteByMemberEmail(String email) {
     String bno = partnerInfoRepository.findBnoByMember_EmailId(email);// bno 조회
     paymentRepository.deleteByPartnerInfo_Bno(bno);
