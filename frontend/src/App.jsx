@@ -32,24 +32,26 @@ function App() {
   useEffect(() => {
     // 검증 페이지에서는 유저 체크를 하지 않음
     if (location.pathname === "/member/authenticated") return;
-    // 유저 정보가 있을 때만 요청
-    axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
-      .then(res => {
-        setUser(res.data);
-        regUser(); // 로그인 상태 확인 함수 호출 (DB, 전화번호 존재 여부 확인)
-      })
-      .catch(err => {
-        // console.warn("유저 인증 실패:", err);
-      }
-    );
-    
+
+    const checkUser = async () => {
+      // 유저 정보가 있을 때만 요청
+      await axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
+        .then(res => {
+          setUser(res.data);
+          regUser(); // 로그인 상태 확인 함수 호출 (DB, 전화번호 존재 여부 확인)
+        })
+        .catch(err => {
+          // console.warn("유저 인증 실패:", err);
+        }
+      );
+    }
+    checkUser();
 
     const regUser = async () => {
       // 백엔드에서 로그인 상태 확인
       if (isLoggedIn !== null) return; // 이미 상태가 설정되어 있으면 중복 요청 방지
       await axios.get(`${baseUrl}/smash/member/check`, { withCredentials: true })
         .then(res => {
-          setUser(res.data);
           setIsLoggedIn(true);
         })
         .catch((err) => {

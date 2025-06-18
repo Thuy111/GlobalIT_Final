@@ -71,3 +71,8 @@ nav ul.nav-list li a {
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
+
+/* 글작성 버튼 */
+.home .reg_button_box {width:100%; background-color: pink; position: relative; margin: auto; max-width: 1200px;}
+.home .register_btn{position: absolute; right: 1rem; bottom: 3rem; z-index: 1;height: auto; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2); border-radius: 30px;}
+.home .register_btn i {font-size: 24px; color: white;}

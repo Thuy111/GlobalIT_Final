@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate  } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
@@ -7,6 +7,9 @@ import RequestList from '../pages/RequestList';
 
 const Home = ({ user }) => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
+  const baseUrl = import.meta.env.VITE_API_URL;
+  // const [userRole, setUserRole] = useState(null || user.role); // 초기값으로 user.role 사용
+  const [userRole, setUserRole] = useState(null); // 초기값으로 user.role 사용
   
   return (
     <>
@@ -15,6 +18,14 @@ const Home = ({ user }) => {
         {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
         {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
         <RequestList />
+
+        {userRole && userRole === 0 && // 일반 사용자일 때만 요청 작성 버튼 표시
+        <div className="reg_button_box">
+          <a className="register_btn" href={`${baseUrl}/smash/request/register`}>
+            <i className="fa-solid fa-plus"></i>
+          </a>
+        </div>
+        }
       </div>
     </>
   );

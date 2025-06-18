@@ -15,11 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MemberDTO {
   private String emailId;
-    private String nickname;
-    // private String name;
-    private LocalDateTime createdAt;
-    private LoginType loginType;
-    private byte role;
-    private String tel;
-    private String region;
+  private String nickname;
+  // private String name;
+  private LocalDateTime createdAt;
+  private LoginType loginType;
+  private byte role;
+  private String tel;
+  private String region;
 }

@@ -2,6 +2,9 @@ package com.bob.smash.config;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.service.MemberService;
+import com.bob.smash.service.PartnerInfoService;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,15 +37,19 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final String frontServerUrl;
     
     public CustomOAuth2SuccessHandler(
         MemberRepository memberRepository, 
         @Value("${front.server.url}") String frontServerUrl,
-        OAuth2AuthorizedClientService authorizedClientService
+        OAuth2AuthorizedClientService authorizedClientService,
+        MemberService memberService,
+        PartnerInfoService partnerInfoService
     ) {
         this.authorizedClientService = authorizedClientService;
         this.memberRepository = memberRepository;
+        this.memberService = memberService; 
         this.frontServerUrl = frontServerUrl;
     }
 
@@ -58,7 +65,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         // OAuth2User에서 필요한 정보 추출
         String registrationId = oauthToken.getAuthorizedClientRegistrationId(); // "google" or "kakao"
         String email = null;
-        // String name = null;
         String phone = null;
         String region = null;
 
@@ -71,10 +77,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
 
                 // access token 가져오기
-                OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
                 OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
-                        authToken.getAuthorizedClientRegistrationId(),
-                        authToken.getName()
+                        oauthToken.getAuthorizedClientRegistrationId(),
+                        oauthToken.getName()
                 );
 
                 String accessToken = authorizedClient.getAccessToken().getTokenValue();
@@ -122,18 +127,18 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 response.sendRedirect(frontServerUrl + "/profile?error=EmailNotFound");
                 return;
             }
-    
+
             // 회원 조회
             Optional<Member> existMemberWithEmail = memberRepository.findByEmailId(email);
             Optional<Member> existMemberWithTel = memberRepository.findByTel(formatPhoneNumber(phone));
+            // 이메일 또는 전화번호로 회원 조회
             Member existingMember = existMemberWithEmail.orElse(existMemberWithTel.orElse(null));
 
-            // DB에 저장된 전화번호 우선 사용
-            if (existingMember != null) {
-                phone = existingMember.getTel();
+            if (existingMember != null) { // 기존 회원이 있는 경우 (이메일 또는 전화번호가 있는 경우)
+                phone = existingMember.getTel(); // DB에 저장된 전화번호 사용
             }
 
-            // 전화번호가 없으면 프론트에서 번호 입력 페이지로 보내기 / DB에 이메일이 존재할 경우 그냥 return
+            // DB조회를 했음에도 전화번호가 없을 경우
             if (phone == null || phone.isBlank()) {
                 request.getSession().setAttribute("social_email", email);
                 request.getSession().setAttribute("social_provider", registrationId);
@@ -155,11 +160,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 case "kakao" -> loginType = Member.LoginType.kakao;
                 default -> loginType = Member.LoginType.google; // 기본값 설정
             }
+            System.out.println("===로그인 타입: " + loginType + "===");
 
-            // loginType 판단 후 비교
+            // loginType 판단 후 비교 (DB에 저장된 회원)
             if (existingMember != null) {
                 if (isSameLoginType(existingMember, loginType)) { // 정상 로그인
                     System.out.println("===이미 존재하는 동일 회원===");
+                    // 세션에 사용자 정보 저장
+                    memberService.saveCurrentUserToSession();
                     response.sendRedirect(frontServerUrl + "/profile");
                     return;
                 } else { // 다른 계정으로 로그인 요청
@@ -167,15 +175,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     response.sendRedirect(frontServerUrl + "/profile?error=" + existingMember.getLoginType() + "AlreadyExists");
                     return;
                 }
-            }
-    
-            // 만약 회원이 존재하지 않으면 새로 생성
-            if (existMemberWithEmail.isEmpty() && existMemberWithTel.isEmpty()) { // 중복되는 이메일이나 전화번호가 없을 때만 회원 생성
+            }else{ // 회원이 존재하지 않으면 새로 생성
                 System.out.println("===새로운 회원 생성===");
     
                 Member newMember = Member.builder()
                     .emailId(email)
-                    // .name(oauthUser.getAttribute("name"))
                     .nickname(generateUniqueNickname())  // 유니크 닉네임
                     .createdAt(LocalDateTime.now())
                     .loginType(loginType)
@@ -186,6 +190,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     
                 memberRepository.save(newMember);
             }
+
+            // 세션에 사용자 정보 저장
+            memberService.saveCurrentUserToSession();
     
             // 로그인 성공 후 원하는 페이지로 리다이렉트
             response.sendRedirect(frontServerUrl + "/profile"); // 프로필 페이지
