@@ -1,8 +1,10 @@
+import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
-const UserProfile = ({ profile }) => {
+const UserProfile = ({ profile, setIsLoggedIn }) => {
   // profile 객체를 props로 받아서 UI만 렌더링
+  const baseUrl = import.meta.env.VITE_API_URL;
 
 
   const logoutHandler = async () => {
@@ -11,12 +13,27 @@ const UserProfile = ({ profile }) => {
         method: 'POST',
         credentials: 'include',
       });
+      setIsLoggedIn(false);
       alert('로그아웃 되었습니다.');
       window.location.href = '/';
     } catch (err) {
       console.error('로그아웃 실패:', err);
     }
   };
+
+  const secessionHandler = async () => {
+    if(!window.confirm('정말로 탈퇴하시겠습니까?')) return;
+    try {
+      await axios.delete(`${baseUrl}/smash/partner_info/delete`, { withCredentials: true });
+      await axios.delete(`${baseUrl}/smash/member/delete`, { withCredentials: true });
+      setIsLoggedIn(false);
+      alert('탈퇴가 완료되었습니다.');
+      // 탈퇴 후 홈으로 새로고침
+      window.location.href = '/';
+    } catch (error) {
+      console.error('탈퇴 실패:', error);
+    }
+  }
 
   if (!profile) return <div>로딩 중...</div>;
 
@@ -53,10 +70,8 @@ const UserProfile = ({ profile }) => {
           <h2>계정 설정</h2>
           <ul>
             <li>개인 정보 수정</li>
-            <li onClick={logoutHandler} style={{ cursor: 'pointer' }}>
-              로그아웃
-            </li>
-            <li>계정 탈퇴</li>
+            <li onClick={logoutHandler}>로그아웃</li>
+            <li onClick={secessionHandler}>계정 탈퇴</li>
           </ul>
         </section>
 
