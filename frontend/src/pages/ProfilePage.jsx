@@ -8,14 +8,19 @@ const Profile = ({ user }) => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
 
-  const isPartner = profileData?.partner;
+  // ✔️ profileData가 있을 때만 isPartner 체크
+  const isPartner = profileData?.partner ?? false;
 
   const baseUrl = import.meta.env.VITE_API_URL;
+
+  
 
   useEffect(() => {
     if (!user) {
       setLoading(false);
+      setIsLoggedIn(false);
       return;
     }
 
@@ -25,6 +30,7 @@ const Profile = ({ user }) => {
           withCredentials: true,
         });
         setProfileData(res.data);
+        setIsLoggedIn(true);
       } catch (err) {
         setError('프로필 정보를 불러오지 못했습니다.');
         console.error(err);
@@ -41,16 +47,18 @@ const Profile = ({ user }) => {
 
   if (!user) return <Login />;
 
-  console.log('📌 profileData:', profileData);
-  console.log('📌 isPartner 값 확인:', profileData?.partner);
-
+  // ✔️ profileData가 있을 때만 로그 출력
+  if (profileData) {
+    console.log('📌 profileData:', profileData);
+    console.log('📌 isPartner 값 확인:', profileData.partner);
+  }
 
   return (
     <div className="profile">
       {isPartner ? (
-        <PartnerProfile profile={profileData} />
+        <PartnerProfile profile={profileData} setIsLoggedIn={setIsLoggedIn} />
       ) : (
-        <UserProfile profile={profileData} />
+        <UserProfile profile={profileData} setIsLoggedIn={setIsLoggedIn} />
       )}
     </div>
   );
