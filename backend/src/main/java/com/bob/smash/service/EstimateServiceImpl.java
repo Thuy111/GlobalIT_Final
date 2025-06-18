@@ -107,4 +107,14 @@ public class EstimateServiceImpl implements EstimateService {
     dto.setImages(images);
     return dto;
   }
+
+  // 삭제: 견적서 + 첨부 이미지 목록 전체 삭제
+  public void deleteWithImage(Integer idx) {
+    Estimate estimate = repository.findById(idx)
+      .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
+    // 첨부 이미지 삭제
+    imageService.deleteImagesByTarget("estimate", idx);
+    // 견적서 삭제
+    repository.delete(estimate);
+  }
 }

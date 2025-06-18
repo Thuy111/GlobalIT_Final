@@ -23,9 +23,9 @@
               <label id="upload_images" class="image_upload_box">
                 <i class="fa-solid fa-camera"></i>
                 <span><span id="image_count">0</span>/10</span>
-                <input type="file" name="image_files" multiple hidden>
+                <input type="file" name="imageFiles" multiple hidden>
               </label>
-              <p id="reset_images" class="image_reset_btn">이미지 초기화</p>
+              <p id="image_reset_btn">초기화</p>
             </div>
             <div class="attached_image_area">
             </div>
@@ -61,7 +61,7 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // 첨부 이미지관련 기능
-        const imageInput = document.querySelector('input[name="image_files"]');
+        const imageInput = document.querySelector('input[name="imageFiles"]');
         const attachedArea = document.querySelector('.attached_image_area');
         const imageCountDisplay = document.getElementById('image_count');
         const MAX_IMAGES = 10;
@@ -96,7 +96,7 @@
         });
 
         // 이미지 초기화 버튼 처리
-        const resetBtn = document.getElementById('reset_images');
+        const resetBtn = document.getElementById('image_reset_btn');
         resetBtn.addEventListener('click', function () {
           imageInput.value = '';
           attachedArea.innerHTML = '';
