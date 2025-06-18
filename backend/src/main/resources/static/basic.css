@@ -110,33 +110,6 @@ input[type="number"]:focus  {
   /* background-color: #6FE6FC; */
 }
 
-.attached_image_area {
-  display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-  height: 15em;
-  gap: 1em;
-  align-items: center;
-  padding: 0.5em 0;
-  scrollbar-width: thin;
-  scrollbar-color: #aaa #eee;
-}
-.attached_image {
-  flex: 0 0 auto;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.attached_image img {
-  max-height: 100%;
-  max-width: 20em;
-  border-radius: 0.5em;
-  object-fit: contain;
-  box-shadow: 0 0.1em 0.5em #0002;
-  background: #fafafa;
-}
-
 /* TopBar */
 .top-bar {
   width: 100vw;
@@ -194,8 +167,33 @@ nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
 
-/* 의뢰서.견적서 등록 페이지 공통 코드********** */
-/* *********************************** */
+/* 의뢰서.견적서 등록 페이지 공통 코드********************************************* */
+.attached_image_area {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  height: 15em;
+  gap: 1em;
+  align-items: center;
+  padding: 0.5em 0;
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #eee;
+}
+.attached_image {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.attached_image img {
+  max-height: 100%;
+  max-width: 20em;
+  border-radius: 0.5em;
+  object-fit: contain;
+  box-shadow: 0 0.1em 0.5em #0002;
+  background: #fafafa;
+}
 /* 의뢰서.견적서 등록 사진 */
 .image_preview_wrapper {
   display: flex;
@@ -280,7 +278,7 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   }
 
   /* IMG 초기화  버튼*/
-.image_reset_btn {
+#image_reset_btn {
   margin-top: -3px;
   margin: 10px auto;
   padding: 4px 10px;
@@ -294,7 +292,7 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   align-self: center;
 }
 
-.image_reset_btn:hover {
+#image_reset_btn:hover {
   background-color: #e0e0e0;
 }
 
