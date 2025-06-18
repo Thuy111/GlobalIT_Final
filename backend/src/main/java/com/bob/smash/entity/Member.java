@@ -21,9 +21,6 @@ public class Member {
 
     @Column(length = 30, nullable = false, unique = true)
     private String nickname;
-
-    // @Column(length = 30, nullable = false)
-    // private String name;
     
     @Column(length = 15)
     private String tel;
