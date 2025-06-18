@@ -1,16 +1,20 @@
 package com.bob.smash.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.entity.PartnerInfo;
 import com.bob.smash.repository.PartnerInfoRepository;
-
+import com.bob.smash.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PartnerInfoServiceImpl implements PartnerInfoService {
+
+  private final PaymentRepository paymentRepository;
   private final PartnerInfoRepository partnerInfoRepository;
   
   // 파트너 정보 조회
@@ -26,7 +30,9 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   // 파트너 삭제
   @Override
   public void deleteByMemberEmail(String email) {
-    partnerInfoRepository.deleteByMemberEmailId(email);
+    String bno = partnerInfoRepository.findBnoByMember_EmailId(email);// bno 조회
+    paymentRepository.deleteByPartnerInfo_Bno(bno);
+    partnerInfoRepository.deleteByMember_EmailId(email);
   }
 
 }

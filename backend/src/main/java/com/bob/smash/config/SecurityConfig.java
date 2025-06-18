@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -44,13 +45,14 @@ public class SecurityConfig {
         System.out.println("@@@ filterChain Bean 등록됨!");
         
         http
+            .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // JS에서도 읽을 수 있게
             .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
             .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 서버에서는 보통 비활성화)
             .cors(Customizer.withDefaults()) // CORS 설정 적용
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/**").permitAll()
-                // .anyRequest().authenticated()  // 인증 필요
-
+                
+                // .anyRequest() // 이외 모든 요청에 대해
                 // .authenticated() : 요청에 대해 인증 필요
                 // .permitAll() : 요청에 대해 인증 불필요
             )

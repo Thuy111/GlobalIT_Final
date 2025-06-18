@@ -201,7 +201,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 3. 회원 삭제
-        memberRepository.deleteByEmailId(email);
+        deleteMemberAndRelatedData(email);
     }
 
     // 구글 회원 탈퇴 및 연동 해제
@@ -224,7 +224,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         // 3. 회원 삭제
-        memberRepository.deleteByEmailId(email);
+        deleteMemberAndRelatedData(email);
     }
 
     // 매번 `SecurityContextHolder`에서 직접 `OAuth2AuthenticationToken`을 꺼내는 메서드
@@ -271,6 +271,22 @@ public class MemberServiceImpl implements MemberService {
                     .build();
 
             session.setAttribute("currentUser", currentUser);
+        }
+    }
+
+    // 회원 DB삭제
+    @Transactional
+    public void deleteMemberAndRelatedData(String email) {
+        // 추후 다른 테이블 삭제 추가 예정
+        // 순서) estimate(review+payment+image), request(estimate+hashtag_mapping_image), profile_image, notification
+        partnerInfoService.deleteByMemberEmail(email); // + introduction_image 삭제 필요
+        memberRepository.deleteByEmailId(email); // 마지막에 회원 삭제
+
+        // 세션 파기
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpSession session = request.getSession(false); // 현재 세션을 가져오되, 없으면 null 반환
+        if (session != null) {
+            session.invalidate();
         }
     }
 }
