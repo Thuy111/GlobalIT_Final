@@ -97,7 +97,7 @@ public class ImageServiceImpl implements ImageService {
       throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
     }
     // 기존 파일 삭제
-    String oldFilePath = image.getPath() + "/" + image.getSName();
+    String oldFilePath = System.getProperty("user.dir") + File.separator + "uploads" + image.getPath() + "/" + image.getSName();
     File oldFile = new File(oldFilePath);
     if (oldFile.exists()) oldFile.delete();
     // 새 파일 저장
@@ -161,7 +161,7 @@ public class ImageServiceImpl implements ImageService {
       throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
     }
     // 실제 파일 삭제
-    String filePath = image.getPath() + "/" + image.getSName();
+    String filePath = System.getProperty("user.dir") + File.separator + "uploads" + image.getPath() + "/" + image.getSName();
     File file = new File(filePath);
     if (file.exists()) file.delete();
     // 매핑, 이미지 DB에서 삭제
