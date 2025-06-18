@@ -28,6 +28,8 @@ public interface EstimateService {
   Integer modify(EstimateDTO dto);
   // 삭제
   void delete(Integer idx);
+  // 삭제(이미지 포함)
+  void deleteWithImage(Integer idx);
 
   // dto -> entity
   default Estimate dtoToEntity(EstimateDTO dto) {

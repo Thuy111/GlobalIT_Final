@@ -20,95 +20,96 @@
   <!-- 전체 내용----------------------------------------------------------------->
    <div class="request_container">
     <div class="container mt-5" style="max-width: 480px;">
-      <h4 class="mb-4 font-weight-bold">&lt; 의뢰서 작성 &gt;</h4>
+      <h2 class="mb-4 font-weight-bold request_title">의뢰서 작성</h4>
 
       <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
-        <!-- 이미지 -->         
-           <div id="image-preview-wrapper" class="image-preview-wrapper">
-            
-              <label for="imageFiles" class="image-upload-box">
-                <!-- <img src="/images/camera-icon.png" alt="upload" /> -->
+        <!-- 이미지 -->                 
+           <div id="image_preview_wrapper" class="image_preview_wrapper">
+            <div class="camera_wrapper">   
+              <label for="image_Files" class="image_upload_box">                
                  <i class="fas fa-camera fa-2x"></i> 
-                <span><span id="image-count">0</span>/10</span>
-              </label>
-              <input type="file" id="imageFiles" name="imageFiles" multiple accept="image/*" hidden />
+                <span><span id="image_count">0</span>/10</span>               
+              </label>              
+              <button type="button" id="image_reset_btn">IMG 초기화</button>
+            </div>
+              <input type="file" id="image_Files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
            </div>
 
         <!-- 제목 -->
-        <div>
+        <div class="re_form_group">
             <label>제목</label>
             <input type="text" name="title" class="form-control" required>
         </div>
       
 
           <!-- 해시태그 -->
-        <div class="form-group">
+        <div class="re_form_group">
           <label for="hashtag">해시태그 <small class="text-muted">(띄어쓰기 기준으로 적용)</small></label>
           <input type="text" id="hashtag" class="form-control"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
         </div>
 
-        <div>
+        <div class="re_form_group">
             <label>내용</label>
-            <textarea name="content" class="form-control" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
+            <textarea name="content" class="form-control re_detail" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
         </div>
 
-        <div>
+        <div class="re_form_group">
             <label>대여 날짜</label>
-            <input type="datetime-local" name="useDate" class="form-control" required>
+            <input type="datetime-local" name="useDate" class="form-control use_date" required>
         </div>
 
        <!-- 대여 지역 -->
-         <div class="form-group">
+         <div class="re_form_group">
           <label for="useRegion">대여 지역</label>
           <div class="input-group mb-2">
             <input type="text" 
                   class="form-control" 
-                  id="useRegion" 
+                  id="use_Region" 
                   name="useRegion"                
                   placeholder="주소를 검색해주세요" 
                   readonly 
                   required>
             <div class="input-group-append">
-              <button type="button" class="btn btn-dark" onclick="execDaumPostcode()">주소 찾기</button>
+              <button type="button" class="btn btn-dark re_address" onclick="execDaumPostcode()">주소 찾기</button>
             </div>
           </div>
 
           <input type="text" 
                 class="form-control" 
-                id="detailAddress" 
+                id="detail_Address" 
                 name="detailAddress" 
                 placeholder="상세 주소를 입력하세요" 
                 required>
         </div>   
 
          <!-- 제출 버튼 -->
-        <button type="submit" class="btn btn-dark btn-block mt-4">작성 완료</button>
+        <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn">작성 완료</button>
 
       </form>
     </div>
   </div>
 
   
-   <!-- 주소 불려오기 -->
+   <!-- 주소 불려오기 -------------------------------------------------------------------------->
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
       function execDaumPostcode() {
         new daum.Postcode({
           oncomplete: function(data) {
             // 주소 받아오기
-            document.getElementById("useRegion").value = data.address;
-            document.getElementById("detailAddress").focus();
+            document.getElementById("use_Region").value = data.address;
+            document.getElementById("detail_Address").focus();
           }
         }).open();
       }
     </script>
 
-    <!-- 사진 preview -->
+    <!-- 사진 preview ---------------------------------------------------->
     <script>
       let selectedFiles = [];
-      const imageInput = document.getElementById('imageFiles');
-      const wrapper = document.getElementById('image-preview-wrapper');
-      const countSpan = document.getElementById('image-count');
+      const imageInput = document.getElementById('image_Files');
+      const wrapper = document.getElementById('image_preview_wrapper');
+      const countSpan = document.getElementById('image_count');
 
       imageInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
@@ -132,14 +133,14 @@
         const reader = new FileReader();
         reader.onload = (e) => {
           const thumb = document.createElement('div');
-          thumb.className = 'image-thumb';
+          thumb.className = 'image_thumb';
 
           const img = document.createElement('img');
           img.src = e.target.result;
 
           const removeBtn = document.createElement('button');
           removeBtn.innerText = '✕';
-          removeBtn.className = 'remove-btn';
+          removeBtn.className = 'remove_btn';
           removeBtn.onclick = () => {
             wrapper.removeChild(thumb);
             selectedFiles = selectedFiles.filter(f => f !== file);
@@ -149,19 +150,19 @@
 
           thumb.appendChild(img);
           thumb.appendChild(removeBtn);
-
-          if (wrapper.querySelectorAll('.image-thumb').length === 0) {
-            const label = document.createElement('div');
-            label.className = 'label';
-            label.innerText = '대표사진';
-            thumb.appendChild(label);
+         
+          //사진 오른쪽에 나타나게       
+          const label = wrapper.querySelector('.camera_wrapper');
+          if (label && label.nextSibling) {
+            wrapper.insertBefore(thumb, label.nextSibling);
+          } else {
+            wrapper.appendChild(thumb);
           }
-
-          wrapper.insertBefore(thumb, wrapper.querySelector('label'));
         };
         reader.readAsDataURL(file);
       }
 
+      //사진 수량
       function updateCount() {
         countSpan.innerText = selectedFiles.length;
       }
@@ -172,9 +173,21 @@
         selectedFiles.forEach(f => dataTransfer.items.add(f));
         imageInput.files = dataTransfer.files;
       }
+
+      // 이미지 초기화 버튼 처리
+      const resetBtn = document.getElementById('image_reset_btn');
+      resetBtn.addEventListener('click', function () {
+        //  전부 thumnail 삭제
+        const thumbs = wrapper.querySelectorAll('.image_thumb');
+        thumbs.forEach(thumb => thumb.remove());      
+        selectedFiles = [];        
+        imageInput.value = '';
+        updateCount();       
+        refreshFileInput();
+      });
       </script>
 
-
+      
 
   </th:block>
 </th:block>

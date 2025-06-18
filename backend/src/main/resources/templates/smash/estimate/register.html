@@ -18,15 +18,14 @@
           <input type="hidden" class="datetime" name="createdAt">
           <input type="hidden" class="datetime" name="modifiedAt">
 
-          <div id="image_preview">
-            <div id="image_control">
-              <label id="upload_images">
+          <div id="image_preview" class="image_preview_wrapper">
+            <div id="image_control" class="camera_wrapper">
+              <label id="upload_images" class="image_upload_box">
                 <i class="fa-solid fa-camera"></i>
-                <br>
                 <span><span id="image_count">0</span>/10</span>
                 <input type="file" name="imageFiles" multiple hidden>
               </label>
-              <p id="reset_images">이미지 초기화</p>
+              <p id="image_reset_btn">초기화</p>
             </div>
             <div class="attached_image_area">
             </div>
@@ -61,7 +60,7 @@
     
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // 첨부 이미지 관련
+        // 첨부 이미지관련 기능
         const imageInput = document.querySelector('input[name="imageFiles"]');
         const attachedArea = document.querySelector('.attached_image_area');
         const imageCountDisplay = document.getElementById('image_count');
@@ -97,7 +96,7 @@
         });
 
         // 이미지 초기화 버튼 처리
-        const resetBtn = document.getElementById('reset_images');
+        const resetBtn = document.getElementById('image_reset_btn');
         resetBtn.addEventListener('click', function () {
           imageInput.value = '';
           attachedArea.innerHTML = '';

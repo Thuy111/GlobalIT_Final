@@ -17,7 +17,7 @@
   height: 60px;
   border-radius: 30px;
   font-size: 16px;
-  background-color: #f0f0f0;
+  background-color: #fcfbfb;
   padding-left:30px;
 }
 .request-container .request-search-form input::placeholder {
@@ -29,9 +29,10 @@
   outline: none; 
   border: 1.5px solid #4ED7F1;
   box-shadow: 0 0 5px #a7c7e7;
+  background-color: white;
 }
 
-/* 해시태그 뱃지 영역 */
+/* 검색 밑에 있는 해시태그 뱃지 영역 */
 .request-container .hashtag-badge-container {
   display: inline-flex;
   flex-wrap: wrap;
@@ -42,7 +43,7 @@
   margin: 0 auto 20px auto;
 }
 
-.request-container .hashtag-badge {
+.request-container .hashtag-badge-container .hashtag-badge {
   background-color: #f0f0f0;
   color: #333;
   border: none;
@@ -52,11 +53,27 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
+.request-container .hashtag-badge-container .hashtag-badge:nth-child(2n+1) {
+   background-color: #e1f5fe; color: #0277bd;}
 
-.request-container .hashtag-badge:hover {
+.request-container .hashtag-badge-container .hashtag-badge:hover {
   background-color: #e0e0e0;
 }
+/* 카드 안에있는 해시태그 뱃지 */
+.request-container .request-tags .hashtag-badge{
+  background-color: #f0f0f0;
+   border-radius: 30px;
+   padding: 5px 12px;
+   border:none;
+  font-size:14px;
+    position: absolute;
+  bottom: 5px;
+  left: 40px;
+  display: flex;
+  color: #333;
+  gap: 8px;
 
+}
 
 /* 카드 스타일 */
 .request-container .request-card {
@@ -68,14 +85,18 @@
   background-color: #f9f9f9;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
-
+.request-container .request-card:hover {
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px #4ED7F1;
+}
 /* D-day */
 .request-container .request-dday {
   position: absolute;
   top: 10px;
   left: 15px;
   font-weight: bold;
-  color: #ff5c5c;
+  color: #df6666;
   border: 1px solid #ccc;
   border-radius: 30px;
   padding: 4px 8px;
@@ -141,9 +162,10 @@
 .request-container .request-content {
   margin-left: 100px; 
   color: #333;
-  margin-top: 0;
+  margin-top: 25px;
   white-space: pre-wrap;
   word-break: break-word;
+  max-width: 600px;
 }
 /* /RequestList */
 

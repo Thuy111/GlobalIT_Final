@@ -3,7 +3,6 @@ package com.bob.smash.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Builder

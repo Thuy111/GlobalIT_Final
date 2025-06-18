@@ -94,6 +94,43 @@
 }
 
 /* 삭제 예정 */
+/* .attached_image {
+  position: relative;
+}
+.attached_image.remove_check img {
+  opacity: 0.5;
+}
+.attached_image.remove_check .remove_image {
+  position: absolute;
+  color: green;
+  font-size: 3.5em;
+  border-radius: 50%;
+}
+.attached_image .remove_image,
+.added_image .remove_image {
+  position: absolute;
+  color: red;
+  top: 0;
+  right: 0;
+  font-size: 2em;
+  cursor: pointer;
+}
+.added_image {
+  flex: 0 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.added_image img {
+  max-height: 100%;
+  max-width: 20em;
+  border-radius: 0.5em;
+  object-fit: contain;
+  box-shadow: 0 0.1em 0.5em #0002;
+  background: #fafafa;
+}
 #image_preview {
   display: flex;
   gap: 1em;
@@ -113,6 +150,10 @@
   height: 10em;
   padding: 0.5em;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 #image_control #upload_images i {
@@ -121,6 +162,6 @@
 #image_control #upload_images span {
   font-size: 1.3em;
 }
-#image_control p {
+#image_control #reset_images {
   cursor: pointer;
-}
+} */
