@@ -94,7 +94,7 @@
 }
 
 /* 삭제 예정 */
-.attached_image {
+/* .attached_image {
   position: relative;
 }
 .attached_image.remove_check img {
@@ -164,4 +164,4 @@
 }
 #image_control #reset_images {
   cursor: pointer;
-}
+} */
