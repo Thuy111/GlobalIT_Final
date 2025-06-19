@@ -16,11 +16,11 @@ public class Review {
     private Integer idx;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_idx", nullable = false)
+    @JoinColumn(name = "estimate_idx")
     private Estimate estimate;
 
     @Column(length = 5, nullable = false)
