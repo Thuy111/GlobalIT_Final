@@ -24,7 +24,6 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
   const secessionHandler = async () => {
     if(!window.confirm('정말로 탈퇴하시겠습니까?')) return;
     try {
-      await axios.delete(`${baseUrl}/smash/partner_info/delete`, { withCredentials: true });
       await axios.delete(`${baseUrl}/smash/member/delete`, { withCredentials: true });
       setIsLoggedIn(false);
       alert('탈퇴가 완료되었습니다.');
