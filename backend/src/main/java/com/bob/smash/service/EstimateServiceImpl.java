@@ -9,12 +9,17 @@ import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.repository.EstimateRepository;
+import com.bob.smash.repository.PaymentRepository;
+import com.bob.smash.repository.ReviewRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EstimateServiceImpl implements EstimateService {
+  private final ReviewRepository reviewRepository;
+  private final PaymentRepository paymentRepository;
   private final ImageService imageService;
   private final EstimateRepository repository;
 
@@ -116,5 +121,19 @@ public class EstimateServiceImpl implements EstimateService {
     imageService.deleteImagesByTarget("estimate", idx);
     // 견적서 삭제
     repository.delete(estimate);
+  }
+
+  // 임시 : 사업자번호에 해당하는 모든 견적 정보 삭제
+  @Override
+  @Transactional
+  public void allDeleteByPartnerBno(String bno) {
+    // List<Estimate> estimateList = repository.findByPartnerInfo_Bno(bno); // 사업자번호 : 견적서 전체 조회
+    // for (Estimate estimate : estimateList) {
+    //   // 여기에 이미지 관련 삭제 추가 필요
+    //   // Integer estimateIdx = estimate.getIdx();
+    //   // reviewRepository.deleteByEstimate_Idx(estimateIdx); // 견적서 번호:  리뷰 전체 삭제
+    // }
+    paymentRepository.deleteByPartnerInfo_Bno(bno); // 사업자번호 : 결제 정보 전체 삭제
+    repository.deleteByPartnerInfo_Bno(bno); // 사업자번호 : 견적 정보 전체 삭제
   }
 }

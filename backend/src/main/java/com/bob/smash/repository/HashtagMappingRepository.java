@@ -12,6 +12,8 @@ import com.bob.smash.entity.Request;
 public interface HashtagMappingRepository extends JpaRepository<HashtagMapping, HashtagMapping.PK> {
   List<HashtagMapping> findByRequest(Request request);
 
+  void deleteByRequest_Idx(Integer requestIdx); // 의뢰서 : 관련 해시태그 매핑 삭제
+
   @Query("SELECT hm.hashtag FROM HashtagMapping hm WHERE hm.request.idx = :requestIdx")
   List<Hashtag> findHashtagsByRequestIdx(@Param("requestIdx") Integer requestIdx);
 }

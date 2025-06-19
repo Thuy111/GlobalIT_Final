@@ -33,6 +33,9 @@ public interface RequestService {
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
     Map<String, Object> getPagedRequestList(int page, int size,String search);
 
+    // 의뢰서 관련 전체 삭제 : 이메일 (회원탈퇴용)
+    void allDeleteByEmail(String email);
+
     // DTO → Entity 변환
     default Request dtoToEntity(RequestDTO dto, Member member) {
         return Request.builder()

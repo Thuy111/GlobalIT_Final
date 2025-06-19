@@ -17,9 +17,13 @@ public class GlobalExceptionHandler {
               .body(Map.of("error", e.getMessage()));
   }
 
-// 내장 예외 처리 
-@ExceptionHandler(IllegalStateException.class)
-public ResponseEntity<String> handleIllegalState(IllegalStateException e) {
+  // 내장 예외 처리 
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<String> handleIllegalState(IllegalStateException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-}
+  }
+  @ExceptionHandler(RuntimeException.class)
+  public ResponseEntity<String> handleRuntime(RuntimeException e) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+  }
 }

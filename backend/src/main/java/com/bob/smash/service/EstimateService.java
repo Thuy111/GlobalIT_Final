@@ -30,6 +30,8 @@ public interface EstimateService {
   void delete(Integer idx);
   // 삭제(이미지 포함)
   void deleteWithImage(Integer idx);
+  // 견적서 관련 전체 삭제 : 사업자번호 (회원탈퇴용)
+  void allDeleteByPartnerBno(String bno);
 
   // dto -> entity
   default Estimate dtoToEntity(EstimateDTO dto) {

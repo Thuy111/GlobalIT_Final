@@ -18,9 +18,12 @@ import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.entity.Member;
+import com.bob.smash.entity.Request;
 import com.bob.smash.entity.Member.LoginType;
 import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.repository.RequestRepository;
+import com.bob.smash.repository.ReviewRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -30,8 +33,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
-  private final MemberRepository memberRepository;
-  private final PartnerInfoService partnerInfoService;
+    private final MemberRepository memberRepository;
+    private final PartnerInfoService partnerInfoService;
+    private final EstimateService estimateService;
+    private final RequestService requestService;
+    private final ReviewRepository reviewRepository;
 
   @Value("${front.server.url}")
   private String frontServerUrl;
@@ -276,11 +282,24 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 DB삭제
     @Transactional
-    public void deleteMemberAndRelatedData(String email) {
-        // 추후 다른 테이블 삭제 추가 예정
-        // 순서) estimate(review+payment+image), request(estimate+hashtag_mapping_image), profile_image, notification
-        partnerInfoService.deleteByMemberEmail(email); // + introduction_image 삭제 필요
-        memberRepository.deleteByEmailId(email); // 마지막에 회원 삭제
+    public void deleteMemberAndRelatedData(String email) {    
+        // 사업자 번호 currentUser 세션에서 가져오기
+        CurrentUserDTO currentUser = (CurrentUserDTO) ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getSession().getAttribute("currentUser");
+        String bno = currentUser != null ? currentUser.getBno() : null;
+
+        try{
+            // 1. profile_image
+            // 2. notification
+            // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
+            estimateService.allDeleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review + image X)
+            requestService.allDeleteByEmail(email); // 5. request (hashtag_mapping + image X)
+            partnerInfoService.deleteByMemberEmail(email); // 6. partnerInfo 삭제 (payment + image X)
+            memberRepository.deleteByEmailId(email); // 7. 마지막에 회원 삭제
+        }catch (Exception e) {
+            System.out.println("회원 삭제 중 오류 발생: " + e.getMessage());
+            throw new RuntimeException("회원 탈퇴 중 오류가 발생했습니다.");
+        }
+
 
         // 세션 파기
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
