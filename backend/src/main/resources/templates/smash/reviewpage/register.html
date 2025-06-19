@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/review.css">
+</head>
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
+<th:block th:fragment="content">
+    <div class="review_container">
+        <h2>리뷰 작성</h2>
+        <form th:action="@{/smash/review/register}" method="post" th:object="${reviewDTO}">
+            <label>닉네임</label><br>
+            <input type="text" th:field="*{nickname}" required><br><br>
+
+            <label>별점 (1~5)</label><br>
+            <input type="number" th:field="*{star}" min="1" max="5" required><br><br>
+
+            <label>리뷰 내용</label><br>
+            <textarea th:field="*{comment}" required></textarea><br><br>
+
+            <input type="hidden" th:field="*{estimateIdx}">
+
+            <button type="submit">리뷰 등록</button>
+        </form>
+    </div>
+</th:block>
+</th:block>
