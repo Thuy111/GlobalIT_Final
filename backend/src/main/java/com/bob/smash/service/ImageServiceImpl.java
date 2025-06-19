@@ -7,6 +7,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.io.File;
+import java.nio.file.Paths;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.ImageDTO;
@@ -148,26 +150,36 @@ public class ImageServiceImpl implements ImageService {
       deleteImageFromTarget(targetType, targetIdx, imageIdx);
     }
   }
-  // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시
+  // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시 
   @Override
   public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
-    // 매핑 및 이미지 찾기
-    ImageMapping mapping = imageMappingRepository.findByImage(imageRepository.getReferenceById(imageIdx));
+    Image image = imageRepository.findById(imageIdx)
+        .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
+    
+    ImageMapping mapping = imageMappingRepository.findByImage(image);
     if (mapping == null) {
-      throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
+        throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
     }
-    Image image = mapping.getImage();
-    if (image == null) {
-      throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
-    }
-    // 실제 파일 삭제
-    String filePath = System.getProperty("user.dir") + File.separator + "uploads" + image.getPath() + "/" + image.getSName();
+
+    //물리 파일 삭제 (upload 폴더에 있는 이미지)
+   String filePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath())
+                       .toFile()
+                       .getAbsolutePath();
+
+    System.out.println("삭제할 파일 경로: " + filePath);
+
     File file = new File(filePath);
-    if (file.exists()) file.delete();
-    // 매핑, 이미지 DB에서 삭제
+    if (file.exists()) {
+        boolean deleted = file.delete();
+        System.out.println("삭제 성공 여부: " + deleted);
+    } else {
+        System.out.println("파일이 존재하지 않음");
+    }
+
     imageMappingRepository.delete(mapping);
-    imageRepository.delete(image);
+    imageRepository.delete(image); 
   }
+  
   // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
   @Override
   public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {

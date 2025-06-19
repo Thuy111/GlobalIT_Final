@@ -232,4 +232,22 @@ public class RequestServiceImpl implements RequestService {
         }
         requestRepository.deleteByMember_EmailId(email); // 이메일 : 회원의 모든 의뢰서 삭제
     }
+
+    //의뢰서 삭제///////////////////////////////////////////////////////
+    @Override
+    @Transactional
+    public void delete(Integer idx) {
+       Request request = requestRepository.findById(idx)
+      .orElseThrow(() -> new IllegalArgumentException(idx + "본 의뢰서를 찾을 수 없습니다."));
+    // [1] 첨부 이미지 삭제
+    imageService.deleteImagesByTarget("request", idx);
+
+    // [2] 해시태그 매핑 삭제
+    hashtagMappingRepository.deleteByRequest_Idx(idx);
+
+    // [3] 견적서 삭제....???
+
+    // [4] 의뢰서 삭제
+    requestRepository.delete(request); 
+    }
 }
