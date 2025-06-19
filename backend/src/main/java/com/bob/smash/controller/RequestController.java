@@ -92,4 +92,13 @@ public class RequestController {
         return "/smash/request/detail";  
         
     }
+
+    // 의뢰서 삭제
+     @PostMapping("/delete")
+      public String deleteRequest(@RequestParam("idx") Integer idx) {
+        requestService.delete(idx);
+        return "redirect:/smash/request/listTest";
+    }
+
+
 }

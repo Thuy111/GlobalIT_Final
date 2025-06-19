@@ -30,11 +30,15 @@ public interface RequestService {
     // 목록 조회
     List<RequestDTO> getList();
 
+    // 삭제 (의뢰서 삭제하면 견적서도 삭제됨)
+    void delete(Integer idx);
+
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
     Map<String, Object> getPagedRequestList(int page, int size,String search);
 
     // 의뢰서 관련 전체 삭제 : 이메일 (회원탈퇴용)
     void allDeleteByEmail(String email);
+
 
     // DTO → Entity 변환
     default Request dtoToEntity(RequestDTO dto, Member member) {
@@ -42,8 +46,7 @@ public interface RequestService {
                 .idx(dto.getIdx())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .useDate(dto.getUseDate())
-                // .useRegion("서울") // 예시값, 추후 DTO에 추가되면 수정
+                .useDate(dto.getUseDate())                
                 .useRegion(dto.getUseRegion()) //  DTO에서 꺼냄
                 .isDone((byte) 0)
                 .isGet((byte) 0)
