@@ -1,5 +1,6 @@
 package com.bob.smash.config;
 
+import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.MemberService;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.core.ParameterizedTypeReference; // 타입검사(안정성)
 
 
@@ -68,6 +70,13 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String phone = null;
         String region = null;
 
+        // access token 가져오기
+        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+                oauthToken.getAuthorizedClientRegistrationId(),
+                oauthToken.getName()
+        );
+
+        String accessToken = authorizedClient.getAccessToken().getTokenValue();
         try{
             if("kakao".equals(registrationId)) { // 카카오 로그인인 경우
                 System.out.println("Kakao 로그인 처리 중...");
@@ -76,13 +85,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 email = (String) kakaoAccount.get("email");  // 필수
                 phone = (String) kakaoAccount.get("phone_number");  // 선택 정보
 
-                // access token 가져오기
-                OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
-                        oauthToken.getAuthorizedClientRegistrationId(),
-                        oauthToken.getName()
-                );
-
-                String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
                 // 배송지 API 호출
                 RestTemplate restTemplate = new RestTemplate();
@@ -172,6 +174,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     return;
                 } else { // 다른 계정으로 로그인 요청
                     System.out.println("===이미 존재하는 다른계정 회원===");
+                    // 카카오면 api 연동 해제
+                    if(loginType == Member.LoginType.kakao) { // 구글은 번호인증 전 까지 API연동 X
+                        WebClient.create()
+                                .post()
+                                .uri("https://kapi.kakao.com/v1/user/unlink")
+                                .header("Authorization", "Bearer " + accessToken)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
+                    }
                     response.sendRedirect(frontServerUrl + "/profile?error=" + existingMember.getLoginType() + "AlreadyExists");
                     return;
                 }

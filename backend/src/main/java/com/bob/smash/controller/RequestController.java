@@ -55,7 +55,14 @@ public class RequestController {
                          @AuthenticationPrincipal OAuth2User oauth2User,
                          Model model) {
 
-    String email = oauth2User.getAttribute("email");
+    String email;
+
+    if (oauth2User.getAttribute("email") != null) { // 구글 계정
+        email = (String) oauth2User.getAttribute("email");
+    } else { // 카카오 계정
+        Map<String, Object> kakaoAccount = (Map<String, Object>) oauth2User.getAttribute("kakao_account");
+        email = (String) kakaoAccount.get("email");
+    }
     log.info(" Logged in email: {}", email);
 
     Member member = memberRepository.findByEmailId(email)

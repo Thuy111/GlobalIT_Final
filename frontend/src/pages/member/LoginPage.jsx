@@ -22,7 +22,7 @@ const Login = () => {
       alert("회원가입에 실패했습니다. 다시 시도해주세요.");
     }else if(error.includes("AlreadyExists")) {
       const loginType = error.replace("AlreadyExists", "");
-      alert(`이미 ${loginType}로 가입된 사용자입니다. ${loginType}로 로그인 합니다.`);
+      alert(`이미 ${loginType}로 가입된 사용자입니다. ${loginType}로 로그인 해주세요.`);
     }else if(error){
       console.error("로그인 중 오류 발생:", error);
     }

@@ -59,6 +59,14 @@ dependencies {
 
 	// 기존 spring-boot-starter-web 이 있는 경우에도 함께 추가 가능
   implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// iamport REST client(결제:payment)
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' } // iamport를 사용하기위함 (배포처 : JitPack)
 }
 
 tasks.named('test') {
