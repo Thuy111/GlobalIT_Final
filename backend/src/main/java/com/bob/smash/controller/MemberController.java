@@ -112,7 +112,7 @@ public class MemberController {
   // 회원 탈퇴
   @DeleteMapping("/delete")
   public String deleteMember(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authentication) {
-        // 🔥 access token 바로 사용 가능
+        // access token 바로 사용 가능
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
         MemberDTO currentUser = memberService.getCurrentUser(authentication);

@@ -1,7 +1,5 @@
 package com.bob.smash.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.bob.smash.dto.PartnerInfoDTO;

@@ -19,7 +19,7 @@ public class PaymentDTO {
 
     private String memberEmail;     // Member.emailId
     private String partnerBno;      // PartnerInfo.bno
-    private Long estimateIdx;       // Estimate.idx
+    private Integer estimateIdx;       // Estimate.idx
 
     private Integer price;
     private Status status;
