@@ -2,6 +2,7 @@ package com.bob.smash.service;
 
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.dto.RequestDTO;
+import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.HashtagMapping;
 
@@ -11,11 +12,15 @@ import com.bob.smash.entity.ImageMapping.TargetType;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
+import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
 import com.bob.smash.repository.ImageMappingRepository;
 import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.repository.PaymentRepository;
 import com.bob.smash.repository.RequestRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
+import org.springframework.security.access.method.P;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +48,8 @@ public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
     private final MemberRepository memberRepository;
+    private final EstimateRepository estimateRepository;
+    private final PaymentRepository paymentRepository;
 
     // hashtag
     private final HashtagRepository hashtagRepository;
@@ -138,69 +145,91 @@ public class RequestServiceImpl implements RequestService {
     }
 
     // 무한스크롤용 페이지네이션 기능 구현
-@Override
-public Map<String, Object> getPagedRequestList(int page, int size, String search) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    Page<Request> requestPage;
+    @Override
+    public Map<String, Object> getPagedRequestList(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Request> requestPage;
 
-    if (search != null && !search.isBlank()) {
-        requestPage = requestRepository.findByTitleContaining(search, pageable);
-    } else {
-        requestPage = requestRepository.findAll(pageable);
+        if (search != null && !search.isBlank()) {
+            requestPage = requestRepository.findByTitleContaining(search, pageable);
+        } else {
+            requestPage = requestRepository.findAll(pageable);
+        }
+
+        List<RequestDTO> requestDTOs = requestPage.getContent()
+                .stream()
+                .map(request -> {
+                    // 해시태그 리스트 조회
+                    List<Hashtag> hashtagList = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
+
+                    // 해시태그 리스트 -> 문자열 (공백 구분) 변환
+                    String hashtagsString = hashtagList.stream()
+                            .map(Hashtag::getTag)
+                            .collect(Collectors.joining(" "));
+                    // D-DAY
+                    String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
+
+                    return RequestDTO.builder()
+                            .idx(request.getIdx())
+                            .title(request.getTitle())
+                            .content(request.getContent())
+                            .createdAt(request.getCreatedAt())  // LocalDateTime 그대로
+                            .useDate(request.getUseDate())
+                            .isDone(request.getIsDone()) 
+                            .hashtagList(hashtagList)
+                            .hashtags(hashtagsString)
+                            .dDay(dDay)
+                            // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("request", requestDTOs);
+        response.put("currentPage", page);
+        response.put("totalPages", requestPage.getTotalPages());
+        response.put("hasNext", requestPage.hasNext());
+
+        // 전체 해시태그 추가 (문자열 리스트)
+        List<String> allHashtags = hashtagRepository.findAll()
+                .stream()
+                .map(Hashtag::getTag)
+                .distinct()
+                .collect(Collectors.toList());
+        response.put("hashtags", allHashtags);
+
+        return response;
     }
-
-    List<RequestDTO> requestDTOs = requestPage.getContent()
-            .stream()
-            .map(request -> {
-                // 해시태그 리스트 조회
-                List<Hashtag> hashtagList = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
-
-                // 해시태그 리스트 -> 문자열 (공백 구분) 변환
-                String hashtagsString = hashtagList.stream()
-                        .map(Hashtag::getTag)
-                        .collect(Collectors.joining(" "));
-                // D-DAY
-                String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
-
-                return RequestDTO.builder()
-                        .idx(request.getIdx())
-                        .title(request.getTitle())
-                        .content(request.getContent())
-                        .createdAt(request.getCreatedAt())  // LocalDateTime 그대로
-                        .useDate(request.getUseDate())
-                        .isDone(request.getIsDone()) 
-                        .hashtagList(hashtagList)
-                        .hashtags(hashtagsString)
-                        .dDay(dDay)
-                        // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
-                        .build();
-            })
-            .collect(Collectors.toList());
-
-    Map<String, Object> response = new HashMap<>();
-    response.put("request", requestDTOs);
-    response.put("currentPage", page);
-    response.put("totalPages", requestPage.getTotalPages());
-    response.put("hasNext", requestPage.hasNext());
-
-    // 전체 해시태그 추가 (문자열 리스트)
-    List<String> allHashtags = hashtagRepository.findAll()
-            .stream()
-            .map(Hashtag::getTag)
-            .distinct()
-            .collect(Collectors.toList());
-    response.put("hashtags", allHashtags);
-
-    return response;
-}
 
     // D-DAY 계산 함수
     private String calculateDDay(LocalDateTime createdAt, LocalDateTime useDate) {
-    long seconds = ChronoUnit.SECONDS.between(createdAt, useDate);
-    long days = seconds / (60 * 60 * 24); // 초 → 일 변환
+        long seconds = ChronoUnit.SECONDS.between(createdAt, useDate);
+        long days = seconds / (60 * 60 * 24); // 초 → 일 변환
 
-    if (days == 0) return "D-DAY";
-    else if (days > 0) return "D-" + days;
-    else return "D+" + Math.abs(days);
-}
+        if (days == 0) return "D-DAY";
+        else if (days > 0) return "D-" + days;
+        else return "D+" + Math.abs(days);
+    }
+
+    // 임시 : 이메일에 해당하는 모든 견적 정보 삭제
+    @Override
+    @Transactional
+    public void allDeleteByEmail(String email) {
+        List<Request> requests = requestRepository.findByMember_EmailId(email); // 이메일 : 회원의 모든 의뢰서 조회
+        for (Request request : requests) {
+            System.out.println("request = " + request);
+            hashtagMappingRepository.deleteByRequest_Idx(request.getIdx()); // 의뢰서 번호 : 관련 해시태그 매핑 삭제
+
+            // 의뢰서 번호 : 관련 견적서 전부 삭제
+            List<Estimate> estimates = estimateRepository.findByRequest_Idx(request.getIdx());
+            for (Estimate estimate : estimates) {
+                System.out.println("estimate = " + estimate);
+                paymentRepository.deleteByEstimate_Idx(estimate.getIdx()); // 견적서 번호 : 결제 정보 전체 삭제
+                // 여기에 (견적서) 이미지 관련 삭제 추가 필요
+            }
+            estimateRepository.deleteByRequest_Idx(request.getIdx()); // 의뢰서 번호 : 견적 정보 전체 삭제
+            // 여기에 (의뢰서) 이미지 관련 삭제 추가 필요
+        }
+        requestRepository.deleteByMember_EmailId(email); // 이메일 : 회원의 모든 의뢰서 삭제
+    }
 }

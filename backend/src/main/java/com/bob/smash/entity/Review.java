@@ -16,11 +16,11 @@ public class Review {
     private Integer idx;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)) // 외래키 제약조건 없음
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_idx")
+    @JoinColumn(name = "estimate_idx", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)) // 외래키 제약조건 없음
     private Estimate estimate;
 
     @Column(length = 5, nullable = false)
