@@ -16,17 +16,22 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">    
     <hr>
+<!-- 의뢰서 상세 페이지------------------------------------------------------------------------------------------- -->
 <div class="request_wrapper">
   <div class="request_header">
-    <h1 class="request_title"> [[${dto.title}]]</h1>
+    <h3 class="request_title"> [[${dto.title}]]</h3>
     <span class="status_tag">낙찰 완료</span>
   </div>
   <div class="small_box">
-      <!-- 이미지 -->
+  <!-- 이미지 -->
   <div class="attached_image_area" th:if="${not #lists.isEmpty(dto.images)}">
-        <div class="attached_image" th:each="image : ${dto.images}">
-          <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+        <div class="attached_image" th:each="image : ${dto.images}" th:if="${image.path != null}">
+          <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
         </div>
+  </div>
+  <!-- 이미지 Lightbox (이미지 크게 보기) -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightbox_img" src="" alt="zoom" />
   </div>
 
   <div class="request_content_box">
@@ -34,8 +39,8 @@
       <div class="hashtags">[[${dto.hashtags}]]</div>
 
       <div class="description">
-        <p>[[${dto.content}]]</p>
-      </div>
+        <pre th:text="${dto.content}"></pre>
+      </div>     
 
       <div class="info">      
       <p>사용 지역: [[${dto.useRegion}]]</p>
@@ -54,6 +59,29 @@
     <button class="btn">견적서 작성</button>
   </div>
   <hr>
+
+  <!--이미지 lightbox. Js code((이미지 크게 보기) -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const images = document.querySelectorAll(".zoomable_image");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox_img");
+
+    images.forEach(img => {
+      img.addEventListener("click", () => {
+        lightbox.style.display = "flex";
+        lightboxImg.src = img.src;
+      });
+    });
+
+    window.closeLightbox = function () {
+      lightbox.style.display = "none";
+      lightboxImg.src = "";
+    };
+  });
+</script>
+<!-- 의뢰서 상세 페이지.End-->
+
 
 
   </th:block>
