@@ -14,25 +14,47 @@
 </header>
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
-  <th:block th:fragment="content">
-    <h1 style="margin: 6rem;">Request Detail PAGE</h1>
-
-    <div class="request_container">
-      <div>        
-        <p>의뢰서</p>
-      </div>  
-        <div class="request_images_box" th:if="${not #lists.isEmpty(dto.images)}">
-              <div class="request_image" th:each="image : ${dto.images}">
-                <img th:src="@{${image.path}}" alt="첨부 이미지"/>
-              </div>
+  <th:block th:fragment="content">    
+    <hr>
+<div class="request_wrapper">
+  <div class="request_header">
+    <h1 class="request_title"> [[${dto.title}]]</h1>
+    <span class="status_tag">낙찰 완료</span>
+  </div>
+  <div class="small_box">
+      <!-- 이미지 -->
+  <div class="attached_image_area" th:if="${not #lists.isEmpty(dto.images)}">
+        <div class="attached_image" th:each="image : ${dto.images}">
+          <img th:src="@{${image.path}}" alt="첨부 이미지"/>
         </div>
-        <p><span>제목: </span>[[${dto.title}]]</p>
-        <p><span>해시태그: </span>[[${dto.hashtags}]]</p>
-        <p><span>내용: </span>[[${dto.content}]]</p>
-        <p><span>지역: </span>[[${dto.useRegion}]]</p>
-        <p><span>대여 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.useDate)}]]</p>
-        <p><span>의뢰서 생성 날짜: </span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(dto.createdAt)}]]</p>      
-    </div>
+  </div>
+
+  <div class="request_content_box">
+    <div class="xsmall_box"> 
+      <div class="hashtags">[[${dto.hashtags}]]</div>
+
+      <div class="description">
+        <p>[[${dto.content}]]</p>
+      </div>
+
+      <div class="info">      
+      <p>사용 지역: [[${dto.useRegion}]]</p>
+      <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy.MM.dd')}]]</p>
+      </div>
+    </div>    
+
+    <div class="created_at">작성날짜: [[${#temporals.format(dto.createdAt, 'yy.MM.dd')}]]</div>
+  </div>
+  </div>
+</div>
+
+  <div class="request_btn_group">
+    <button class="btn delete">의뢰서 삭제</button>
+    <button class="btn">의뢰서 수정</button>
+    <button class="btn">견적서 작성</button>
+  </div>
+  <hr>
+
 
   </th:block>
 </th:block>

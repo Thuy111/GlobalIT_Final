@@ -55,7 +55,7 @@
 
         <div class="re_form_group">
             <label>대여 날짜</label>
-            <input type="datetime-local" name="useDate" class="form-control use_date" required>
+            <input type="datetime-local" id="use_date_input" name="useDate" class="form-control use_date" required>
         </div>
 
        <!-- 대여 지역 -->
@@ -88,6 +88,27 @@
       </form>
     </div>
   </div>
+
+
+  <!--오늘 이후 날짜만 선택 가능하도록 제한------------------------------>
+  <script>    
+    window.addEventListener('DOMContentLoaded', () => {
+      const useDateInput = document.getElementById('use_date_input');
+      const now = new Date();
+
+      // yyyy-MM-ddTHH:mm 형식으로 변환
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const date = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+
+      const minDateTime = `${year}-${month}-${date}T${hours}:${minutes}`;
+      useDateInput.min = minDateTime;
+    });
+
+  </script>
+
 
   
    <!-- 주소 불려오기 -------------------------------------------------------------------------->
