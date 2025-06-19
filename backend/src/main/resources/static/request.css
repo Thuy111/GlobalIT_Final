@@ -1,15 +1,15 @@
-.request_title{
+/* 등록 페이지 **************/
+.request_container .request_title{
   letter-spacing: 4px;
 }
 
-/* detail */
+/* detail 페이지***********************/
 .request_wrapper {
   max-width: 100%;
   margin: 0 auto;
   border: 1px solid rgb(207, 207, 207);
-  border-radius: 20px;
-  /* background-color: #dbdada; */
-  background-color: #d6d8d8;
+  border-radius: 20px;  
+  background-color: #f6f8f8;
 }
 
 .request_header {
@@ -20,6 +20,11 @@
   border-radius: 10px 10px 0 0;
   font-weight: bold; 
   border-radius: 20px;
+  color: #3ea5b8;
+}
+
+.request_wrapper .request_title{
+  padding-left: 25px;
 }
 
 .status_tag {
@@ -35,6 +40,11 @@
   padding: 1rem;  
   border-top: none;
   border-radius: 0 0 10px 10px;
+}
+
+.request_wrapper .description pre {
+  font-size: 17px !important;
+  font-family: inherit;
 }
 
 .request_wrapper .created_at {
@@ -80,11 +90,40 @@ margin: 40px;
 }
 
 .request_wrapper .hashtags{
-  color: rgb(5, 190, 247);
-  margin-bottom: 10px;
+  color: rgb(5, 141, 118);
+  margin: 10px 0px 20px 0px; 
 }
 
 .request_wrapper .info{
   margin-top: 30px;
   color: #7c7b7b;
+}
+
+/* Detail 페이지, 이미지 lightbox  */
+.zoomable_image {
+  cursor: pointer;
+  transition: transform 0.3s;
+  border-radius: 12px;
+}
+
+.zoomable_image:hover {
+  transform: scale(1.02);
+}
+
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #fff;
 }

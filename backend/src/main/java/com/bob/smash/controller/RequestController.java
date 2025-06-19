@@ -88,7 +88,8 @@ public class RequestController {
     @GetMapping("/detail")
     public String detail(@RequestParam("idx") Integer idx, Model model) {
         RequestDTO dto = requestService.get(idx);
-        model.addAttribute("dto", dto);
+        model.addAttribute("dto", dto);        
         return "/smash/request/detail";  
+        
     }
 }
