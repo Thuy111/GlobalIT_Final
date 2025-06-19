@@ -8,7 +8,6 @@ import com.bob.smash.entity.HashtagMapping;
 import com.bob.smash.entity.Image;
 import com.bob.smash.entity.ImageMapping;
 import com.bob.smash.entity.ImageMapping.TargetType;
-import com.bob.smash.dto.RequestListDTO;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
@@ -28,6 +27,7 @@ import org.springframework.data.domain.Sort;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.HashMap;
@@ -160,7 +160,7 @@ public Map<String, Object> getPagedRequestList(int page, int size, String search
                         .map(Hashtag::getTag)
                         .collect(Collectors.joining(" "));
                 // D-DAY
-                String dDay = calculateDDay(request.getCreatedAt().toLocalDate(), request.getUseDate().toLocalDate());
+                String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
 
                 return RequestDTO.builder()
                         .idx(request.getIdx())
@@ -195,10 +195,12 @@ public Map<String, Object> getPagedRequestList(int page, int size, String search
 }
 
     // D-DAY 계산 함수
-    private String calculateDDay(LocalDate createdAt, LocalDate useDate) {
-        long days = ChronoUnit.DAYS.between(createdAt, useDate);
-        if (days == 0) return "D-DAY";
-        else if (days > 0) return "D-" + days;
-        else return "D+" + Math.abs(days);
-    }
+    private String calculateDDay(LocalDateTime createdAt, LocalDateTime useDate) {
+    long seconds = ChronoUnit.SECONDS.between(createdAt, useDate);
+    long days = seconds / (60 * 60 * 24); // 초 → 일 변환
+
+    if (days == 0) return "D-DAY";
+    else if (days > 0) return "D-" + days;
+    else return "D+" + Math.abs(days);
+}
 }

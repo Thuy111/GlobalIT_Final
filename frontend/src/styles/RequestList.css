@@ -2,6 +2,41 @@
 .request-container {
   padding: 20px;
 }
+/* 캐러셀 전체 감싸는 부분 */
+.request-container .carousel-wrapper {
+  margin-bottom: 30px;
+}
+
+/* 캐러셀 슬라이드 내부 카드 스타일 */
+.request-container .carousel-card {
+  background-color: #eee;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 캐러셀 이미지 */
+.request-container .carousel-card img {
+  width: 40px;
+  margin-bottom: 8px;
+}
+
+/* 캐러셀 제목 */
+.request-container .carousel-card h4 {
+  margin: 8px 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 캐러셀 D-DAY */
+.request-container .carousel-card p {
+  font-size: 14px;
+  color: #df6666;
+  font-weight: bold;
+}
+
 
 /* 검색 폼 */
 .request-container .request-search-form {
@@ -163,9 +198,16 @@
   margin-left: 100px; 
   color: #333;
   margin-top: 25px;
-  white-space: pre-wrap;
-  word-break: break-word;
   max-width: 600px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;       /* 2줄까지만 보여주기 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* white-space: pre-wrap; 제거 */
+  /* word-break: break-word; 필요시 유지 가능 */
 }
 /* /RequestList */
 
