@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface PartnerInfoRepository extends JpaRepository<PartnerInfo, String> {
+    Optional<PartnerInfo> findByBno(String bno); // bno로 파트너 정보 찾기
     Optional<PartnerInfo> findByMember_EmailId(String emailId); // 이메일로 파트너 정보 찾기
     void deleteByMember_EmailId(String email); // 이메일로 파트너 정보 삭제
     // 이메일로 bno 조회

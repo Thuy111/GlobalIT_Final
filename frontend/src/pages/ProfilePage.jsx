@@ -3,12 +3,14 @@ import axios from 'axios';
 import Login from './member/LoginPage';
 import UserProfile from './profile/UserProfile';
 import PartnerProfile from './profile/PartnerProfile';
+import { useUser } from '../contexts/UserContext';
 
-const Profile = ({ user }) => {
+const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
+  const user = useUser();
 
   // ✔️ profileData가 있을 때만 isPartner 체크
   const isPartner = profileData?.partner ?? false;
