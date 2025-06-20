@@ -127,3 +127,9 @@ margin: 40px;
   border-radius: 10px;
   box-shadow: 0 0 20px #fff;
 }
+
+/* 의뢰서 수정 페이지 */
+.request_update_title::before{
+  content:"🖋";
+  margin-right: 0.5rem;gi
+}

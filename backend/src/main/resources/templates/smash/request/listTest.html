@@ -21,9 +21,7 @@
       <div class="request_box" th:each="request : ${result}">
          <th scope="row" style="font-weight: normal;">
 
-          <a th:href="@{/smash/request/detail(idx = ${request.idx},
-               )}"
-          >
+          <a th:href="@{/smash/request/detail/{idx}(idx = ${request.idx})}">
              <p class="border"><span>제목: </span>[[${request.title}]]</p>
           </a>
 
