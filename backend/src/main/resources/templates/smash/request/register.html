@@ -5,23 +5,18 @@
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <!-- icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> 
-
-
-   <!-- CSS -->
-   <link rel="stylesheet" th:href="@{/request.css}" />
-
-
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/request.css}" />
 </header>
 <body>
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
   <th:block th:fragment="content">
-
+    <h1 class="request_update_title" style="margin: 2rem;">의뢰서 작성</h1>
+    <hr>
 
   <!-- 전체 내용----------------------------------------------------------------->
    <div class="request_container">
-    <div class="container mt-5" style="max-width: 480px;">
-      <h2 class="mb-4 font-weight-bold request_title">의뢰서 작성</h4>
-
+    <div class="container mt-5" style="max-width: 480px;">     
       <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
         <!-- 이미지 -->                 
            <div id="image_preview_wrapper" class="image_preview_wrapper">

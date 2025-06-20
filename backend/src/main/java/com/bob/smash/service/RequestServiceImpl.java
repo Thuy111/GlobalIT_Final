@@ -59,7 +59,7 @@ public class RequestServiceImpl implements RequestService {
     private final ImageService imageService;   
 
 
-    // 등록///////////////////////////////////////////////////
+    // 등록/////////////////////////////////////////////////////////////////////////////////
     @Override
     public Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles) {
     Request entity = dtoToEntity(dto, member);
@@ -106,7 +106,7 @@ public class RequestServiceImpl implements RequestService {
 
     }
 
-    // 상세 페이지 조회/////////////////////////////////////
+    // 상세 페이지 보기///////////////////////////////////////////////////////////////////
     @Override
     public RequestDTO get(Integer idx) {
         Optional<Request> result = requestRepository.findById(idx);
@@ -128,13 +128,12 @@ public class RequestServiceImpl implements RequestService {
         dto.setImages(images);
 
         return dto;
-
         }    
         return null;
     }
     
 
-    // 전체 목록 조회////////////////////////////////////
+    // 전체 목록 조회////////////////////////////////////(test 용, 추후 삭제 필요)
     @Override
     public List<RequestDTO> getList() {
         List<Request> list = requestRepository.findAll();        
@@ -233,7 +232,7 @@ public class RequestServiceImpl implements RequestService {
         requestRepository.deleteByMember_EmailId(email); // 이메일 : 회원의 모든 의뢰서 삭제
     }
 
-    //의뢰서 삭제///////////////////////////////////////////////////////
+    //의뢰서 삭제//////////////////////////////////////////////////////////////////////////////
     @Override
     @Transactional
     public void delete(Integer idx) {
@@ -250,4 +249,60 @@ public class RequestServiceImpl implements RequestService {
     // [4] 의뢰서 삭제
     requestRepository.delete(request); 
     }
+
+    //수정/////////////////////////////////////////////////////////////////////////////////////////////////
+     @Override
+     @Transactional
+     public void modify(RequestDTO dto,List<MultipartFile> newImages){
+        // [1] 기존 의뢰서 가져오기
+        Request request = requestRepository.findById(dto.getIdx())
+            .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + dto.getIdx()));
+
+        // [2] 값 변경
+        request.changeTitle(dto.getTitle());
+        request.changeContent(dto.getContent());
+        request.changeUseDate(dto.getUseDate());
+        request.changeUseRegion(dto.getUseRegion());
+        request.changeIsModify((byte) 1);
+
+        // [3] 기존 해시태그 매핑 삭제
+        hashtagMappingRepository.deleteByRequest_Idx(request.getIdx());
+
+        // [4] 새로운 해시태그 추가
+        if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
+            String[] tags = dto.getHashtags().trim().split("\\s+");
+
+            for (String rawTag : tags) {
+                String tag = rawTag.trim();
+
+                if (!tag.isEmpty()) {
+                    Hashtag hashtag = hashtagRepository.findByTag(tag)
+                        .orElseGet(() -> hashtagRepository.save(Hashtag.builder().tag(tag).build()));
+
+                    HashtagMapping mapping = HashtagMapping.builder()
+                        .hashtag(hashtag)
+                        .request(request)
+                        .build();
+
+                    hashtagMappingRepository.save(mapping);
+                }
+            }
+        }
+         // [5] 기존 이미지 삭제
+        imageService.deleteImagesByTarget("request", dto.getIdx());
+        // [6] 새로운 이미지 업로드
+        if (newImages != null && !newImages.isEmpty()) {
+            newImages.stream()
+                .filter(file -> !file.isEmpty())
+                .forEach(file -> {
+                    try {
+                        imageService.uploadAndMapImage("request", dto.getIdx(), file);
+                    } catch (Exception e) {
+                        log.error("이미지 업로드 실패: {}", e.getMessage());
+                    }
+                });
+        }
+
+    }
+     
 }

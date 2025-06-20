@@ -33,6 +33,7 @@ public class RequestDTO {
 
     // 지역
     private String useRegion; // 대여 지역 (주소 API로 가져오는 메인 주소)
+    private String detailAddress;
 
     // 이미지 정보
     private List<ImageDTO> images;
