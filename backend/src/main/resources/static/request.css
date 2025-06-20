@@ -131,5 +131,5 @@ margin: 40px;
 /* 의뢰서 수정 페이지 */
 .request_update_title::before{
   content:"🖋";
-  margin-right: 0.5rem;gi
+  margin-right: 0.5rem;
 }
