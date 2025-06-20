@@ -2,6 +2,7 @@ package com.bob.smash.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.exception.DuplicateMemberException;
@@ -27,6 +29,9 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 
   private final MemberService memberService;
+
+  @Value("${front.server.url}")
+  private String frontServerUrl;
 
   // 현재 유저정보 + 유효성 체크
   @GetMapping("/check")
@@ -111,7 +116,7 @@ public class MemberController {
 
   // 회원 탈퇴
   @DeleteMapping("/delete")
-  public String deleteMember(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authentication) {
+  public String deleteMember(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authentication, RedirectAttributes redirectAttributes) {
         // access token 바로 사용 가능
         String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
@@ -122,7 +127,8 @@ public class MemberController {
             case google -> memberService.unlinkAndDeleteGoogleMember(accessToken, currentUser);
             default -> throw new UnsupportedOperationException("지원하지 않는 로그인 타입입니다.");
         }
-    return "회원 탈퇴가 완료되었습니다.";
+    redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+    return "redirect:"+frontServerUrl+"/profile?unlinked=true";
   }
 
 

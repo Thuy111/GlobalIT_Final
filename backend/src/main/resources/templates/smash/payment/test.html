@@ -1,0 +1,127 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+  <th:block th:fragment="content">
+      <!-- 필요한 값들은 Thymeleaf로 동적 주입 -->
+      <!-- <input type="hidden" id="memberEmail" th:value="${member.email}" />
+      <input type="hidden" id="partnerBno" th:value="${partner.bno}" />
+      <input type="hidden" id="estimateIdx" th:value="${estimate.idx}" /> -->
+      <input type="hidden" id="memberEmail" th:value="'seasign10@gmail.com'" />
+      <input type="hidden" id="partnerBno" th:value="'123-45-67890'" />
+      <input type="hidden" id="estimateIdx" th:value="'1'" />
+
+      <h1 style="font-size: 24px; font-weight: bold;">결제 페이지</h1>
+      <hr>
+
+      <th:block th:if="${#strings.isEmpty(impMerchantCode)}">
+        <p>아임포트 가맹점 식별코드가 설정되지 않았습니다.</p>
+      </th:block>
+      <th:block th:unless="${#strings.isEmpty(impMerchantCode)}">
+        <!-- 결제서 생성 -->
+        <div class="payment-container bills" style="margin: auto; display: flex; flex-direction: column; align-items: center;">
+          <div><input type="number" id="price" style="width:200px;" placeholder="결제 금액을 입력하세요" /> 원</div>
+          <button onclick="requestBills(event)">결제 요청</button>
+        </div>
+
+        <!-- 결제 버튼들 -->
+        <div class="payment-container hide" style="margin: auto; display: flex; flex-direction: column; align-items: center;">
+          <h2><b style="font-weight: bold; margin: 1rem 0;">결제 금액</b> : <span class="price"></span>원</h2>
+          <p>결제 방법을 선택해주세요.</p>
+          <div style="display: flex;">
+            <button style="margin: 0.3rem;" onclick="requestPay('kakaopay')">카카오페이 결제</button>
+            <button style="margin: 0.3rem;" onclick="requestPay('tosspay')">토스 결제</button>
+            <button style="margin: 0.3rem;" onclick="requestPay('html5_inicis')">핸드폰 결제</button>
+          </div>
+        </div>
+
+      </th:block>
+      
+
+      <script>
+        // 결제서 생성
+        function requestBills(e) {
+          e.preventDefault();
+
+          const price = Number(document.getElementById("price").value);
+          if (!price || isNaN(price) || price <= 0) {
+            alert("유효한 금액을 입력하세요.");
+            return;
+          }
+
+          console.log(price,document.getElementById("memberEmail").value,document.getElementById("partnerBno").value,Number(document.getElementById("estimateIdx")?.value || 0))
+          
+          axios.post('/smash/payment/init', {
+            price: price,
+            memberEmail: document.getElementById("memberEmail").value,
+            partnerBno: document.getElementById("partnerBno").value,
+            estimateIdx: Number(document.getElementById("estimateIdx")?.value || 0)
+          })
+          document.querySelector(".price").textContent = price;
+          document.querySelector(".payment-container.hide").classList.remove("hide");
+          document.querySelector(".payment-container.bills").classList.add("hide");
+        }
+
+        // 결제 버튼
+        const IMP = window.IMP;
+        IMP.init('[[${impMerchantCode}]]'); // 아임포트 가맹점 식별코드
+
+        function requestPay(payType) {
+          // 주문번호 생성
+          const merchantUid = "order_" + new Date().getTime();
+
+          // 결제 금액
+          let price = document.getElementById("price").value;
+          price = Number(price);
+
+          // 결제사
+          let pg;
+          switch(payType) {
+            case 'kakaopay': pg = 'kakaopay'; break;
+            case 'toss': pg = 'tosspay'; break;
+            case 'inicis': pg = 'html5_inicis'; break;   // KG이니시스
+            default: pg = 'html5_inicis';
+          }
+          
+          IMP.request_pay({
+            pg: pg, // 결제 PG사
+            pay_method: "card",
+            merchant_uid: merchantUid, // 내가 생성한 주문번호
+            name: "견적 결제",
+            amount: price, // 숫자로 캐스팅 (결제 금액)
+            buyer_email: "buyer@email.com",
+            buyer_name: "홍길동",
+            buyer_tel: "010-1234-5678"
+          }, function (rsp) {
+            if (rsp.success) {
+              // 결제 성공: 서버에 impUid 전달해 검증 요청
+              const impUid = rsp.imp_uid;
+              const memberEmail = document.getElementById("memberEmail").value;
+              const partnerBno = document.getElementById("partnerBno").value;
+              const estimateIdx = Number(document.getElementById("estimateIdx")?.value || 0);
+
+              axios.get(`/smash/payment/verify/${impUid}`, {
+                params: {
+                  price: price,
+                  memberEmail: memberEmail,
+                  partnerBno: partnerBno,
+                  estimateIdx: estimateIdx
+                }
+              })
+              .then(res => {
+                if (res.status === 200) {
+                  alert("결제가 완료되었습니다!");
+                  location.href = "/결제완료페이지";
+                } else {
+                  alert("서버 검증 실패");
+                }
+              })
+              .catch(() => {
+                alert("서버 검증 실패");
+              });
+            } else {
+              alert("결제 실패: " + rsp.error_msg);
+            }
+          });
+        }
+      </script>
+  </th:block>
+</th:block>
+

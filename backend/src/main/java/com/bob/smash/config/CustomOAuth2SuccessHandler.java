@@ -174,16 +174,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     return;
                 } else { // 다른 계정으로 로그인 요청
                     System.out.println("===이미 존재하는 다른계정 회원===");
-                    // 카카오면 api 연동 해제
-                    if(loginType == Member.LoginType.kakao) { // 구글은 번호인증 전 까지 API연동 X
-                        WebClient.create()
-                                .post()
-                                .uri("https://kapi.kakao.com/v1/user/unlink")
-                                .header("Authorization", "Bearer " + accessToken)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
-                    }
+                    // 로그인 페이지로 이동 => (인증페이지를 제외한) API 연동해제 로직 전역
                     response.sendRedirect(frontServerUrl + "/profile?error=" + existingMember.getLoginType() + "AlreadyExists");
                     return;
                 }

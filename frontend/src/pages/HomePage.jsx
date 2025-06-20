@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useNavigate  } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
+import { useUser } from '../contexts/UserContext';
 import axios from 'axios';
 import RequestList from '../pages/RequestList';
 
-const Home = ({ user }) => {
+const Home = () => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   const baseUrl = import.meta.env.VITE_API_URL;
-  // const [userRole, setUserRole] = useState(null || user.role); // 초기값으로 user.role 사용
-  const [userRole, setUserRole] = useState(null); // 초기값으로 user.role 사용
+  const user = useUser();
+  console.log("user:", user);
   
   return (
     <>
@@ -19,7 +19,7 @@ const Home = ({ user }) => {
         {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
         <RequestList />
 
-        {userRole && userRole === 0 && // 일반 사용자일 때만 요청 작성 버튼 표시
+        {user && user.role === 0 && // 일반 사용자일 때만 요청 작성 버튼 표시
         <div className="reg_button_box">
           <a className="register_btn" href={`${baseUrl}/smash/request/register`}>
             <i className="fa-solid fa-plus"></i>
@@ -39,7 +39,6 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
   const [btnText, setBtnText] = useState('☀️');
   const [isChecked, setIsChecked] = useState(isDarkMode); 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // 로그인 상태 확인

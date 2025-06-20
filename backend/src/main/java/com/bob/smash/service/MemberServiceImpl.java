@@ -3,10 +3,14 @@ package com.bob.smash.service;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -18,12 +22,10 @@ import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.entity.Member;
-import com.bob.smash.entity.Request;
 import com.bob.smash.entity.Member.LoginType;
 import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
-import com.bob.smash.repository.RequestRepository;
-import com.bob.smash.repository.ReviewRepository;
+// import com.bob.smash.repository.ReviewRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -33,16 +35,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+    private static final Set<String> revokedTokens = ConcurrentHashMap.newKeySet();
+    private final OAuth2AuthorizedClientService authorizedClientService;
     private final MemberRepository memberRepository;
     private final PartnerInfoService partnerInfoService;
     private final EstimateService estimateService;
     private final RequestService requestService;
-    private final ReviewRepository reviewRepository;
+    // private final ReviewRepository reviewRepository;
 
   @Value("${front.server.url}")
   private String frontServerUrl;
 
-  //  소셜로그인 이메일을 통한 유저정보 DTO 반환
+  // 소셜로그인 이메일을 통한 유저정보 DTO 반환
   @Override
   public MemberDTO getCurrentUser(OAuth2AuthenticationToken authentication) {
     if (authentication == null) {
@@ -67,7 +71,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     Optional<Member> memberOpt = memberRepository.findByEmailId(email);
-    if (memberOpt.isEmpty()) return null; // 회원이 존재하지 않으면 null 반환
+    if (memberOpt.isEmpty()){
+        unlinkSocial(); // 소셜 로그인 연동 해제
+        return null; // 회원 정보가 없으면 null 반환
+    }
     MemberDTO dto = entityToDto(memberOpt.get());
 
     // 문자열을 enum으로 안전하게 변환
@@ -84,8 +91,6 @@ public class MemberServiceImpl implements MemberService {
         if (phone == null || phone.isEmpty()) {
             throw new IllegalArgumentException("전화번호가 누락되었습니다.");
         }
-
-        // System.out.println("email = " + email);
 
         Optional<Member> memberOpt = memberRepository.findByEmailId(email);
 
@@ -116,27 +121,27 @@ public class MemberServiceImpl implements MemberService {
         } else { // 구글 로그인인 경우
             email = (String) attributes.get("email"); 
         }
-        // System.out.println("email = " + email);
         
         if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("가입되지 않은 계정입니다.");
+            throw new IllegalArgumentException("이메일 정보가 없습니다.");
         }
 
         Optional<Member> memberOpt = memberRepository.findByEmailId(email);
-        // 회원 탈퇴 상태 체크
-        if (memberOpt.isEmpty()) return;
        
         Member member = memberOpt.orElse(null);
+        
+        System.out.println("=====>>> 회원 정보 조회: " + memberOpt.isPresent() + ", 이메일: " + email);
+        if (memberOpt.isEmpty()) {// DB에 해당 이메일이 없을 때
+            unlinkSocial(); // 소셜로그인 연동 해제
+            request.getSession().invalidate(); // 세션 파기
+            
+            throw new IllegalArgumentException("가입되지 않은 계정입니다.");
+        } else {
+            System.out.println("=====>>> 회원은 존재함 → " + memberOpt.get().getEmailId() + ", 전화번호: " + memberOpt.get().getTel());
+        }
+
         if (member.getTel() == null) {
             throw new IllegalArgumentException("번호가 등록되지 않은 계정입니다.");
-        }
-        
-        if (memberOpt.isEmpty()) {
-            // DB에 해당 이메일이 없을 때
-            request.getSession().invalidate();// 세션 파기
-            // 소셜로그인 연동 해제
-
-            throw new IllegalArgumentException("가입되지 않은 계정입니다.");
         }
     }
 
@@ -158,9 +163,8 @@ public class MemberServiceImpl implements MemberService {
         if (existingByTel.isPresent()) {
             // 로그인 타입을 이메일과 전화번호로 둘 다 확인
             String loginType = existingByTel.get().getLoginType().toString();
-            // 세션 파기
-            request.getSession().invalidate();
-            // 소셜로그인 연동 해제
+            unlinkSocial(); // 소셜로그인 연동 해제
+            request.getSession().invalidate(); // 세션 파기
 
             throw new DuplicateMemberException(loginType + "로 이미 가입된 회원입니다." + loginType + "로 로그인해주세요.");
         }
@@ -291,7 +295,7 @@ public class MemberServiceImpl implements MemberService {
             // 1. profile_image
             // 2. notification
             // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
-            estimateService.allDeleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review + image X)
+            estimateService.allDeleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)
             requestService.allDeleteByEmail(email); // 5. request (hashtag_mapping + image X)
             partnerInfoService.deleteByMemberEmail(email); // 6. partnerInfo 삭제 (payment + image X)
             memberRepository.deleteByEmailId(email); // 7. 마지막에 회원 삭제
@@ -300,12 +304,53 @@ public class MemberServiceImpl implements MemberService {
             throw new RuntimeException("회원 탈퇴 중 오류가 발생했습니다.");
         }
 
-
         // 세션 파기
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         HttpSession session = request.getSession(false); // 현재 세션을 가져오되, 없으면 null 반환
         if (session != null) {
             session.invalidate();
+        }
+    }
+
+    private void unlinkSocial() {
+        System.out.println("!!!!!!!!!!!!!!!!!!!소셜 로그인 연동 해제 요청!!!!!!!!!!!!!!!!!!!");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+            String registrationId = oauthToken.getAuthorizedClientRegistrationId(); // 예: "kakao", "google"
+            String principalName = auth.getName(); // 사용자 식별자
+            OAuth2User oauthUser = oauthToken.getPrincipal(); // 사용자 정보 객체
+
+            // accessToken 꺼내기
+            OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(registrationId, principalName);
+            System.out.println("client = " + client);
+
+            if (client == null || client.getAccessToken() == null)return;
+
+            String accessToken = client.getAccessToken().getTokenValue();
+
+            // 이미 revoke 요청했던 토큰이면 중복 호출 방지
+            if (!revokedTokens.add(accessToken)) {
+                System.out.println("🔁 이미 revoke 시도한 토큰입니다. 요청 생략.");
+                return;
+            }
+
+            if (oauthUser.getAttributes().get("email") != null) { // 구글 로그인인 경우
+                WebClient.create()
+                        .post()
+                        .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
+                        .retrieve()
+                        .bodyToMono(Void.class)
+                        .block();
+            } else{ // 카카오 로그인인 경우
+                WebClient.create()
+                        .post()
+                        .uri("https://kapi.kakao.com/v1/user/unlink")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+            }
         }
     }
 }

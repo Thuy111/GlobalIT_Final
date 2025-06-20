@@ -14,12 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.bob.smash.repository.MemberRepository;
-
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
-
-import com.bob.smash.config.CustomOAuth2SuccessHandler;
 
 import org.springframework.security.config.Customizer;
 
@@ -30,14 +25,9 @@ public class SecurityConfig {
     @Value("${front.server.url}")
     private String frontServerUrl;  // application.properties에서 값 주입
 
-    private final MemberRepository memberRepository;
     
     @Autowired
     private CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-    
-    public SecurityConfig(MemberRepository memberRepository) {
-      this.memberRepository = memberRepository;
-    }  
 
     // SecurityFilterChain 빈 등록
     @Bean
