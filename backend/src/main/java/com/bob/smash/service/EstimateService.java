@@ -18,20 +18,22 @@ public interface EstimateService {
   List<EstimateDTO> getList();
   // 목록(이미지 포함)
   List<EstimateDTO> getListWithImage();
-  // 반납 현황 수정
-  Integer returnStatus(EstimateDTO dto);
   // 조회
   EstimateDTO get(Integer idx);
   // 조회(이미지 포함)
   EstimateDTO getWithImage(Integer idx);
   // 수정
   Integer modify(EstimateDTO dto);
+  // 수정(이미지 포함)
+  Integer modifyWithImage(EstimateDTO dto, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
+  // 반납 현황 수정
+  Integer returnStatus(EstimateDTO dto);
   // 삭제
   void delete(Integer idx);
   // 삭제(이미지 포함)
   void deleteWithImage(Integer idx);
-  // 견적서 관련 전체 삭제 : 사업자번호 (회원탈퇴용)
-  void allDeleteByPartnerBno(String bno);
+  // 견적서 일괄 삭제(회원탈퇴용)
+  void deleteByPartnerBno(String bno);
 
   // dto -> entity
   default Estimate dtoToEntity(EstimateDTO dto) {
@@ -52,7 +54,6 @@ public interface EstimateService {
                                 .build();
     return estimate;
   }
-
   // entity -> dto
   default EstimateDTO entityToDto(Estimate estimate) {
     EstimateDTO dto = EstimateDTO.builder()

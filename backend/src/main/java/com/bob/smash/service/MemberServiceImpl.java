@@ -295,7 +295,7 @@ public class MemberServiceImpl implements MemberService {
             // 1. profile_image
             // 2. notification
             // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
-            estimateService.allDeleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)
+            estimateService.deleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)
             requestService.allDeleteByEmail(email); // 5. request (hashtag_mapping + image X)
             partnerInfoService.deleteByMemberEmail(email); // 6. partnerInfo 삭제 (payment + image X)
             memberRepository.deleteByEmailId(email); // 7. 마지막에 회원 삭제

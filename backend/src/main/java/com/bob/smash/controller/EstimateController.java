@@ -7,7 +7,10 @@ import lombok.extern.log4j.Log4j2;
 
 import org.springframework.ui.Model;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,19 +54,6 @@ public class EstimateController {
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
-  
-  // 반납 상태(isReturn) 수정
-  @PostMapping("/return")
-  public String estimateReturn(@RequestParam("idx") Integer idx,
-                               @RequestParam("isReturn") Boolean isReturn,
-                               RedirectAttributes rttr) {
-    // log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
-    EstimateDTO dto = service.get(idx);
-    dto.setIsReturn(isReturn);
-    service.returnStatus(dto);
-    rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/estimate/list";
-  }
 
   // 수정
   @GetMapping("/update")
@@ -72,10 +62,12 @@ public class EstimateController {
     model.addAttribute("dto", dto);
   }
   @PostMapping("/modify")
-  public String modify(EstimateDTO dto) {
-    // log.info("견적서 수정 요청: {}", dto);
-    service.modify(dto);
-    // log.info("견적서 수정 완료: {}", dto);
+  public String modify(EstimateDTO dto, 
+                       @RequestParam(value = "delete_images", required = false) String deleteImages,
+                       @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
+    List<Integer> deleteImageIdxList = (deleteImages == null || deleteImages.isEmpty())
+      ? Collections.emptyList() : Arrays.stream(deleteImages.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+    service.modifyWithImage(dto, deleteImageIdxList, imageFiles);
     return "redirect:/smash/estimate/list";
   }
   
@@ -92,6 +84,19 @@ public class EstimateController {
     dto.setIsSelected(isSelected);
       // service.modify(dto);
       rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/estimate/list";
+  }
+
+  // 반납 상태(isReturn) 수정
+  @PostMapping("/return")
+  public String estimateReturn(@RequestParam("idx") Integer idx,
+                               @RequestParam("isReturn") Boolean isReturn,
+                               RedirectAttributes rttr) {
+    // log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
+    EstimateDTO dto = service.get(idx);
+    dto.setIsReturn(isReturn);
+    service.returnStatus(dto);
+    rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
 
