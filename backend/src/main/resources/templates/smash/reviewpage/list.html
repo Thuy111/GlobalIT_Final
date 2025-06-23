@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/review.css" />
+</head>
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
+<th:block th:fragment="content">
+    <div class="review_container">
+        <h2>리뷰 목록</h2>
+        <a th:href="@{/smash/review/register(estimateIdx=${estimateIdx})}">
+         <button type="button">등록하기</button>
+        </a>
+
+        <p th:text="'견적서 번호: ' + ${estimateIdx}"></p>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>작성자</th>
+                    <th>별점</th>
+                    <th>내용</th>
+                    <th>작성일</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="review : ${reviewList}">
+                    <td th:text="${review.memberId}">작성자</td>
+                    <td th:text="${review.star}">별점</td>
+                    <td th:text="${review.comment}">내용</td>
+                    <td th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</th:block>
+</th:block>
