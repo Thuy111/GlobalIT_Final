@@ -70,13 +70,11 @@
         const uploadInput = document.querySelector('input[type="file"][name="imageFiles"]');
         const deleteInput = document.querySelector('input[type="hidden"][name="delete_images"]');
         const resetBtn = document.getElementById("reset_images");
-
         // 시간 입력
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         const datetimeValue = now.toISOString().slice(0, 16);
         document.querySelectorAll('.datetime').forEach(input => input.value = datetimeValue);
-
         // 1. 이미지 개수 표시
         function updateImageCount() {
           let existingCount = 0;
@@ -87,7 +85,6 @@
           let addedCount = attachedArea.querySelectorAll(".added_image").length;
           imageCountSpan.textContent = existingCount + addedCount;
         }
-
         // 2. 삭제할 이미지 목록 관리
         function updateDeleteImagesInput() {
           const removeIdxs = Array.from(
@@ -95,7 +92,6 @@
           ).map(chk => chk.value);
           deleteInput.value = removeIdxs.join(",");
         }
-
         // 3. 기존 이미지 삭제 UI
         function setupExistingImageDeleteUI() {
           attachedArea.querySelectorAll(".attached_image").forEach(imgDiv => {
@@ -115,7 +111,6 @@
             check.onchange = function () { toggle(); };
           });
         }
-
         // 4. 신규 이미지 업로드 및 미리보기
         if (uploadInput) {
           uploadInput.addEventListener("change", function () {
@@ -151,7 +146,6 @@
             });
           });
         }
-
         // 5. 이미지 초기화 버튼
         if (resetBtn) {
           resetBtn.onclick = function () {
@@ -169,10 +163,9 @@
             updateDeleteImagesInput();
           };
         }
-
         // 6. 폼 제출 시 검증
         form.addEventListener("submit", function (e) {
-          e.preventDefault();// 🟢 폼 데이터 콘솔 출력을 위해 제출 막기
+          // e.preventDefault();// 🟢 폼 데이터 콘솔 출력을 위해 제출 막기
           updateDeleteImagesInput();
           const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
           const isPickup = form.querySelector('input[name="isPickup"]').checked;
@@ -191,17 +184,16 @@
             }
           });
           // 🟢 폼 데이터 콘솔 출력
-          const data = new FormData(form);
-          console.log('--- FormData 전송 값 ---');
-          for (let [key, value] of data.entries()) {
-            if (value instanceof File) {
-              console.log(key, value.name, value.size, value.type);
-            } else {
-              console.log(key, value);
-            }
-          }
+          // const data = new FormData(form);
+          // console.log('--- FormData 전송 값 ---');
+          // for (let [key, value] of data.entries()) {
+          //   if (value instanceof File) {
+          //     console.log(key, value.name, value.size, value.type);
+          //   } else {
+          //     console.log(key, value);
+          //   }
+          // }
         });
-
         // 초기 세팅
         setupExistingImageDeleteUI();
         updateImageCount();

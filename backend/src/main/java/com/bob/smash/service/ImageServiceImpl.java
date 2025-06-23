@@ -99,7 +99,7 @@ public class ImageServiceImpl implements ImageService {
       throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
     }
     // 기존 파일 삭제
-    String oldFilePath = System.getProperty("user.dir") + File.separator + "uploads" + image.getPath() + "/" + image.getSName();
+    String oldFilePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath()).toString();
     File oldFile = new File(oldFilePath);
     if (oldFile.exists()) oldFile.delete();
     // 새 파일 저장
@@ -155,19 +155,13 @@ public class ImageServiceImpl implements ImageService {
   public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
     Image image = imageRepository.findById(imageIdx)
         .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
-    
     ImageMapping mapping = imageMappingRepository.findByImage(image);
     if (mapping == null) {
         throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
     }
-
     //물리 파일 삭제 (upload 폴더에 있는 이미지)
-   String filePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath())
-                       .toFile()
-                       .getAbsolutePath();
-
-    System.out.println("삭제할 파일 경로: " + filePath);
-
+    String filePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath())
+                           .toString();
     File file = new File(filePath);
     if (file.exists()) {
         boolean deleted = file.delete();
@@ -175,7 +169,7 @@ public class ImageServiceImpl implements ImageService {
     } else {
         System.out.println("파일이 존재하지 않음");
     }
-
+    // 매핑, 이미지 DB에서 삭제
     imageMappingRepository.delete(mapping);
     imageRepository.delete(image); 
   }
@@ -206,14 +200,12 @@ public class ImageServiceImpl implements ImageService {
     // 허용할 이미지 타입
     String contentType = file.getContentType();
     if (contentType == null) return false;
-    
-    // 이미지 확장자/타입 체크 (jpg, jpeg, png, gif만 허용 예시)
+    // 이미지 확장자/타입 체크
     if (!contentType.startsWith("image/")) return false;
-    // 확장자 직접 체크하고 싶으면 아래도 가능 (선택)
+    // (선택) 확장자 직접 체크하고 싶으면 아래도 가능
     String filename = file.getOriginalFilename();
     if (filename != null && !filename.matches(".*\\.(jpg|jpeg|png|gif)$"))
     return false;
-    
     // (선택) 크기 제한 (예: 10MB)
     long maxSize = 10 * 1024 * 1024;
     if (file.getSize() > maxSize) return false;
