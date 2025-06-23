@@ -10,6 +10,7 @@ import java.io.File;
 import java.nio.file.Paths;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.entity.Image;
@@ -28,6 +29,7 @@ public class ImageServiceImpl implements ImageService {
 
   // (등록-단건)이미지 + 매핑 동시
   @Override
+  @Transactional
   public ImageDTO uploadAndMapImage(String targetType, Integer targetIdx, MultipartFile file) {
     // 이미지 유효성 검사
     if (!validateImage(file)) {
@@ -61,6 +63,7 @@ public class ImageServiceImpl implements ImageService {
   }
   // (등록-다중)여러 이미지 + 매핑 동시
   @Override
+  @Transactional
   public List<ImageDTO> uploadAndMapImages(String targetType, Integer targetIdx, List<MultipartFile> files) {
     List<ImageDTO> result = new ArrayList<>();
     for (MultipartFile file : files) {
@@ -72,6 +75,7 @@ public class ImageServiceImpl implements ImageService {
 
   // (목록)게시글별 이미지 조회
   @Override
+  @Transactional(readOnly = true)
   public List<ImageDTO> getImagesByTarget(String targetType, Integer targetIdx) {
     // 매핑 테이블에서 해당 targetType/targetIdx에 매핑된 모든 이미지매핑 조회
     List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
@@ -81,9 +85,22 @@ public class ImageServiceImpl implements ImageService {
     .map(mapping -> entityToDto(mapping.getImage(), mapping))
     .collect(Collectors.toList());
   }
+  // (목록)여러 게시글별 이미지 조회
+  @Override
+  @Transactional(readOnly = true)
+  public Map<Integer, List<ImageDTO>> getImagesMapByTargets(String targetType, List<Integer> targetIdxList) {
+    // 매핑 테이블에서 해당 targetType/targetIdxList에 매핑된 모든 이미지매핑 조회
+    List<ImageMapping> mappings = imageMappingRepository.findAllWithImageByTargetTypeAndTargetIdxIn(
+      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdxList);
+    // 매핑을 targetIdx별로 그룹화하여 Map으로 변환
+    return mappings.stream()
+      .collect(Collectors.groupingBy(mapping -> mapping.getTargetIdx(),
+        Collectors.mapping(mapping -> entityToDto(mapping.getImage(), mapping), Collectors.toList())));
+  }
 
   // (수정-단건)게시글에서 특정 이미지 교체
   @Override
+  @Transactional
   public ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile) {
     // 매핑 및 이미지 찾기
     ImageMapping mapping = imageMappingRepository.findByImage(imageRepository.getReferenceById(imageIdx));
@@ -128,6 +145,7 @@ public class ImageServiceImpl implements ImageService {
   }
   // (수정-다중)게시글에서 여러 이미지 교체
   @Override
+  @Transactional
   public List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap) {
     List<ImageDTO> result = new ArrayList<>();
     for (Map.Entry<Integer, MultipartFile> entry : updateMap.entrySet()) {
@@ -139,19 +157,9 @@ public class ImageServiceImpl implements ImageService {
     return result;
   }
 
-  // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
-  @Override
-  public void deleteImagesByTarget(String targetType, Integer targetIdx) {
-    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
-      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
-    );
-    for (ImageMapping mapping : mappings) {
-      Integer imageIdx = mapping.getImage().getIdx();
-      deleteImageFromTarget(targetType, targetIdx, imageIdx);
-    }
-  }
   // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시 
   @Override
+  @Transactional
   public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
     Image image = imageRepository.findById(imageIdx)
         .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
@@ -173,11 +181,23 @@ public class ImageServiceImpl implements ImageService {
     imageMappingRepository.delete(mapping);
     imageRepository.delete(image); 
   }
-  
   // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
   @Override
+  @Transactional
   public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {
     for (Integer imageIdx : imageIdxList) {
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
+  }
+  // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
+  @Override
+  @Transactional
+  public void deleteImagesByTarget(String targetType, Integer targetIdx) {
+    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
+      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
+    );
+    for (ImageMapping mapping : mappings) {
+      Integer imageIdx = mapping.getImage().getIdx();
       deleteImageFromTarget(targetType, targetIdx, imageIdx);
     }
   }
@@ -204,8 +224,7 @@ public class ImageServiceImpl implements ImageService {
     if (!contentType.startsWith("image/")) return false;
     // (선택) 확장자 직접 체크하고 싶으면 아래도 가능
     String filename = file.getOriginalFilename();
-    if (filename != null && !filename.matches(".*\\.(jpg|jpeg|png|gif)$"))
-    return false;
+    if (filename != null && !filename.matches(".*\\.(jpg|jpeg|png|gif)$"))return false;
     // (선택) 크기 제한 (예: 10MB)
     long maxSize = 10 * 1024 * 1024;
     if (file.getSize() > maxSize) return false;

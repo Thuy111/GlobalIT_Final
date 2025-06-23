@@ -16,6 +16,8 @@ public interface ImageService {
 
   // (목록)게시글별 이미지 조회
   List<ImageDTO> getImagesByTarget(String targetType, Integer targetIdx);
+  // (목록)여러 게시글별 이미지 조회
+  Map<Integer, List<ImageDTO>> getImagesMapByTargets(String targetType, List<Integer> targetIdxList);
 
   // (수정-단건)게시글에서 특정 이미지 교체
   ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile);

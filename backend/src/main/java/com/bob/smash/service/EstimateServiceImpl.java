@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EstimateServiceImpl implements EstimateService {
-  private final PaymentRepository paymentRepository;
   private final ImageService imageService;
   private final EstimateRepository repository;
 
@@ -48,15 +48,16 @@ public class EstimateServiceImpl implements EstimateService {
   // 목록: 견적서 리스트 반환 (이미지 포함하고 싶으면 각 DTO에 이미지 세팅)
   public List<EstimateDTO> getListWithImage() {
     List<Estimate> result = repository.findAll();
+    List<Integer> idxList = result.stream().map(Estimate::getIdx).toList();
+    // 한 번에 모든 견적서의 이미지 목록을 조회
+    Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
     return result.stream()
-      .map(estimate -> {
-        EstimateDTO dto = entityToDto(estimate);
-        // 각 견적서에 해당하는 이미지 목록 조회 및 세팅
-        List<ImageDTO> images = imageService.getImagesByTarget("estimate", estimate.getIdx());
-        dto.setImages(images);
-        return dto;
-      })
-      .toList();
+        .map(estimate -> {
+            EstimateDTO dto = entityToDto(estimate);
+            dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
+            return dto;
+        }).toList();
+
   }
   
   // 조회
@@ -153,9 +154,7 @@ public class EstimateServiceImpl implements EstimateService {
         // 견적서+첨부이미지 모두 삭제
         deleteWithImage(estimate.getIdx());
         // 필요 시 리뷰 등 다른 연관 데이터도 여기서 삭제 가능
-        // reviewRepository.deleteByEstimate_Idx(estimate.getIdx());
     }
-    paymentRepository.deleteByPartnerInfo_Bno(bno); // 사업자번호 : 결제 정보 전체 삭제
-    repository.deleteByPartnerInfo_Bno(bno); // 사업자번호 : 견적 정보 전체 삭제
+    repository.deleteByPartnerInfo_Bno(bno); // 사업자번호로 견적 정보 전체 삭제
   }
 }
