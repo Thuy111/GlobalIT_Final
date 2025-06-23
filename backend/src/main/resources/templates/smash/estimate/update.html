@@ -165,14 +165,13 @@
         }
         // 6. 폼 제출 시 검증
         form.addEventListener("submit", function (e) {
-          // e.preventDefault();// 🟢 폼 데이터 콘솔 출력을 위해 제출 막기
           updateDeleteImagesInput();
           const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
           const isPickup = form.querySelector('input[name="isPickup"]').checked;
-          // if (!isDelivery && !isPickup) {
-          //   e.preventDefault();
-          //   alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
-          // }
+          if (!isDelivery && !isPickup) {
+            e.preventDefault();
+            alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+          }
           ['isDelivery', 'isPickup'].forEach(name => {
             const checkbox = form.querySelector(`input[name="${name}"]`);
             if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
@@ -183,16 +182,6 @@
               form.appendChild(hidden);
             }
           });
-          // 🟢 폼 데이터 콘솔 출력
-          // const data = new FormData(form);
-          // console.log('--- FormData 전송 값 ---');
-          // for (let [key, value] of data.entries()) {
-          //   if (value instanceof File) {
-          //     console.log(key, value.name, value.size, value.type);
-          //   } else {
-          //     console.log(key, value);
-          //   }
-          // }
         });
         // 초기 세팅
         setupExistingImageDeleteUI();
