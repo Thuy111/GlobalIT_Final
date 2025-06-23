@@ -3,6 +3,7 @@ package com.bob.smash.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bob.smash.dto.NotificationDTO;
 import com.bob.smash.entity.Notification;
@@ -26,7 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
   // 읽지 않은 알림 개수 조회
   @Override
   public long countUnreadByMemberId(String memberId) {
-    return repository.countByMemberIdAndIsReadFalse(memberId);
+    return repository.countByMember_EmailIdAndIsRead(memberId, (byte)0);
   }
 
   // 목록
@@ -48,11 +49,11 @@ public class NotificationServiceImpl implements NotificationService {
 
   // 읽음 처리
   @Override
+  @Transactional
   public Integer markAsRead(Integer idx) {
     Notification notification = repository.findById(idx)
                                           .orElseThrow(() -> new IllegalArgumentException("Notification not found with idx: " + idx));
     notification.changeIsRead((byte) 1); // 1로 설정하여 읽음 처리
-    repository.save(notification);
     return notification.getIdx();
   }
 
@@ -66,8 +67,8 @@ public class NotificationServiceImpl implements NotificationService {
   // 삭제: 회원탈퇴시 일괄 삭제
   @Override
   public void deleteByMemberId(String memberId) {
-    List<Notification> notifications = repository.findByMemberId(memberId);
-    if (notifications != null && !notifications.isEmpty()) {
+    List<Notification> notifications = repository.findByMember_EmailId(memberId);
+    if (!notifications.isEmpty()) {
       repository.deleteAll(notifications);
     }
   }
