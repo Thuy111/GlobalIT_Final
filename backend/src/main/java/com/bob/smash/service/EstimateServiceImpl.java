@@ -105,10 +105,7 @@ public class EstimateServiceImpl implements EstimateService {
     estimate.changeReturnDate(dto.getReturnDate());
     estimate.changeModifiedAt(dto.getModifiedAt());
     repository.save(estimate);
-    // 기존 이미지 매핑 조회
-    List<ImageDTO> currentImages = imageService.getImagesByTarget("estimate", estimate.getIdx());
-    List<Integer> currentImageIdxList = currentImages.stream().map(ImageDTO::getImageIdx).toList();
-    // 삭제될 이미지 도출 및 삭제
+    // 삭제될 이미지 삭제
     if (deleteImageIdxList != null && !deleteImageIdxList.isEmpty()) {
       for (Integer imageIdx : deleteImageIdxList) {
         imageService.deleteImageFromTarget("estimate", estimate.getIdx(), imageIdx);

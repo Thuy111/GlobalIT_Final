@@ -76,14 +76,11 @@ public class EstimateController {
   public String estimateSelect(@RequestParam("idx") Integer idx,
                                @RequestParam("isSelected") Byte isSelected,
                                 RedirectAttributes rttr) {
-    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);
-    if (isSelected == null) {
-      isSelected = 0; // 기본값 설정
-    }    
+    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
     EstimateDTO dto = service.get(idx);
     dto.setIsSelected(isSelected);
-      // service.modify(dto);
-      rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+    // service.modify(dto);
+    rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/estimate/list";
   }
 
