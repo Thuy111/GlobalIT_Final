@@ -1,0 +1,97 @@
+/* 리뷰 페이지 제목 영역 */
+.review_container h1 {
+  font-size: 2em;
+  text-align: left;
+}
+.review_container h1 a {
+  color: inherit;
+  font-size: 1em;
+}
+.review_container h1 span {
+  color: dimgrey;
+  font-size: 0.8em;
+}
+.review_container hr {
+  border-style: inset;
+  border-width: 1px;
+  border-color: black;
+  margin-top: 0.5em;
+  margin-bottom: 3em;
+}
+
+/* 리뷰 목록 영역 */
+.review_container .review_box {
+  margin-bottom: 2em;
+}
+.review_container .review_box .review_card {
+  border-radius: 1.5em;
+  box-shadow: 2px 2px 5px;
+  margin: 1em;
+  padding: 1em;
+  text-align: left;
+}
+.review_container .review_card table caption {
+  text-align: left;
+}
+
+/* 리뷰 상태+제목+수정/삭제 버튼 표시 영역 */
+.review_container .review_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+.review_container .review_header .review_meta {
+  display: flex;
+  align-items: end;
+}
+.review_container .review_header .review_title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.review_container .review_header span {
+  border: 2px solid;
+  border-radius: 2em;
+  font-size: 0.8em;
+  font-weight: bolder;
+  text-align: center;
+  display: inline-block;
+  width: 6em;
+  margin-right: 0.6em;
+  padding: 0.3em;
+}
+.review_container .review_header span.standby {
+  color: darkgrey;
+  border-color: darkgrey;
+}
+.review_container .review_header span.unselected {
+  color: red;
+  border-color: red;
+}
+.review_container .review_header span.selected {
+  color: green;
+  border-color: green;
+}
+.review_container .review_header .review_actions {
+  display: flex;
+}
+.review_container .review_header .review_actions form {
+  margin-right: 0.5em;
+}
+.review_container .review_card .review_date {
+  font-size: 0.8em;
+  text-align: right;
+  color: dimgrey;
+}
+
+/* 통합 버튼 */
+.review_container .review_box form {
+  display: flex;
+  justify-content: end;
+  margin-right: 2.5em;
+}
+
+/* 리뷰 작성/수정 영역 */
+.review_container form {
+  text-align: left;
+}

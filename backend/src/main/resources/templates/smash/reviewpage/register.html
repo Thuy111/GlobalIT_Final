@@ -7,23 +7,24 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
 <th:block th:fragment="content">
     <div class="review_container">
-<h2>리뷰 등록</h2>
-<form th:action="@{/smash/review/register}" th:object="${reviewDTO}" method="post">
-    <!-- hidden: estimateIdx -->
-    <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
+        <h2>리뷰 등록</h2>
+    <form th:action="@{/smash/review/register}" th:object="${reviewDTO}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
 
-    <!-- memberId 입력 (임시. 추후 인증 처리시 숨김 가능) -->
-    <label for="memberId">작성자 ID:</label>
-    <input type="text" name="memberId" required><br><br>
+        <label for="memberId">작성자 ID:</label>
+        <input type="text" name="memberId" required><br><br>
 
-    <label for="star">별점 (1~5):</label>
-    <input type="number" name="star" min="1" max="5" required><br><br>
+        <label for="star">별점 (1~5):</label>
+        <input type="number" name="star" min="1" max="5" required><br><br>
 
-    <label for="comment">내용:</label><br>
-    <textarea name="comment" rows="5" cols="50" required></textarea><br><br>
+        <label for="comment">내용:</label><br>
+        <textarea name="comment" rows="5" cols="50" required></textarea><br><br>
 
-    <button type="submit">등록</button>
-</form>
-    </div>
+        <label for="images">이미지 선택:</label>
+        <input type="file" name="imageFiles" multiple /><br><br>
+
+        <button type="submit">등록</button>
+    </form>
+
 </th:block>
 </th:block>
