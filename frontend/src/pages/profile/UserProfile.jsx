@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
@@ -5,7 +6,8 @@ import '../../styles/UserProfile.css';
 const UserProfile = ({ profile, setIsLoggedIn }) => {
   // profile 객체를 props로 받아서 UI만 렌더링
   const baseUrl = import.meta.env.VITE_API_URL;
-
+  
+  const navigate = useNavigate();
 
   const logoutHandler = async () => {
     try {
@@ -36,6 +38,8 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
 
   if (!profile) return <div>로딩 중...</div>;
 
+  const imageUrl = profile?.profileImageUrl || DefaultImage;
+
   return (
     <div className="profile_container">
       <div className="profile_main_container">
@@ -43,7 +47,7 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
         <div className="profile_inform">
           <div className="profile_inform_img">
             <img
-              src={profile.profileImageUrl || DefaultImage}
+              src={imageUrl}
               alt="프로필"
               className="profile_image"
             />
@@ -68,7 +72,7 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
         <section className="profile_account_setting">
           <h2>계정 설정</h2>
           <ul>
-            <li>개인 정보 수정</li>
+            <li onClick={() => navigate('/profile/update')}>개인 정보 수정</li>
             <li onClick={logoutHandler}>로그아웃</li>
             <li onClick={secessionHandler}>계정 탈퇴</li>
           </ul>

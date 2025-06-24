@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
 const PartnerProfile = ({ profile, setIsLoggedIn }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
+
+  const navigate = useNavigate();
 
   const logoutHandler = async () => {
     try {
@@ -76,7 +79,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
         <section className="profile_account_setting">
           <h2>계정 설정</h2>
           <ul>
-            <li>개인 정보 수정</li>
+            <li onClick={() => navigate('/profile/update')}>개인 정보 수정</li>
             <li onClick={logoutHandler}>로그아웃</li>
             <li onClick={secessionHandler}>계정 탈퇴</li>
           </ul>
