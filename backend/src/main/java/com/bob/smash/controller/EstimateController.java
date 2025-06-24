@@ -104,6 +104,7 @@ public class EstimateController {
   public String delete(@RequestParam("idx") Integer idx, RedirectAttributes rttr) {
     // log.info("견적서 삭제 요청: idx={}", idx);
     service.deleteWithImage(idx);
+    EstimateDTO dto = service.get(idx);
     rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/register/detail/" + dto.getRequestIdx();
   }
