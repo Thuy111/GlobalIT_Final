@@ -35,8 +35,7 @@
   </div>
 
   <div class="request_content_box">
-    <div class="xsmall_box"> 
-      <!-- <div class="hashtags">[[${dto.hashtags}]]</div> -->
+    <div class="xsmall_box">       
        <div class="hashtags">
           <span th:each="tag : ${#strings.arraySplit(dto.hashtags, ' ')}">
             #<span th:text="${tag}"></span>&nbsp;
@@ -49,7 +48,7 @@
 
       <div class="info">      
       <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
-      <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy.MM.dd')}]]</p>
+      <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy.MM.dd')}]]</p>      
       </div>
     </div>    
 
@@ -62,12 +61,16 @@
     <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
       <input type="hidden" name="idx" th:value="${dto.idx}" />
       <button class="btn delete">의뢰서 삭제</button>
-    </form>
-    <a th:href="@{'/smash/request/update/' + ${dto.idx}}">
-      <button class="btn">의뢰서 수정</button>
+    </form>    
+    
+    <a th:if="${dto.isModify != 1}" 
+        th:href="@{'/smash/request/update/' + ${dto.idx}}" 
+        class="btn"
+        onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
+        의뢰서 수정
     </a>
-    <a th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
-      <button class="btn">견적서 작성</button>
+    <a class="btn" th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
+        견적서 작성
     </a>
   </div>
   <hr>
