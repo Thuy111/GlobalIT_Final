@@ -118,9 +118,14 @@ function RequestList() {
         ))}
       </div>
 
-      {/* 필터링된 카드 리스트 */}
+      {/* 필터링된 카드 리스트 - 전체 카드 클릭 시 상세페이지 이동 */}
       {filteredRequests.map(item => (
-        <div key={item.idx} className="request-card">
+        <div 
+          key={item.idx} 
+          className="request-card"
+          onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`}
+          style={{ cursor: "pointer" }}
+        >
           <div className="request-dday">{item.dday}</div>
           <div className="request-date">{item.createdAt?.split('T')[0]}</div>
 

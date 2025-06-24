@@ -1,30 +1,129 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" href="/review.css">
+    <link rel="stylesheet" href="/review.css" />
+    <!-- fontawesome 아이콘용 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
+<body>
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
 <th:block th:fragment="content">
     <div class="review_container">
-        <h2>리뷰 등록</h2>
-    <form th:action="@{/smash/review/register}" th:object="${reviewDTO}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
+        <h2 style="text-align:center;">리뷰 등록</h2>
+        <form th:action="@{/smash/review/register}" th:object="${reviewDTO}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
 
-        <label for="memberId">작성자 ID:</label>
-        <input type="text" name="memberId" required><br><br>
+            <div id="image_preview_wrapper" class="image_preview_wrapper">
+                <div class="camera_wrapper">
+                    <label for="image_Files" class="image_upload_box">
+                        <i class="fas fa-camera fa-2x"></i>
+                        <span><span id="image_count">0</span>/10</span>
+                    </label>
+                    <button type="button" id="image_reset_btn">IMG 초기화</button>
+                </div>
+                <input type="file" id="image_Files" name="imageFiles" multiple hidden accept="image/*" />
+            </div>
 
-        <label for="star">별점 (1~5):</label>
-        <input type="number" name="star" min="1" max="5" required><br><br>
+           <label for="star">별점 (1~5):</label>
+            <div class="star-rating" id="star-rating">
+                <input type="radio" id="star5" name="star" value="5" required/>
+                <label for="star5" title="5 stars">★</label>
+                <input type="radio" id="star4" name="star" value="4" />
+                <label for="star4" title="4 stars">★</label>
+                <input type="radio" id="star3" name="star" value="3" />
+                <label for="star3" title="3 stars">★</label>
+                <input type="radio" id="star2" name="star" value="2" />
+                <label for="star2" title="2 stars">★</label>
+                <input type="radio" id="star1" name="star" value="1" />
+                <label for="star1" title="1 star">★</label>
+            </div>
 
-        <label for="comment">내용:</label><br>
-        <textarea name="comment" rows="5" cols="50" required></textarea><br><br>
+            <label for="comment">내용:</label>
+            <textarea id="comment" name="comment" rows="5" cols="50" required></textarea>
 
-        <label for="images">이미지 선택:</label>
-        <input type="file" name="imageFiles" multiple /><br><br>
-
-        <button type="submit">등록</button>
-    </form>
-
+            <button type="submit">등록</button>
+        </form>
+    </div>
 </th:block>
 </th:block>
+
+<!-- JS: 이미지 미리보기, 카운트, 초기화 스크립트 -->
+<script>
+    let selectedFiles = [];
+    const imageInput = document.getElementById('image_Files');
+    const wrapper = document.getElementById('image_preview_wrapper');
+    const countSpan = document.getElementById('image_count');
+
+    imageInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+
+        if (selectedFiles.length + files.length > 10) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+            return;
+        }
+
+        files.forEach(file => {
+            selectedFiles.push(file);
+            renderThumbnail(file);
+        });
+
+        updateCount();
+        refreshFileInput();
+    });
+
+    function renderThumbnail(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'image_thumb';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = '✕';
+            removeBtn.className = 'remove_btn';
+            removeBtn.onclick = () => {
+                wrapper.removeChild(thumb);
+                selectedFiles = selectedFiles.filter(f => f !== file);
+                updateCount();
+                refreshFileInput();
+            };
+
+            thumb.appendChild(img);
+            thumb.appendChild(removeBtn);
+
+            const label = wrapper.querySelector('.camera_wrapper');
+            if (label && label.nextSibling) {
+                wrapper.insertBefore(thumb, label.nextSibling);
+            } else {
+                wrapper.appendChild(thumb);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateCount() {
+        countSpan.innerText = selectedFiles.length;
+    }
+
+    function refreshFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(f => dataTransfer.items.add(f));
+        imageInput.files = dataTransfer.files;
+    }
+
+    const resetBtn = document.getElementById('image_reset_btn');
+    resetBtn.addEventListener('click', function () {
+        const thumbs = wrapper.querySelectorAll('.image_thumb');
+        thumbs.forEach(thumb => thumb.remove());
+        selectedFiles = [];
+        imageInput.value = '';
+        updateCount();
+        refreshFileInput();
+    });
+</script>
+
+</body>
+</html>

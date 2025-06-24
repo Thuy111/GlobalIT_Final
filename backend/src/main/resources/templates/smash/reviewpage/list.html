@@ -1,68 +1,63 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" href="/review.css" />
+    <link rel="stylesheet" href="/reviewlist.css" />
 </head>
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
 <th:block th:fragment="content">
 
-    <div class="review_container">
-        <h1>리뷰 목록</h1>
+<div class="review_container">
+    <h1>리뷰 목록</h1>
 
-        <p th:text="'견적서 번호: ' + ${estimateIdx}"></p>
-        <hr />
+    <p th:text="'견적서 번호: ' + ${estimateIdx}"></p>
+    <hr />
 
-        <div class="review_box">
-            <form th:action="@{/smash/review/register}" method="get">
-                <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
-                <button type="submit">리뷰등록하기</button>
-            </form>
-        </div>
+    <div class="review_box right_align">
+        <form th:action="@{/smash/review/register}" method="get">
+            <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
+            <button type="submit">리뷰등록하기</button>
+        </form>
+    </div>
 
-        <div class="review_box">
-            <div th:each="review : ${reviewList}" class="review_card">
-                <div class="review_header">
-                    <div class="review_meta">
-                        <span class="review_title" th:text="${review.memberId}">작성자</span>
+    <div class="review_box">
+        <div th:each="review : ${reviewList}" class="review_card">
+            <div class="review_header">
+                <div class="review_meta">
+                    <span class="review_title" th:text="${review.nickname}">작성자</span>
+                    <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
+                </div>
+
+                <div class="review_actions_top">
+                    <div th:if="${review.memberId == currentUser and review.isModify == 0}">
+                        <form th:action="@{/smash/review/update}" method="get">
+                            <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
+                            <button type="submit">수정</button>
+                        </form>
                     </div>
-                    <div class="review_actions">
-                        <span th:text="'★ ' + ${review.star}">별점</span>
-                    </div>
-                </div>
-
-                <div>
-                    <p th:text="${review.comment}">내용</p>
-                </div>
-
-                <div class="review_images" th:if="${review.images != null}">
-                    <img th:each="img : ${review.images}"
-                         th:src="@{${img.path}}"
-                         alt="리뷰 이미지"
-                         style="width: 100px; height: 100px; margin-right: 10px;" />
-                </div>
-
-                <div class="review_date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">
-                    작성일
-                </div>
-
-                <div th:if="${review.memberId == currentUser and review.isModify == 0}">
-                    <form th:action="@{/smash/review/update}" method="get">
-                        <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
-                        <button type="submit">수정하기</button>
-                    </form>
-                </div>
                     <div th:if="${review.memberId == currentUser}">
                         <form th:action="@{/smash/review/delete}" method="get">
-                <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
-                <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
-                <button type="submit">삭제하기</button>
-            </form>
+                            <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
+                            <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
+                            <button type="submit">삭제</button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
+            <div class="review_images" th:if="${review.images != null}">
+                <img th:each="img : ${review.images}"
+                     th:src="@{${img.path}}"
+                     alt="리뷰 이미지" />
+            </div>
+
+            <div class="review_text">
+                <p th:text="${review.comment}">내용</p>
+                <div class="review_date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">작성일</div>
             </div>
         </div>
     </div>
+</div>
 
 </th:block>
 </th:block>
