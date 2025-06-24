@@ -14,12 +14,13 @@ function RequestList() {
   const [hashtags, setHashtags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
 
+  // 데이터 처음 로드
   useEffect(() => {
     axios
       .get(`${baseUrl}/smash/request/list`)
       .then((res) => {
         setAllRequests(res.data.request);
-        setFilteredRequests(res.data.request); // 초기값은 전체
+        setFilteredRequests(res.data.request); // 초기값 전체 데이터
         setHashtags(res.data.hashtags);
       })
       .catch((err) => {
@@ -27,6 +28,7 @@ function RequestList() {
       });
   }, []);
 
+  // 검색어, 태그 변경시 필터링 적용
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       const keyword = search.trim().toLowerCase();
@@ -47,13 +49,14 @@ function RequestList() {
   }, [search, selectedTag, allRequests]);
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 엔터시 새로고침 방지
   };
 
   const handleTagClick = (tag) => {
     setSelectedTag(selectedTag === tag ? "" : tag);
   };
 
+  // D-4 이하 마감 임박 데이터만 필터링 (캐러셀 용)
   const ddayFilteredRequests = allRequests.filter((req) => {
     const ddayStr = req.dday;
     if (!ddayStr || !ddayStr.startsWith("D-")) return false;
@@ -61,6 +64,7 @@ function RequestList() {
     return !isNaN(num) && num <= 4;
   });
 
+  // react-slick 슬라이더 설정
   const sliderSettings = {
     dots: false,
     infinite: true,
@@ -69,19 +73,30 @@ function RequestList() {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
+    arrows: false,
   };
 
   return (
     <div className="request-container">
-      {/* ✅ 캐러셀은 항상 전체 데이터를 기준으로 필터링 */}
+
+      {/* 캐러셀 - D-4 이하 마감 임박 의뢰서 */}
       {ddayFilteredRequests.length > 0 ? (
         <Slider {...sliderSettings} className="carousel-slider">
           {ddayFilteredRequests.map((req) => (
             <div key={req.idx} className="carousel-wrapper">
               <div className="carousel-card">
-                <img src="/images/finger.png" alt="이미지 아직대기" />
-                <h4>{req.title}</h4>
-                <p>{req.dday}</p>
+                <div className="carousel-overlay" />
+                <div className="carousel-badge">🔥 마감임박</div>
+                <div className="carousel-icon">
+                  <i className="fas fa-hourglass-half fa-beat"></i>
+                </div>
+
+                {/* ✅ 여기부터 수정된 구조 */}
+                <img src="/images/main.jpg" alt="이미지" />
+                <div className="carousel-text">
+                  <h4>{req.title}</h4>
+                  <p>{req.dday}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -99,13 +114,13 @@ function RequestList() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setSelectedTag(""); // 검색 시 태그 초기화
+            setSelectedTag(""); // 검색시 태그 초기화
           }}
           placeholder="무엇을 찾으시나요?"
         />
       </form>
 
-      {/* 해시태그 필터 */}
+      {/* 해시태그 필터 버튼 */}
       <div className="hashtag-badge-container">
         {hashtags && hashtags.map((tag, index) => (
           <button
@@ -117,8 +132,8 @@ function RequestList() {
           </button>
         ))}
       </div>
-
-      {/* 필터링된 카드 리스트 - 전체 카드 클릭 시 상세페이지 이동 */}
+{console.log("👉 현재 카드별 해시태그:", filteredRequests.map(item => item.hashtags))}
+      {/* 필터링된 의뢰서 카드 리스트 */}
       {filteredRequests.map(item => (
         <div 
           key={item.idx} 
@@ -142,14 +157,18 @@ function RequestList() {
           </div>
 
           <p className="request-content">{item.content}</p>
+
+          {/* 여러 해시태그 뱃지 */}
           <div className="request-tags">
             {item.hashtags?.split(" ").map((tag, index) => (
               <span key={index} className="hashtag-badge">{tag}</span>
+              
             ))}
           </div>
         </div>
       ))}
     </div>
+    
   );
 }
 

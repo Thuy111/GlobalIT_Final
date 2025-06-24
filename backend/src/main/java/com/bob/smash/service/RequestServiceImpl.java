@@ -179,7 +179,7 @@ public class RequestServiceImpl implements RequestService {
                             .hashtags(hashtagsString)
                             .dDay(dDay)
                             // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
-                            .build();
+                            .build();  
                 })
                 .collect(Collectors.toList());
 
@@ -190,11 +190,13 @@ public class RequestServiceImpl implements RequestService {
         response.put("hasNext", requestPage.hasNext());
 
         // 전체 해시태그 추가 (문자열 리스트)
-        List<String> allHashtags = hashtagRepository.findAll()
+            List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
                 .stream()
-                .map(Hashtag::getTag)
+                .map(mapping -> mapping.getHashtag().getTag())
                 .distinct()
+                .limit(12)
                 .collect(Collectors.toList());
+                
         response.put("hashtags", allHashtags);
 
         return response;
@@ -209,6 +211,7 @@ public class RequestServiceImpl implements RequestService {
         else if (days > 0) return "D-" + days;
         else return "D+" + Math.abs(days);
     }
+    
 
     // 임시 : 이메일에 해당하는 모든 견적 정보 삭제
     @Override
@@ -304,5 +307,6 @@ public class RequestServiceImpl implements RequestService {
         }
 
     }
+    
      
 }
