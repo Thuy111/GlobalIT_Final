@@ -21,13 +21,13 @@
         <!-- 이미지 -->                 
            <div id="image_preview_wrapper" class="image_preview_wrapper">
             <div class="camera_wrapper">   
-              <label for="image_Files" class="image_upload_box">                
+              <label for="image_files" class="image_upload_box">                
                  <i class="fas fa-camera fa-2x"></i> 
                 <span><span id="image_count">0</span>/10</span>               
               </label>              
               <button type="button" id="image_reset_btn">IMG 초기화</button>
             </div>
-              <input type="file" id="image_Files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
+              <input type="file" id="image_files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
            </div>
 
         <!-- 제목 -->
@@ -123,7 +123,7 @@
     <!-- 사진 preview ---------------------------------------------------->
     <script>
       let selectedFiles = [];
-      const imageInput = document.getElementById('image_Files');
+      const imageInput = document.getElementById('image_files');
       const wrapper = document.getElementById('image_preview_wrapper');
       const countSpan = document.getElementById('image_count');
 

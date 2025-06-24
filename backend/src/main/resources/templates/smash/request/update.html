@@ -205,7 +205,7 @@
       // IMG 초기화 버튼
       const resetBtn = document.getElementById('image_reset_btn');
       resetBtn.addEventListener('click', function () {
-        const thumbsNew = wrapper.querySelectorAll('.image_thumb.new');
+        const thumbsNew = wrapper.querySelectorAll('.image_thumb.new,.image_thumb');
         thumbsNew.forEach(thumb => thumb.remove());
 
         selectedFiles = [];

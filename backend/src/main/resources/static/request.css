@@ -68,6 +68,11 @@
   font-weight: bold;
   cursor: pointer;
 }
+.request_btn_group .btn:hover{
+   background-color: #73ecf7;
+   opacity: 0.85;
+   transition: all 0.3s ease;
+}
 
  .request_btn_group .btn.delete {
   background-color: #fdd;
