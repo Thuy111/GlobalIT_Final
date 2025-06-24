@@ -1,20 +1,23 @@
 package com.bob.smash.service;
 
-import com.bob.smash.dto.ProfileDTO;
+import com.bob.smash.dto.*;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.PartnerInfo;
 import com.bob.smash.entity.ProfileImage;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.PartnerInfoRepository;
 import com.bob.smash.repository.ProfileImageRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,15 +30,23 @@ public class ProfileServiceImpl implements ProfileService {
     private final PartnerInfoRepository partnerInfoRepository;
     private final ProfileImageRepository profileImageRepository;
 
-    private final String uploadPath = "uploads"; // application.properties와 일치
+    @Value("${com.bob.upload.path}")
+    private String uploadPath;
+
+
+    @Value("${server.port:8080}")  // 기본값 8080 주기
+    private String serverPort;
 
     @Override
     public ProfileDTO getProfileByEmail(String emailId) {
         Member member = memberRepository.findByEmailId(emailId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
-        Optional<ProfileImage> profileOpt = profileImageRepository.findById(member.getEmailId());
-        String profileImageUrl = profileOpt.map(img -> img.getPath() + "/" + img.getSName()).orElse(null);
+        Optional<ProfileImage> profileOpt = profileImageRepository.findByMember(member);
+
+        String profileImageUrl = profileOpt
+            .map(img -> "http://localhost:" + serverPort + "/uploads/" + img.getSName())
+            .orElse(null);
 
         Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
         boolean isPartner = partnerOpt.isPresent();
@@ -55,5 +66,94 @@ public class ProfileServiceImpl implements ProfileService {
         return builder.build();
     }
 
+    @Override
+    @Transactional
+    public void updateMember(String emailId, UpdateRequestDTO dto) {
+        Member member = memberRepository.findByEmailId(emailId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        member.changeNickname(dto.getNickname());
+        member.changeTel(dto.getTel());
+        member.changeRegion(dto.getRegion());
+    }
 
+    @Override
+    @Transactional
+    public void updatePartner(String emailId, UpdateRequestDTO dto) {
+        updateMember(emailId, UpdateRequestDTO.builder()
+                .nickname(dto.getNickname())
+                .tel(dto.getTel())
+                .region(dto.getRegion())
+                .build());
+
+        PartnerInfo partner = partnerInfoRepository.findByMember_EmailId(emailId)
+                .orElseThrow(() -> new IllegalArgumentException("파트너 정보 없음"));
+        partner.changeName(dto.getPartnerName());
+        partner.changeTel(dto.getPartnerTel());
+        partner.changeRegion(dto.getPartnerRegion());
+        partner.changeDescription(dto.getDescription());
+    }
+
+    @Override
+    public boolean isNicknameDuplicated(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
+    @Override
+    public boolean isPhoneValid(String phone) {
+        return !memberRepository.findByTel(phone).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public ProfileImageResponseDTO uploadProfileImage(String emailId, MultipartFile file) {
+        Member member = memberRepository.findByEmailId(emailId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+
+        // 기존 이미지 삭제
+        profileImageRepository.findByMember(member).ifPresent(existing -> {
+            profileImageRepository.delete(existing);
+        });
+
+        // 새로 저장
+        String uuid = UUID.randomUUID().toString();
+        String originalName = file.getOriginalFilename();
+        String ext = originalName.substring(originalName.lastIndexOf("."));
+        String saveName = uuid + ext;
+
+        String absUploadPath = Paths.get(uploadPath).toAbsolutePath().toString();
+        File dir = new File(absUploadPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        File savePath = new File(dir, saveName);
+        try {
+            file.transferTo(savePath);
+        } catch (IOException e) {
+            log.error("파일 저장 실패 경로: {}", savePath.getAbsolutePath(), e);
+            throw new RuntimeException("파일 저장 실패", e);
+        }
+
+        String urlPath = "/uploads/" + saveName;
+
+        ProfileImage profileImage = ProfileImage.builder()
+                .member(member)
+                .sName(saveName)
+                .oName(originalName)
+                .path("/uploads")
+                .type(file.getContentType())
+                .size(file.getSize())
+                .build();
+
+        profileImageRepository.save(profileImage);
+
+        return new ProfileImageResponseDTO(urlPath);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProfileImage(String emailId) {
+        profileImageRepository.deleteById(emailId);
+        // 실제 파일도 지울 수 있음 (선택)
+    }
 }
