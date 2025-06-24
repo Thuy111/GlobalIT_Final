@@ -28,6 +28,8 @@ public interface EstimateService {
   Integer modify(EstimateDTO dto);
   // 수정(이미지 포함)
   Integer modifyWithImage(EstimateDTO dto, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
+  // 낙찰 현황 수정
+  Integer selectStatus(EstimateDTO dto);
   // 반납 현황 수정
   Integer returnStatus(EstimateDTO dto);
   // 삭제

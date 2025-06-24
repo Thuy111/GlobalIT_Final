@@ -74,17 +74,17 @@ public class EstimateController {
   }
   
   // 낙찰 상태(isSelected) 수정
-  // @PostMapping("/selectStatus")
-  // public String estimateSelect(@RequestParam("idx") Integer idx,
-  //                              @RequestParam("isSelected") Byte isSelected,
-  //                               RedirectAttributes rttr) {
-  //   // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
-  //   EstimateDTO dto = service.get(idx);
-  //   dto.setIsSelected(isSelected);
-  //   // service.modify(dto);
-  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
-  //   return "redirect:/smash/estimate/list";
-  // }
+  @PostMapping("/select")
+  public String estimateSelect(@RequestParam("idx") Integer idx,
+                               @RequestParam("isSelected") Byte isSelected,
+                                RedirectAttributes rttr) {
+    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
+    EstimateDTO dto = service.get(idx);
+    dto.setIsSelected(isSelected);
+    service.selectStatus(dto);
+    rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
+  }
 
   // 반납 상태(isReturn) 수정
   @PostMapping("/return")

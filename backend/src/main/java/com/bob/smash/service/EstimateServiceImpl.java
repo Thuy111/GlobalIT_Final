@@ -28,6 +28,7 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
   // 등록: 견적서 저장 + 이미지 저장 및 매핑
+  @Override
   public Integer registerWithImage(EstimateDTO dto, List<MultipartFile> imageFiles) {
     Estimate estimate = dtoToEntity(dto);
     repository.save(estimate);
@@ -45,6 +46,7 @@ public class EstimateServiceImpl implements EstimateService {
     return result.stream().map(estimate -> entityToDto(estimate)).toList();
   }
   // 목록: 견적서 리스트 반환 (이미지 포함하고 싶으면 각 DTO에 이미지 세팅)
+  @Override
   public List<EstimateDTO> getListWithImage() {
     List<Estimate> result = repository.findAll();
     List<Integer> idxList = result.stream().map(Estimate::getIdx).toList();
@@ -58,7 +60,6 @@ public class EstimateServiceImpl implements EstimateService {
         }).toList();
 
   }
-  // 목록: 의뢰서 번호로 필터링
   // 목록: 의뢰서 번호로 필터링 (이미지 포함)
   @Override
   public List<EstimateDTO> getListByRequestIdx(Integer requestIdx) {
@@ -84,6 +85,7 @@ public class EstimateServiceImpl implements EstimateService {
     return entityToDto(estimate);
   }
   // 조회: 견적서 + 첨부 이미지 목록까지 DTO로 반환
+  @Override
   public EstimateDTO getWithImage(Integer idx) {
     Estimate estimate = repository.findById(idx)
       .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
@@ -135,6 +137,26 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
 
+  // 낙찰 현황 수정
+  @Override
+  public Integer selectStatus(EstimateDTO dto) {
+    Estimate estimate = repository.findById(dto.getIdx())
+                                  .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
+    // 낙찰된 견적서 상태 2로 변경
+    estimate.changeIsSelected((byte) 2);
+    repository.save(estimate);
+    // 같은 의뢰서(requestIdx)에 속한 다른 견적서들 상태 1로 변경
+    List<Estimate> otherEstimates = repository.findByRequest_Idx(dto.getRequestIdx());
+    for (Estimate other : otherEstimates) {
+        // 자기 자신은 제외
+        if (!other.getIdx().equals(dto.getIdx())) {
+          other.changeIsSelected((byte) 1);
+          repository.save(other);
+        }
+    }
+    return estimate.getIdx();
+  }
+
   // 반납 현황 수정
   @Override
   public Integer returnStatus(EstimateDTO dto) {
@@ -151,6 +173,7 @@ public class EstimateServiceImpl implements EstimateService {
     repository.deleteById(idx);
   }
   // 삭제: 견적서 + 첨부 이미지 목록 전체 삭제
+  @Override
   public void deleteWithImage(Integer idx) {
     Estimate estimate = repository.findById(idx)
       .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
@@ -159,7 +182,6 @@ public class EstimateServiceImpl implements EstimateService {
     // 견적서 삭제
     repository.delete(estimate);
   }
-
   // 삭제: 사업자번호에 해당하는 모든 견적서 일괄 삭제
   @Override
   @Transactional

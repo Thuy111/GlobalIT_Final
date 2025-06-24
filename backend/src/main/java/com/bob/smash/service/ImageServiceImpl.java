@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.io.File;
 import java.nio.file.Paths;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,7 +34,7 @@ public class ImageServiceImpl implements ImageService {
   public ImageDTO uploadAndMapImage(String targetType, Integer targetIdx, MultipartFile file) {
     // 이미지 유효성 검사
     if (!validateImage(file)) {
-        throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
+      throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
     }
     // 파일 저장 경로 생성(예: /uploads/날짜(2025-06-12)/uuid_파일명)
     String uploadDir = System.getProperty("user.dir") + "/uploads/" + LocalDate.now();
@@ -202,11 +203,6 @@ public class ImageServiceImpl implements ImageService {
     }
   }
 
-  // 미사용/임시 이미지 삭제(🚧추후 구현 필요)
-  @Override
-  public void deleteUnusedImages() {
-    throw new UnsupportedOperationException("Unimplemented method 'deleteUnusedImages'");
-  }
   // 이미지 이름 중복 검사(🚧추후 구현 필요)
   @Override
   public boolean okImageName(String sName) {
@@ -224,10 +220,36 @@ public class ImageServiceImpl implements ImageService {
     if (!contentType.startsWith("image/")) return false;
     // 확장자 직접 체크하고 싶으면 아래도 가능
     String filename = file.getOriginalFilename();
-    if (filename != null && !filename.matches(".*\\.(jpg|jpeg|png|gif)$"))return false;
+    if (filename != null && !filename.matches("(?i).*\\\\.(jpg|jpeg|png|gif)$")) return false;
     // 크기 제한 (예: 30MB)
     long maxSize = 30 * 1024 * 1024;
     if (file.getSize() > maxSize) return false;
     return true;
+  }
+  // 미사용/임시 이미지 삭제
+  @Override
+  @Scheduled(cron = "0 0 * * * *") // 매 정시마다 실행
+  // @Scheduled(cron = "0 0 3 * * *") // 새벽 3시마다 실행
+  public void deleteUnusedImages() {
+    // uploads 폴더 내 전체 파일 목록 가져오기
+    File uploadsDir = new File(System.getProperty("user.dir") + "/uploads");
+    if (!uploadsDir.exists() || !uploadsDir.isDirectory()) return;
+    File[] dateDirs = uploadsDir.listFiles(File::isDirectory);
+    if (dateDirs == null) return;
+    for (File dateDir : dateDirs) {
+      File[] files = dateDir.listFiles();
+      if (files == null) continue;
+      for (File file : files) {
+        // DB에 등록되어 있는 이미지인지 확인
+        String relativePath = "/" + dateDir.getName() + "/" + file.getName();
+        boolean used = imageRepository.existsByPath(relativePath);
+        // DB에 없으면(미사용) 삭제
+        if (!used) {
+          boolean deleted = file.delete();
+          if (deleted) System.out.println("미사용 이미지 삭제: " + file.getAbsolutePath());
+          else         System.out.println("이미지 삭제 실패: " + file.getAbsolutePath());
+        }
+      }
+    }
   }
 }

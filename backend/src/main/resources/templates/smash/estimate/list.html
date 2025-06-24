@@ -20,12 +20,12 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
                 <b class="estimate_title">[[${estimate.title}]]</b>
               </div>
-              <div class="estimate_actions">
-                <form th:action="@{/smash/estimate/update}" method="get">
+              <div class="estimate_actions" th:if="${estimate.partnerBno == currentUser.bno}">
+                <form th:action="@{/smash/estimate/update}" method="get" th:id="'update'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                  <button type="submit">수정</button>
+                  <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
                 </form>
-                <form th:action="@{/smash/estimate/delete}" method="post" id="delete-${estimate.idx}">
+                <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
                   <button type="submit">삭제</button>
                 </form>
@@ -84,11 +84,18 @@
               <span th:if="${estimate.isReturn == false}">반납 대기중</span>
             </p>
           </div>
-          <form th:action="@{/smash/estimate/return}" method="post" id="return-${estimate.idx}">
-            <input type="hidden" name="idx" th:value="${estimate.idx}" />
-            <input type="hidden" name="isReturn" th:value="true" />
-            <button type="submit">반납 확인</button>
-          </form>
+          <div th:if="${estimate.partnerBno == currentUser.bno}">
+            <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <input type="hidden" name="isSelected" th:value="2" />
+              <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
+            </form>
+            <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <input type="hidden" name="isReturn" th:value="true" />
+              <button type="submit" th:if="${estimate.isReturn == false and estimate.isSelected == 2}">반납 확인</button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -99,6 +106,15 @@
           deleteForms.forEach(form => {
             form.addEventListener("submit", function (e) {
               if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
+                e.preventDefault();
+              }
+            });
+          });
+          // 낙찰 confirm
+          const selectForms = document.querySelectorAll("form[id^='select-']");
+          selectForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+              if (!confirm("이 견적서를 낙찰 처리하시겠습니까?")) {
                 e.preventDefault();
               }
             });
