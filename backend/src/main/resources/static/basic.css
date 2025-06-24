@@ -77,7 +77,8 @@ button:disabled:hover, [class*="btn"]:disabled:hover {
 input[type="text"],
 input[type="password"],
 input[type="email"],
-input[type="number"] {
+input[type="number"],
+textarea {
   height: 40px;
   padding: 0.5rem;
   border-radius: 16px;
@@ -88,11 +89,25 @@ input[type="number"] {
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
-input[type="number"]:focus  {
+input[type="number"]:focus,
+textarea:focus {
   outline: none;
   border: 2px solid #4ED7F1;
   box-shadow: inset 0 1px 3px #4ED7F1;
 }
+textarea { 
+  height: 120px;
+  resize: none;
+  overflow: auto;
+  /* Firefox 스크롤바 */
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+/* Chrome, Safari, Edge */
+textarea::-webkit-scrollbar { width: 8px; height: 8px; }
+textarea::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+textarea::-webkit-scrollbar-thumb:hover { background: #555; }
+textarea::-webkit-scrollbar-track { background: #f1f1f1; }
 
 .root{
   width: 100%;
@@ -219,7 +234,6 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   cursor: pointer;
   flex-direction: column;
 }
-
 .image_thumb {
   position: relative;
   width: 80px;
@@ -227,13 +241,11 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   border-radius: 8px;
   overflow: hidden;
 }
-
 .image_thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .image_thumb .remove_btn {
   position: absolute;
   top: 0;
@@ -246,7 +258,6 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   height: 20px;
   cursor: pointer;
 }
-
 .image_thumb .label {
   position: absolute;
   bottom: 0;

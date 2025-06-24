@@ -30,7 +30,10 @@
   text-align: left;
 }
 .estimate_list .estimate_card table caption {
+  caption-side: top;
   text-align: left;
+  color: inherit;
+  padding: 0;  
 }
 
 /* 견적서 상태+제목+수정/삭제 버튼 표시 영역 */
@@ -76,6 +79,9 @@
 }
 .estimate_list .estimate_header .estimate_actions form {
   margin-right: 0.5em;
+}
+.estimate_list .estimate_card p {
+  margin: 0;
 }
 .estimate_list .estimate_card .estimate_date {
   font-size: 0.8em;

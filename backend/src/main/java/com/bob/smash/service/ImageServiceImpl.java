@@ -222,11 +222,11 @@ public class ImageServiceImpl implements ImageService {
     if (contentType == null) return false;
     // 이미지 확장자/타입 체크
     if (!contentType.startsWith("image/")) return false;
-    // (선택) 확장자 직접 체크하고 싶으면 아래도 가능
+    // 확장자 직접 체크하고 싶으면 아래도 가능
     String filename = file.getOriginalFilename();
     if (filename != null && !filename.matches(".*\\.(jpg|jpeg|png|gif)$"))return false;
-    // (선택) 크기 제한 (예: 10MB)
-    long maxSize = 10 * 1024 * 1024;
+    // 크기 제한 (예: 30MB)
+    long maxSize = 30 * 1024 * 1024;
     if (file.getSize() > maxSize) return false;
     return true;
   }
