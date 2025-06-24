@@ -64,11 +64,113 @@
       <button class="btn delete">의뢰서 삭제</button>
     </form>
     <a th:href="@{'/smash/request/update/' + ${dto.idx}}">
-    <button class="btn">의뢰서 수정</button>
+      <button class="btn">의뢰서 수정</button>
     </a>
-    <button class="btn">견적서 작성</button>
+    <a th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
+      <button class="btn">견적서 작성</button>
+    </a>
   </div>
   <hr>
+
+  <!-- 견적서 목록------------------------------------------------------------------------------>
+  <div class="estimate_list">
+    <div class="estimate_box" th:each="estimate : ${estimates}">
+      <div class="estimate_card">
+        <div class="estimate_header">
+          <div class="estimate_meta">
+            <span class="standby" th:if="${estimate.isSelected == 0}">낙찰 대기</span>
+            <span class="unselected" th:if="${estimate.isSelected == 1}">미 낙찰</span>
+            <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
+            <b class="estimate_title">[[${estimate.title}]]</b>
+          </div>
+          <div class="estimate_actions">
+            <form th:action="@{/smash/estimate/update}" method="get">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <button type="submit">수정</button>
+            </form>
+            <form th:action="@{/smash/estimate/delete}" method="post" id="delete-${estimate.idx}">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <button type="submit">삭제</button>
+            </form>
+          </div>
+        </div>
+        <table>
+          <tr>
+            <th>제시 가격</th>
+            <td>[[${estimate.price}]]원</td>
+          </tr>
+          <tr>
+            <th>반납 기한</th>
+            <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
+          </tr>
+          <tr>
+            <th>대여 방법</th>
+            <td>
+              <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
+              <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
+              /
+              <span class="pickup" th:if="${estimate.isPickup == true}">픽업 가능</span>
+              <span class="pickup" th:if="${estimate.isPickup == false}">픽업 불가</span>
+            </td>
+          </tr>
+        </table>
+        <p class="estimate_content">[[${estimate.content}]]</p>
+        <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
+          <div class="attached_image" th:each="image : ${estimate.images}">
+            <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+          </div>
+        </div>
+        <table>
+          <caption>업체 정보</caption>
+          <tr>
+            <th>이름</th>
+            <td th:text="${estimate.partnerName}"></td>
+          </tr>
+          <tr>
+            <th>연락처</th>
+            <td th:text="${estimate.partnerTel}"></td>
+          </tr>
+          <tr>
+            <th>주소</th>
+            <td th:text="${estimate.partnerRegion}"></td>
+          </tr>
+        </table>
+        <p class="estimate_date">
+          [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
+          <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
+        </p>
+      </div>
+      <form th:action="@{/smash/estimate/return}" method="post" id="return-${estimate.idx}">
+        <input type="hidden" name="idx" th:value="${estimate.idx}" />
+        <input type="hidden" name="isReturn" th:value="true" />
+        <button type="submit">반납 확인</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // 삭제 confirm
+      const deleteForms = document.querySelectorAll("form[id^='delete-']");
+      deleteForms.forEach(form => {
+        form.addEventListener("submit", function (e) {
+          if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
+            e.preventDefault();
+          }
+        });
+      });
+      // 반납 confirm
+      const returnForms = document.querySelectorAll("form[id^='return-']");
+      returnForms.forEach(form => {
+        form.addEventListener("submit", function (e) {
+          if (!confirm("반납을 확인 처리하시겠습니까?")) {
+            e.preventDefault();
+          }
+        });
+      });
+    });
+  </script>
+  <!-- 견적서 목록 끝------------------------------------------------------------------------------>
 
   <!--이미지 lightbox. Js code((이미지 크게 보기) -->
   <script>

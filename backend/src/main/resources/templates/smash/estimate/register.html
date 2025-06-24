@@ -11,8 +11,8 @@
       
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/register}" enctype="multipart/form-data" method="post">
-          <input type="hidden" name="requestIdx" value="1" required>
-          <input type="hidden" name="partnerBno" value="234-56-78901" required>
+          <input type="hidden" name="requestIdx" value="${requestIdx}" required>
+          <input type="hidden" name="partnerBno" value="${currentUser.bno}" required>
           <input type="hidden" name="isSelected" value="0">
           <input type="hidden" name="isReturn" value="false">
           <input type="hidden" class="datetime" name="createdAt">

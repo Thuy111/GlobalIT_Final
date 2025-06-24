@@ -40,7 +40,9 @@ public class EstimateController {
 
   // 등록(이미지 포함)
   @GetMapping("/register")
-  public void register() {}
+  public void register(@RequestParam("requestIdx") Integer requestIdx, Model model) {
+    model.addAttribute("requestIdx", requestIdx);
+  }
   @PostMapping("/register")
   public String estimateRegister(EstimateDTO dto,
                                  @RequestParam(name = "imageFiles", required = false) List<MultipartFile> imageFiles,
