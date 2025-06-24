@@ -143,12 +143,14 @@
           <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
         </p>
       </div>
-      <div th:if="${estimate.partnerBno == currentUser.bno}">
+      <div>
         <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
           <input type="hidden" name="idx" th:value="${estimate.idx}" />
           <input type="hidden" name="isSelected" th:value="2" />
           <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
         </form>
+      </div>
+      <div th:if="${estimate.partnerBno == currentUser.bno}">
         <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
           <input type="hidden" name="idx" th:value="${estimate.idx}" />
           <input type="hidden" name="isReturn" th:value="true" />
