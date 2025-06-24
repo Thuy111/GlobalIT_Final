@@ -21,7 +21,7 @@
                 <!-- 기존 이미지 미리보기 (서버 렌더링) -->
                 <div id="existing_images">
                     <div th:each="img : ${review.images}" class="image_thumb">
-                <img th:src="@{'/uploads/' + (${img.path.startsWith('/') ? img.path.substring(1) : img.path}) + '/' + ${img.sName}}" alt="기존 이미지" />
+                <img th:src="@{${img.path}}" alt="기존 이미지" />
 
                     </div>
                 </div>
@@ -127,11 +127,15 @@
     }
 
     document.getElementById('image_reset_btn')?.addEventListener('click', function () {
-        // 새로 추가한 미리보기만 초기화
+
         newPreviews.innerHTML = '';
         selectedFiles = [];
         if (imageInput) imageInput.value = '';
+
+        const existingImages = document.getElementById('existing_images');
+        if (existingImages) existingImages.innerHTML = '';
         updateCount();
+        
         refreshFileInput();
     });
 
