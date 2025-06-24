@@ -54,11 +54,15 @@ public class ProfileServiceImpl implements ProfileService {
                 .nickname(member.getNickname())
                 .loginType(member.getLoginType())
                 .isPartner(isPartner)
-                .profileImageUrl(profileImageUrl);
+                .profileImageUrl(profileImageUrl)
+                .tel(member.getTel())
+                .region(member.getRegion());
 
         partnerOpt.ifPresent(p -> {
             builder.bno(p.getBno());
             builder.partnerName(p.getName());
+            builder.partnerTel(p.getTel());
+            builder.partnerRegion(p.getRegion());
         });
 
         return builder.build();
@@ -88,7 +92,6 @@ public class ProfileServiceImpl implements ProfileService {
         partner.changeName(dto.getPartnerName());
         partner.changeTel(dto.getPartnerTel());
         partner.changeRegion(dto.getPartnerRegion());
-        partner.changeDescription(dto.getDescription());
     }
 
     @Override

@@ -38,7 +38,7 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
 
   if (!profile) return <div>로딩 중...</div>;
 
-    const imageUrl = profile?.profileImageUrl || DefaultImage;
+  const imageUrl = profile?.profileImageUrl ? `${baseUrl}${profile.profileImageUrl}` : DefaultImage;
 
   return (
     <div className="profile_container">
