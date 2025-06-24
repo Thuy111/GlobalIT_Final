@@ -54,7 +54,7 @@ public class EstimateController {
       idx = service.register(dto);
     }
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/estimate/list";
+    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
   }
 
   // 수정
@@ -70,21 +70,21 @@ public class EstimateController {
     List<Integer> deleteImageIdxList = (deleteImages == null || deleteImages.isEmpty())
       ? Collections.emptyList() : Arrays.stream(deleteImages.split(",")).map(Integer::parseInt).collect(Collectors.toList());
     service.modifyWithImage(dto, deleteImageIdxList, imageFiles);
-    return "redirect:/smash/estimate/list";
+    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
   }
   
   // 낙찰 상태(isSelected) 수정
-  @PostMapping("/selectStatus")
-  public String estimateSelect(@RequestParam("idx") Integer idx,
-                               @RequestParam("isSelected") Byte isSelected,
-                                RedirectAttributes rttr) {
-    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
-    EstimateDTO dto = service.get(idx);
-    dto.setIsSelected(isSelected);
-    // service.modify(dto);
-    rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/estimate/list";
-  }
+  // @PostMapping("/selectStatus")
+  // public String estimateSelect(@RequestParam("idx") Integer idx,
+  //                              @RequestParam("isSelected") Byte isSelected,
+  //                               RedirectAttributes rttr) {
+  //   // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
+  //   EstimateDTO dto = service.get(idx);
+  //   dto.setIsSelected(isSelected);
+  //   // service.modify(dto);
+  //   rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
+  //   return "redirect:/smash/estimate/list";
+  // }
 
   // 반납 상태(isReturn) 수정
   @PostMapping("/return")
@@ -96,7 +96,7 @@ public class EstimateController {
     dto.setIsReturn(isReturn);
     service.returnStatus(dto);
     rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/estimate/list";
+    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
   }
 
   // 삭제
@@ -105,6 +105,6 @@ public class EstimateController {
     // log.info("견적서 삭제 요청: idx={}", idx);
     service.deleteWithImage(idx);
     rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/estimate/list";
+    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
   }
 }
