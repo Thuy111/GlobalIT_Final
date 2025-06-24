@@ -54,7 +54,7 @@ public class EstimateController {
       idx = service.register(dto);
     }
     rttr.addFlashAttribute("message", "견적서가 등록되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
+    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }
 
   // 수정
@@ -70,7 +70,7 @@ public class EstimateController {
     List<Integer> deleteImageIdxList = (deleteImages == null || deleteImages.isEmpty())
       ? Collections.emptyList() : Arrays.stream(deleteImages.split(",")).map(Integer::parseInt).collect(Collectors.toList());
     service.modifyWithImage(dto, deleteImageIdxList, imageFiles);
-    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
+    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }
   
   // 낙찰 상태(isSelected) 수정
@@ -96,7 +96,7 @@ public class EstimateController {
     dto.setIsReturn(isReturn);
     service.returnStatus(dto);
     rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
+    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }
 
   // 삭제
@@ -106,6 +106,6 @@ public class EstimateController {
     service.deleteWithImage(idx);
     EstimateDTO dto = service.get(idx);
     rttr.addFlashAttribute("message", "견적서가 삭제되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/register/detail/" + dto.getRequestIdx();
+    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }
 }
