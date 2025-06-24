@@ -13,8 +13,8 @@ public interface NotificationService {
   long countUnreadByMemberId(String memberId);
   // 목록
   List<NotificationDTO> getList();
-  // 조회
-  NotificationDTO get(Integer idx);
+  // 목록: 특정 회원의 알림 목록 조회
+  List<Notification> get(String memberId);
   // 읽음 처리
   Integer markAsRead(Integer idx);
   // 삭제

@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +42,12 @@ public class NotificationServiceImpl implements NotificationService {
 
   // 목록: 특정 회원의 알림 목록 조회
   @Override
-  public NotificationDTO get(Integer idx) {
-    Notification notification = repository.findById(idx)
-                                          .orElseThrow(() -> new IllegalArgumentException("Notification not found with idx: " + idx));
-    return entityToDto(notification);
+  public List<Notification> get(String memberId) {
+    List<Notification> notifications = repository.findByMember_EmailId(memberId);
+    if (notifications.isEmpty()) {
+      throw new IllegalArgumentException("Notification not found for memberId: " + memberId);
+    }
+    return notifications;
   }
 
   // 읽음 처리
