@@ -17,5 +17,4 @@ public class UpdateRequestDTO {
     private String partnerName;
     private String partnerTel;
     private String partnerRegion;
-    private String description;
 }

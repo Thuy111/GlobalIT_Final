@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 
-
 const UpdateProfile = () => {
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({});
@@ -11,10 +10,21 @@ const UpdateProfile = () => {
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [nicknameValid, setNicknameValid] = useState(true);
-  const [phoneValid, setPhoneValid] = useState(true);
+  const [telValid, setTelValid] = useState(true);
+  const [partnerTelValid, setPartnerTelValid] = useState(true);
+
+  // 원래 값 저장용
+  const [originalTel, setOriginalTel] = useState('');
+  const [originalNickname, setOriginalNickname] = useState('');
 
   const baseUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
+
+  // 휴대폰 번호 (010으로 시작) 하이픈 허용
+  const mobilePhoneRegex = /^010-?\d{3,4}-?\d{4}$/;
+
+  // 업체 전화번호 (02, 031, 070 등 다양하게) 하이픈 허용
+  const businessPhoneRegex = /^0\d{1,2}-?\d{3,4}-?\d{4}$/;
 
   useEffect(() => {
     axios.get(`${baseUrl}/smash/profile`, { withCredentials: true })
@@ -23,15 +33,16 @@ const UpdateProfile = () => {
         setProfile(data);
         setForm({
           nickname: data.nickname,
-          tel: '',
-          region: '',
+          tel: data.tel,
+          region: data.region,
           partnerName: data.partnerName || '',
-          partnerTel: '',
-          partnerRegion: '',
-          description: '',
+          partnerTel: data.partnerTel,
+          partnerRegion: data.partnerRegion,
         });
         setIsPartner(data.partner);
-        setPreviewUrl(data.profileImageUrl);
+        setPreviewUrl(data.profileImageUrl ? `${baseUrl}${data.profileImageUrl}` : null);
+        setOriginalTel(data.tel || '');
+        setOriginalNickname(data.nickname || '');
       });
   }, []);
 
@@ -39,16 +50,34 @@ const UpdateProfile = () => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
 
-    if (name === 'nickname' && value !== profile.nickname) {
+    if (name === 'nickname' && value !== originalNickname) {
       axios.get(`${baseUrl}/smash/profile/check-nickname`, {
         params: { nickname: value }
       }).then(res => setNicknameValid(!res.data.duplicated));
+    } else if (name === 'nickname') {
+      // 변경 안 하면 무조건 유효하다고 처리
+      setNicknameValid(true);
     }
 
-    if (name === 'tel' && value) {
+    if (name === 'tel') {
+      if (value === originalTel) {
+        setTelValid(true);  // 변경 없으면 무조건 유효
+        return;
+      }
+      const isValidMobile = mobilePhoneRegex.test(value);
+      if (!isValidMobile) {
+        setTelValid(false);
+        return;
+      }
       axios.get(`${baseUrl}/smash/profile/check-phone`, {
         params: { phone: value }
-      }).then(res => setPhoneValid(res.data.valid));
+      }).then(res => setTelValid(res.data.valid));
+    }
+
+    if (name === 'partnerTel' && value) {
+      const isValidBusiness = businessPhoneRegex.test(value);
+      setPartnerTelValid(isValidBusiness);
+      // 업체 번호 중복검사 필요하면 여기서 호출
     }
   };
 
@@ -67,20 +96,32 @@ const UpdateProfile = () => {
       });
   };
 
-  const handleAddressSearch = () => {
+  const handleAddressSearch = (field) => {
     new window.daum.Postcode({
       oncomplete: (data) => {
         const fullAddr = data.roadAddress + (data.buildingName ? ` (${data.buildingName})` : '');
-        if (isPartner) {
-          setForm(prev => ({ ...prev, partnerRegion: fullAddr }));
-        } else {
-          setForm(prev => ({ ...prev, region: fullAddr }));
-        }
+        setForm(prev => ({ ...prev, [field]: fullAddr }));
       }
     }).open();
   };
 
   const handleSubmit = async () => {
+    // 닉네임 변경했으면 유효성 체크
+    if (form.nickname !== originalNickname && !nicknameValid) {
+      alert('중복된 닉네임입니다.');
+      return;
+    }
+    // 휴대폰 번호 변경했으면 유효성 체크
+    if (form.tel !== originalTel && !telValid) {
+      alert('휴대폰 번호가 유효하지 않거나 이미 사용 중입니다.');
+      return;
+    }
+    // 업체 전화번호는 무조건 체크
+    if (isPartner && form.partnerTel && !partnerTelValid) {
+      alert('업체 전화번호 형식이 올바르지 않습니다.');
+      return;
+    }
+
     const endpoint = isPartner ? 'partner' : 'member';
     const dto = isPartner ? {
       nickname: form.nickname,
@@ -89,7 +130,6 @@ const UpdateProfile = () => {
       partnerName: form.partnerName,
       partnerTel: form.partnerTel,
       partnerRegion: form.partnerRegion,
-      description: form.description
     } : {
       nickname: form.nickname,
       tel: form.tel,
@@ -107,7 +147,6 @@ const UpdateProfile = () => {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
     }
 
     alert('수정이 완료되었습니다.');
@@ -141,10 +180,15 @@ const UpdateProfile = () => {
 
           <label>전화번호</label>
           <input name="tel" value={form.tel} onChange={handleChange} />
-          {!phoneValid && <p style={{ color: 'red' }}>이미 사용 중인 번호입니다.</p>}
+          {!telValid && <p style={{ color: 'red' }}>휴대폰 번호가 유효하지 않거나 이미 사용 중입니다.</p>}
 
           <label>주소</label>
-          <input name="region" value={form.region} readOnly onClick={handleAddressSearch} placeholder="주소 검색 클릭" />
+          <input name="region" 
+          value={form.region} 
+          readOnly 
+          onClick={() => handleAddressSearch('region')} 
+          placeholder="주소 검색 클릭" />
+
 
           {isPartner && (
             <>
@@ -153,12 +197,14 @@ const UpdateProfile = () => {
 
               <label>업체 전화</label>
               <input name="partnerTel" value={form.partnerTel} onChange={handleChange} />
+              {!partnerTelValid && <p style={{ color: 'red' }}>업체 전화번호 형식이 올바르지 않습니다.</p>}
 
-              <label>업체 주소</label>
-              <input name="partnerRegion" value={form.partnerRegion} readOnly onClick={handleAddressSearch} placeholder="주소 검색 클릭" />
-
-              <label>소개</label>
-              <textarea name="description" value={form.description} onChange={handleChange} />
+                  <label>업체 주소</label>
+                  <input name="partnerRegion" 
+                  value={form.partnerRegion} 
+                  readOnly 
+                  onClick={() => handleAddressSearch('partnerRegion')} 
+                  placeholder="주소 검색 클릭" />
             </>
           )}
 

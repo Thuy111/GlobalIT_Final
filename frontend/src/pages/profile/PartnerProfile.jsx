@@ -35,6 +35,8 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
     }
   }
 
+  const imageUrl = profile?.profileImageUrl ? `${baseUrl}${profile.profileImageUrl}` : DefaultImage;
+
   return (
     <div className="profile_container">
       <div className="profile_main_container">
@@ -42,7 +44,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
         <div className="profile_inform">
           <div className="profile_inform_img">
             <img
-              src={profile.profileImageUrl || DefaultImage}
+              src={imageUrl}
               alt="프로필"
               className="profile_image"
             />
