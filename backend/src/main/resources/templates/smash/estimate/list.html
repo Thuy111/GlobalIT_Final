@@ -20,7 +20,7 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
                 <b class="estimate_title">[[${estimate.title}]]</b>
               </div>
-              <div class="estimate_actions" th:if="${estimate.partnerBno == currentUser.bno}">
+              <div class="estimate_actions" th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">>
                 <form th:action="@{/smash/estimate/update}" method="get" th:id="'update'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
                   <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
@@ -84,12 +84,12 @@
               <span th:if="${estimate.isReturn == false}">반납 대기중</span>
             </p>
           </div>
-          <div th:if="${estimate.partnerBno == currentUser.bno}">
-            <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
-              <input type="hidden" name="idx" th:value="${estimate.idx}" />
-              <input type="hidden" name="isSelected" th:value="2" />
-              <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
-            </form>
+          <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
+            <input type="hidden" name="idx" th:value="${estimate.idx}" />
+            <input type="hidden" name="isSelected" th:value="2" />
+            <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
+          </form>
+          <div th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
             <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
               <input type="hidden" name="isReturn" th:value="true" />
