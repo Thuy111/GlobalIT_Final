@@ -34,8 +34,6 @@ public class ProfileServiceImpl implements ProfileService {
     private String uploadPath;
 
 
-    @Value("${server.port:8080}")  // 기본값 8080 주기
-    private String serverPort;
 
     @Override
     public ProfileDTO getProfileByEmail(String emailId) {
@@ -45,8 +43,8 @@ public class ProfileServiceImpl implements ProfileService {
         Optional<ProfileImage> profileOpt = profileImageRepository.findByMember(member);
 
         String profileImageUrl = profileOpt
-            .map(img -> "http://localhost:" + serverPort + "/uploads/" + img.getSName())
-            .orElse(null);
+                        .map(img -> "/uploads/" + img.getSName())
+                        .orElse(null);
 
         Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
         boolean isPartner = partnerOpt.isPresent();
