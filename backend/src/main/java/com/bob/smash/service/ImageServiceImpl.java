@@ -99,7 +99,65 @@ public class ImageServiceImpl implements ImageService {
         Collectors.mapping(mapping -> entityToDto(mapping.getImage(), mapping), Collectors.toList())));
   }
 
-  // (수정-단건)게시글에서 특정 이미지 교체
+  // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시 
+  @Override
+  @Transactional
+  public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
+    Image image = imageRepository.findById(imageIdx)
+        .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
+    ImageMapping mapping = imageMappingRepository.findByImage(image);
+    if (mapping == null) {
+        throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
+    }
+    //물리 파일 삭제 (upload 폴더에 있는 이미지)
+    String filePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath())
+                           .toString();
+    File file = new File(filePath);
+    if (file.exists()) {
+        boolean deleted = file.delete();
+        System.out.println("삭제 성공 여부: " + deleted);
+    } else {
+        System.out.println("파일이 존재하지 않음");
+    }
+    // 매핑, 이미지 DB에서 삭제
+    imageMappingRepository.delete(mapping);
+    imageRepository.delete(image); 
+  }
+  // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
+  @Override
+  @Transactional
+  public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {
+    for (Integer imageIdx : imageIdxList) {
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
+  }
+  // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
+  @Override
+  @Transactional
+  public void deleteImagesByTarget(String targetType, Integer targetIdx) {
+    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
+      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
+    );
+    for (ImageMapping mapping : mappings) {
+      Integer imageIdx = mapping.getImage().getIdx();
+      deleteImageFromTarget(targetType, targetIdx, imageIdx);
+    }
+  }
+
+  // (수정)게시글 첨부 이미지 삭제 및 추가 기능 통합
+  @Transactional
+  public void updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
+    // 삭제
+    if (deleteImageIdxList != null && !deleteImageIdxList.isEmpty()) {
+      deleteImagesFromTarget(targetType, targetIdx, deleteImageIdxList);
+    }
+    // 추가
+    if (newImageFiles != null && !newImageFiles.isEmpty()) {
+      uploadAndMapImages(targetType, targetIdx, newImageFiles);
+    }
+  }
+
+  // (삭제 예정)게시글에서 특정 이미지 교체
   @Override
   @Transactional
   public ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile) {
@@ -159,7 +217,7 @@ public class ImageServiceImpl implements ImageService {
     // DTO 변환 후 결과 반환
     return entityToDto(image, mapping);
   }
-  // (수정-다중)게시글에서 여러 이미지 교체
+  // (삭제 예정)게시글에서 여러 이미지 교체
   @Override
   @Transactional
   public List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap) {
@@ -171,51 +229,6 @@ public class ImageServiceImpl implements ImageService {
       result.add(updateImageOfTarget(targetType, targetIdx, imageIdx, newFile));
     }
     return result;
-  }
-
-  // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시 
-  @Override
-  @Transactional
-  public void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx) {
-    Image image = imageRepository.findById(imageIdx)
-        .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
-    ImageMapping mapping = imageMappingRepository.findByImage(image);
-    if (mapping == null) {
-        throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
-    }
-    //물리 파일 삭제 (upload 폴더에 있는 이미지)
-    String filePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath())
-                           .toString();
-    File file = new File(filePath);
-    if (file.exists()) {
-        boolean deleted = file.delete();
-        System.out.println("삭제 성공 여부: " + deleted);
-    } else {
-        System.out.println("파일이 존재하지 않음");
-    }
-    // 매핑, 이미지 DB에서 삭제
-    imageMappingRepository.delete(mapping);
-    imageRepository.delete(image); 
-  }
-  // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
-  @Override
-  @Transactional
-  public void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList) {
-    for (Integer imageIdx : imageIdxList) {
-      deleteImageFromTarget(targetType, targetIdx, imageIdx);
-    }
-  }
-  // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
-  @Override
-  @Transactional
-  public void deleteImagesByTarget(String targetType, Integer targetIdx) {
-    List<ImageMapping> mappings = imageMappingRepository.findByTargetTypeAndTargetIdx(
-      ImageMapping.TargetType.valueOf(targetType.toLowerCase()), targetIdx
-    );
-    for (ImageMapping mapping : mappings) {
-      Integer imageIdx = mapping.getImage().getIdx();
-      deleteImageFromTarget(targetType, targetIdx, imageIdx);
-    }
   }
 
   // 이미지 이름 중복 검사(🚧추후 구현 필요)

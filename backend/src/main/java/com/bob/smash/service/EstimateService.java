@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +28,9 @@ public interface EstimateService {
   // 수정
   Integer modify(EstimateDTO dto);
   // 수정(이미지 포함)
-  Integer modifyWithImage(EstimateDTO dto, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
+  Integer modifyWithImage(EstimateDTO dto, 
+                          List<Integer> deleteImageIdxList, 
+                          List<MultipartFile> newImageFiles);
   // 낙찰 현황 수정
   Integer selectStatus(EstimateDTO dto);
   // 반납 현황 수정

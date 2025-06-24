@@ -112,7 +112,9 @@ public class EstimateServiceImpl implements EstimateService {
   }
   // 수정: 견적서 수정 + 이미지 매핑 수정
   @Override
-  public Integer modifyWithImage(EstimateDTO dto, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
+  public Integer modifyWithImage(EstimateDTO dto, 
+                                 List<Integer> deleteImageIdxList, 
+                                 List<MultipartFile> newImageFiles) {
     // 견적서 수정
     Estimate estimate = repository.findById(dto.getIdx())
                                   .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
@@ -124,16 +126,8 @@ public class EstimateServiceImpl implements EstimateService {
     estimate.changeReturnDate(dto.getReturnDate());
     estimate.changeModifiedAt(dto.getModifiedAt());
     repository.save(estimate);
-    // 삭제될 이미지 삭제
-    if (deleteImageIdxList != null && !deleteImageIdxList.isEmpty()) {
-      for (Integer imageIdx : deleteImageIdxList) {
-        imageService.deleteImageFromTarget("estimate", estimate.getIdx(), imageIdx);
-      }
-    }
-    // 새 이미지 추가
-    if (newImageFiles != null && !newImageFiles.isEmpty()) {
-      imageService.uploadAndMapImages("estimate", estimate.getIdx(), newImageFiles);
-    }
+    // 이미지 삭제 + 추가(수정) 통합 처리
+    imageService.updateImagesByTarget("estimate", estimate.getIdx(), deleteImageIdxList, newImageFiles);
     return estimate.getIdx();
   }
 
