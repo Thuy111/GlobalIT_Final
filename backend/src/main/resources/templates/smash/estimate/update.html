@@ -12,6 +12,7 @@
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/modify}" enctype="multipart/form-data" method="post">
           <input type="hidden" name="idx" th:value="${dto.idx}" readonly>
+          <input type="hidden" name="requestIdx" th:value="${dto.requestIdx}" readonly>
           <input type="hidden" class="datetime" name="modifiedAt" readonly>
 
           <div id="image_preview">
