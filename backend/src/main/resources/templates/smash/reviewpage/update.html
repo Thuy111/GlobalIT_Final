@@ -1,37 +1,144 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" href="/review.css">
+    <link rel="stylesheet" href="/review.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
+<body>
 
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
 <th:block th:fragment="content">
+    <div class="review_container">
+        <h2 style="text-align:center;">리뷰 수정</h2>
+        <form th:action="@{/smash/review/update}" method="post"
+              enctype="multipart/form-data" th:object="${review}"
+              onsubmit="return confirmUpdate();">
+            <input type="hidden" th:field="*{idx}" />
+            <input type="hidden" th:field="*{estimateIdx}" />
 
-<form th:action="@{/smash/review/update}" method="post"
-      enctype="multipart/form-data" th:object="${review}"
-      onsubmit="return confirmUpdate();">
-    <input type="hidden" th:field="*{idx}" />
-    <input type="hidden" th:field="*{estimateIdx}" />
-    
-    <label>별점:</label>
-    <input type="number" th:field="*{star}" min="1" max="5" required />
-    
-    <label>내용:</label>
-    <textarea th:field="*{comment}" required></textarea>
-    
-    <!-- 기존 이미지 보여주기 -->
-    <div th:if="${review.images != null}">
-        <img th:each="img : ${review.images}" th:src="@{'/images/' + ${img.sName}}" style="width:100px; margin-right:10px;" />
+            <!-- 이미지 업로드 영역 -->
+            <div id="image_preview_wrapper" class="image_preview_wrapper">
+                <!-- 기존 이미지 미리보기 (서버 렌더링) -->
+                <div id="existing_images">
+                    <div th:each="img : ${review.images}" class="image_thumb">
+                <img th:src="@{'/uploads/' + (${img.path.startsWith('/') ? img.path.substring(1) : img.path}) + '/' + ${img.sName}}" alt="기존 이미지" />
+
+                    </div>
+                </div>
+
+                <!-- 새 이미지 미리보기 영역 -->
+                <div id="new_image_previews"></div>
+
+                <!-- 새 이미지 업로드 버튼 -->
+                <div class="camera_wrapper">
+                    <label for="image_Files" class="image_upload_box">
+                        <i class="fas fa-camera fa-2x"></i>
+                        <span><span id="image_count">0</span>/10</span>
+                    </label>
+                    <button type="button" id="image_reset_btn">IMG 초기화</button>
+                </div>
+            </div>
+
+            <!-- 숨겨진 실제 input (form 내부로 이동) -->
+            <input type="file" id="image_Files" name="imageFiles" multiple hidden />
+
+            <!-- 별점 선택 -->
+            <label for="star">별점 (1~5):</label>
+            <div class="star-rating" id="star-rating">
+                <input type="radio" id="star5" name="star" value="5" required/>
+                <label for="star5" title="5 stars">★</label>
+                <input type="radio" id="star4" name="star" value="4" />
+                <label for="star4" title="4 stars">★</label>
+                <input type="radio" id="star3" name="star" value="3" />
+                <label for="star3" title="3 stars">★</label>
+                <input type="radio" id="star2" name="star" value="2" />
+                <label for="star2" title="2 stars">★</label>
+                <input type="radio" id="star1" name="star" value="1" />
+                <label for="star1" title="1 star">★</label>
+            </div>
+
+            <!-- 내용 -->
+            <label for="comment">내용:</label>
+            <textarea id="comment" name="comment" th:field="*{comment}" rows="5" required></textarea>
+
+            <!-- 제출 -->
+            <button type="submit">수정하기</button>
+        </form>
     </div>
-    
-    <!-- 새 이미지 업로드 -->
-    <input type="file" name="imageFiles" multiple />
-    
-    <button type="submit">수정하기</button>
-</form>
+</th:block>
+</th:block>
 
 <script>
-function confirmUpdate() {
-    return confirm("수정은 단 한 번만 가능합니다.\n정말 수정하시겠습니까?");
-}
+    let selectedFiles = [];
+    const imageInput = document.getElementById('image_Files');
+    const newPreviews = document.getElementById('new_image_previews');
+    const countSpan = document.getElementById('image_count');
+
+    imageInput?.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        if (selectedFiles.length + files.length > 10) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+            return;
+        }
+
+        files.forEach(file => {
+            selectedFiles.push(file);
+            renderThumbnail(file);
+        });
+
+        updateCount();
+        refreshFileInput();
+    });
+
+    function renderThumbnail(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'image_thumb';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = '✕';
+            removeBtn.className = 'remove_btn';
+            removeBtn.onclick = () => {
+                newPreviews.removeChild(thumb);
+                selectedFiles = selectedFiles.filter(f => f !== file);
+                updateCount();
+                refreshFileInput();
+            };
+
+            thumb.appendChild(img);
+            thumb.appendChild(removeBtn);
+            newPreviews.appendChild(thumb);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateCount() {
+        countSpan.innerText = selectedFiles.length;
+    }
+
+    function refreshFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(f => dataTransfer.items.add(f));
+        if (imageInput) imageInput.files = dataTransfer.files;
+    }
+
+    document.getElementById('image_reset_btn')?.addEventListener('click', function () {
+        // 새로 추가한 미리보기만 초기화
+        newPreviews.innerHTML = '';
+        selectedFiles = [];
+        if (imageInput) imageInput.value = '';
+        updateCount();
+        refreshFileInput();
+    });
+
+    function confirmUpdate() {
+        return confirm("수정은 단 한 번만 가능합니다.\n정말 수정하시겠습니까?");
+    }
 </script>
+
+</body>
+</html>

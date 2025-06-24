@@ -4,6 +4,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,4 +25,6 @@ public class ReviewDTO {
     private Byte isModify;
 
     private List<ImageDTO> images;
+
+    private String nickname;
 }
