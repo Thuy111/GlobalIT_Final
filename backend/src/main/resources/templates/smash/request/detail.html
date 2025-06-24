@@ -86,12 +86,12 @@
             <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
             <b class="estimate_title">[[${estimate.title}]]</b>
           </div>
-          <div class="estimate_actions">
+          <div class="estimate_actions" th:if="${estimate.partnerBno == currentUser.bno}">
             <form th:action="@{/smash/estimate/update}" method="get">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
-              <button type="submit">수정</button>
+              <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
             </form>
-            <form th:action="@{/smash/estimate/delete}" method="post" id="delete-${estimate.idx}">
+            <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
               <button type="submit">삭제</button>
             </form>
@@ -143,21 +143,55 @@
           <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
         </p>
       </div>
-      <form th:action="@{/smash/estimate/return}" method="post" id="return-${estimate.idx}">
-        <input type="hidden" name="idx" th:value="${estimate.idx}" />
-        <input type="hidden" name="isReturn" th:value="true" />
-        <button type="submit">반납 확인</button>
-      </form>
+      <div th:if="${estimate.partnerBno == currentUser.bno}">
+        <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
+          <input type="hidden" name="idx" th:value="${estimate.idx}" />
+          <input type="hidden" name="isSelected" th:value="2" />
+          <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
+        </form>
+        <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
+          <input type="hidden" name="idx" th:value="${estimate.idx}" />
+          <input type="hidden" name="isReturn" th:value="true" />
+          <button type="submit" th:if="${estimate.isReturn == false and estimate.isSelected == 2}">반납 확인</button>
+        </form>
+      </div>
     </div>
   </div>
+  <!-- 견적서 목록 끝------------------------------------------------------------------------------>
 
+  <!--이미지 lightbox. Js code((이미지 크게 보기) -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      const images = document.querySelectorAll(".zoomable_image");
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightbox_img");
+
+      images.forEach(img => {
+        img.addEventListener("click", () => {
+          lightbox.style.display = "flex";
+          lightboxImg.src = img.src;
+        });
+      });
+
+      window.closeLightbox = function () {
+        lightbox.style.display = "none";
+        lightboxImg.src = "";
+      };
+
       // 삭제 confirm
       const deleteForms = document.querySelectorAll("form[id^='delete-']");
       deleteForms.forEach(form => {
         form.addEventListener("submit", function (e) {
           if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
+            e.preventDefault();
+          }
+        });
+      });
+      // 낙찰 confirm
+      const selectForms = document.querySelectorAll("form[id^='select-']");
+      selectForms.forEach(form => {
+        form.addEventListener("submit", function (e) {
+          if (!confirm("이 견적서를 낙찰 처리하시겠습니까?")) {
             e.preventDefault();
           }
         });
@@ -173,29 +207,7 @@
       });
     });
   </script>
-  <!-- 견적서 목록 끝------------------------------------------------------------------------------>
-
-  <!--이미지 lightbox. Js code((이미지 크게 보기) -->
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const images = document.querySelectorAll(".zoomable_image");
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox_img");
-
-    images.forEach(img => {
-      img.addEventListener("click", () => {
-        lightbox.style.display = "flex";
-        lightboxImg.src = img.src;
-      });
-    });
-
-    window.closeLightbox = function () {
-      lightbox.style.display = "none";
-      lightboxImg.src = "";
-    };
-  });
-</script>
-<!-- 의뢰서 상세 페이지.End-->
+  <!-- 의뢰서 상세 페이지.End-->
 
   </th:block>
 </th:block>
