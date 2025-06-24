@@ -19,17 +19,19 @@ public interface ImageService {
   // (목록)여러 게시글별 이미지 조회
   Map<Integer, List<ImageDTO>> getImagesMapByTargets(String targetType, List<Integer> targetIdxList);
 
-  // (수정-단건)게시글에서 특정 이미지 교체
-  ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile);
-  // (수정-다중)게시글에서 여러 이미지 교체
-  List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap);
-
   // (삭제-전체)게시글 삭제 시/게시글 이미지 전체 삭제 시
   void deleteImagesByTarget(String targetType, Integer targetIdx);
   // (삭제-단건)게시글에서 특정 이미지 + 매핑 동시
   void deleteImageFromTarget(String targetType, Integer targetIdx, Integer imageIdx);
   // (삭제-다중)게시글에서 여러 이미지 + 매핑 동시
   void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList);
+  
+  // (수정)게시글에서 첨부 이미지 삭제 및 추가
+  List<ImageDTO> updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
+  // (수정-단건)게시글에서 특정 이미지 교체
+  ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile);
+  // (수정-다중)게시글에서 여러 이미지 교체
+  List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap);
   
   // 미사용/임시 이미지 삭제
   void deleteUnusedImages();
