@@ -69,6 +69,9 @@ public class RequestController {
         Member member = memberRepository.findByEmailId(email)
                         .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다"));
 
+        
+
+
 
         // 주소 조합 (메인 주소 + 상세 주소)
         String mainAddress = requestDTO.getUseRegion() != null ? requestDTO.getUseRegion().trim() : "";
@@ -104,7 +107,7 @@ public class RequestController {
      @PostMapping("/delete")
       public String deleteRequest(@RequestParam("idx") Integer idx) {
         requestService.delete(idx);
-        return "redirect:/smash/request/listTest";
+        return "redirect:/smash/";
     }
 
 
@@ -133,7 +136,7 @@ public class RequestController {
         dto.setUseRegion(fullAddress);   
         dto.setDetailAddress(null); 
         
-        requestService.modify(dto, newImages);        
+        requestService.modify(dto, newImages,deleteImageIds);
         return "redirect:/smash/request/detail/" + dto.getIdx();
     }
 

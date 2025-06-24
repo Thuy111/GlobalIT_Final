@@ -34,7 +34,7 @@ public interface RequestService {
     void delete(Integer idx);
 
     // 수정
-    void modify(RequestDTO dto,List<MultipartFile> newImages);
+    void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds);
 
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
     Map<String, Object> getPagedRequestList(int page, int size,String search);
@@ -89,7 +89,8 @@ public interface RequestService {
             .useRegion(mainAddress)         // 메인 주소
             .detailAddress(detailAddress)  // 나머지 주소
             .hashtags(hashtagStr)  //묶음 Hashtag 추가
-            .hashtagList(hashtags)  //Hashtag 추가        
+            .hashtagList(hashtags)  //Hashtag 추가  
+            .isModify(request.getIsModify())      
             .build();
     }
 }

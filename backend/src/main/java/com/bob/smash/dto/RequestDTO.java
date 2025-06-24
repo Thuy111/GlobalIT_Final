@@ -37,5 +37,8 @@ public class RequestDTO {
 
     // 이미지 정보
     private List<ImageDTO> images;
+
+    //수정 여부
+    private Byte isModify;
     
 }

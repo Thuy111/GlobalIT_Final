@@ -49,6 +49,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final MemberRepository memberRepository;
     private final EstimateRepository estimateRepository;
+    private final EstimateService estimateService;
     private final PaymentRepository paymentRepository;
 
     // hashtag
@@ -240,14 +241,19 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public void delete(Integer idx) {
        Request request = requestRepository.findById(idx)
-      .orElseThrow(() -> new IllegalArgumentException(idx + "본 의뢰서를 찾을 수 없습니다."));
+      .orElseThrow(() -> new IllegalArgumentException(idx + "번 의뢰서를 찾을 수 없습니다."));
     // [1] 첨부 이미지 삭제
     imageService.deleteImagesByTarget("request", idx);
 
     // [2] 해시태그 매핑 삭제
     hashtagMappingRepository.deleteByRequest_Idx(idx);
 
-    // [3] 견적서 삭제....???
+    // [3] 해당 견적서들 삭제
+      List<Estimate> estimateList = estimateRepository.findByRequest_Idx(idx);
+        for (Estimate estimate : estimateList) {
+            estimateService.deleteWithImage(estimate.getIdx());
+        }
+
 
     // [4] 의뢰서 삭제
     requestRepository.delete(request); 
@@ -256,7 +262,7 @@ public class RequestServiceImpl implements RequestService {
     //수정/////////////////////////////////////////////////////////////////////////////////////////////////
      @Override
      @Transactional
-     public void modify(RequestDTO dto,List<MultipartFile> newImages){
+     public void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds){
         // [1] 기존 의뢰서 가져오기
         Request request = requestRepository.findById(dto.getIdx())
             .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + dto.getIdx()));
@@ -291,8 +297,12 @@ public class RequestServiceImpl implements RequestService {
                 }
             }
         }
-         // [5] 기존 이미지 삭제
-        imageService.deleteImagesByTarget("request", dto.getIdx());
+         // [5] 기존 이미지 삭제  (사용자 지정하는 이미지만 삭제)      
+        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+        for (Integer imageId : deleteImageIds) {
+            imageService.deleteImageFromTarget("request", dto.getIdx(), imageId);
+        }
+    }
         // [6] 새로운 이미지 업로드
         if (newImages != null && !newImages.isEmpty()) {
             newImages.stream()
