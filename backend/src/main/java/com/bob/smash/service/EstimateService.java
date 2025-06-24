@@ -18,6 +18,8 @@ public interface EstimateService {
   List<EstimateDTO> getList();
   // 목록(이미지 포함)
   List<EstimateDTO> getListWithImage();
+  // 목록(의뢰서 번호로 필터링)
+  List<EstimateDTO> getListByRequestIdx(Integer requestIdx);
   // 조회
   EstimateDTO get(Integer idx);
   // 조회(이미지 포함)

@@ -58,6 +58,23 @@ public class EstimateServiceImpl implements EstimateService {
         }).toList();
 
   }
+  // 목록: 의뢰서 번호로 필터링
+  // 목록: 의뢰서 번호로 필터링 (이미지 포함)
+  @Override
+  public List<EstimateDTO> getListByRequestIdx(Integer requestIdx) {
+    // 의뢰서 번호로 견적서 필터링
+    List<Estimate> result = repository.findByRequest_Idx(requestIdx);
+    List<Integer> idxList = result.stream().map(Estimate::getIdx).toList();
+    // 견적서 이미지 한 번에 조회
+    Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
+    // DTO에 이미지 세팅해서 반환
+    return result.stream()
+        .map(estimate -> {
+            EstimateDTO dto = entityToDto(estimate);
+            dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
+            return dto;
+        }).toList();
+  }
   
   // 조회
   @Override

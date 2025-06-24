@@ -1,8 +1,10 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +25,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestController {
-
     private final RequestService requestService;
+    private final EstimateService estimateService;
     private final MemberRepository memberRepository; 
 
     @GetMapping("/")
@@ -91,8 +93,11 @@ public class RequestController {
     @GetMapping("/detail/{idx}")
     public String detail(@PathVariable("idx") Integer idx, Model model) {
         RequestDTO dto = requestService.get(idx);
-        model.addAttribute("dto", dto);        
-        return "smash/request/detail";  
+        model.addAttribute("dto", dto);
+        // 해당 의뢰서에 대한 견적서 목록도 가져오기
+        List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
+        model.addAttribute("estimates", estimates);
+        return "smash/request/detail";
     }
 
     // 의뢰서 삭제///////////////////////////////////////////////////
