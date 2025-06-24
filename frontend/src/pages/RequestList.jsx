@@ -132,7 +132,7 @@ function RequestList() {
           </button>
         ))}
       </div>
-{console.log("👉 현재 카드별 해시태그:", filteredRequests.map(item => item.hashtags))}
+        
       {/* 필터링된 의뢰서 카드 리스트 */}
       {filteredRequests.map(item => (
         <div 
