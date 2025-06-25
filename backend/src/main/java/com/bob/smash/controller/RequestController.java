@@ -140,6 +140,15 @@ public class RequestController {
         return "redirect:/smash/request/detail/" + dto.getIdx();
     }
 
+    // 낙찰 처리(의뢰서+견적서)/////////////////////////////////////////////////////
+    @PostMapping("/changeIsDone")
+    public String changeIsDone(
+            @RequestParam("requestIdx") Integer idx,
+            @RequestParam("estimateIdx") Integer estimateIdx) {
+        requestService.changeIsDone(idx, estimateIdx);
+        return "redirect:/smash/request/detail/" + idx;
+    }
+
     // ⭐ 추가
     @GetMapping("/list")
     public ResponseEntity<Map<String, Object>> getPagedRequests(
