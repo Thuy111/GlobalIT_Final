@@ -1,0 +1,35 @@
+/* Main Container */
+.profile_update_main_container{margin: 0 100px; display: flex; flex-direction: column;}
+
+/* Main Header */
+.profile_update_main_container h1{margin: 0 0 100px 0; text-align: left; font-size: 30px; font-weight: bold;}
+
+/* img Container */
+.profile_update_img_container{display: flex; flex-direction: column; justify-content: center; align-items: center;}
+.profile_update_img { position: relative; display: inline-block; margin-bottom: 30px; }
+.profile_image { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; }
+/* img Inner */
+.profile_update_img_inner { position: absolute; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%; padding: 10px; cursor: pointer;}
+.profile_update_img_inner input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;}
+.profile_update_img_inner i { color: white; font-size: 20px; pointer-events: none; }
+
+/* Text form */
+.profile_update_inform{margin: 100px auto 0 auto;}
+.profile_update_text{text-align: start; margin-bottom: 30px;}
+.profile_update_text h2{font-size: 18px; font-weight: 600; margin-bottom: 10px;}
+.profile_update_text input {border-bottom: 1px solid rgb(56, 56, 56); width: 350px; height: 50px; padding: 10px; margin-bottom: 10px;}
+/* theme dark */
+body.dark .profile_update_text input {border-radius: 10px;}
+
+.profile_update_text input[name="email"]{pointer-events: none;}
+.profile_update_text input[name="login_type"]{pointer-events: none;}
+
+.profile_update_text>.update_nickname_box{display: flex; position: relative; align-items: center;}
+.profile_update_text>.update_nickname_box>button{ background-color: transparent; box-shadow: none; position: absolute; right: 0px; color: rgb(117, 178, 194); top: 5px}
+.profile_update_text>.update_nickname_box>button[disabled]{opacity: 0;}
+
+
+.profile_update_form_buttons{display: flex;}
+.profile_update_form_buttons>button{margin: 0 10px 50px 0;}
+
