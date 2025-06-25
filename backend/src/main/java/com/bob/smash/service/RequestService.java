@@ -90,7 +90,8 @@ public interface RequestService {
             .detailAddress(detailAddress)  // 나머지 주소
             .hashtags(hashtagStr)  //묶음 Hashtag 추가
             .hashtagList(hashtags)  //Hashtag 추가  
-            .isModify(request.getIsModify())      
+            .isModify(request.getIsModify())
+            .isDone(request.getIsDone())      
             .build();
     }
 }
