@@ -75,6 +75,7 @@ public interface EstimateService {
                                  .createdAt(estimate.getCreatedAt())
                                  .modifiedAt(estimate.getModifiedAt())
                                  .requestIdx(estimate.getRequest().getIdx())
+                                 .requestMemberId(estimate.getRequest().getMember().getEmailId())
                                  .partnerBno(estimate.getPartnerInfo().getBno())
                                  .partnerName(estimate.getPartnerInfo().getName())
                                  .partnerTel(estimate.getPartnerInfo().getTel())
