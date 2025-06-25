@@ -27,6 +27,7 @@ public class EstimateDTO {
   private LocalDateTime modifiedAt;
   // 의뢰서 정보
   private Integer requestIdx;
+  private String requestMemberId;
   // 파트너 업체 정보
   private String partnerBno;
   private String partnerName;

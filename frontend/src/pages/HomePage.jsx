@@ -19,7 +19,7 @@ const Home = () => {
         {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
         <RequestList />
 
-        {user && user.role === 0 && // 일반 사용자일 때만 요청 작성 버튼 표시
+        {user && user.role !== 1 && // 일반 사용자일 때만 요청 작성 버튼 표시
         <div className="reg_button_box">
           <a className="register_btn" href={`${baseUrl}/smash/request/register`}>
             <i className="fa-solid fa-plus"></i>
