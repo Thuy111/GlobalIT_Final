@@ -13,9 +13,10 @@ import com.bob.smash.entity.ImageMapping.TargetType;
 public interface ImageMappingRepository extends JpaRepository<ImageMapping, PK> {
   // 특정 이미지 조회
   ImageMapping findByImage(Image image);
-  // 의뢰서/견적서/리뷰에 매핑된 이미지 조회
+  // 하나의 의뢰서/견적서/리뷰에 매핑된 이미지 조회
   @Query("SELECT im FROM ImageMapping im JOIN FETCH im.image WHERE im.targetType = :targetType AND im.targetIdx = :targetIdx")
   List<ImageMapping> findByTargetTypeAndTargetIdx(TargetType targetType, Integer targetIdx);
+  // 여러개의 의뢰서/견적서/리뷰에 매핑된 이미지 조회
   @Query("SELECT im FROM ImageMapping im JOIN FETCH im.image WHERE im.targetType = :targetType AND im.targetIdx IN :targetIdxList")
   List<ImageMapping> findAllWithImageByTargetTypeAndTargetIdxIn(
     @Param("targetType") TargetType targetType,
