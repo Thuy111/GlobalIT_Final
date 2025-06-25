@@ -94,7 +94,8 @@ public interface RequestService {
             .hashtags(hashtagStr)  //묶음 Hashtag 추가
             .hashtagList(hashtags)  //Hashtag 추가  
             .isModify(request.getIsModify())
-            .isDone(request.getIsDone())      
+            .isDone(request.getIsDone())
+            .writerEmail(request.getMember().getEmailId())      
             .build();
     }
 }
