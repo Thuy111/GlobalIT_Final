@@ -168,7 +168,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     System.out.println("===이미 존재하는 동일 회원===");
                     // 세션에 사용자 정보 저장
                     memberService.saveCurrentUserToSession();
-                    response.sendRedirect(frontServerUrl + "/profile");
+                    response.sendRedirect(frontServerUrl + "/");
                     return;
                 } else { // 다른 계정으로 로그인 요청
                     System.out.println("===이미 존재하는 다른계정 회원===");

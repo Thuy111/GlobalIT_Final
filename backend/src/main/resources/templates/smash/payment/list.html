@@ -54,8 +54,8 @@
                 <button th:onclick="|closePayment(${payment.idx})|">결제 삭제</button>
              </div>
             <button th:if="${payment.status.name() == 'paid'}" th:onclick="|canceledPaid(${payment.idx})|" th:inline="javascript">결제 취소</button>
-            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType != null)}" disabled>환불 완료</button>
-            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType == null)}" disabled>취소 완료</button>
+            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType != null) and (payment.paidAt != null)}" disabled>환불 완료</button>
+            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType == null) and (payment.paidAt == null)}" disabled>취소 완료</button>
           </td>
           <td>
             <span th:if="${payment.payType}" th:text="${payment.payType.name()}"></span>

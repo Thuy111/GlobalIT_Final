@@ -14,202 +14,105 @@
           <h2><b style="font-weight: bold; margin: 1rem 0;">결제 금액</b> : <span class="price" th:text="${payment.suggestedPrice}"></span>원</h2>
           <p>결제 방법을 선택해주세요.</p>
           <div style="display: flex; gap: 0.5rem; margin: 2rem 0;">
-            <button onclick="requestPay('kakao')">카카오페이</button>
-            <button onclick="requestPay('toss')">토스</button>
-            <button onclick="requestPay('KG')">KG이니시스</button>
+            <button onclick="onClickPay('kakao')">카카오페이</button>
+            <button onclick="onClickPay('toss')">토스</button>
+            <button onclick="onClickPay('KG')">KG이니시스</button>
           </div>
         </div>
 
-      
-        
-        <input type="hidden" id="price" th:value="${payment.suggestedPrice}" /> 
-      <!-- input으로 값 넘어오는거 확인 -->
-      <input type="hidden" id="memberEmail" th:value="${payment.memberEmail}" /> 
-      <input type="hidden" id="partnerBno" th:value="${payment.partnerBno}" />
-      <input type="hidden" id="estimateIdx" th:value="${payment.estimateIdx}" /> 
-      <input type="hidden" id="suggestedPrice" th:value="${payment.suggestedPrice}" /> 
-      <input type="hidden" id="partnerId" th:value="${partner.memberId}" />
-      <input type="hidden" id="partnerName" th:value="${partner.name}" /> 
-      <input type="hidden" id="partnerTel" th:value="${partner.tel}" /> 
-
+      </th:block>
       <script th:inline="javascript">
-        const memberEmail = document.getElementById("memberEmail").value;
-        const partnerBno = document.getElementById("partnerBno").value;
-        const estimateIdx = document.getElementById("estimateIdx").value;
-        const suggestedPrice = document.getElementById("suggestedPrice").value;
-        const partnerId = document.getElementById("partnerId").value;
-        const partnerName = document.getElementById("partnerName").value;
-        const partnerTel = document.getElementById("partnerTel").value;
+        const memberEmail = /*[[${payment.memberEmail}]]*/ '';
+        const partnerBno = /*[[${payment.partnerBno}]]*/ '';
+        const estimateIdx = /*[[${payment.estimateIdx}]]*/ 0;
+        const suggestedPrice = /*[[${payment.suggestedPrice}]]*/ 0;
+        const partnerId = /*[[${partner.memberId}]]*/ '';
+        const partnerName = /*[[${partner.name}]]*/ '';
+        const partnerTel = /*[[${partner.tel}]]*/ '';
+        const paymentStatus = /*[[${payment.status.name()}]]*/ '';
 
-        // 결제서 생성
-        function requestBills(e) {
-          e.preventDefault();
+        if(paymentStatus == 'paid'){
+          alert("이미 결제가 완료된 견적서입니다.");
+          location.href = '/smash/payment/list';
+        }else if(paymentStatus == 'canceled'){
+          alert("이미 취소된 견적서입니다.");
+          location.href = '/smash/payment/list';
+        }
 
-          const price = Number(document.getElementById("price").value);
-          if (!price || isNaN(price)) {
-            alert("유효한 금액을 입력하세요.");
+        function requestPay(payType) {
+          // 결제 정보 확인
+          if(!memberEmail || !partnerBno || !estimateIdx || !partnerId || !partnerName || !partnerTel) {
+            alert("결제 정보가 올바르지 않습니다.");
+            return;
+          }else if(suggestedPrice < 100) {
+            alert("유효한 결제금액이 아닙니다.");
             return;
           }
-          if( price < 100) {
-            alert("결제 금액은 100보다 커야 합니다.");
+
+          const IMP = window.IMP;
+          const impCode = /*[[${impMerchantCode}]]*/ '';
+          if(!impCode) {
+            alert("아임포트 가맹점 식별코드가 설정되지 않았습니다.");
             return;
           }
 
-          console.log(price,document.getElementById("memberEmail").value,document.getElementById("partnerBno").value,Number(document.getElementById("estimateIdx")?.value || 0))
-          
-          axios.post('/smash/payment/init', {
-            suggestedPrice: price,
-            memberEmail: document.getElementById("memberEmail").value,
-            partnerBno: document.getElementById("partnerBno").value,
-            estimateIdx: Number(document.getElementById("estimateIdx")?.value || 0)
-          })
-          .then(res => {
-            console.log("결제서 생성 성공:", res.data);
-          })
-          .catch(err => {
-            console.error("결제서 생성 실패:", err);
-            alert(err.response?.data || "결제서 생성에 실패했습니다.");
-            location.reload();
-            return;
+          IMP.init(impCode); // 아임포트 가맹점 식별코드
+          return new Promise((resolve, reject) => {
+            // 주문번호 생성
+            const merchantUid = "order_" + new Date().getTime();
+
+            // 결제사 요청
+            let pgName = '';
+            switch(payType) {
+              case 'kakao': pgName = 'kakaopay'; break;
+              case 'toss': pgName = 'tosspay'; break;
+              case 'KG': pgName = 'html5_inicis'; break;   // KG이니시스
+              default: pgName = 'html5_inicis';
+            }
+            
+            IMP.request_pay({
+              pg: pgName, // 결제사
+              pay_method:"card", 
+              merchant_uid:merchantUid,
+              name:'[스매시] 견적서 결제', 
+              amount: suggestedPrice,
+              buyer_email: memberEmail,
+              buyer_name: partnerName,
+              buyer_tel: partnerTel,
+              // redirect_url:'/smash/payment/list' // 모바일 웹
+            }, function (rsp) {
+              if (rsp.success) resolve(rsp);
+              else reject(new Error(rsp.error_msg));
+            });
           });
         }
 
-        // 결제 버튼
-        const IMP = window.IMP;
-        IMP.init('[[${impMerchantCode}]]'); // 아임포트 가맹점 식별코드
-
-        function requestPay(payType) {
-          // 주문번호 생성
-          const merchantUid = "order_" + new Date().getTime();
-
-          // 결제 금액
-          let price = document.getElementById("price").value;
-          price = Number(price);
-
-          // 결제사 요청
-          let pg;
-          switch(payType) {
-            case 'kakao': pg = 'kakaopay'; break;
-            case 'toss': pg = 'tosspay'; break;
-            case 'KG': pg = 'html5_inicis'; break;   // KG이니시스
-            default: pg = 'html5_inicis';
-          }
-          
-          IMP.request_pay({
-            pg: pg, // 결제 PG사
-            pay_method: "card",
-            merchant_uid: merchantUid, // 내가 생성한 주문번호
-            name: "견적 결제",
-            amount: price, // 숫자로 캐스팅 (결제 금액)
-            buyer_email: "buyer@email.com",
-            buyer_name: "홍길동",
-            buyer_tel: "010-1234-5678",
-            redirect_url: `/smash/payment/list` // 결제 완료 후 리다이렉트 URL
-          }, function (rsp) {
-            if (rsp.success) {
-              // 결제 성공: 서버에 impUid 전달해 검증 요청
-              const impUid = rsp.imp_uid;
-              axios.get(`/smash/payment/verify/${impUid}`, {
-                params: {
+        async function onClickPay(payType) {
+          try {
+            const rsp = await requestPay(payType);
+            const impUid = rsp.imp_uid;
+            const res   = await axios.get(`/smash/payment/verify/${impUid}`, { 
+              params: {
                   payType: payType,
                   memberEmail: memberEmail,
                   partnerBno: partnerBno,
                   estimateIdx: estimateIdx
-                }
-              })
-              .then(res => {
-                alert("결제가 완료되었습니다!");
-                // 결제서 상세 페이지로 이동
-                console.log("결제서 idx:", res.data);
-                
-                const paymentIdx = res.data;
-                if(!paymentIdx) {
-                  alert("결제서 상세 정보가 없습니다.");
-                  return;
-                }
-                location.href = `/smash/payment/detail/${paymentIdx}`;
-              })
-              .catch((e) => {
-                console.error("서버 검증 실패:", e);
-                alert(e.response?.data || "결제 검증에 실패했습니다.");
+                } 
               });
-            } else {
-              alert("결제 실패: " + rsp.error_msg);
+            // 성공 처리
+            alert("결제가 완료되었습니다!");
+            const paymentIdx = res.data;
+            if(!paymentIdx) {
+              alert("결제서 상세 정보가 없습니다.");
+              return;
             }
-          });
+            window.location.href = '/smash/payment/list';;
+          } catch (err) {
+            console.error("결제 중 오류 발생:", err);
+            alert("결제 중 오류: " + err.message || err.response?.data || /*[[${error}]]*/ "알 수 없는 오류");
+          }
         }
-
-        // function requestPay(payType) {
-
-        //   const IMP = window.IMP;
-        //   IMP.init('[[${impMerchantCode}]]'); // 아임포트 가맹점 식별코드
-
-        //   return new Promise((resolve, reject) => {
-        //     // 주문번호 생성
-        //     const merchantUid = "order_" + new Date().getTime();
-
-        //     // 결제사 요청
-        //     let pgName = '';
-        //     switch(payType) {
-        //       case 'kakao': pgName = 'kakaopay'; break;
-        //       case 'toss': pgName = 'tosspay'; break;
-        //       case 'KG': pgName = 'html5_inicis'; break;   // KG이니시스
-        //       default: pgName = 'html5_inicis';
-        //     }
-            
-        //     console.log(`결제사: ${pgName}, 결제타입: ${payType}`);
-        //     IMP.request_pay({
-        //       pg: "tospay", // 결제사
-        //       pay_method:"card", 
-        //       merchant_uid:merchantUid,
-        //       name:'[스매시] 견적서 결제', 
-        //       // amount:/*[[${payment.suggestedPrice}]]*/ 0,
-        //       // buyer_email: /*[['${partner.memberId}']]*/ '',
-        //       // buyer_name: /*[['${partner.name}']]*/ '',
-        //       // buyer_tel: /*[['${partner.tel}']]*/ '',
-        //       amount: suggestedPrice,
-        //       buyer_email: memberEmail,
-        //       buyer_name: partnerName,
-        //       buyer_tel: partnerTel,
-        //       redirect_url:'/smash/payment/list'
-        //     }, function (rsp) {
-        //       if (rsp.success) resolve(rsp);
-        //       else reject(new Error(rsp.error_msg));
-        //     });
-        //   });
-        // }
-
-        // async function onClickPay(payType) {
-        //   try {
-        //     const rsp = await requestPay(payType);
-        //     const impUid = rsp.imp_uid;
-        //     const res   = await axios.get(`/smash/payment/verify/${impUid}`, { 
-        //       params: {
-        //           payType: payType,
-        //           memberEmail: memberEmail,
-        //           partnerBno: partnerBno,
-        //           estimateIdx: estimateIdx
-        //           // memberEmail:/*[['${payment.memberEmail}']]*/ '',
-        //           // partnerBno: /*[['${payment.partnerBno}']]*/ '',
-        //           // estimateIdx: /*[[${payment.estimateIdx}]]*/ 0
-        //         } 
-        //       });
-        //     // 성공 처리
-        //     alert("결제가 완료되었습니다!");
-
-        //     const paymentIdx = res.data;
-        //     if(!paymentIdx) {
-        //       alert("결제서 상세 정보가 없습니다.");
-        //       return;
-        //     }
-        //     // location.href = `/smash/payment/detail/${res.data}`;
-        //   } catch (err) {
-        //     console.error("결제 중 오류 발생:", err);
-        //     alert("결제 중 오류: " + err.message || err.response?.data || /*[[${error}]]*/ "알 수 없는 오류");
-        //   }
-        // }
       </script>
-      </th:block>
   </th:block>
 </th:block>
 
