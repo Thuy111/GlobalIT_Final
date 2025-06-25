@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bob.smash.dto.NotificationDTO;
 import com.bob.smash.entity.Notification;
+import com.bob.smash.repository.NotificationMappingRepository;
 import com.bob.smash.repository.NotificationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,63 +17,45 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
   private final NotificationRepository repository;
-
-  // 등록
+  private final NotificationMappingRepository mappingRepository;
   @Override
-  public Integer register(NotificationDTO dto) {
-    Notification notification = dtoToEntity(dto);
-    repository.save(notification);
-    return notification.getIdx();
+  public NotificationDTO createNotification(NotificationDTO dto) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'createNotification'");
   }
-
-  // 읽지 않은 알림 개수 조회
   @Override
-  public long countUnreadByMemberId(String memberId) {
-    return repository.countByMember_EmailIdAndIsRead(memberId, (byte)0);
+  public List<NotificationDTO> getNotificationByMember(String memberId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getNotificationByMember'");
   }
-
-  // 목록
   @Override
-  public List<NotificationDTO> getList() {
-    List<Notification> result = repository.findAll();
-    return result.stream()
-                 .map(notification -> entityToDto(notification))
-                 .toList();
+  public List<NotificationDTO> getUnreadNotifications(String memberId, boolean isRead) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getUnreadNotifications'");
   }
-
-  // 목록: 특정 회원의 알림 목록 조회
   @Override
-  public List<Notification> get(String memberId) {
-    List<Notification> notifications = repository.findByMember_EmailId(memberId);
-    if (notifications.isEmpty()) {
-      throw new IllegalArgumentException("Notification not found for memberId: " + memberId);
-    }
-    return notifications;
+  public List<NotificationDTO> getNotificationsByType(String memberId, String targetType) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getNotificationsByType'");
   }
-
-  // 읽음 처리
   @Override
-  @Transactional
-  public Integer markAsRead(Integer idx) {
-    Notification notification = repository.findById(idx)
-                                          .orElseThrow(() -> new IllegalArgumentException("Notification not found with idx: " + idx));
-    notification.changeIsRead((byte) 1); // 1로 설정하여 읽음 처리
-    return notification.getIdx();
+  public NotificationDTO readNotification(String memberId, Integer idx) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'readNotification'");
   }
-
-  // 삭제
   @Override
-  public void delete(Integer idx) {
-    Notification notification = repository.findById(idx)
-                                          .orElseThrow(() -> new IllegalArgumentException("Notification not found with idx: " + idx));
-    repository.delete(notification);
+  public void deleteNotification(String memberId, Integer idx) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'deleteNotification'");
   }
-  // 삭제: 회원탈퇴시 일괄 삭제
   @Override
-  public void deleteByMemberId(String memberId) {
-    List<Notification> notifications = repository.findByMember_EmailId(memberId);
-    if (!notifications.isEmpty()) {
-      repository.deleteAll(notifications);
-    }
+  public void deleteNotificationByMember(String memberId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'deleteNotificationByMember'");
+  }
+  @Override
+  public void deleteOrphanedNotifications() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'deleteOrphanedNotifications'");
   }
 }

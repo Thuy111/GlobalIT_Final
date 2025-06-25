@@ -31,11 +31,11 @@ public class NotificationController {
   }
   
   // 목록
-  @GetMapping("/list")
-  public ResponseEntity<List<NotificationDTO>> list() {
-    log.info(service.getList());
-    return ResponseEntity.ok(service.getList());
-  }
+  // @GetMapping("/list")
+  // public ResponseEntity<List<NotificationDTO>> list() {
+  //   log.info(service.getList());
+  //   return ResponseEntity.ok(service.getList());
+  // }
 
   // 알림 읽음 처리
   @ResponseBody
@@ -44,7 +44,7 @@ public class NotificationController {
                           @RequestParam("isRead") Boolean isRead,
                           RedirectAttributes rttr) {
     // log.info("알림 읽음 처리 요청: idx={}, isRead={}", idx, isRead);
-    service.markAsRead(idx);
+    // service.markAsRead(idx);
     return "ok";
   }
 }
