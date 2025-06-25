@@ -1,5 +1,6 @@
 package com.bob.smash.service;
 
+import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Estimate;
@@ -57,8 +58,7 @@ public class RequestServiceImpl implements RequestService {
     private final HashtagMappingRepository hashtagMappingRepository;
 
     //사진
-    private final ImageService imageService;   
-
+    private final ImageService imageService;
 
     // 등록/////////////////////////////////////////////////////////////////////////////////
     @Override
@@ -317,6 +317,19 @@ public class RequestServiceImpl implements RequestService {
         }
 
     }
-    
-     
+
+    // 낙찰현황(isDone) 변경
+    @Override
+    @Transactional
+    public void changeIsDone(Integer idx, Integer estimateIdx) {
+        Request request = requestRepository.findById(idx)
+                .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
+        // 낙찰된 의뢰서 상태 1로 변경
+        request.changeIsDone((byte) 1);
+        requestRepository.save(request);
+
+        // 해당 의뢰서에 속한 견적서들 상태 변경
+        EstimateDTO estimateDTO = estimateService.get(estimateIdx);
+        estimateService.selectStatus(estimateDTO);
+    }
 }

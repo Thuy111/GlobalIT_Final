@@ -20,7 +20,7 @@
 <div class="request_wrapper">
   <div class="request_header">
     <h3 class="request_title"> [[${dto.title}]]</h3>
-    <span class="status_tag">낙찰 완료</span>
+    <span class="status_tag" th:if="${dto.isDone == 1}">낙찰 완료</span>
   </div>
   <div class="small_box">
   <!-- 이미지 -->
@@ -69,7 +69,7 @@
         onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
         의뢰서 수정
     </a>
-    <a class="btn" th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
+    <a class="btn" th:if="${dto.isDone == 0}" th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
         견적서 작성
     </a>
   </div>
@@ -144,8 +144,10 @@
         </p>
       </div>
       <div>
-        <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
-          <input type="hidden" name="idx" th:value="${estimate.idx}" />
+        <form th:action="@{/smash/request/changeIsDone}" method="post" th:id="'select-'+ ${estimate.idx}">
+          <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
+          <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
+          <input type="hidden" name="isDone" th:value="${dto.isDone}" />
           <input type="hidden" name="isSelected" th:value="2" />
           <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
         </form>

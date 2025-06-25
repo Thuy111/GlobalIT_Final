@@ -36,6 +36,9 @@ public interface RequestService {
     // 수정
     void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds);
 
+    // 낙찰현황(isDone) 변경
+    void changeIsDone(Integer idx, Integer estimateIdx);
+
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
     Map<String, Object> getPagedRequestList(int page, int size,String search);
 
