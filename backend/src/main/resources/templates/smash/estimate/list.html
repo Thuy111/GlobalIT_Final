@@ -20,7 +20,7 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
                 <b class="estimate_title">[[${estimate.title}]]</b>
               </div>
-              <div class="estimate_actions" th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">>
+              <div class="estimate_actions" th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
                 <form th:action="@{/smash/estimate/update}" method="get" th:id="'update'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
                   <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>

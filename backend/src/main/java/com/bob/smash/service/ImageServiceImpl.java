@@ -145,8 +145,9 @@ public class ImageServiceImpl implements ImageService {
   }
 
   // (수정)게시글 첨부 이미지 삭제 및 추가 기능 통합
+  @Override
   @Transactional
-  public void updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
+  public List<ImageDTO> updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
     // 삭제
     if (deleteImageIdxList != null && !deleteImageIdxList.isEmpty()) {
       deleteImagesFromTarget(targetType, targetIdx, deleteImageIdxList);
@@ -155,80 +156,8 @@ public class ImageServiceImpl implements ImageService {
     if (newImageFiles != null && !newImageFiles.isEmpty()) {
       uploadAndMapImages(targetType, targetIdx, newImageFiles);
     }
-  }
-
-  // (삭제 예정)게시글에서 특정 이미지 교체
-  @Override
-  @Transactional
-  public ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile) {
-    // 매핑 및 이미지 찾기
-    ImageMapping mapping = imageMappingRepository.findByImage(imageRepository.getReferenceById(imageIdx));
-    if (mapping == null) {
-      throw new IllegalArgumentException("해당 이미지 매핑이 존재하지 않습니다.");
-    }
-    Image image = mapping.getImage();
-    if (image == null) {
-      throw new IllegalArgumentException("해당 이미지 엔티티가 존재하지 않습니다.");
-    }
-    // === 파일이 없으면: 기존 이미지 + 매핑 삭제 ===
-    if (newFile == null || newFile.isEmpty()) {
-      // 기존 파일 삭제
-      String oldFilePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath()).toString();
-      File oldFile = new File(oldFilePath);
-      if (oldFile.exists()) oldFile.delete();
-      // 매핑, 이미지 DB에서 삭제
-      imageMappingRepository.delete(mapping);
-      imageRepository.delete(image);
-      // 반환 타입에 따라 null 반환 또는 예외, 혹은 삭제된 상태의 DTO 반환 (여기선 null 반환)
-        return null;
-    }
-    // === 새 파일이 있는 경우 기존 파일 교체 ===
-    // 새 파일 유효성 검사
-    if (!validateImage(newFile)) {
-      throw new IllegalArgumentException("유효하지 않은 이미지 파일입니다.");
-    }
-    // 기존 파일 삭제
-    String oldFilePath = Paths.get(System.getProperty("user.dir"), "uploads", image.getPath()).toString();
-    File oldFile = new File(oldFilePath);
-    if (oldFile.exists()) oldFile.delete();
-    // 새 파일 저장
-    String uploadDir = System.getProperty("user.dir") + "/uploads/" + LocalDate.now();
-    File dir = new File(uploadDir);
-    if (!dir.exists()) dir.mkdirs();
-    // 원본 파일명과 UUID를 조합해 저장 파일명 생성(중복방지)
-    String originalFilename = newFile.getOriginalFilename();
-    String uuid = UUID.randomUUID().toString();
-    String saveName = uuid + "_" + originalFilename;
-    File dest = new File(dir, saveName);
-    try {
-      newFile.transferTo(dest);
-    } catch (Exception e) {
-      throw new RuntimeException("이미지 저장 실패", e);
-    }
-    // Image 엔티티 정보 갱신 및 저장
-    // (path는 uploads/날짜/uuid_파일명 형태로 저장)
-    String relativePath = LocalDate.now() + "/" + saveName;
-    image.changePath(relativePath);
-    image.changeSName(saveName);
-    image.changeOName(originalFilename);
-    image.changeSize(newFile.getSize());
-    image.changeType(newFile.getContentType());
-    imageRepository.save(image);
-    // DTO 변환 후 결과 반환
-    return entityToDto(image, mapping);
-  }
-  // (삭제 예정)게시글에서 여러 이미지 교체
-  @Override
-  @Transactional
-  public List<ImageDTO> updateImagesOfTarget(String targetType, Integer targetIdx, Map<Integer, MultipartFile> updateMap) {
-    List<ImageDTO> result = new ArrayList<>();
-    for (Map.Entry<Integer, MultipartFile> entry : updateMap.entrySet()) {
-      Integer imageIdx = entry.getKey();
-      MultipartFile newFile = entry.getValue();
-      // 각 이미지에 대해 단건 수정 메서드 호출 후 list에 추가
-      result.add(updateImageOfTarget(targetType, targetIdx, imageIdx, newFile));
-    }
-    return result;
+    // 최종적으로 타겟에 연결된 이미지 리스트를 반환
+    return getImagesByTarget(targetType, targetIdx);
   }
 
   // 이미지 이름 중복 검사(🚧추후 구현 필요)
