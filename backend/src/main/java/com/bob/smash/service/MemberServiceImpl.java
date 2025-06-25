@@ -190,48 +190,58 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     @Override
     public void unlinkAndDeleteKakaoMember(String accessToken, MemberDTO currentUser) {
-        // 1. 카카오 unlink 요청 보내기
-        WebClient.create()
-                .post()
-                .uri("https://kapi.kakao.com/v1/user/unlink")
-                .header("Authorization", "Bearer " + accessToken)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
-
-        // 2. 사용자 이메일 가져오기
-        // System.out.println("탈퇴 대상 ID = " + currentUser.getEmailId());
-        String email = currentUser.getEmailId();
-        System.out.println("email = " + email);
-        if (email == null) {
-            throw new IllegalStateException("카카오 계정에서 이메일 정보를 가져올 수 없습니다.");
+        try{
+            // 1. 카카오 unlink 요청 보내기
+            WebClient.create()
+                    .post()
+                    .uri("https://kapi.kakao.com/v1/user/unlink")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
+    
+            // 2. 사용자 이메일 가져오기
+            // System.out.println("탈퇴 대상 ID = " + currentUser.getEmailId());
+            String email = currentUser.getEmailId();
+            System.out.println("email = " + email);
+            if (email == null) {
+                throw new IllegalStateException("카카오 계정에서 이메일 정보를 가져올 수 없습니다.");
+            }
+    
+            // 3. 회원 삭제
+            deleteMemberAndRelatedData(email);
+        }catch (Exception e) {
+            System.out.println("카카오 회원 탈퇴 중 오류 발생: " + e.getMessage());
+            throw new RuntimeException("카카오 회원 탈퇴 중 오류가 발생했습니다.");
         }
-
-        // 3. 회원 삭제
-        deleteMemberAndRelatedData(email);
     }
 
     // 구글 회원 탈퇴 및 연동 해제
     @Transactional
     @Override
     public void unlinkAndDeleteGoogleMember(String accessToken, MemberDTO currentUser) {
-        // 1. 토큰 폐기 요청 (revoke)
-        WebClient.create()
-            .post()
-            .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
-            .retrieve()
-            .bodyToMono(Void.class)
-            .block();
-
-        // 2. 사용자 이메일로 삭제
-        String email = currentUser.getEmailId();
-        System.out.println("email = " + email);
-        if (email == null) {
-            throw new IllegalStateException("구글 사용자 이메일이 존재하지 않습니다.");
+        try{
+            // 1. 토큰 폐기 요청 (revoke)
+            WebClient.create()
+                .post()
+                .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    
+            // 2. 사용자 이메일로 삭제
+            String email = currentUser.getEmailId();
+            System.out.println("email = " + email);
+            if (email == null) {
+                throw new IllegalStateException("구글 사용자 이메일이 존재하지 않습니다.");
+            }
+    
+            // 3. 회원 삭제
+            deleteMemberAndRelatedData(email);
+        }catch (Exception e) {
+            System.out.println("구글 회원 탈퇴 중 오류 발생: " + e.getMessage());
+            throw new RuntimeException("구글 회원 탈퇴 중 오류가 발생했습니다.");
         }
-
-        // 3. 회원 삭제
-        deleteMemberAndRelatedData(email);
     }
 
     // 매번 `SecurityContextHolder`에서 직접 `OAuth2AuthenticationToken`을 꺼내는 메서드

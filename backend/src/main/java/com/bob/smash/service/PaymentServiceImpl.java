@@ -51,7 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 결제 정보 저장
     @Override
-    public Payment savePayment(String memberEmail,
+    public PaymentDTO savePayment(String memberEmail,
                               String partnerBno,
                               Integer estimateIdx,
                               Integer price) {
@@ -84,8 +84,9 @@ public class PaymentServiceImpl implements PaymentService {
                                 .partnerInfo(partnerInfo) // DB에서 조회한 PartnerInfo
                                 .estimate(estimate) // DB에서 조회한 Estimate
                                 .build();
-
-      return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment); // Payment 엔티티 저장
+        PaymentDTO paymentDTO = entityToDto(savedPayment); // Payment 엔티티를 DTO로 변환
+      return paymentDTO;
     }
 
     // 아이엠포트 결제 정보로 Payment 엔티티 정보 추가 저장

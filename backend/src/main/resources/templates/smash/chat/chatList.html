@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<table>
+    <tr th:each="room : ${roomList}" >
+        <td>
+            <a th:href="@{chatRoom(roomId=${room.roomId} )}"
+               th:text="${room.name}"></a>
+        </td>
+    </tr>
+</table>
+
+
+
+</body>
+</html>
+
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+  <th:block th:fragment="content">
+
+    <script>
+      const enterChatRoom = (roomId) => {
+          axios.get(`/smash/chat/enterRoom/${roomId}`)
+              .then(res => {
+                  // 방 입장 처리
+              });
+      }
+      const startChat = (me, otherUser) => {
+          axios.post('/smash/chat/createRoom', {
+          username: me,
+          targetUsername: otherUser
+          }).then(res => {
+              // 방 생성 후, 입장 처리
+          });
+      }
+    </script>
+  </th:block>
+</th:block>
+

@@ -117,16 +117,16 @@ public class MemberController {
   // 회원 탈퇴
   @DeleteMapping("/delete")
   public String deleteMember(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authentication, RedirectAttributes redirectAttributes) {
-        // access token 바로 사용 가능
-        String accessToken = authorizedClient.getAccessToken().getTokenValue();
+    // access token 바로 사용 가능
+    String accessToken = authorizedClient.getAccessToken().getTokenValue();
 
-        MemberDTO currentUser = memberService.getCurrentUser(authentication);
+    MemberDTO currentUser = memberService.getCurrentUser(authentication);
 
-        switch (currentUser.getLoginType()) {
-            case kakao -> memberService.unlinkAndDeleteKakaoMember(accessToken, currentUser);
-            case google -> memberService.unlinkAndDeleteGoogleMember(accessToken, currentUser);
-            default -> throw new UnsupportedOperationException("지원하지 않는 로그인 타입입니다.");
-        }
+    switch (currentUser.getLoginType()) {
+        case kakao -> memberService.unlinkAndDeleteKakaoMember(accessToken, currentUser);
+        case google -> memberService.unlinkAndDeleteGoogleMember(accessToken, currentUser);
+        default -> throw new UnsupportedOperationException("지원하지 않는 로그인 타입입니다.");
+    }
     redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
     return "redirect:"+frontServerUrl+"/profile?unlinked=true";
   }

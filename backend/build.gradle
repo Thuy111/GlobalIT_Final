@@ -64,6 +64,11 @@ dependencies {
 	// iamport REST client(결제:payment)
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.21'
 
+	// WebSocket을 사용하기 위한 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	 // Jackson 라이브러리 - JSON 직렬화/역직렬화
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
+
 	// 자동으로 탬플릿/정적 파일 변경을 감지하여 서버를 재시작하지 않고도 변경 사항을 반영할 수 있게 해주는 개발 도구
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }

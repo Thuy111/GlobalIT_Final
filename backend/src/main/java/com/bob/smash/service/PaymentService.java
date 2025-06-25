@@ -10,7 +10,7 @@ import com.bob.smash.entity.Payment;
 
 public interface PaymentService {
   // 결제 정보 저장
-  Payment savePayment(String memberEmail,
+  PaymentDTO savePayment(String memberEmail,
                       String partnerBno,
                       Integer estimateIdx,
                       Integer price);

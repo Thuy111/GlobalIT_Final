@@ -154,13 +154,14 @@ public class PaymentController {
         // System.out.println("PaymentDTO = " + dto);
 
         // 견적서 결제 저장
-        paymentService.savePayment(
+        PaymentDTO savedPayment = paymentService.savePayment(
             dto.getMemberEmail(),
             dto.getPartnerBno(),
             dto.getEstimateIdx(),
             dto.getSuggestedPrice()
         );
-        return ResponseEntity.ok("견적서 결제 정보가 저장되었습니다."); // 예외는 서비스에서 처리
+        // 견적서 idx보내기 
+        return ResponseEntity.ok(savedPayment.getIdx().toString());
         
     }
 
