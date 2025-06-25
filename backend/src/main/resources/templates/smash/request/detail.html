@@ -152,7 +152,7 @@
           <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
           <input type="hidden" name="isDone" th:value="${dto.isDone}" />
           <input type="hidden" name="isSelected" th:value="2" />
-          <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
+          <button type="submit" th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}">낙찰</button>
         </form>
         
       </div>
