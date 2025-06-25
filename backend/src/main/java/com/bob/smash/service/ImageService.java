@@ -27,7 +27,7 @@ public interface ImageService {
   void deleteImagesFromTarget(String targetType, Integer targetIdx, List<Integer> imageIdxList);
   
   // (수정)게시글에서 첨부 이미지 삭제 및 추가
-  List<ImageDTO> updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
+  void updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles);
   // (수정-단건)게시글에서 특정 이미지 교체
   ImageDTO updateImageOfTarget(String targetType, Integer targetIdx, Integer imageIdx, MultipartFile newFile);
   // (수정-다중)게시글에서 여러 이미지 교체
