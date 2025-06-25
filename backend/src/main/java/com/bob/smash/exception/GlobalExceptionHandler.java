@@ -18,12 +18,21 @@ public class GlobalExceptionHandler {
   }
 
   // 내장 예외 처리 
-  @ExceptionHandler(IllegalStateException.class)
+  @ExceptionHandler(IllegalStateException.class) // 잘못된 상태
   public ResponseEntity<String> handleIllegalState(IllegalStateException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
   }
-  @ExceptionHandler(RuntimeException.class)
+  @ExceptionHandler(RuntimeException.class) // 런타임 예외
   public ResponseEntity<String> handleRuntime(RuntimeException e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
   }
+  @ExceptionHandler(IllegalArgumentException.class) // 잘못된 인자
+  public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+  }
+  @ExceptionHandler(Exception.class) // 모든 예외 처리
+  public ResponseEntity<String> handleException(Exception e) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + e.getMessage());
+  }
+
 }

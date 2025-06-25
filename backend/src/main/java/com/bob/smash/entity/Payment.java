@@ -16,15 +16,15 @@ public class Payment {
     private Integer idx;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)) // 외래키 제약조건 없음
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "partner_bno", nullable = false)
+    @JoinColumn(name = "partner_bno", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)) // 외래키 제약조건 없음
     private PartnerInfo partnerInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "estimate_idx", nullable = false)
+    @JoinColumn(name = "estimate_idx", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)) // 외래키 제약조건 없음
     private Estimate estimate;
 
     @Column(unique = true)
@@ -53,6 +53,9 @@ public class Payment {
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
     public enum Status {
         ready, paid, canceled
     }
@@ -67,5 +70,6 @@ public class Payment {
     public void changeMerchantUid(String merchantUid) {this.merchantUid = merchantUid;}
     public void changeActualPaidPrice(Integer actualPaidPrice) {this.actualPaidPrice = actualPaidPrice;}
     public void changePayType(PayType payType) {this.payType = payType;}
+    public void changeCanceledAt(LocalDateTime canceledAt) {this.canceledAt = canceledAt;}
 
 }

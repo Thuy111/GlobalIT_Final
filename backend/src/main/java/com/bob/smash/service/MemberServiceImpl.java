@@ -43,9 +43,6 @@ public class MemberServiceImpl implements MemberService {
     private final RequestService requestService;
     // private final ReviewRepository reviewRepository;
 
-  @Value("${front.server.url}")
-  private String frontServerUrl;
-
   // 소셜로그인 이메일을 통한 유저정보 DTO 반환
   @Override
   public MemberDTO getCurrentUser(OAuth2AuthenticationToken authentication) {

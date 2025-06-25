@@ -1,6 +1,5 @@
 package com.bob.smash.config;
 
-import com.bob.smash.dto.MemberDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.MemberService;
@@ -24,7 +23,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.core.ParameterizedTypeReference; // 타입검사(안정성)
 
 
@@ -43,12 +41,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     private final String frontServerUrl;
     
     public CustomOAuth2SuccessHandler(
-        MemberRepository memberRepository, 
         @Value("${front.server.url}") String frontServerUrl,
+        MemberRepository memberRepository, 
         OAuth2AuthorizedClientService authorizedClientService,
         MemberService memberService,
         PartnerInfoService partnerInfoService
-    ) {
+        ) {
         this.authorizedClientService = authorizedClientService;
         this.memberRepository = memberRepository;
         this.memberService = memberService; 
