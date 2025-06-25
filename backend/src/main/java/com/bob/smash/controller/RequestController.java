@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -87,16 +88,22 @@ public class RequestController {
 
         Integer savedIdx = requestService.register(requestDTO, member,imageFiles);
         model.addAttribute("msg", savedIdx);
-
-        // return "redirect:/smash/request/listTest";
         return "redirect:/smash/request/detail/" + savedIdx;
     }
 
     //  의뢰서 상세 보기 ///////////////////////////////////////////////   
     @GetMapping("/detail/{idx}")
-    public String detail(@PathVariable("idx") Integer idx, Model model) {
+    public String detail(@PathVariable("idx") Integer idx, Model model,OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
         model.addAttribute("dto", dto);
+        //작성자 ID 확인 (작정자민 해당 버튼 보이게)
+       if (authentication != null) {
+            String email = authentication.getPrincipal().getAttribute("email");
+            model.addAttribute("currentUserEmail", email);
+        } else {
+            model.addAttribute("currentUserEmail", null);
+        }
+        
         // 해당 의뢰서에 대한 견적서 목록도 가져오기
         List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
         model.addAttribute("estimates", estimates);

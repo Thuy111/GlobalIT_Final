@@ -40,5 +40,9 @@ public class RequestDTO {
 
     //수정 여부
     private Byte isModify;
+
+    // 작성자 ID 확인
+    private String writerEmail;
+
     
 }
