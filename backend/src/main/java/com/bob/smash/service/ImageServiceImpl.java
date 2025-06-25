@@ -19,7 +19,9 @@ import com.bob.smash.entity.ImageMapping;
 import com.bob.smash.repository.ImageMappingRepository;
 import com.bob.smash.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
@@ -147,17 +149,25 @@ public class ImageServiceImpl implements ImageService {
   // (수정)게시글 첨부 이미지 삭제 및 추가 기능 통합
   @Override
   @Transactional
-  public List<ImageDTO> updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
-    // 삭제
+  public void updateImagesByTarget(String targetType, Integer targetIdx, List<Integer> deleteImageIdxList, List<MultipartFile> newImageFiles) {
+    // 사용자 지정하는 이미지만 삭제
     if (deleteImageIdxList != null && !deleteImageIdxList.isEmpty()) {
-      deleteImagesFromTarget(targetType, targetIdx, deleteImageIdxList);
+      for (Integer deleteImageIdx : deleteImageIdxList) {
+        deleteImageFromTarget(targetType, targetIdx, deleteImageIdx);
+      }
     }
-    // 추가
+    // 추가된 이미지 업로드
     if (newImageFiles != null && !newImageFiles.isEmpty()) {
-      uploadAndMapImages(targetType, targetIdx, newImageFiles);
+      newImageFiles.stream()
+                   .filter(file -> !file.isEmpty())
+                   .forEach(file -> {
+                      try {
+                        uploadAndMapImage(targetType, targetIdx, file);
+                      } catch (Exception e) {
+                        log.error("이미지 업로드 실패: {}", e.getMessage());
+                      }
+                   });
     }
-    // 최종적으로 타겟에 연결된 이미지 리스트를 반환
-    return getImagesByTarget(targetType, targetIdx);
   }
 
   // 이미지 이름 중복 검사(🚧추후 구현 필요)
@@ -173,25 +183,25 @@ public class ImageServiceImpl implements ImageService {
         System.out.println("file is null");
         return false;
     }
-    System.out.println("file.isEmpty: " + file.isEmpty());
+    // System.out.println("file.isEmpty: " + file.isEmpty());
     if (file.isEmpty()) {
         System.out.println("file is empty");
         return false;
     }
     // 허용할 이미지 타입
     String contentType = file.getContentType();
-    System.out.println("contentType: " + contentType);
+    // System.out.println("contentType: " + contentType);
     if (contentType == null) return false;
     // 이미지 확장자/타입 체크
-    System.out.println("확장자/타입 체크: " + contentType.startsWith("image/"));
+    // System.out.println("확장자/타입 체크: " + contentType.startsWith("image/"));
     if (!contentType.startsWith("image/")) return false;
     // 확장자 직접 체크하고 싶으면 아래도 가능
     String filename = file.getOriginalFilename();
-    System.out.println("filename: " + filename);
+    // System.out.println("filename: " + filename);
     if (filename != null && !filename.matches("(?i).*\\.(jpg|jpeg|png|gif)$")) return false;
     // 크기 제한 (예: 30MB)
     long maxSize = 10 * 1024 * 1024;
-    System.out.println("file size: " + file.getSize());
+    // System.out.println("file size: " + file.getSize());
     if (file.getSize() > maxSize) {
         System.out.println("file size too big");
         return false;

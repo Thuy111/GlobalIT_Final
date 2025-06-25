@@ -13,7 +13,9 @@ import com.bob.smash.repository.EstimateRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class EstimateServiceImpl implements EstimateService {
@@ -126,8 +128,8 @@ public class EstimateServiceImpl implements EstimateService {
     estimate.changeReturnDate(dto.getReturnDate());
     estimate.changeModifiedAt(dto.getModifiedAt());
     repository.save(estimate);
-    // 이미지 삭제 + 추가(수정) 통합 처리
-    imageService.updateImagesByTarget("estimate", estimate.getIdx(), deleteImageIdxList, newImageFiles);
+    // 이미지 수정(삭제 + 추가 통합) 처리
+    imageService.updateImagesByTarget("estimate", dto.getIdx(), deleteImageIdxList, newImageFiles);
     return estimate.getIdx();
   }
 
