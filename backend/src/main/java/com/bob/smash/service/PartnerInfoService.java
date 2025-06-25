@@ -5,8 +5,10 @@ import com.bob.smash.entity.Member;
 import com.bob.smash.entity.PartnerInfo;
 
 public interface PartnerInfoService {
-  // 파트너 정보 조회
+  // 파트너 정보 조회 : 이메일
   PartnerInfoDTO getPartnerInfo(String emailId);
+  // 파트너 정보 조회 : 사업자 번호
+  PartnerInfoDTO getPartnerInfoByBno(String bno);
   // 파트너 삭제
   void deleteByMemberEmail(String email);
 

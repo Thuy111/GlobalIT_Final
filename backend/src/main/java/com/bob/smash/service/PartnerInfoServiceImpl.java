@@ -17,10 +17,19 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   private final PaymentRepository paymentRepository;
   private final PartnerInfoRepository partnerInfoRepository;
   
-  // 파트너 정보 조회
+  // 파트너 정보 조회 : 이메일
   @Override
   public PartnerInfoDTO getPartnerInfo(String emailId){
     PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(emailId).orElse(null);
+    if (partnerInfo == null) {
+      return null; // 파트너 정보가 없으면 null 반환
+    }
+    return entityToDto(partnerInfo);
+  }
+  // 파트너 정보 조회 : 사업자 번호
+  @Override
+  public PartnerInfoDTO getPartnerInfoByBno(String bno) {
+    PartnerInfo partnerInfo = partnerInfoRepository.findByBno(bno).orElse(null);
     if (partnerInfo == null) {
       return null; // 파트너 정보가 없으면 null 반환
     }

@@ -25,7 +25,7 @@ public class GlobalModelAttributeAdvice {
     @ModelAttribute
     public void addCurrentUserToModel(Model model, HttpSession session) {
         CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        System.out.println("Current User=========[[MODEL]]==========" + currentUser);
+        System.out.println("Current User=========[[MODEL: currentUser]]==========" + currentUser);
         model.addAttribute("currentUser", currentUser);
     }
 }

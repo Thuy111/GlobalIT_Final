@@ -6,6 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class PartnerInfoDTO {
   private String bno;
   private String memberId; // Member 객체 대신 ID만 노출
