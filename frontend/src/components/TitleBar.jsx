@@ -14,7 +14,7 @@ const TitleBar = ({title}) => {
                  background: 'white', 
                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)', 
                  zIndex: '99'}}>
-      <i class="fa-solid fa-chevron-left"
+      <i className="fa-solid fa-chevron-left"
          onClick={() => navigate(-1)} 
          style={{fontSize: '30px', marginRight: '1rem', cursor: 'pointer'}}></i>
       <h1 style={{fontSize: '30px'}}>{title}</h1>

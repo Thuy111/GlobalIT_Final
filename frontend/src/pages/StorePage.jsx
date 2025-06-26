@@ -1,14 +1,120 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import TitleBar from '../components/TitleBar';
+import Slider from 'react-slick';
+import axios from 'axios';
 import '../styles/StoreInfo.css';
 
+const dummyImages = [
+  'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
+  'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg',
+  'https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg',
+  'https://images.pexels.com/photos/163452/basketball-dunk-blue-game-163452.jpeg',
+]
+
+// react-slick 슬라이더 설정
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    arrows: false,
+  };
+
 const StorePage = () => {
+  const [view, setView] = useState('estimate'); // 'estimate' or 'review'
+  const viewHandler = (type) => {
+    setView(type);
+    // API 호출
+  };
+
   return (
     <>
       <TitleBar title="업체 이름" />
-      <div className="patnerInfo_container">
-        
+      <div className="storeInfo_container">
+        {/* 상점 images */}
+        <div className="updateStore"><span>업체정보 수정</span></div>
+        {dummyImages.length > 0 ? (
+          <>
+            <Slider {...sliderSettings} className="carousel-slider">
+              {dummyImages.map((img, idx) => (
+                <div key={idx} className="carousel-wrapper">
+                  <div className="carousel-card">
+                    <div className="carousel-overlay" />
+                    <img src={img} alt={img + "이미지"} />
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          </>
+        ) 
+        : 
+        (
+          <div style={{ padding: "1rem", textAlign: "center" }}>
+            <p>업체 이미지가 없습니다.</p>
+          </div>
+        )}
+
+        {/* 업체 별점 */}
+        <div className="storeRating">
+          <div className="ratingStars">
+            <i className="fa-solid fa-star"></i>
+            <i className="fa-solid fa-star"></i>
+            <i className="fa-solid fa-star"></i>
+            <i className="fa-regular fa-star-half-stroke"></i>
+            <i className="fa-regular fa-star"></i>
+          </div>
+          <span className='point'>3.8점</span>
+        </div>
+
+        {/* 업체 정보 */}
+        <div className="storeInfo_box">
+          <hr className='line' />
+          <div className='store_info'>
+            <div  className='store_info_left'>
+              <div className='store_icon_box'>
+                <i className="fa-solid fa-store"></i>
+              </div>
+              <h2 className='store_name'>업체 이름</h2>
+            </div>
+            <div className='store_info_right'>
+              <p><span className='badge'>사업자 번호</span> 0507-0116</p>
+              <p><span className='badge'>사업자 위치</span> 경기 광명시 OO동</p>
+              <p><span className='badge'>사업자 연락처</span> 02-024-3578</p>
+            </div>
+          </div>
+
+          <hr className='line' />
+          <div className='description'>
+            <h2 className='store_des'>업체 설명</h2>
+            <p>
+              스포츠용품 판매하며<br />
+              다른곳과 차별화된 판매처.<br />
+              프리미엄만을 추구함.
+            </p>
+          </div>
+
+          <hr className='line' />
+          <div className="view_more">
+            <div className={`button ${view == "estimate" && "active"}`} onClick={()=> viewHandler('estimate')}>견적서 목록(21)</div>
+            <div className={`button ${view == "review" && "active"}`} onClick={()=> viewHandler('review')}>대여 후기(8)</div>
+          </div>
+          <div className="view_content">
+            {view === 'estimate' ? (
+              <div className="estimate_list">
+                {/* 견적서 목록 컴포넌트 */}
+                <p>견적서 목록이 여기에 표시됩니다.</p>
+              </div>
+            ) : (
+              <div className="review_list">
+                {/* 대여 후기 목록 컴포넌트 */}
+                <p>대여 후기 목록이 여기에 표시됩니다.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
