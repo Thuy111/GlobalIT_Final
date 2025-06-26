@@ -11,6 +11,7 @@ const Authenticated = ({}) => {
   const [provider, setProvider] = useState('');
   const [isDisable, setIsDisable] = useState(true);
   const [isExistUser, setIsExistUser] = useState(false); // 이미 등록된 사용자 여부
+  const [isRegex, setIsRegex] = useState(true); // 전화번호 정규식 검사 여부
 
   useEffect(() => {
     window.onload = () => {
@@ -94,25 +95,27 @@ const Authenticated = ({}) => {
   };
 
   const changeHandlePhone = (value) => {
-    // 번호만 입력하도록 필터링
     const regex = /^[0-9]*$/; // 숫자만 허용
-    if(value && !regex.test(value)) {
-      setPhone(phone); // 숫자가 아닌 경우 이전 값으로 되돌림
-    }else if(value.length > 11) {
-      setPhone(phone); // 최대 11자리로 제한
-    } else if(value.length === 0) {
-      setPhone(''); // 빈 문자열로 초기화
+
+    // 숫자가 아닌 경우 이전 값으로 되돌림
+    if (value && !regex.test(value)) return;
+
+    // 최대 11자리로 제한
+    if (value.length > 11) return;
+
+    setPhone(value); // 유효한 값만 업데이트
+
+    // 정규식 검사
+    const phoneRegex = /^(010|011|016|017|018|019)$/;
+    const isValidPrefix = phoneRegex.test(value.substring(0, 3));
+    setIsRegex(isValidPrefix);
+
+    // 길이와 정규식 동시에 만족하면 활성화
+    if (value.length >= 11 && isValidPrefix) {
+      setIsDisable(false);
     } else {
-      // 전화번호가 숫자만 포함된 경우 업데이트
-      setPhone(value);
+      setIsDisable(true);
     }
-
-    // 한국 전화번호 정규식
-    // const phoneRegex = /^(01[0-9]{8,9})$/; // 010, 011, 016, 017, 018, 019로 시작하는 11자리 전화번호
-
-    if (value.length >= 9) {
-      setIsDisable(false); // 전화번호가 9자리 이상이면 제출 버튼 활성화 (예: 01012345678 또는 021234567)
-    }else setIsDisable(true); // 그렇지 않으면 비활성화
   }
 
   return (
@@ -134,6 +137,9 @@ const Authenticated = ({}) => {
           />
           <button type="submit" disabled={isDisable}>제출</button>
         </div>
+        {!isRegex&&
+        <p style={{fontSize: '15px', color: 'red'}}>* 유효한 번호를 입력해주세요.</p>
+        }
       </form>
     </div>
   );
