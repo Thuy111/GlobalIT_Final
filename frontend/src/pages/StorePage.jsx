@@ -101,10 +101,16 @@ const StorePage = () => {
               <div className='store_icon_box'>
                 <i className="fa-solid fa-store"></i>
               </div>
-              <h2 className='store_name'>업체 이름</h2>
+              {!isEditing && <h2 className='store_name'>{storeName}</h2>}
+              {isEditing && <input
+                type="text"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                placeholder="업체 이름을 입력하세요"
+              />}
             </div>
             <div className='store_info_right'>
-              <p><span className='badge'>사업자 번호</span> 0507-0116</p>
+              <p><span className='badge'>사업자 번호</span>0507-0116</p>
               <EditableField
                 label="사업자 위치"
                 value={location}
