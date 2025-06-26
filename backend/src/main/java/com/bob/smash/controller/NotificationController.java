@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.NotificationDTO;
+import com.bob.smash.dto.NotificationMappingDTO;
 import com.bob.smash.service.NotificationService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -30,21 +33,22 @@ public class NotificationController {
     return "redirect:/smash/alarm/list";
   }
   
-  // 목록
-  // @GetMapping("/list")
-  // public ResponseEntity<List<NotificationDTO>> list() {
-  //   log.info(service.getList());
-  //   return ResponseEntity.ok(service.getList());
-  // }
+  //목록
+  @GetMapping("/list")
+  public ResponseEntity<List<NotificationMappingDTO>> list(HttpSession session) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    List<NotificationMappingDTO> result = service.getNotificationByMember(currentUser.getEmailId());
+    return ResponseEntity.ok(result);
+  }
 
   // 알림 읽음 처리
   @ResponseBody
   @PostMapping("/read")
   public String alarmRead(@RequestParam("idx") Integer idx,
-                          @RequestParam("isRead") Boolean isRead,
+                          HttpSession session,
                           RedirectAttributes rttr) {
-    // log.info("알림 읽음 처리 요청: idx={}, isRead={}", idx, isRead);
-    // service.markAsRead(idx);
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    service.readNotification(currentUser.getEmailId(), idx);
     return "ok";
   }
 }
