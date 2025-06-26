@@ -77,13 +77,11 @@ public class PaymentController {
                 model.addAttribute("impMerchantCode", impMerchantCode);
                 return "smash/payment/bill"; // 결제 페이지로 이동
             } else {
-                model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
-                return "error"; // 에러 페이지로 이동
+                throw new Exception("결제 정보를 찾을 수 없습니다.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "결제 정보 조회 중 오류가 발생했습니다.");
-            return "error"; // 에러 페이지로 이동
+            throw new RuntimeException("결제 정보 조회 실패", e);
         }
     }
     // 결제 목록 조회
@@ -96,31 +94,28 @@ public class PaymentController {
                 model.addAttribute("now", java.time.LocalDateTime.now());
                 return "smash/payment/list"; // 결제 목록 페이지로 이동
             } else {
-                model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
-                return "error"; // 에러 페이지로 이동
+                throw new Exception("결제 정보를 찾을 수 없습니다.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "결제 정보 조회 중 오류가 발생했습니다.");
-            return "error"; // 에러 페이지로 이동
+            throw new RuntimeException("결제 정보 조회 실패", e);
         }
     }
     // 결제 상세 조회
     @GetMapping("/detail/{paymentIdx}")
-    public String paymentDetail(@PathVariable Integer paymentIdx, Model model) {
+    public  String paymentDetail(@PathVariable Integer paymentIdx, Model model) {
         try {
             PaymentDTO payment = paymentService.getPaymentByIdx(paymentIdx);
             if (payment != null) {
                 model.addAttribute("payment", payment);
+                model.addAttribute("now", java.time.LocalDateTime.now());
                 return "smash/payment/detail"; // 결제 상세 페이지로 이동
             } else {
-                model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
-                return "error"; // 에러 페이지로 이동
+                throw new Exception("결제 정보를 찾을 수 없습니다.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "결제 정보 조회 중 오류가 발생했습니다.");
-            return "error"; // 에러 페이지로 이동
+            throw new RuntimeException("결제 정보 조회 실패", e);
         }
     }
   

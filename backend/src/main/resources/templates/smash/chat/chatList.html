@@ -1,35 +1,23 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-<table>
-    <tr th:each="room : ${roomList}" >
-        <td>
-            <a th:href="@{chatRoom(roomId=${room.roomId} )}"
-               th:text="${room.name}"></a>
-        </td>
-    </tr>
-</table>
-
-
-
-</body>
-</html>
-
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
   <th:block th:fragment="content">
 
+    <h1>유저 목록</h1>
+    <button onclick="startChat( 'koi4553@naver.com', 'user1@example.com')">runner01 님과 채팅하기</button>
+    <button onclick="startChat( 'koi4553@naver.com', 'user2@example.com')">soccerking 님과 채팅하기</button>
+    <button onclick="startChat( 'koi4553@naver.com', 'user3@example.com')">tennispro 님과 채팅하기</button>
+
+    <h1>채팅방 목록</h1>
+    <table>
+        <tr th:each="room : ${roomList}" >
+            <td>
+                <a th:href="@{chatRoom(roomId=${room.roomId} )}"
+                  th:text="${room.name}"></a>
+            </td>
+        </tr>
+    </table>
+
+
     <script>
-      const enterChatRoom = (roomId) => {
-          axios.get(`/smash/chat/enterRoom/${roomId}`)
-              .then(res => {
-                  // 방 입장 처리
-              });
-      }
       const startChat = (me, otherUser) => {
           axios.post('/smash/chat/createRoom', {
           username: me,
