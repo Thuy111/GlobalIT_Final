@@ -26,7 +26,7 @@ public class NotificationMapping {
   @Column(name = "is_read", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
   private Byte isRead = 0; // 0: 읽지 않음, 1: 읽음;
   
-  @Column(name = "read_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @Column(name = "read_at")
   private LocalDateTime readAt;
 
   @EqualsAndHashCode
