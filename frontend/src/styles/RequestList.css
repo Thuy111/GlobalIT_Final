@@ -264,6 +264,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 60%;
+    text-align: left;
 }
 
 

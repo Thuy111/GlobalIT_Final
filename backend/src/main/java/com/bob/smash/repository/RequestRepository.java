@@ -28,6 +28,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     @Transactional
     @Query("UPDATE Request r SET r.isDone = :isDone WHERE r.idx = :idx")
     int updateIsDone(@Param("idx") Integer idx, @Param("isDone") Byte isDone);
+    
 
   
 }

@@ -149,7 +149,7 @@ public class RequestServiceImpl implements RequestService {
     // 무한스크롤용 페이지네이션 기능 구현
     @Override
     public Map<String, Object> getPagedRequestList(int page, int size, String search) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("idx").descending());
         Page<Request> requestPage;
 
         if (search != null && !search.isBlank()) {
