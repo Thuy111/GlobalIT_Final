@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TitleBar from '../components/TitleBar';
+import EditableField from '../components/UpdateStore';
 import Slider from 'react-slick';
 import axios from 'axios';
 import '../styles/StoreInfo.css';
@@ -23,19 +24,42 @@ const dummyImages = [
     arrows: false,
   };
 
+// StorePage
 const StorePage = () => {
   const [view, setView] = useState('estimate'); // 'estimate' or 'review'
+  const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef();
+  
+  const [storeName, setStoreName] = useState("업체 이름");
+  const [location, setLocation] = useState("경기 광명시 OO동");
+  const [contact, setContact] = useState("02-024-3578");
+  const [description, setDescription] = useState("스포츠용품 판매하며\n다른곳과 차별화된 판매처.\n프리미엄만을 추구함.");
+
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isEditing]);
+
   const viewHandler = (type) => {
     setView(type);
-    // API 호출
+    // 견적서 & 리뷰 API 호출
   };
+
+  const updateHandelr = () => {
+    if (isEditing) {
+      // API 호출 업데이트
+    }
+    setIsEditing(!isEditing);
+  }
 
   return (
     <>
       <TitleBar title="업체 이름" />
       <div className="storeInfo_container">
         {/* 상점 images */}
-        <div className="updateStore"><span>업체정보 수정</span></div>
+        {!isEditing && <div className="updateStore"><span onClick={() => setIsEditing(true)}>업체정보 수정</span></div>}
+        {isEditing && <div className="updateStore"><span onClick={()=> updateHandelr()}>수정 완료</span></div>}
         {dummyImages.length > 0 ? (
           <>
             <Slider {...sliderSettings} className="carousel-slider">
@@ -81,19 +105,37 @@ const StorePage = () => {
             </div>
             <div className='store_info_right'>
               <p><span className='badge'>사업자 번호</span> 0507-0116</p>
-              <p><span className='badge'>사업자 위치</span> 경기 광명시 OO동</p>
-              <p><span className='badge'>사업자 연락처</span> 02-024-3578</p>
+              <EditableField
+                label="사업자 위치"
+                value={location}
+                onChange={setLocation}
+                isEditing={isEditing}
+              />
+              <EditableField
+                label="사업자 연락처"
+                value={contact}
+                onChange={setContact}
+                isEditing={isEditing}
+              />
             </div>
           </div>
 
           <hr className='line' />
           <div className='description'>
             <h2 className='store_des'>업체 설명</h2>
+            {isEditing ? (
+            <textarea
+              ref={textareaRef}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          ) : (
             <p>
-              스포츠용품 판매하며<br />
-              다른곳과 차별화된 판매처.<br />
-              프리미엄만을 추구함.
+              {description.split("\n").map((line, idx) => (
+                <span key={idx}>{line}<br /></span>
+              ))}
             </p>
+          )}
           </div>
 
           <hr className='line' />
