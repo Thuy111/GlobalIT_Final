@@ -12,6 +12,6 @@ public interface ReviewService {
    ReviewDTO getReviewById(Integer reviewIdx);
 void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles);
 void deleteReview(Integer reviewIdx, String currentUserEmail);
-
+List<ReviewDTO> getReviewsByMemberId(String memberId);
 
 }
