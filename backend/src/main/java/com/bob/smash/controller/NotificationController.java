@@ -3,7 +3,6 @@ package com.bob.smash.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.bob.smash.dto.CurrentUserDTO;
-import com.bob.smash.dto.NotificationDTO;
 import com.bob.smash.dto.NotificationMappingDTO;
 import com.bob.smash.service.NotificationService;
 
@@ -38,17 +36,40 @@ public class NotificationController {
   public ResponseEntity<List<NotificationMappingDTO>> list(HttpSession session) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
     List<NotificationMappingDTO> result = service.getNotificationByMember(currentUser.getEmailId());
+    // int count = service.countUnreadNotifications(currentUser.getEmailId());
     return ResponseEntity.ok(result);
+  }
+  // 미읽음 알림 개수
+  @GetMapping("/unread")
+  public ResponseEntity<Integer> unreadCount(HttpSession session) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    int count = service.countUnreadNotifications(currentUser.getEmailId());
+    return ResponseEntity.ok(count);
   }
 
   // 알림 읽음 처리
-  @ResponseBody
   @PostMapping("/read")
   public String alarmRead(@RequestParam("idx") Integer idx,
                           HttpSession session,
                           RedirectAttributes rttr) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
     service.readNotification(currentUser.getEmailId(), idx);
+    return "ok";
+  }
+
+  // 전체 읽음 처리
+  @PostMapping("/read/all")
+  public String readAll(HttpSession session) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    service.markAllAsRead(currentUser.getEmailId());
+    return "ok";
+  }
+
+  // 알림 삭제 (단건)
+  @PostMapping("/delete")
+  public String delete(@RequestParam("idx") Integer idx, HttpSession session) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    service.deleteNotification(currentUser.getEmailId(), idx);
     return "ok";
   }
 }
