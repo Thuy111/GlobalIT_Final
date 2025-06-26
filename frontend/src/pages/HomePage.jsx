@@ -9,7 +9,6 @@ const Home = () => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   const baseUrl = import.meta.env.VITE_API_URL;
   const user = useUser();
-  console.log("user:", user);
   
   return (
     <>
