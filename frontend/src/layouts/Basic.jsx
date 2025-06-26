@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
+import { UnreadAlarmProvider } from '../contexts/UnreadAlarmContext';
 import Nav from '../components/Navigation.jsx';
 import axios from 'axios';
 
@@ -60,11 +61,13 @@ const Layout = () => {
 
   return (
     <UserContext.Provider value={user}>
+      <UnreadAlarmProvider>
       {!isLoggedIn===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
       <div className="container">
         <Outlet />
       </div>
-      <Nav />
+        <Nav />
+      </UnreadAlarmProvider>
     </UserContext.Provider>
   );
 };

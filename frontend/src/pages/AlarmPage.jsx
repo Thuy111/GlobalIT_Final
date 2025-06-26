@@ -1,42 +1,48 @@
 import { useState, useEffect } from "react";
 import { useUser } from '../contexts/UserContext';
+import { useUnreadAlarm } from '../contexts/UnreadAlarmContext';
 import TitleBar from "../components/TitleBar";
 import axios from "axios";
 
 const Alarm = () => {
+  axios.defaults.withCredentials = true;
   const baseUrl = import.meta.env.VITE_API_URL;
   const user = useUser();
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setUnreadCount } = useUnreadAlarm();
 
   // 알람 목록 불러오기
-  useEffect(() => {
+  const fetchAlarms = () => {
     setLoading(true);
     axios.get(`${baseUrl}/smash/alarm/list`, {
-      headers: {
-        Accept: "application/json",
-      },
-      })
-      .then(res => {
-        console.log("알람 응답:", res.data);
+      headers: { Accept: "application/json" }
+    }).then(res => {
+        // NotificationMappingDTO 배열
         setAlarms(Array.isArray(res.data) ? res.data : []);
       })
-      .catch((err) => {
-        console.error("알람 에러:", err);
-        setAlarms([]);
-      })
+      .catch(() => setAlarms([]))
       .finally(() => setLoading(false));
+  };
+
+  // 미읽음 알림 개수 fetch
+  const fetchUnreadCount = () => {
+  axios.get(`${baseUrl}/smash/alarm/unread`, { withCredentials: true })
+    .then(res => setUnreadCount(res.data))
+    .catch(() => setUnreadCount(0));
+  };
+
+  useEffect(() => {
+    fetchAlarms();
+    // eslint-disable-next-line
   }, [baseUrl]);
 
   // 알람 읽음 처리
   const handleRead = async (idx) => {
     try {
-      await axios.post(`${baseUrl}/smash/alarm/read`, null, {
-        params: { idx, isRead: true }
-      });
-      setAlarms(prev =>
-        prev.map(a => a.idx === idx ? { ...a, isRead: true } : a)
-      );
+      await axios.post(`${baseUrl}/smash/alarm/read?idx=${idx}`, null);
+      fetchAlarms();
+      fetchUnreadCount();
     } catch (err) {
       // 에러 핸들링
     }
@@ -55,7 +61,6 @@ const Alarm = () => {
     <>
       <TitleBar title="알림" />
       <div className="alarm" style={{maxWidth:400,margin:"0 auto",padding:16}}>
-        <div style={{fontWeight:"bold",fontSize:18,marginBottom:12}}>{"< 알림"}</div>
         <div>
           {loading ? (
             <div style={{padding:"2rem 0"}}>불러오는 중...</div>
@@ -64,9 +69,9 @@ const Alarm = () => {
           ) : (
             alarms.map(alarm => (
               <div
-                key={alarm.idx}
+                key={alarm.notification.idx}
                 className={`alarm-item${alarm.isRead ? "" : " unread"}`}
-                onClick={() => !alarm.isRead && handleRead(alarm.idx)}
+                onClick={() => !alarm.isRead && handleRead(alarm.notification.idx)}
                 style={{
                   background: alarm.isRead ? "#fff" : "#f6f6f6",
                   cursor: "pointer",
@@ -77,17 +82,17 @@ const Alarm = () => {
                 }}
               >
                 <div style={{ fontWeight: "bold", marginBottom: 4, fontSize:15 }}>
-                  {alarm.notice}
+                  {alarm.notification.notice}
                 </div>
                 <div style={{ color: "#888", fontSize: 13 }}>
-                  {formatTime(alarm.createdAt)}
+                  {formatTime(alarm.notification.createdAt)}
                 </div>
                 {!alarm.isRead && (
                   <span
                     style={{
                       position: "absolute",
-                      top: 18,
-                      right: 18,
+                      top: 4,
+                      right: 4,
                       width: 10,
                       height: 10,
                       background: "#ff9900",
