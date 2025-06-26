@@ -30,6 +30,9 @@ public class PartnerInfo {
     @Column(length = 3000, nullable = false)
     private String description;
     
+    @Column(length = 64, nullable = false, unique = true)
+    private String code;
+    
     @Column(name = "visit_cnt")
     private Integer visitCnt;
 
