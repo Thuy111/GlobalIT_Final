@@ -4,6 +4,9 @@
 /* 공용 */
 .storeInfo_container hr.line {border-bottom: 0.5px solid rgb(233, 233, 233);margin: 1rem 0;}
 .storeInfo_container .badge {font-weight: bold; background-color: #e0f9ff;border-radius: 30px;padding: 4px 8px;color: #25b2d1;border: 1px solid #baebf7;}
+.storeInfo_container input {}
+.storeInfo_container textarea {}
+
 
 /* 캐러셀 */
 .storeInfo_container .carousel-card {
@@ -22,7 +25,7 @@
 .storeInfo_container .updateStore span{border-bottom: 1px solid gray;cursor: pointer;font-size: 19px;color: gray;margin-right: 1rem;}
 
 /* 별점 */
-.storeInfo_container .storeRating {margin: 2rem; display: flex; align-items: center;justify-content: end;}
+.storeInfo_container .storeRating {margin: 4rem 2rem 2rem 2rem; display: flex; align-items: center;justify-content: end;}
 .storeInfo_container .ratingStars i {font-size: 24px; color: #3bb8d4;}
 .storeInfo_container span.point {font-size: 24px;margin-left: 1rem; font-weight: bold;}
 
@@ -36,7 +39,7 @@
 .storeInfo_container .store_info_left .store_name{font-size: 22px; font-weight: bold;}
 .storeInfo_container .store_icon_box {margin-right: 1rem; width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
 .storeInfo_container .store_icon_box i {font-size: 24px; color: #3bb8d4;}
-.storeInfo_container .store_info_right p{margin: 1.5rem 0;}
+.storeInfo_container .store_info_right p{margin: 1.5rem 4rem 1.5rem 0;}
 
 /* 업체 설명 */
 .storeInfo_container .store_des {font-size: 22px; font-weight: bold; margin-bottom: 1rem;}
@@ -58,6 +61,7 @@
   .storeInfo_container .store_info {flex-direction: column; align-items: flex-start;}
   .storeInfo_container .store_info_left {margin: 2rem 0;}
   .storeInfo_container .view_more {justify-content: center;}
+  .storeInfo_container .store_info_right p{margin: 1.5rem 0;}
 }
 @media (max-width: 500px) {
   .storeInfo_container .carousel-card {height: 280px}
