@@ -1,8 +1,11 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.service.ImageService;
 import com.bob.smash.service.ReviewService;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -150,22 +153,26 @@ public String deleteReview(
 }
 
 
-                    // 내가 쓴 리뷰 목록
-        @GetMapping("/mylist")
-        public String showMyReviewList(
-                @AuthenticationPrincipal OAuth2User oauth2User,
-                Model model
-        ) {
-            String currentUser = extractEmailFromOAuth2User(oauth2User);
+// 내가 쓴 리뷰 목록
+@GetMapping("/mylist")
+public String showMyReviewList(HttpSession session, Model model) {
+    // 세션에서 로그인 유저 정보 가져오기
+    CurrentUserDTO currentUserDTO = (CurrentUserDTO) session.getAttribute("currentUser");
 
-            // 내 리뷰만 조회
-            List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUser);
+    if (currentUserDTO == null) {
+        return "redirect:/smash/"; // 로그인 안 되어 있으면 로그인 페이지로 리디렉트
+    }
 
-            model.addAttribute("reviewList", myReviewList);
-            model.addAttribute("currentUser", currentUser);
-            model.addAttribute("isMyList", true); // 선택: 내 리뷰 전용인지 표시
-            return "smash/reviewPage/list";
-        }
+    String currentUser = currentUserDTO.getEmailId();
+
+    // 내 리뷰만 조회
+    List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUser);
+
+    model.addAttribute("reviewList", myReviewList);
+    model.addAttribute("currentUser", currentUser);
+    model.addAttribute("isMyList", true); // 내 리뷰 전용 표시
+    return "smash/reviewPage/list";
+}
 
     // 공통 로그인 이메일 추출
     private String extractEmailFromOAuth2User(OAuth2User oauth2User) {
