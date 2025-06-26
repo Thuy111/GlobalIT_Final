@@ -2,6 +2,7 @@ package com.bob.smash.service;
 
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ImageDTO;
+import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.Hashtag;
@@ -52,6 +53,7 @@ public class RequestServiceImpl implements RequestService {
     private final EstimateRepository estimateRepository;
     private final EstimateService estimateService;
     private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     // hashtag
     private final HashtagRepository hashtagRepository;
@@ -321,9 +323,19 @@ public class RequestServiceImpl implements RequestService {
     // 낙찰현황(isDone) 변경
     @Override
     @Transactional
-    public void changeIsDone(Integer idx, Integer estimateIdx) {
+    public Integer changeIsDone(Integer idx,
+                            Integer estimateIdx, 
+                            String memberEmail,
+                            String partnerBno,
+                            Integer price) {
         Request request = requestRepository.findById(idx)
                 .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
+
+        PaymentDTO savedPayment = paymentService.savePayment(memberEmail, partnerBno, estimateIdx, price);
+        if(savedPayment == null){
+            throw new IllegalArgumentException("결제 저장에 실패했습니다.");
+        }
+
         // 낙찰된 의뢰서 상태 1로 변경
         request.changeIsDone((byte) 1);
         requestRepository.save(request);
@@ -331,5 +343,7 @@ public class RequestServiceImpl implements RequestService {
         // 해당 의뢰서에 속한 견적서들 상태 변경
         EstimateDTO estimateDTO = estimateService.get(estimateIdx);
         estimateService.selectStatus(estimateDTO);
+
+        return savedPayment.getIdx();
     }
 }

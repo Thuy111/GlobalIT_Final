@@ -147,13 +147,22 @@
         </p>
       </div>
       <div>
-        <form th:action="@{/smash/request/changeIsDone}" method="post" th:id="'select-'+ ${estimate.idx}">
+        <!-- 낙찰 버튼(+ 결제) -->
+        <div th:id="|select-${estimate.idx}|"
+        th:data-request-idx="${dto.idx}"
+        th:data-estimate-idx="${estimate.idx}"
+        th:data-price="${estimate.price}"
+        th:data-email="|${dto.writerEmail}|"
+        th:data-bno="|${estimate.partnerBno}|">
           <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
           <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
           <input type="hidden" name="isDone" th:value="${dto.isDone}" />
           <input type="hidden" name="isSelected" th:value="2" />
-          <button type="submit" th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}">낙찰</button>
-        </form>
+          <button type="button"
+          th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}"
+          onclick="handleIsDone(this)">낙찰</button>
+        </div>       
+
         
       </div>
       <div th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
@@ -166,6 +175,55 @@
     </div>
   </div>
   <!-- 견적서 목록 끝------------------------------------------------------------------------------>
+
+  <!-- 낙찰 상태 변경 + 결제 -->
+  <script th:inline="javascript">
+    const handleIsDone = (button) => {  
+      const container = button.closest('[id^=select-]'); // id가 'select-'로 시작하는 div만 찾음
+      if (!container) {
+        alert("오류: 낙찰 정보를 찾을 수 없습니다.");
+        return;
+      }
+      // data-*
+      const requestIdx = container.dataset.requestIdx;
+      const estimateIdx = container.dataset.estimateIdx;
+      const price = container.dataset.price;
+      const email = container.dataset.email;
+      const bno = container.dataset.bno;
+
+      const rIdx = Number(requestIdx);
+      const eIdx = Number(estimateIdx);
+
+      console.log(rIdx, eIdx, price, email, bno); 
+
+      const paymentDTO = {
+        memberEmail: email,
+        partnerBno: bno,
+        estimateIdx: eIdx,
+        suggestedPrice: Number(price)
+      }                       
+      const isConfirm = confirm("낙찰하시겠습니까?");
+      if(isConfirm){
+        axios.post(`/smash/request/changeIsDone?requestIdx=${rIdx}&estimateIdx=${eIdx}`, paymentDTO)
+        .then(res => {
+          console.log("결제서 생성 성공:", res.data);
+          alert(res.data.message);
+          window.location.href = `/smash/payment/detail/${res.data.paymentIdx}`;
+      })
+      .catch(err => {
+        console.error("결제서 생성 실패:", err);
+        if (err.response) {
+        console.log("Status:", err.response.status);
+        console.log("Data:", err.response.data); 
+        }
+        alert(err.response?.data || "결제서 생성에 실패했습니다.");        
+        return;
+      });
+        }else{
+          alert("낙찰을 취소하셨습니다.");
+        }
+    };
+  </script>
 
  
   <script>

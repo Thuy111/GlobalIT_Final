@@ -1,6 +1,7 @@
 package com.bob.smash.controller;
 
 import com.bob.smash.dto.EstimateDTO;
+import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
@@ -9,6 +10,7 @@ import com.bob.smash.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -18,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -149,11 +152,22 @@ public class RequestController {
 
     // 낙찰 처리(의뢰서+견적서)/////////////////////////////////////////////////////
     @PostMapping("/changeIsDone")
-    public String changeIsDone(
+    public ResponseEntity<?> changeIsDone(
             @RequestParam("requestIdx") Integer idx,
-            @RequestParam("estimateIdx") Integer estimateIdx) {
-        requestService.changeIsDone(idx, estimateIdx);
-        return "redirect:/smash/request/detail/" + idx;
+            @RequestParam("estimateIdx") Integer estimateIdx,
+            @RequestBody PaymentDTO dto) {
+        try{
+            // 낙찰 상태 변경 + 견적서 결제 저장
+            Integer paymentIdx = requestService.changeIsDone(idx, estimateIdx, dto.getMemberEmail(), dto.getPartnerBno(), dto.getSuggestedPrice());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "성공적으로 낙찰 되었습니다. 결제서로 이동합니다.");
+            response.put("paymentIdx", paymentIdx);
+
+            return ResponseEntity.ok(response);
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("낙찰 처리 중 오류 발생");
+        }
     }
 
     // ⭐ 추가
