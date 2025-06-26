@@ -70,67 +70,102 @@ public class ReviewController {
         return "smash/reviewPage/list";
     }
 
-    // 리뷰 수정 폼
-    @GetMapping("/update")
-    public String showUpdateForm(
-            @RequestParam("reviewIdx") Integer reviewIdx,
-            @AuthenticationPrincipal OAuth2User oauth2User,
-            Model model
-    ) {
-        ReviewDTO reviewDTO = reviewService.getReviewById(reviewIdx);
-        String currentUser = extractEmailFromOAuth2User(oauth2User);
+// 리뷰 수정 폼
+@GetMapping("/update")
+public String showUpdateForm(
+        @RequestParam("reviewIdx") Integer reviewIdx,
+        @RequestParam(value = "from", required = false) String from, // ⭐ 추가
+        @AuthenticationPrincipal OAuth2User oauth2User,
+        Model model
+) {
+    ReviewDTO reviewDTO = reviewService.getReviewById(reviewIdx);
+    String currentUser = extractEmailFromOAuth2User(oauth2User);
 
-        if (!reviewDTO.getMemberId().equals(currentUser)) {
-            throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
-        }
-        if (reviewDTO.getIsModify() == 1) {
-            throw new IllegalStateException("이미 수정한 리뷰입니다.");
-        }
-
-        model.addAttribute("review", reviewDTO);
-        return "smash/reviewPage/update";
+    if (!reviewDTO.getMemberId().equals(currentUser)) {
+        throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
+    }
+    if (reviewDTO.getIsModify() == 1) {
+        throw new IllegalStateException("이미 수정한 리뷰입니다.");
     }
 
-    // 리뷰 수정 처리
-    @PostMapping("/update")
-    public String updateReview(
-            @ModelAttribute ReviewDTO reviewDTO,
-            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
-            @AuthenticationPrincipal OAuth2User oauth2User
-    ) {
-        String currentUser = extractEmailFromOAuth2User(oauth2User);
-        ReviewDTO existingReview = reviewService.getReviewById(reviewDTO.getIdx());
+    model.addAttribute("review", reviewDTO);
+    model.addAttribute("from", from); // ⭐ 추가
+    return "smash/reviewPage/update";
+}
 
-        if (!existingReview.getMemberId().equals(currentUser)) {
-            throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
-        }
-        if (existingReview.getIsModify() == 1) {
-            throw new IllegalStateException("이미 수정한 리뷰입니다.");
-        }
 
-        reviewService.updateReview(reviewDTO, imageFiles);
+// 리뷰 수정 처리
+@PostMapping("/update")
+public String updateReview(
+        @ModelAttribute ReviewDTO reviewDTO,
+        @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+        @RequestParam(value = "from", required = false) String from, // ⭐ 추가
+        @AuthenticationPrincipal OAuth2User oauth2User
+) {
+    String currentUser = extractEmailFromOAuth2User(oauth2User);
+    ReviewDTO existingReview = reviewService.getReviewById(reviewDTO.getIdx());
+
+    if (!existingReview.getMemberId().equals(currentUser)) {
+        throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
+    }
+    if (existingReview.getIsModify() == 1) {
+        throw new IllegalStateException("이미 수정한 리뷰입니다.");
+    }
+
+    reviewService.updateReview(reviewDTO, imageFiles);
+
+    // ⭐ 수정 후 리다이렉트 경로 분기
+    if ("mylist".equals(from)) {
+        return "redirect:/smash/review/mylist";
+    } else {
         return "redirect:/smash/review/list?estimateIdx=" + reviewDTO.getEstimateIdx();
     }
+}
 
     // 리뷰 삭제
-    @GetMapping("/delete")
-    public String deleteReview(
-            @RequestParam("reviewIdx") Integer reviewIdx,
-            @RequestParam("estimateIdx") Integer estimateIdx,
-            @AuthenticationPrincipal OAuth2User oauth2User
-    ) {
-        if (oauth2User == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
+@GetMapping("/delete")
+public String deleteReview(
+        @RequestParam("reviewIdx") Integer reviewIdx,
+        @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx, // ✅ nullable
+        @RequestParam(value = "from", required = false) String from,
+        @AuthenticationPrincipal OAuth2User oauth2User
+) {
+    if (oauth2User == null) {
+        throw new IllegalStateException("로그인이 필요합니다.");
+    }
 
-        String currentUser = extractEmailFromOAuth2User(oauth2User);
-        if (currentUser == null) {
-            throw new IllegalStateException("로그인 이메일 정보를 불러올 수 없습니다.");
-        }
+    String currentUser = extractEmailFromOAuth2User(oauth2User);
+    if (currentUser == null) {
+        throw new IllegalStateException("로그인 이메일 정보를 불러올 수 없습니다.");
+    }
 
-        reviewService.deleteReview(reviewIdx, currentUser);
+    reviewService.deleteReview(reviewIdx, currentUser);
+
+    // ✅ 리다이렉트 처리 분기
+    if ("mylist".equals(from)) {
+        return "redirect:/smash/review/mylist";
+    } else {
         return "redirect:/smash/review/list?estimateIdx=" + estimateIdx;
     }
+}
+
+
+                    // 내가 쓴 리뷰 목록
+        @GetMapping("/mylist")
+        public String showMyReviewList(
+                @AuthenticationPrincipal OAuth2User oauth2User,
+                Model model
+        ) {
+            String currentUser = extractEmailFromOAuth2User(oauth2User);
+
+            // 내 리뷰만 조회
+            List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUser);
+
+            model.addAttribute("reviewList", myReviewList);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("isMyList", true); // 선택: 내 리뷰 전용인지 표시
+            return "smash/reviewPage/list";
+        }
 
     // 공통 로그인 이메일 추출
     private String extractEmailFromOAuth2User(OAuth2User oauth2User) {

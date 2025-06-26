@@ -125,4 +125,27 @@ if (imageFiles != null && imageFiles.stream().anyMatch(file -> !file.isEmpty()))
         reviewRepository.delete(review);
     }
 
+                @Override
+        public List<ReviewDTO> getReviewsByMemberId(String memberId) {
+            List<Review> reviews = reviewRepository.findByMember_EmailId(memberId);
+            return reviews.stream()
+                    .map(this::convertToDTO)
+                    .toList();
+        }
+            private ReviewDTO convertToDTO(Review review) {
+            List<ImageDTO> imageDTOs = imageService.getImagesByTarget("review", review.getIdx());
+
+            return ReviewDTO.builder()
+                    .idx(review.getIdx())
+                    .estimateIdx(review.getEstimate().getIdx())
+                    .memberId(review.getMember().getEmailId())
+                    .nickname(review.getMember().getNickname())
+                    .star(review.getStar())
+                    .comment(review.getComment())
+                    .createdAt(review.getCreatedAt())
+                    .isModify(review.getIsModify())
+                    .images(imageDTOs)
+                    .build();
+        }
+
 }
