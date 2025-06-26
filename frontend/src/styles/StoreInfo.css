@@ -2,11 +2,11 @@
 .storeInfo_container {width: 100%; max-width: 1200px; min-width: 320px; margin: 2rem auto;}
 
 /* 공용 */
+body.dark .storeInfo_container .badge {font-weight: bold; background-color: #FFFA8D;border-radius: 30px;padding: 4px 8px;color: #e98f00;border: 1px solid #ffc02d;margin-right: 0.5rem;}
+body.dark .storeInfo_container hr.line {border-color:rgb(78, 78, 78);}
+.storeInfo_container .badge {font-weight: bold; background-color: #e0f9ff;border-radius: 30px;padding: 4px 8px;color: #25b2d1;border: 1px solid #baebf7;margin-right: 0.5rem;}
 .storeInfo_container hr.line {border-bottom: 0.5px solid rgb(233, 233, 233);margin: 1rem 0;}
-.storeInfo_container .badge {font-weight: bold; background-color: #e0f9ff;border-radius: 30px;padding: 4px 8px;color: #25b2d1;border: 1px solid #baebf7;}
-.storeInfo_container input {}
-.storeInfo_container textarea {}
-
+.storeInfo_container input {margin: 0;}
 
 /* 캐러셀 */
 .storeInfo_container .carousel-card {
@@ -19,20 +19,24 @@
 }
 .storeInfo_container .carousel-card img {width: 100%;height: 100%;object-fit: cover;display: block;}
 .storeInfo_container .slick-dots li button{box-shadow: none;}
+.storeInfo_container .slick-dots li button:hover{background: none;}
 
 /* 업데이트 버튼 */
 .storeInfo_container .updateStore{text-align: end;margin:1rem 0;}
 .storeInfo_container .updateStore span{border-bottom: 1px solid gray;cursor: pointer;font-size: 19px;color: gray;margin-right: 1rem;}
 
 /* 별점 */
-.storeInfo_container .storeRating {margin: 4rem 2rem 2rem 2rem; display: flex; align-items: center;justify-content: end;}
+body.dark .storeInfo_container .ratingStars i {color: #FFFA8D;}
 .storeInfo_container .ratingStars i {font-size: 24px; color: #3bb8d4;}
+.storeInfo_container .ratingStars i {font-size: 24px;}
+.storeInfo_container .storeRating {margin: 4rem 2rem 2rem 2rem; display: flex; align-items: center;justify-content: end;}
 .storeInfo_container span.point {font-size: 24px;margin-left: 1rem; font-weight: bold;}
 
 /* 업체 정보 */
 .storeInfo_container .storeInfo_box {text-align: start;}
 .storeInfo_container .storeInfo_box *{font-size: 18px;}
 .storeInfo_container .view_more {display: flex; border-bottom:  1px solid rgb(233, 233, 233);margin-top: 3rem;}
+body.dark .storeInfo_container .view_more {border-color: rgb(78, 78, 78);}
 .storeInfo_container .view_more .button {padding: 1rem 2rem; border-bottom: 1px solid;}
 .storeInfo_container .store_info {display: flex; justify-content: space-between; align-items: center;padding: 0 2rem;}
 .storeInfo_container .store_info_left {display: flex; align-items: center;}
@@ -40,14 +44,17 @@
 .storeInfo_container .store_icon_box {margin-right: 1rem; width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
 .storeInfo_container .store_icon_box i {font-size: 24px; color: #3bb8d4;}
 .storeInfo_container .store_info_right p{margin: 1.5rem 4rem 1.5rem 0;}
+body.dark .storeInfo_container .store_icon_box {margin-right: 1rem; width: 60px; height: 60px; background-color: #FFFA8D;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
+body.dark .storeInfo_container .store_icon_box i {font-size: 24px; color: #e98f00;}
 
 /* 업체 설명 */
 .storeInfo_container .store_des {font-size: 22px; font-weight: bold; margin-bottom: 1rem;}
 .storeInfo_container .description {padding: 2rem;}
 
 /* 견적서 & 대여후기 */
+body.dark .storeInfo_container .view_more .button:hover {background-color: rgba(0, 0, 0, 0.1); cursor: pointer;}
 .storeInfo_container .view_more .button:hover {background-color: rgb(241, 241, 241); cursor: pointer;}
-.storeInfo_container .view_more .button.active {border-bottom: 3px solid; font-weight: bold;}
+.storeInfo_container .view_more .button.active {border-bottom: 5px solid; font-weight: bold;}
 .storeInfo_container .view_content {padding: 2rem;}
 
 
