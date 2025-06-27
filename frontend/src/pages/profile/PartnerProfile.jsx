@@ -41,6 +41,15 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
     <div className="profile_container">
       <div className="profile_main_container">
         <h1>마이페이지</h1>
+        <button onClick={async () => {
+          if (window.confirm('일반 회원으로 전환하시겠습니까?')) {
+            await axios.post(`${baseUrl}/smash/partner/revert`, {}, { withCredentials: true });
+            alert('일반 회원으로 전환되었습니다.');
+            window.location.href = '/profile';
+          }
+        }}>
+          일반 회원으로 전환
+        </button>
         <div className="profile_inform">
           <div className="profile_inform_img">
             <img

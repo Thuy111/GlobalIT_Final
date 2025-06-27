@@ -6,6 +6,7 @@ import Alarm from './pages/AlarmPage';
 import Profile from './pages/ProfilePage';
 import StorePage from './pages/StorePage';
 import UpdateProfile from './pages/profile/UpdateProfile';
+import PartnerConvertPage from './pages/profile/PartnerConvertPage';
 import Authenticated from './pages/member/AuthenticatedPage';
 
 import './App.css';
@@ -20,6 +21,7 @@ function App() {
         { path: '/alarm', element: <Alarm /> },
         { path: '/profile', element: <Profile /> },
         { path: '/profile/update', element: <UpdateProfile /> },
+        { path: '/profile/convert-to-partner', element: <PartnerConvertPage /> },
         { path: '/store', element: <StorePage /> }, // 추후 code를 이용한 업체 정보 페이지로 변경 예정
         { path: '/member/authenticated', element: <Authenticated /> },
       ],

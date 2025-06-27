@@ -33,8 +33,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Value("${com.bob.upload.path}")
     private String uploadPath;
 
-
-
+    // 이메일로 회원 정보 불러옴
     @Override
     public ProfileDTO getProfileByEmail(String emailId) {
         Member member = memberRepository.findByEmailId(emailId)
@@ -47,7 +46,14 @@ public class ProfileServiceImpl implements ProfileService {
                         .orElse(null);
 
         Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
-        boolean isPartner = partnerOpt.isPresent();
+
+        byte role = member.getRole();
+
+        boolean isPartner = partnerOpt.isPresent() && role == 1;
+
+        System.out.println("isPartner?"+isPartner);
+        System.out.println("PartnerOpt: " + partnerOpt.isPresent());
+        System.out.println("Member Role: " + role);
 
         ProfileDTO.ProfileDTOBuilder builder = ProfileDTO.builder()
                 .email(member.getEmailId())
@@ -68,6 +74,7 @@ public class ProfileServiceImpl implements ProfileService {
         return builder.build();
     }
 
+    // 일반 유저 프로필 업데이트
     @Override
     @Transactional
     public void updateMember(String emailId, UpdateRequestDTO dto) {
@@ -78,6 +85,7 @@ public class ProfileServiceImpl implements ProfileService {
         member.changeRegion(dto.getRegion());
     }
 
+    // 파트너(업체) 유저 프로필 업데이트
     @Override
     @Transactional
     public void updatePartner(String emailId, UpdateRequestDTO dto) {
@@ -94,16 +102,19 @@ public class ProfileServiceImpl implements ProfileService {
         partner.changeRegion(dto.getPartnerRegion());
     }
 
+    // 닉네임 중복확인
     @Override
     public boolean isNicknameDuplicated(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
 
+    // 휴대폰 유효성 테스트
     @Override
     public boolean isPhoneValid(String phone) {
         return !memberRepository.findByTel(phone).isPresent();
     }
 
+    // 이미지 파일 업로드
     @Override
     @Transactional
     public ProfileImageResponseDTO uploadProfileImage(String emailId, MultipartFile file) {
@@ -151,6 +162,7 @@ public class ProfileServiceImpl implements ProfileService {
         return new ProfileImageResponseDTO(urlPath);
     }
 
+    // 이미지 삭제
     @Override
     @Transactional
     public void deleteProfileImage(String emailId) {

@@ -22,8 +22,11 @@ public class ProfileDTO {
     private String tel;
     private String region;
 
+    private int role;
+
     private String bno; // 사업자 등록 번호
     private String partnerName; // 업체명
     private String partnerTel;
     private String partnerRegion;
+
 }
