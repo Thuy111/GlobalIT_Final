@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import com.bob.smash.dto.PartnerInfoDTO;
+import com.bob.smash.dto.PartnerVerificationResponseDTO;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.PartnerInfo;
 
@@ -11,6 +12,12 @@ public interface PartnerInfoService {
   PartnerInfoDTO getPartnerInfoByBno(String bno);
   // 파트너 삭제
   void deleteByMemberEmail(String email);
+  // 유저 -> 파트너 전환 할 때 bno 검증
+  PartnerVerificationResponseDTO verifyAndRegister(String emailId, PartnerInfoDTO dto);
+  // 파트너 -> 유저 로 role 변경 
+  void convertToUser(String emailId);
+  // 유저 -> 파트너 전환 role 변경
+  void updateRoleIfPartnerInfoExists(String emailId);
 
   // Dto → Entity 변환
   default PartnerInfo dtoToEntity(PartnerInfoDTO dto) {

@@ -15,4 +15,5 @@ public class PartnerInfoDTO {
   private String region;
   private String description;
   private Integer visitCnt;
+  private String code;
 }

@@ -41,4 +41,5 @@ public class Member {
     public void changeNickname(String nickname) {this.nickname = nickname;}
     public void changeTel(String tel) {this.tel = tel;}
     public void changeRegion(String region) {this.region = region;}
+    public void changeRole(byte role) {this.role = role;}
 }
