@@ -39,6 +39,9 @@ public interface RequestService {
     // 낙찰현황(isDone) 변경
     Integer changeIsDone(Integer idx,Integer estimateIdx, String memberEmail,String partnerBno,Integer price);
 
+    // 대여 현황(isGet) 변경
+    Integer changeIsGet(Integer Idx);
+
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
     Map<String, Object> getPagedRequestList(int page, int size,String search);
 
@@ -95,6 +98,7 @@ public interface RequestService {
             .hashtagList(hashtags)  //Hashtag 추가  
             .isModify(request.getIsModify())
             .isDone(request.getIsDone())
+            .isGet(request.getIsGet())
             .writerEmail(request.getMember().getEmailId())      
             .build();
     }

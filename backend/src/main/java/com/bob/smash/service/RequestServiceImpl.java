@@ -8,32 +8,29 @@ import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.HashtagMapping;
 
-import com.bob.smash.entity.Image;
-import com.bob.smash.entity.ImageMapping;
-import com.bob.smash.entity.ImageMapping.TargetType;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
-import com.bob.smash.repository.ImageMappingRepository;
-import com.bob.smash.repository.MemberRepository;
+
 import com.bob.smash.repository.PaymentRepository;
 import com.bob.smash.repository.RequestRepository;
 
-import jakarta.transaction.Transactional;
+// import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.method.P;
 
-import java.time.LocalDate;
+
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -48,8 +45,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RequestServiceImpl implements RequestService {
 
-    private final RequestRepository requestRepository;
-    private final MemberRepository memberRepository;
+    private final RequestRepository requestRepository;    
     private final EstimateRepository estimateRepository;
     private final EstimateService estimateService;
     private final PaymentRepository paymentRepository;
@@ -346,4 +342,15 @@ public class RequestServiceImpl implements RequestService {
 
         return savedPayment.getIdx();
     }
+
+    @Override
+    public Integer changeIsGet(Integer Idx) {
+        Request request = requestRepository.findById(Idx)
+                .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + Idx));
+
+        request.changeIsGet((byte) 1); // isGet을 1로 변경
+        requestRepository.save(request);
+        return Idx;
+        }
+
 }
