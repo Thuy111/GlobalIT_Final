@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +169,15 @@ public class RequestController {
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("낙찰 처리 중 오류 발생");
         }
+    }
+
+    //  대여 환황(isGet) 변경/////////////////////////////////////////////////////////////////  
+    @PostMapping("/changeIsGet")
+    public String confirmGet(@RequestParam("requestIdx") Integer requestIdx,
+                            RedirectAttributes rttr) {
+        requestService.changeIsGet(requestIdx);
+        rttr.addFlashAttribute("message", "대여 확인하셨습니다");
+        return "redirect:/smash/request/detail/" + requestIdx;
     }
 
     // ⭐ 추가

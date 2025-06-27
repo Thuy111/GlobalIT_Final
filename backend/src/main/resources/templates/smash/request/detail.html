@@ -80,7 +80,7 @@
 
   <!-- 견적서 목록------------------------------------------------------------------------------>
   <div class="estimate_list">
-    <div class="estimate_box" th:each="estimate : ${estimates}">
+    <div class="estimate_box" th:each="estimate : ${estimates}" th:with="requestDto=${dto}">
       <div class="estimate_card">
         <div class="estimate_header">
           <div class="estimate_meta">
@@ -148,28 +148,45 @@
       </div>
       <div>
         <!-- 낙찰 버튼(+ 결제) -->
-        <div th:id="|select-${estimate.idx}|"
-        th:data-request-idx="${dto.idx}"
-        th:data-estimate-idx="${estimate.idx}"
-        th:data-price="${estimate.price}"
-        th:data-email="|${dto.writerEmail}|"
-        th:data-bno="|${estimate.partnerBno}|">
-          <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
-          <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
-          <input type="hidden" name="isDone" th:value="${dto.isDone}" />
-          <input type="hidden" name="isSelected" th:value="2" />
-          <button type="button"
-          th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}"
-          onclick="handleIsDone(this)">낙찰</button>
-        </div>       
-
+         <form>
+           <div th:id="|select-${estimate.idx}|"
+           th:data-request-idx="${dto.idx}"                                                                                                                                                        
+           th:data-estimate-idx="${estimate.idx}"
+           th:data-price="${estimate.price}"
+           th:data-email="|${dto.writerEmail}|"
+           th:data-bno="|${estimate.partnerBno}|">
+             <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
+             <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
+             <input type="hidden" name="isDone" th:value="${dto.isDone}" />
+             <input type="hidden" name="isSelected" th:value="2" />
+             <button type="button"
+             th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}"
+             onclick="handleIsDone(this)">낙찰</button>
+           </div>    
+         </form>
         
+      <form th:action="@{/smash/request/changeIsGet}" method="post"
+            th:if="${dto.isDone == 1 
+                    and dto.isGet == 0
+                    and estimate.isSelected == 2 
+                    and dto.writerEmail != null 
+                    and currentUserEmail != null 
+                    and dto.writerEmail == currentUserEmail}">
+        <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
+        <button type="submit" onclick="return confirm('대여를 확인하시겠습니까?');">대여확인</button>
+      </form>        
       </div>
+
       <div th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
         <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
           <input type="hidden" name="idx" th:value="${estimate.idx}" />
           <input type="hidden" name="isReturn" th:value="true" />
-          <button type="submit" th:if="${estimate.isReturn == false and estimate.isSelected == 2}">반납 확인</button>
+          <button type="submit" 
+            th:if="${estimate.isReturn == false 
+                  and estimate.isSelected == 2
+                  and requestDto.isGet == 1 }">
+                  반납 확인
+          </button>
         </form>
       </div>
     </div>
@@ -192,9 +209,7 @@
       const bno = container.dataset.bno;
 
       const rIdx = Number(requestIdx);
-      const eIdx = Number(estimateIdx);
-
-      console.log(rIdx, eIdx, price, email, bno); 
+      const eIdx = Number(estimateIdx);    
 
       const paymentDTO = {
         memberEmail: email,
@@ -211,11 +226,7 @@
           window.location.href = `/smash/payment/detail/${res.data.paymentIdx}`;
       })
       .catch(err => {
-        console.error("결제서 생성 실패:", err);
-        if (err.response) {
-        console.log("Status:", err.response.status);
-        console.log("Data:", err.response.data); 
-        }
+        console.error("결제서 생성 실패:", err);        
         alert(err.response?.data || "결제서 생성에 실패했습니다.");        
         return;
       });
