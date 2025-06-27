@@ -91,7 +91,7 @@ public ReviewDTO getReviewById(Integer reviewIdx) {
             .build();
 }
 @Override
-public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles) {
+public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles,boolean isImageReset) {
     Review review = reviewRepository.findById(reviewDTO.getIdx())
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
 
@@ -102,6 +102,10 @@ public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles) {
 
     reviewRepository.save(review);
 
+        if (isImageReset) {
+        // ✅ 이미지 초기화 요청이면 삭제만 수행
+        imageService.deleteImagesByTarget("review", review.getIdx());
+    }
     // 이미지 수정 (새로 받은 이미지가 있으면 처리)
 if (imageFiles != null && imageFiles.stream().anyMatch(file -> !file.isEmpty())) {
     imageService.deleteImagesByTarget("review", review.getIdx());
@@ -147,5 +151,18 @@ if (imageFiles != null && imageFiles.stream().anyMatch(file -> !file.isEmpty()))
                     .images(imageDTOs)
                     .build();
         }
+
+        //리뷰평균점수
+@Override
+public double getAverageStarByEstimateIdx(Integer estimateIdx) {
+    List<Review> reviews = reviewRepository.findByEstimate_Idx(estimateIdx);
+    if (reviews.isEmpty()) return 0.0;
+
+    return reviews.stream()
+            .mapToDouble(r -> r.getStar())  // star는 Byte → double
+            .average()
+            .orElse(0.0);
+}
+
 
 }

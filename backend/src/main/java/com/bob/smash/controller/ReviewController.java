@@ -65,10 +65,13 @@ public class ReviewController {
         List<ReviewDTO> reviewList = (estimateIdx != null)
                 ? reviewService.getReviewsByEstimateIdx(estimateIdx)
                 : List.of();
+       
+        double avg = reviewService.getAverageStarByEstimateIdx(estimateIdx);
 
         model.addAttribute("reviewList", reviewList);
         model.addAttribute("estimateIdx", estimateIdx);
         model.addAttribute("currentUser", currentUser);
+        model.addAttribute("avgScore", avg);
 
         return "smash/reviewPage/list";
     }
@@ -98,32 +101,32 @@ public String showUpdateForm(
 
 
 // 리뷰 수정 처리
-@PostMapping("/update")
-public String updateReview(
-        @ModelAttribute ReviewDTO reviewDTO,
-        @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
-        @RequestParam(value = "from", required = false) String from, // ⭐ 추가
-        @AuthenticationPrincipal OAuth2User oauth2User
-) {
-    String currentUser = extractEmailFromOAuth2User(oauth2User);
-    ReviewDTO existingReview = reviewService.getReviewById(reviewDTO.getIdx());
+    @PostMapping("/update")
+    public String updateReview(
+            @ModelAttribute ReviewDTO reviewDTO,
+            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestParam(value = "isImageReset", required = false) String isImageReset,
+            @RequestParam(value = "from", required = false) String from,
+            @AuthenticationPrincipal OAuth2User oauth2User
+    ) {
+        String currentUser = extractEmailFromOAuth2User(oauth2User);
+        ReviewDTO existingReview = reviewService.getReviewById(reviewDTO.getIdx());
 
-    if (!existingReview.getMemberId().equals(currentUser)) {
-        throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
-    }
-    if (existingReview.getIsModify() == 1) {
-        throw new IllegalStateException("이미 수정한 리뷰입니다.");
-    }
+        if (!existingReview.getMemberId().equals(currentUser)) {
+            throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
+        }
+        if (existingReview.getIsModify() == 1) {
+            throw new IllegalStateException("이미 수정한 리뷰입니다.");
+        }
 
-    reviewService.updateReview(reviewDTO, imageFiles);
+        reviewService.updateReview(reviewDTO, imageFiles, "true".equals(isImageReset));
 
-    // ⭐ 수정 후 리다이렉트 경로 분기
-    if ("mylist".equals(from)) {
-        return "redirect:/smash/review/mylist";
-    } else {
-        return "redirect:/smash/review/list?estimateIdx=" + reviewDTO.getEstimateIdx();
+        if ("mylist".equals(from)) {
+            return "redirect:/smash/review/mylist";
+        } else {
+            return "redirect:/smash/review/list?estimateIdx=" + reviewDTO.getEstimateIdx();
+        }
     }
-}
 
     // 리뷰 삭제
 @GetMapping("/delete")

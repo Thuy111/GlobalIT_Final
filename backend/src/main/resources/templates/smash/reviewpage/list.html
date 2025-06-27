@@ -24,6 +24,13 @@
         </form>
     </div>
 
+<div style="text-align: right; font-size: 1rem; margin-bottom: 10px;">
+  <span th:if="${avgScore != null}">
+    ⭐ 평균 별점: <strong th:text="${#numbers.formatDecimal(avgScore, 1, 1)}">0.0</strong> / 5.0
+  </span>
+</div>
+
+
     <!-- 리뷰 카드 반복 -->
     <div class="review_box">
         <div th:each="review : ${reviewList}" class="review_card">

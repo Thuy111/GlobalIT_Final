@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-
 <th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
 <th:block th:fragment="content">
     <div class="review_container">
@@ -13,11 +12,11 @@
         <form th:action="@{/smash/review/update}" method="post"
               enctype="multipart/form-data" th:object="${review}"
               onsubmit="return confirmUpdate();">
-              
             <!-- 필수 hidden -->
             <input type="hidden" th:field="*{idx}" />
             <input type="hidden" th:field="*{estimateIdx}" />
             <input type="hidden" name="from" th:value="${from}" />
+            <input type="hidden" name="isImageReset" id="isImageReset" value="false" />
 
             <!-- 이미지 업로드 -->
             <div id="image_preview_wrapper" class="image_preview_wrapper">
@@ -131,12 +130,13 @@
         if (existingImages) existingImages.innerHTML = '';
         updateCount();
         refreshFileInput();
+
+        document.getElementById('isImageReset').value = 'true';
     });
 
     function confirmUpdate() {
         return confirm("수정은 단 한 번만 가능합니다.\n정말 수정하시겠습니까?");
     }
 </script>
-
 </body>
 </html>
