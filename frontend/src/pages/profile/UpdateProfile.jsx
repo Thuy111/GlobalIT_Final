@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TitleBar from '../../components/TitleBar';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UpdateProfile.css'
@@ -180,7 +181,7 @@ const UpdateProfile = () => {
   return (
     <div className="profile_update_container">
       <div className="profile_update_main_container">
-        <h1>프로필 수정</h1>
+      <TitleBar title="프로필 수정" />
 
         <div className="profile_update_img_container">
           <div className="profile_update_img">

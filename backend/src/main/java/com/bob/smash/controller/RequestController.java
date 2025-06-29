@@ -49,13 +49,13 @@ public class RequestController {
 
     // 의뢰서 작성 폼 보기////////////////////////////////////////////////////////////////////
     @GetMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("title", "의뢰서 작성");
         return "/smash/request/register";
     }
 
     // 의뢰서 등록 처리
     @PostMapping("/register")
-   
     public String register(@ModelAttribute RequestDTO requestDTO,                                              
                          @RequestParam("imageFiles") List<MultipartFile> imageFiles, //사진
                          @AuthenticationPrincipal OAuth2User oauth2User,
@@ -100,6 +100,7 @@ public class RequestController {
     public String detail(@PathVariable("idx") Integer idx, Model model,OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
         model.addAttribute("dto", dto);
+        model.addAttribute("title", dto.getTitle());
         //작성자 ID 확인 (작정자민 해당 버튼 보이게)
        if (authentication != null) {
             String email = authentication.getPrincipal().getAttribute("email");
@@ -126,6 +127,7 @@ public class RequestController {
     @GetMapping("/update/{idx}")
     public String modifyForm(@PathVariable("idx") Integer idx, Model model) {
         RequestDTO dto = requestService.get(idx);
+        model.addAttribute("title", "의뢰서 수정");
         model.addAttribute("dto", dto);
         return "/smash/request/update"; 
     }

@@ -4,7 +4,7 @@
   text-align: center;
 }
 
-.container {
+.main_container {
   width: 100%;
   max-width: 1200px;
   min-width: 320px;
@@ -98,14 +98,17 @@ nav ul.nav-list li a span {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 99;
 }
+.titleBar_container span.title_badge {background-color: #e0f9ff; color: #25b2d1;padding: 0.3rem 0.5rem;border-radius: 30px;margin-left: 0.5rem;}
+.titleBar_container span.title_badge.partner_badge{background-color: #ffecce; color: #fd8300;}
+/* body.dark .titleBar_container span.title_badge {background-color: #FFFA8D; color: #e98f00;padding: 0.3rem 0.5rem;border-radius: 30px;margin-left: 0.5rem;} */
 body.dark .titleBar_container {background: #1d1d1d;}
 
 
 /* 글작성 버튼 */
 .home .reg_button_box {width:100%; background-color: pink; position: fixed; margin: auto; max-width: 1200px;bottom: 3rem;}
 .home .register_btn{position: absolute; right: calc(24% - 16vw); bottom: 4rem; z-index: 1;height: auto; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4); border-radius: 30px;}
-.home .register_btn i {font-size: 26px; color: white;}
+.home .register_btn i {font-size: 26px;}
 
 @media (max-width: 500px) {
-  .container {padding:none;}
+  .main_container {padding:none;}
 }

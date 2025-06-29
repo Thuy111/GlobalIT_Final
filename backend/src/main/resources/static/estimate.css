@@ -99,6 +99,33 @@
   text-align: left;
 }
 
+/* style */
+.estimate_container .request_el{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin-bottom: 20px;
+}
+.estimate_container .request_el h2, .estimate_container .request_el h3{margin-left: 15px;}
+.estimate_container .request_el .price_box, .estimate_container .request_el .mode{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  white-space: nowrap;
+}
+.estimate_container .request_el .mode{
+  white-space: nowrap;
+  margin: 0.5rem;
+  background-color: #e6e6e6;
+  width: 100px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px #44444457;
+}
+.estimate_container .request_el .mode:has(input:checked){background-color: #daf2ff;box-shadow: 0 2px 4px #003e9a57;color: #007cff;}
+.estimate_container .request_el .mode input {width: 24px;}
+.estimate_container .request_el .choose_deal {display: flex; align-items: center; justify-content: start; }
+
 /* 삭제 예정 */
 /* .attached_image {
   position: relative;

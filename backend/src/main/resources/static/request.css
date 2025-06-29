@@ -135,6 +135,28 @@ margin: 40px;
   box-shadow: 0 0 20px #fff;
 }
 
+.request_container .find_addr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 94%;
+  /* gap: 0.5rem; */
+}
+.request_container .find_addr input{width: calc(100% - 120px);}
+.request_container .find_addr button{
+  background-color: #e9e9e9;
+  color: #6a6a6a;
+  height: 34px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+}
+.request_container .find_addr button:hover{
+  background-color: #d9d9d9;
+  border: 1px solid #bdbdbd;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
 /* 의뢰서 수정 페이지 */
 .request_update_title::before{
   content:"🖋";

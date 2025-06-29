@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import TitleBar from '../../components/TitleBar';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
@@ -63,7 +64,7 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
   return (
     <div className="profile_container">
       <div className="profile_main_container">
-        <h1>마이페이지</h1>
+      <TitleBar title="마이페이지(일반)" />
         <button onClick={convertToPartnerHandler}>사업자 전환하기</button>
 
         <div className="profile_inform">

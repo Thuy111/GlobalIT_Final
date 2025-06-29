@@ -10,7 +10,7 @@
     </script>
 </head>
 
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
 <th:block th:fragment="content">
 
 <div class="review_container">

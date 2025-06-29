@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <header>
-  <!-- Bootstrap 4 CSS -->
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-   <!-- CSS -->
-   <link rel="stylesheet" href="@{/request.css}" />
-
-
+<header>
+  <!-- CSS -->
+  <link rel="stylesheet" href="@{/request.css}" />
 </header>
 
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
 
     <div class="request_container">
-      <div>        
-        <p>의뢰서</p>
-      </div>
-  
       <div class="request_box" th:each="request : ${result}">
          <th scope="row" style="font-weight: normal;">
 

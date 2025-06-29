@@ -115,7 +115,7 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
       (
         <>
           <button className="login-btn" onClick={logoutHandler}>로그아웃</button>
-          <button className="secession-btn" onClick={secessionHandler}>탈퇴하기</button>
+          {/* <button className="secession-btn" onClick={secessionHandler}>탈퇴하기</button> */}
         </>
       )
       :

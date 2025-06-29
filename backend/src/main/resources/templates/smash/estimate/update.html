@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>
+      <!-- <h1>
         <a href="/smash/estimate/list">〈 </a>
         견적서 수정
-      </h1>
-  
+      </h1> -->
+
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/modify}" enctype="multipart/form-data" method="post">
           <input type="hidden" name="idx" th:value="${dto.idx}" readonly>
@@ -18,7 +15,7 @@
           <div id="image_preview">
             <div id="image_control">
               <label id="upload_images">
-                <i class="fa-solid fa-camera"></i>
+                <i class="fa-solid fa-camera" style="font-size: 2em;"></i>
                 <span><span id="image_count">0</span>/10</span>
                 <input type="file" name="imageFiles" multiple hidden>
               </label>
@@ -38,26 +35,39 @@
             </div>
           </div>
 
-          <label for="title">제목<br>
+          <label>
+            <h2>제목</h2>
             <input type="text" name="title" th:value="${dto.title}" required>
-          </label><br>
+          </label>
           
-          <label for="content">내용<br>
+          <label class="request_el">
+            <h2>내용</h2>
             <textarea name="content" th:text="${dto.content}" required></textarea>
-          </label><br>
-  
-          <label for="price">가격<br>
-            <input type="text" name="price" th:value="${dto.price}" required>원
-          </label><br>
+          </label>
+
+          <label class="request_el">
+            <h2>가격</h2>
+            <div class="price_box">
+              <input type="text" name="price" th:value="${dto.price}" required>원
+            </div>
+          </label>
           
-          대여 방법<br>
-          <input type="checkbox" name="isDelivery" value="true" th:checked="${dto.isDelivery == true}">배달
-          <input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업<br>
+          <div class="request_el">
+            <h3>대여 방법</h3>
+            <div class="choose_deal">
+              <div class="mode"><input type="checkbox" name="isDelivery" value="true" th:checked="${dto.isDelivery == true}">배달</div>
+              <div class="mode"><input type="checkbox" name="isPickup" value="true" th:checked="${dto.isPickup == true}">픽업</div>
+            </div>
+          </div>
     
-          반납 날짜<br>
-          <input type="datetime-local" name="returnDate" th:value="${dto.returnDate}" required><br>
+          <div class="request_el">
+            <h3>반납 날짜</h3>
+            <input type="datetime-local" name="returnDate" th:value="${dto.returnDate}" required>
+          </div>
     
-          <button type="submit">수정 완료</button>
+          <div class="submit_box">
+            <button type="submit" class="submit_style">수정 완료</button>
+          </div>
         </form>
       </div>
     </div>

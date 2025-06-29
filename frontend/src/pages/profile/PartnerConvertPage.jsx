@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TitleBar from '../../components/TitleBar';
 import axios from 'axios';
 
 const PartnerConvertPage = () => {
@@ -40,7 +41,7 @@ const PartnerConvertPage = () => {
 
   return (
     <div className="partner_convert_container">
-      <h1>사업자 등록 및 전환</h1>
+      <TitleBar title="사업자 등록 및 전환" />
       <form onSubmit={handleSubmit} className="partner_convert_form">
         <label>
           사업자 번호

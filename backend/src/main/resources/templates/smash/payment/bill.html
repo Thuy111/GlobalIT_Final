@@ -1,4 +1,4 @@
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
 
       <h1 style="font-size: 24px; font-weight: bold; margin: 2rem 0;">결제 페이지</h1>

@@ -1,209 +1,200 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<header>
-  <!-- Bootstrap 4 CSS -->
-      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <!-- icon -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> 
+<header> 
   <!-- CSS -->
   <link rel="stylesheet" th:href="@{/request.css}" />
 </header>
 <body>
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content})}">
-  <th:block th:fragment="content">
-    <h1 class="request_update_title" style="margin: 2rem;">의뢰서 작성</h1>
-    <hr>
-
-  <!-- 전체 내용----------------------------------------------------------------->
-   <div class="request_container">
-    <div class="container mt-5" style="max-width: 480px;">     
-      <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
-        <!-- 이미지 -->                 
-           <div id="image_preview_wrapper" class="image_preview_wrapper">
-            <div class="camera_wrapper">   
-              <label for="image_files" class="image_upload_box">                
-                 <i class="fas fa-camera fa-2x"></i> 
-                <span><span id="image_count">0</span>/10</span>               
-              </label>              
-              <button type="button" id="image_reset_btn">IMG 초기화</button>
+  <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+    <th:block th:fragment="content">
+    <!-- 전체 내용----------------------------------------------------------------->
+    <div class="request_container">
+      <div class="container mt-5">     
+        <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
+          <!-- 이미지 -->                 
+            <div id="image_preview_wrapper" class="image_preview_wrapper">
+              <div class="camera_wrapper">   
+                <label for="image_files" class="image_upload_box">                
+                  <i class="fas fa-camera fa-2x"></i> 
+                  <span><span id="image_count">0</span>/10</span>
+                </label>              
+                <button type="button" id="image_reset_btn">이미지 초기화</button>
+              </div>
+                <input type="file" id="image_files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
             </div>
-              <input type="file" id="image_files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
-           </div>
 
-        <!-- 제목 -->
-        <div class="re_form_group">
-            <label>제목</label>
-            <input type="text" name="title" class="form-control" required>
-        </div>
-      
+          <!-- 제목 -->
+          <div class="re_form_group">
+              <label>제목</label>
+              <input type="text" name="title" class="form-control" required>
+          </div>
+        
 
-          <!-- 해시태그 -->
-        <div class="re_form_group">
-          <label for="hashtag">해시태그 <small class="text-muted">(띄어쓰기 기준으로 적용)</small></label>
-          <input type="text" id="hashtag" class="form-control"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
-        </div>
-
-        <div class="re_form_group">
-            <label>내용</label>
-            <textarea name="content" class="form-control re_detail" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
-        </div>
-
-        <div class="re_form_group">
-            <label>대여 날짜</label>
-            <input type="datetime-local" id="use_date_input" name="useDate" class="form-control use_date" required>
-        </div>
-
-       <!-- 대여 지역 -->
-         <div class="re_form_group">
-          <label for="useRegion">대여 지역</label>
-          <div class="input-group mb-2">
-            <input type="text" 
-                  class="form-control" 
-                  id="use_Region" 
-                  name="useRegion"                
-                  placeholder="주소를 검색해주세요" 
-                  readonly 
-                  required>
-            <div class="input-group-append">
-              <button type="button" class="btn btn-dark re_address" onclick="execDaumPostcode()">주소 찾기</button>
-            </div>
+            <!-- 해시태그 -->
+          <div class="re_form_group">
+            <label for="hashtag">해시태그 <small class="text-muted">(띄어쓰기 기준으로 적용)</small></label>
+            <input type="text" id="hashtag" class="form-control"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
           </div>
 
-          <input type="text" 
-                class="form-control" 
-                id="detail_Address" 
-                name="detailAddress" 
-                placeholder="상세 주소를 입력하세요" 
-                required>
-        </div>   
+          <div class="re_form_group">
+              <label>내용</label>
+              <textarea name="content" class="form-control re_detail" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
+          </div>
 
-         <!-- 제출 버튼 -->
-        <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn">작성 완료</button>
+          <div class="re_form_group">
+              <label>대여 날짜</label>
+              <input type="datetime-local" id="use_date_input" name="useDate" class="form-control use_date" required>
+          </div>
 
-      </form>
+        <!-- 대여 지역 -->
+          <div class="re_form_group">
+            <label for="useRegion">대여 지역</label>
+            <div class="find_addr input-group mb-2">
+              <input type="text" 
+                    class="form-control" 
+                    id="use_Region" 
+                    name="useRegion"                
+                    placeholder="주소를 검색해주세요" 
+                    readonly 
+                    required>
+              <div class="input-group-append">
+                <button type="button" class="btn btn-dark re_address" onclick="execDaumPostcode()">주소 찾기</button>
+              </div>
+            </div>
+
+            <input type="text" 
+                  class="form-control" 
+                  id="detail_Address" 
+                  name="detailAddress" 
+                  placeholder="상세 주소를 입력하세요" 
+                  required>
+          </div>   
+
+          <!-- 제출 버튼 -->
+          <div class="submit_box">
+            <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn submit_style">작성 완료</button>
+          </div>
+
+        </form>
+      </div>
     </div>
-  </div>
 
 
-  <!--오늘 이후 날짜만 선택 가능하도록 제한------------------------------>
-  <script>    
-    window.addEventListener('DOMContentLoaded', () => {
-      const useDateInput = document.getElementById('use_date_input');
-      const now = new Date();
+    <!--오늘 이후 날짜만 선택 가능하도록 제한------------------------------>
+    <script>    
+      window.addEventListener('DOMContentLoaded', () => {
+        const useDateInput = document.getElementById('use_date_input');
+        const now = new Date();
 
-      // yyyy-MM-ddTHH:mm 형식으로 변환
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const date = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
+        // yyyy-MM-ddTHH:mm 형식으로 변환
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const date = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
 
-      const minDateTime = `${year}-${month}-${date}T${hours}:${minutes}`;
-      useDateInput.min = minDateTime;
-    });
+        const minDateTime = `${year}-${month}-${date}T${hours}:${minutes}`;
+        useDateInput.min = minDateTime;
+      });
 
-  </script>
-
-
-  
-   <!-- 주소 불려오기 -------------------------------------------------------------------------->
-    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script>
-      function execDaumPostcode() {
-        new daum.Postcode({
-          oncomplete: function(data) {
-            // 주소 받아오기
-            document.getElementById("use_Region").value = data.address;
-            document.getElementById("detail_Address").focus();
-          }
-        }).open();
-      }
     </script>
 
-    <!-- 사진 preview ---------------------------------------------------->
-    <script>
-      let selectedFiles = [];
-      const imageInput = document.getElementById('image_files');
-      const wrapper = document.getElementById('image_preview_wrapper');
-      const countSpan = document.getElementById('image_count');
 
-      imageInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-
-        // 사진 10개까지
-        if (selectedFiles.length + files.length > 10) {
-          alert("최대 10개의 이미지를 업로드할 수 있습니다.");
-          return;
+    
+    <!-- 주소 불려오기 -------------------------------------------------------------------------->
+      <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+      <script>
+        function execDaumPostcode() {
+          new daum.Postcode({
+            oncomplete: function(data) {
+              // 주소 받아오기
+              document.getElementById("use_Region").value = data.address;
+              document.getElementById("detail_Address").focus();
+            }
+          }).open();
         }
-
-        files.forEach(file => {
-          selectedFiles.push(file);
-          renderThumbnail(file);
-        });
-
-        updateCount();
-        refreshFileInput();
-      });
-
-      function renderThumbnail(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const thumb = document.createElement('div');
-          thumb.className = 'image_thumb';
-
-          const img = document.createElement('img');
-          img.src = e.target.result;
-
-          const removeBtn = document.createElement('button');
-          removeBtn.innerText = '✕';
-          removeBtn.className = 'remove_btn';
-          removeBtn.onclick = () => {
-            wrapper.removeChild(thumb);
-            selectedFiles = selectedFiles.filter(f => f !== file);
-            updateCount();
-            refreshFileInput();
-          };
-
-          thumb.appendChild(img);
-          thumb.appendChild(removeBtn);
-         
-          //사진 오른쪽에 나타나게       
-          const label = wrapper.querySelector('.camera_wrapper');
-          if (label && label.nextSibling) {
-            wrapper.insertBefore(thumb, label.nextSibling);
-          } else {
-            wrapper.appendChild(thumb);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-
-      //사진 수량
-      function updateCount() {
-        countSpan.innerText = selectedFiles.length;
-      }
-
-      // Trick input type="file" sync with selectedFiles
-      function refreshFileInput() {
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(f => dataTransfer.items.add(f));
-        imageInput.files = dataTransfer.files;
-      }
-
-      // 이미지 초기화 버튼 처리
-      const resetBtn = document.getElementById('image_reset_btn');
-      resetBtn.addEventListener('click', function () {
-        //  전부 thumnail 삭제
-        const thumbs = wrapper.querySelectorAll('.image_thumb');
-        thumbs.forEach(thumb => thumb.remove());      
-        selectedFiles = [];        
-        imageInput.value = '';
-        updateCount();       
-        refreshFileInput();
-      });
       </script>
 
-      
+      <!-- 사진 preview ---------------------------------------------------->
+      <script>
+        let selectedFiles = [];
+        const imageInput = document.getElementById('image_files');
+        const wrapper = document.getElementById('image_preview_wrapper');
+        const countSpan = document.getElementById('image_count');
+
+        imageInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+
+          // 사진 10개까지
+          if (selectedFiles.length + files.length > 10) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+            return;
+          }
+
+          files.forEach(file => {
+            selectedFiles.push(file);
+            renderThumbnail(file);
+          });
+
+          updateCount();
+          refreshFileInput();
+        });
+
+        function renderThumbnail(file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'image_thumb';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = '✕';
+            removeBtn.className = 'remove_btn';
+            removeBtn.onclick = () => {
+              wrapper.removeChild(thumb);
+              selectedFiles = selectedFiles.filter(f => f !== file);
+              updateCount();
+              refreshFileInput();
+            };
+
+            thumb.appendChild(img);
+            thumb.appendChild(removeBtn);
+          
+            //사진 오른쪽에 나타나게       
+            const label = wrapper.querySelector('.camera_wrapper');
+            if (label && label.nextSibling) {
+              wrapper.insertBefore(thumb, label.nextSibling);
+            } else {
+              wrapper.appendChild(thumb);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        //사진 수량
+        function updateCount() {
+          countSpan.innerText = selectedFiles.length;
+        }
+
+        // Trick input type="file" sync with selectedFiles
+        function refreshFileInput() {
+          const dataTransfer = new DataTransfer();
+          selectedFiles.forEach(f => dataTransfer.items.add(f));
+          imageInput.files = dataTransfer.files;
+        }
+
+        // 이미지 초기화 버튼 처리
+        const resetBtn = document.getElementById('image_reset_btn');
+        resetBtn.addEventListener('click', function () {
+          //  전부 thumnail 삭제
+          const thumbs = wrapper.querySelectorAll('.image_thumb');
+          thumbs.forEach(thumb => thumb.remove());      
+          selectedFiles = [];        
+          imageInput.value = '';
+          updateCount();       
+          refreshFileInput();
+        });
+        </script>
 
   </th:block>
 </th:block>
