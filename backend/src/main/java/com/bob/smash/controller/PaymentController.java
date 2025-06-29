@@ -75,6 +75,7 @@ public class PaymentController {
                 model.addAttribute("payment", payment);
                 model.addAttribute("partner", partnerInfoService.getPartnerInfoByBno(payment.getPartnerBno()));
                 model.addAttribute("impMerchantCode", impMerchantCode);
+                model.addAttribute("title", "결제 페이지");
                 return "smash/payment/bill"; // 결제 페이지로 이동
             } else {
                 throw new Exception("결제 정보를 찾을 수 없습니다.");
@@ -92,6 +93,7 @@ public class PaymentController {
             if (payments != null) {
                 model.addAttribute("payments", payments);
                 model.addAttribute("now", java.time.LocalDateTime.now());
+                model.addAttribute("title", "결제 목록");
                 return "smash/payment/list"; // 결제 목록 페이지로 이동
             } else {
                 throw new Exception("결제 정보를 찾을 수 없습니다.");
@@ -109,6 +111,7 @@ public class PaymentController {
             if (payment != null) {
                 model.addAttribute("payment", payment);
                 model.addAttribute("now", java.time.LocalDateTime.now());
+                model.addAttribute("partner", "결제 정보");
                 return "smash/payment/detail"; // 결제 상세 페이지로 이동
             } else {
                 throw new Exception("결제 정보를 찾을 수 없습니다.");

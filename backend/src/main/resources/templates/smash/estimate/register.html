@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>
+      <!-- <h1>
         <a href="/smash/estimate/list">〈 </a>
         견적서 작성
-      </h1>
+      </h1> -->
       
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/register}" enctype="multipart/form-data" method="post">
@@ -23,39 +20,49 @@
           <div id="image_preview" class="image_preview_wrapper">
             <div id="image_control" class="camera_wrapper">
               <label id="upload_images" class="image_upload_box">
-                <i class="fa-solid fa-camera"></i>
+                <i class="fa-solid fa-camera" style="font-size: 2em;"></i>
                 <span><span id="image_count">0</span>/10</span>
                 <input type="file" name="imageFiles" multiple hidden>
               </label>
-              <p id="image_reset_btn">초기화</p>
+              <p id="image_reset_btn">이미지 초기화</p>
             </div>
             <div class="attached_image_area">
             </div>
           </div>
 
-          <label>
-            제목<br>
+          <label class="request_el">
+            <h2>제목</h2>
             <input type="text" name="title" required>
-          </label><br>
+          </label>
           
-          <label>
-            내용<br>
+          <label class="request_el">
+            <h2>내용</h2>
             <textarea name="content" required></textarea>
-          </label><br>
-  
-          <label>
-            가격<br>
-            <input type="text" name="price" required>원
-          </label><br>
+          </label>
+
+          <label class="request_el">
+            <h2>가격</h2>
+            <div class="price_box">
+              <input type="text" name="price" required>원
+            </div>
+          </label>
           
-          대여 방법<br>
-          <input type="checkbox" name="isDelivery" value="true">배달
-          <input type="checkbox" name="isPickup" value="true">픽업<br>
+          <div class="request_el">
+            <h3>대여 방법</h3>
+            <div class="choose_deal">
+              <div class="mode"><input type="checkbox" name="isDelivery" value="true">배달</div>
+              <div class="mode"><input type="checkbox" name="isPickup" value="true">픽업</div>
+            </div>
+          </div>
     
-          반납 날짜<br>
-          <input type="datetime-local" name="returnDate" required><br>
+          <div class="request_el">
+            <h3>반납 날짜</h3>
+            <input type="datetime-local" name="returnDate" required>
+          </div>
           
-          <button type="submit">작성 완료</button>
+          <div class="submit_box">
+            <button type="submit" class="submit_style">작성 완료</button>
+          </div>
         </form>
       </div>
     </div>

@@ -31,7 +31,7 @@ body.dark button:hover, body.dark [class*="btn"]:hover {background-color: rgb(25
 body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7) 60%, rgba(30, 30, 30, 0));}
 body.dark button:disabled, body.dark [class*="btn"]:disabled {background-color: #ccc;color: #666;cursor: default;}
 body.dark button:disabled:hover, body.dark [class*="btn"]:disabled:hover {background-color: #ccc;color: #666;cursor: default;}
-body.dark input[type="text"]:focus,body.dark input[type="password"]:focus,body.dark input[type="email"]:focus,body.dark input[type="number"]:focus {outline: none;border: 2px solid #FFFA8D;box-shadow: inset 0 1px 3px #FFFA8D;}
+body.dark input[type="text"]:focus,body.dark input[type="password"]:focus,body.dark input[type="email"]:focus,body.dark input[type="number"]:focus, body.dark input[type="datetime-local"]:focus {outline: none;border: 2px solid #FFFA8D;box-shadow: inset 0 1px 3px #FFFA8D;}
 
 /* 공용 */
 .hide {
@@ -78,6 +78,7 @@ input[type="text"],
 input[type="password"],
 input[type="email"],
 input[type="number"],
+input[type="datetime-local"],
 textarea {
   height: 40px;
   padding: 0.5rem;
@@ -90,6 +91,7 @@ input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
 input[type="number"]:focus,
+input[type="datetime-local"]:focus,
 textarea:focus {
   outline: none;
   border: 2px solid #4ED7F1;
@@ -115,10 +117,10 @@ textarea::-webkit-scrollbar-track { background: #f1f1f1; }
   text-align: center;
 }
 
-.container {
+.mian_container {
   width: 100%;
   max-width: 1200px;
-  min-width: 320px;
+  /* min-width: 320px; */
   margin: auto;
   padding: 1rem;
   
@@ -183,6 +185,32 @@ nav ul.nav-list li a {
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
+
+/* TitleBar */
+.titleBar_container {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 99;
+}
+.titleBar_container i {font-size: 30px; margin-right: 1rem; cursor: pointer;}
+.titleBar_container h1 {
+  font-size: 30px;
+  overflow: hidden;
+  height: 34px;
+  text-overflow: ellipsis;
+  width: 100%;
+  white-space: nowrap;
+  text-align: start;
+}
+body.dark .titleBar_container {background: #1d1d1d;}
+
 
 /* 의뢰서.견적서 등록 페이지 공통 코드********************************************* */
 .attached_image_area {
@@ -270,18 +298,45 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
 }
 
 /* 의뢰서.견적서 from */
+.request_container form, 
+.estimate_container form{
+  width: 100%;
+  max-width: 520px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.request_container input, 
+.estimate_container input,
+.request_container textarea,
+.estimate_container textarea
+{
+  width: 94%;
+  max-width: 768px;
+}
+.request_container input[type="datetime-local"], 
+.estimate_container input[type="datetime-local"] {
+  max-width: 320px;
+}
+
+.submit_box {width: 100%; display: flex; justify-content: center; align-items: center;}
+.submit_style {width: 100%; max-width: 320px; border-radius: 30px;margin-top: 1rem;}
+
+
 /* input css와 맞추기 */
-.re_address,.re_detail,.use_date,.re_submit_btn {
+/* .re_address,.re_detail,.use_date,.re_submit_btn {
   height: 40px;
-   /* border-radius: 16px; */
+   border-radius: 16px;
   border: 1px solid #ccc;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
   margin: 0.5rem;
-}
+} */
 
  /* 제목들*/
  .re_form_group {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
   }
 
  .re_form_group label{
@@ -295,7 +350,7 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   margin-top: -3px;
   margin: 10px auto;
   padding: 4px 10px;
-  font-size: 13px;
+  font-size: 11px;
   color: #333;
   background-color: #f0f0f0;
   border: 1px solid #ccc;

@@ -1,19 +1,5 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<header>
-  <!-- Bootstrap 4 CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <!-- icon -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /> 
-  <!-- CSS -->
-  <link rel="stylesheet" th:href="@{/request.css}" />
-</header>
-
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
-    <h1 class="request_update_title" style="margin: 2rem;">의뢰서 수정</h1>
-    <hr>
 
     <!-- 전체 내용----------------------------------------------------------------->
     <div class="request_container">
@@ -28,7 +14,7 @@
                 <i class="fas fa-camera fa-2x"></i> 
                 <span><span id="image_count">0</span>/10</span>               
               </label>              
-              <button type="button" id="image_reset_btn">IMG 초기화</button>
+              <button type="button" id="image_reset_btn">이미지 초기화</button>
             </div>
             <input type="file" id="image_Files" name="newImages" class="re_image" multiple accept="image/*" hidden />
 
@@ -66,7 +52,7 @@
           <!-- 대여 지역 -->
           <div class="re_form_group">
             <label for="useRegion">대여 지역</label>
-            <div class="input-group mb-2">
+            <div class="find_addr input-group mb-2">
               <input type="text" 
                      class="form-control" 
                      id="use_Region" 
@@ -90,7 +76,9 @@
           </div>   
 
           <!-- 제출 버튼 -->
-          <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn">수정 완료</button>
+          <div class="submit_box">
+            <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn submit_style">수정 완료</button>
+          </div>
 
         </form>
       </div>
@@ -238,8 +226,6 @@
         });
       });
     </script>
-
-
-
+    
   </th:block>
 </th:block>

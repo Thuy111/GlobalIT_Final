@@ -36,12 +36,14 @@ public class EstimateController {
   @GetMapping("/list")
   public void list(Model model) {
     model.addAttribute("result", service.getListWithImage());
+    model.addAttribute("title", "견적서 목록");
   }
 
   // 등록(이미지 포함)
   @GetMapping("/register")
   public void register(@RequestParam("requestIdx") Integer requestIdx, Model model) {
     model.addAttribute("requestIdx", requestIdx);
+    model.addAttribute("title", "견적서 등록");
   }
   @PostMapping("/register")
   public String estimateRegister(EstimateDTO dto,
@@ -62,6 +64,7 @@ public class EstimateController {
   public void update(@RequestParam("idx") Integer idx, Model model) {
     EstimateDTO dto = service.getWithImage(idx);
     model.addAttribute("dto", dto);
+    model.addAttribute("title", "견적서 수정");
   }
   @PostMapping("/modify")
   public String modify(EstimateDTO dto, 

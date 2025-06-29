@@ -30,6 +30,7 @@ public class ReviewController {
     @GetMapping("/register")
     public String showReviewRegisterForm(@RequestParam("estimateIdx") Integer estimateIdx, Model model) {
         model.addAttribute("estimateIdx", estimateIdx);
+        model.addAttribute("title", "리뷰 등록");
         return "smash/reviewPage/register";
     }
 
@@ -72,6 +73,7 @@ public class ReviewController {
         model.addAttribute("estimateIdx", estimateIdx);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("avgScore", avg);
+        model.addAttribute("title", "리뷰 목록");
 
         return "smash/reviewPage/list";
     }
@@ -96,6 +98,7 @@ public String showUpdateForm(
 
     model.addAttribute("review", reviewDTO);
     model.addAttribute("from", from); // ⭐ 추가
+    model.addAttribute("title", "리뷰 수정");
     return "smash/reviewPage/update";
 }
 

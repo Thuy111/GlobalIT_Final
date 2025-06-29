@@ -28,6 +28,7 @@ public class ChatController {
         List<ChatRoom> roomList = chatService.findRoomsByUser(username);
         model.addAttribute("roomList", roomList);
         model.addAttribute("username", username);
+        model.addAttribute("title", "채팅방 목록");
         return "smash/chat/chatList";
     }
 
@@ -53,6 +54,7 @@ public class ChatController {
         model.addAttribute("room", room);
         model.addAttribute("userA", myUser);
         model.addAttribute("userB", targetUser);
+        model.addAttribute("title", room.getName());
         // 이전 메시지 로딩
         model.addAttribute("messages", chatService.getMessages(room.getRoomId()));
         return "smash/chat/chatRoom";

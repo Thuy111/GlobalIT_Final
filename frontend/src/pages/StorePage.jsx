@@ -28,7 +28,7 @@ const dummyImages = [
 const StorePage = () => {
   const [view, setView] = useState('estimate'); // 'estimate' or 'review'
   const [isEditing, setIsEditing] = useState(false);
-  const textareaRef = useRef();
+  const nameRef = useRef();
   
   const [storeName, setStoreName] = useState("업체 이름");
   const [location, setLocation] = useState("경기 광명시 OO동");
@@ -36,8 +36,8 @@ const StorePage = () => {
   const [description, setDescription] = useState("스포츠용품 판매하며\n다른곳과 차별화된 판매처.\n프리미엄만을 추구함.");
 
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
+    if (isEditing && nameRef.current) {
+      nameRef.current.focus();
     }
   }, [isEditing]);
 
@@ -105,6 +105,7 @@ const StorePage = () => {
               {isEditing && <input
                 type="text"
                 value={storeName}
+                ref={nameRef}
                 onChange={(e) => setStoreName(e.target.value)}
                 placeholder="업체 이름을 입력하세요"
               />}
@@ -131,7 +132,6 @@ const StorePage = () => {
             <h2 className='store_des'>업체 설명</h2>
             {isEditing ? (
             <textarea
-              ref={textareaRef}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />

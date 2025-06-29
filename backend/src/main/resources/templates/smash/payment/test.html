@@ -1,4 +1,4 @@
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
       <!-- 필요한 값들은 Thymeleaf로 동적 주입 -->
       <!-- <input type="hidden" id="memberEmail" th:value="${member.email}" />

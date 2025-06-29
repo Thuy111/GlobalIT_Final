@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import TitleBar from '../../components/TitleBar';
 import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
@@ -40,7 +41,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
   return (
     <div className="profile_container">
       <div className="profile_main_container">
-        <h1>마이페이지</h1>
+        <TitleBar title="마이페이지(업체)" />
         <button onClick={async () => {
           if (window.confirm('일반 회원으로 전환하시겠습니까?')) {
             await axios.post(`${baseUrl}/smash/partner/revert`, {}, { withCredentials: true });

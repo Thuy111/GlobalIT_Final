@@ -63,7 +63,7 @@ const Layout = () => {
     <UserContext.Provider value={user}>
       <UnreadAlarmProvider>
       {!isLoggedIn===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
-      <div className="container">
+      <div className="main_container">
         <Outlet />
       </div>
         <Nav />

@@ -105,20 +105,23 @@ function RequestList() {
           ))}
         </Slider>
       ) : (
-        <div style={{ padding: "1rem", textAlign: "center" }}>
-          D-2 이하 의뢰서가 없습니다.
+        <div style={{ padding: "1rem", textAlign: "center", margin: '2rem auto' }}>
+          <span className="dday-badge">D-2 이하</span> 의뢰서가 없습니다.
         </div>
       )}
 
       {/* 검색창 */}
       <form onSubmit={handleSearchSubmit} className="request-search-form">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="무엇을 찾으시나요?"
-        />
-        <button type="submit">검색</button>
+        <div className="request-search-box">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="무엇을 찾으시나요?"
+          />
+          {/* <button type="submit">검색</button> */}
+          <button type="submit" id="search"><i className="fa-solid fa-magnifying-glass"></i></button>
+        </div>
       </form>
 
       {/* 해시태그 */}

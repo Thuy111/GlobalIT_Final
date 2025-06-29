@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <th:block th:fragment="setContent(content)">
+  <th:block th:fragment="setContent(topbar, content)">
     <!-- head -->
     <head>
       <meta charset="UTF-8" />
@@ -18,13 +18,18 @@
       <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>    
       <!-- iamport : 결제시스템 -->
       <script src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+      <!-- Bootstrap 4 CSS -->
+      <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
       
     </head>
 
     <!-- body -->
     <body th:classappend="${theme} == 'dark' ? 'dark' : ''">
-        <div class="root">
-          <div class="container">
+      <div class="root">
+        <div class="main_container">
+            <!-- 타이틀 바 -->
+            <th:block th:replace="${topbar}"></th:block>
+            <!-- 컨텐츠 영역 -->
             <th:block th:replace = "${content}"></th:block>
           </div>
           <nav class="navigation">
