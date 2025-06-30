@@ -33,10 +33,14 @@ public class NotificationController {
   
   //목록
   @GetMapping("/list")
-  public ResponseEntity<List<NotificationMappingDTO>> list(HttpSession session) {
+  public ResponseEntity<List<NotificationMappingDTO>> list(HttpSession session, @RequestParam(required = false) String type) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-    List<NotificationMappingDTO> result = service.getNotificationByMember(currentUser.getEmailId());
-    // int count = service.countUnreadNotifications(currentUser.getEmailId());
+    List<NotificationMappingDTO> result;
+    if (type == null) {
+      result = service.getNotificationByMember(currentUser.getEmailId());
+    } else {
+      result = service.getNotificationsByType(currentUser.getEmailId(), type);
+    }
     return ResponseEntity.ok(result);
   }
   // 미읽음 알림 개수

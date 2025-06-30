@@ -11,14 +11,18 @@ const Alarm = () => {
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
   const { setUnreadCount } = useUnreadAlarm();
+  const [selectedType, setSelectedType] = useState('all'); // all, estimate, request, review
 
   // 알람 목록 불러오기
   const fetchAlarms = () => {
     setLoading(true);
-    axios.get(`${baseUrl}/smash/alarm/list`, {
-      headers: { Accept: "application/json" }
-    }).then(res => {
-        // NotificationMappingDTO 배열
+    let url =
+      selectedType === 'all'
+        ? `${baseUrl}/smash/alarm/list`
+        : `${baseUrl}/smash/alarm/list?type=${selectedType}`;
+    axios
+      .get(url, { headers: { Accept: "application/json" } })
+      .then(res => {
         setAlarms(Array.isArray(res.data) ? res.data : []);
       })
       .catch(() => setAlarms([]))
@@ -34,8 +38,8 @@ const Alarm = () => {
 
   useEffect(() => {
     fetchAlarms();
-    // eslint-disable-next-line
-  }, [baseUrl]);
+    fetchUnreadCount();
+  }, [baseUrl, selectedType]);
 
   // 알람 읽음 처리
   const handleRead = async (idx) => {
@@ -61,6 +65,23 @@ const Alarm = () => {
     <>
       <TitleBar title="알림" />
       <div className="alarm" style={{maxWidth:400,margin:"0 auto",padding:16}}>
+        <div className="alarm-tabs" style={{display:'flex', gap:8, marginBottom:16}}>
+          {['all', 'estimate', 'request', 'review'].map(type => (
+            <button
+              key={type}
+              onClick={() => setSelectedType(type)}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 16,
+                border: 'none',
+                background: selectedType === type ? '#ff9900' : '#eee',
+                color: selectedType === type ? '#fff' : '#888',
+                fontWeight: selectedType === type ? 'bold' : 'normal',
+                cursor: 'pointer'
+              }}
+            >{type === 'all' ? '전체' : type === 'estimate' ? '견적서' : type === 'request' ? '의뢰서' : '리뷰'}</button>
+          ))}
+        </div>
         <div>
           {loading ? (
             <div style={{padding:"2rem 0"}}>불러오는 중...</div>
