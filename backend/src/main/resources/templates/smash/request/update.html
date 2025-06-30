@@ -14,7 +14,7 @@
                 <i class="fas fa-camera fa-2x"></i> 
                 <span><span id="image_count">0</span>/10</span>               
               </label>              
-              <button type="button" id="image_reset_btn">이미지 초기화</button>
+              <button type="button" id="image_reset_btn">이미지 전체삭제</button>
             </div>
             <input type="file" id="image_Files" name="newImages" class="re_image" multiple accept="image/*" hidden />
 
@@ -193,16 +193,40 @@
         imageInput.files = dataTransfer.files;
       }
 
-      // IMG 초기화 버튼
-      const resetBtn = document.getElementById('image_reset_btn');
+      // IMG 전체 삭제 버튼      
+     const resetBtn = document.getElementById('image_reset_btn');
       resetBtn.addEventListener('click', function () {
-        const thumbsNew = wrapper.querySelectorAll('.image_thumb.new,.image_thumb');
-        thumbsNew.forEach(thumb => thumb.remove());
+        const form = document.querySelector("form");
 
+        // [1] 존재 hidden input deleteImageIds 삭제
+        const existingInputs = form.querySelectorAll('input[name="deleteImageIds"]');
+        existingInputs.forEach(el => el.remove());
+
+        // [2] DOM에 있는 삭제되지 않은 기존 이미지가 있으면 찾아가서 hidden input 생성
+        const oldImageThumbs = wrapper.querySelectorAll('.image_thumb:not(.new)');
+        oldImageThumbs.forEach(thumb => {
+          const removeBtn = thumb.querySelector('.remove_btn');
+          if (removeBtn && removeBtn.dataset.id) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleteImageIds';
+            input.value = removeBtn.dataset.id;
+            form.appendChild(input);
+            console.log('✅ 추가된 이미지 ID:', removeBtn.dataset.id); // 확인용 로그
+          }
+        });
+
+        // [3]  DOM에 있는 이미지 모두 삭제
+        const allThumbs = wrapper.querySelectorAll('.image_thumb');
+        allThumbs.forEach(el => el.remove());
+
+        // [4] 선택된 새로운 이미지 모두 삭제
         selectedFiles = [];
         imageInput.value = '';
-        updateCount();
         refreshFileInput();
+
+        // [5] 이미지 수량 업데이트
+        updateCount();
       });
     </script>
 
