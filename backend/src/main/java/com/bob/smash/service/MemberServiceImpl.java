@@ -25,6 +25,7 @@ import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Member.LoginType;
 import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.service.ProfileService;
 // import com.bob.smash.repository.ReviewRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,7 @@ public class MemberServiceImpl implements MemberService {
     private final PartnerInfoService partnerInfoService;
     private final EstimateService estimateService;
     private final RequestService requestService;
+    private final ProfileService profileService;
     // private final ReviewRepository reviewRepository;
 
   // 소셜로그인 이메일을 통한 유저정보 DTO 반환
@@ -299,7 +301,9 @@ public class MemberServiceImpl implements MemberService {
         String bno = currentUser != null ? currentUser.getBno() : null;
 
         try{
-            // 1. profile_image
+            
+            // 1. profile Image
+            profileService.deleteProfileImage(email); // 프로필 이미지 삭제 메서드 호출
             // 2. notification
             // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
             estimateService.deleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)

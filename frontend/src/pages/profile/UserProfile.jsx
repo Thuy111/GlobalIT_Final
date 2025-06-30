@@ -4,7 +4,7 @@ import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
-const UserProfile = ({ profile, setIsLoggedIn }) => {
+const UserProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange  }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
@@ -37,25 +37,6 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
     }
   };
 
-  const convertToPartnerHandler = async () => {
-    try {
-      const bno = profile?.bno;
-
-      if (bno) {
-        // 이미 파트너인 경우 → role만 갱신하고 프로필 이동
-        await axios.post(`${baseUrl}/smash/partner/update`, {}, { withCredentials: true });
-        alert('파트너 회원으로 전환되었습니다.');
-         window.location.href = '/profile'; // 새로 고침
-      } else {
-        // 아직 파트너가 아닌 경우 → 사업자 인증 페이지로 이동
-        navigate('/profile/convert-to-partner');
-      }
-    } catch (error) {
-      console.error('파트너 전환 체크 실패:', error);
-      alert('사업자 전환에 실패했습니다.');
-    }
-  };
-  
 
   if (!profile) return <div>로딩 중...</div>;
 
@@ -64,8 +45,23 @@ const UserProfile = ({ profile, setIsLoggedIn }) => {
   return (
     <div className="profile_container">
       <div className="profile_main_container">
-      <TitleBar title="마이페이지(일반)" />
-        <button onClick={convertToPartnerHandler}>사업자 전환하기</button>
+        <TitleBar title="마이페이지(일반)" />
+         {/* ✅ 역할 전환 토글 */}
+        <div className="profile_toggle_container">
+          <div className="change_role_toggle">
+            <h2 className="toggle_text">{isChecked ? '일반 회원으로 전환하기' : '파트너 회원으로 전환하기'}</h2>
+            <input
+            type="checkbox"
+            className="toggle_input"
+            id="roleToggle"
+            onChange={onToggleChange}
+            checked={isChecked}
+            />
+            <label className="toggle_label" htmlFor="roleToggle"></label>
+          </div>
+
+         </div>
+        
 
         <div className="profile_inform">
           <div className="profile_inform_img">

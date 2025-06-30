@@ -4,7 +4,7 @@ import axios from 'axios';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
-const PartnerProfile = ({ profile, setIsLoggedIn }) => {
+const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) => {
   const baseUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate();
@@ -42,15 +42,22 @@ const PartnerProfile = ({ profile, setIsLoggedIn }) => {
     <div className="profile_container">
       <div className="profile_main_container">
         <TitleBar title="마이페이지(업체)" />
-        <button onClick={async () => {
-          if (window.confirm('일반 회원으로 전환하시겠습니까?')) {
-            await axios.post(`${baseUrl}/smash/partner/revert`, {}, { withCredentials: true });
-            alert('일반 회원으로 전환되었습니다.');
-            window.location.href = '/profile';
-          }
-        }}>
-          일반 회원으로 전환
-        </button>
+       { /* ✅ 역할 전환 토글 */}
+        <div className="profile_toggle_container">
+          <div className="change_role_toggle">
+            <h2 className="toggle_text">{isChecked ? '일반 회원으로 전환하기' : '파트너 회원으로 전환하기'}</h2>
+            <input
+            type="checkbox"
+            className="toggle_input"
+            id="roleToggle"
+            onChange={onToggleChange}
+            checked={isChecked}
+            />
+            <label className="toggle_label" htmlFor="roleToggle"></label>
+          </div>
+
+        </div>
+         
         <div className="profile_inform">
           <div className="profile_inform_img">
             <img

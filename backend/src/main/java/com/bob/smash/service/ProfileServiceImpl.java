@@ -108,7 +108,7 @@ public class ProfileServiceImpl implements ProfileService {
         return memberRepository.existsByNickname(nickname);
     }
 
-    // 휴대폰 유효성 테스트
+    // 휴대폰 중복 검사
     @Override
     public boolean isPhoneValid(String phone) {
         return !memberRepository.findByTel(phone).isPresent();
