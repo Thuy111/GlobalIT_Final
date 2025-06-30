@@ -113,11 +113,11 @@ textarea::-webkit-scrollbar-track { background: #f1f1f1; }
 
 .root{
   width: 100%;
-  margin: auto;
+  margin: 100px auto;
   text-align: center;
 }
 
-.mian_container {
+.main_container {
   width: 100%;
   max-width: 1200px;
   /* min-width: 320px; */
