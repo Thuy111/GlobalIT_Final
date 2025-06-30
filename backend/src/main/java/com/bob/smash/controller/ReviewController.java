@@ -112,38 +112,30 @@ public String showUpdateForm(
 
 
 // 리뷰 수정 처리
-    @PostMapping("/update")
-    public String updateReview(
-            @ModelAttribute ReviewDTO reviewDTO,
-            @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
-            @RequestParam(value = "isImageReset", required = false) String isImageReset,
-            @RequestParam(value = "from", required = false) String from,
-            @AuthenticationPrincipal OAuth2User oauth2User
-    ) {
-        String currentUser = extractEmailFromOAuth2User(oauth2User);
-        ReviewDTO existingReview = reviewService.getReviewById(reviewDTO.getIdx());
+@PostMapping("/update")
+public String updateReview(
+        @ModelAttribute ReviewDTO reviewDTO,
+        @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+        @RequestParam(value = "isImageReset", required = false) String isImageReset,
+        @RequestParam(value = "from", required = false) String from,
+        @AuthenticationPrincipal OAuth2User oauth2User
+) {
 
-        if (!existingReview.getMemberId().equals(currentUser)) {
-            throw new IllegalArgumentException("본인 리뷰만 수정할 수 있습니다.");
-        }
-        if (existingReview.getIsModify() == 1) {
-            throw new IllegalStateException("이미 수정한 리뷰입니다.");
-        }
+    reviewService.updateReview(reviewDTO, imageFiles, "true".equals(isImageReset));
 
-        reviewService.updateReview(reviewDTO, imageFiles, "true".equals(isImageReset));
-
-        if ("mylist".equals(from)) {
-            return "redirect:/smash/review/mylist";
-        } else {
-            return "redirect:/smash/review/list?estimateIdx=" + reviewDTO.getEstimateIdx();
-        }
+    if (reviewDTO.getRequestIdx() == null) {
+        // fallback : requestIdx가 없으면 estimateIdx 기반으로 가져오기
+        EstimateDTO estimateDTO = estimateService.get(reviewDTO.getEstimateIdx());
+        return "redirect:/smash/request/detail/" + estimateDTO.getRequestIdx();
     }
+    return "redirect:/smash/request/detail/" + reviewDTO.getRequestIdx();
+}
 
-    // 리뷰 삭제
 @GetMapping("/delete")
 public String deleteReview(
         @RequestParam("reviewIdx") Integer reviewIdx,
-        @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx, // ✅ nullable
+        @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx,
+        @RequestParam(value = "requestIdx", required = false) Integer requestIdx, // ✅ 추가
         @RequestParam(value = "from", required = false) String from,
         @AuthenticationPrincipal OAuth2User oauth2User
 ) {
@@ -158,13 +150,10 @@ public String deleteReview(
 
     reviewService.deleteReview(reviewIdx, currentUser);
 
-    // ✅ 리다이렉트 처리 분기
-    if ("mylist".equals(from)) {
-        return "redirect:/smash/review/mylist";
-    } else {
-        return "redirect:/smash/review/list?estimateIdx=" + estimateIdx;
-    }
+    // ✅ 삭제 후 상세페이지로 리다이렉트
+    return "redirect:/smash/request/detail/" + requestIdx;
 }
+
 
 
 // 내가 쓴 리뷰 목록

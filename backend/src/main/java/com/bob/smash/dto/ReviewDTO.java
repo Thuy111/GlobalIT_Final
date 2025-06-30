@@ -27,4 +27,6 @@ public class ReviewDTO {
     private List<ImageDTO> images;
 
     private String nickname;
+
+    private Integer requestIdx;
 }

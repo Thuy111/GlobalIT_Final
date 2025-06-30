@@ -56,7 +56,7 @@
 }
 
 .review_container .review_title {
-  font-size: 1.3em;
+  font-size: 15px;
   font-weight: 600;
   color: #222;
 }
@@ -111,7 +111,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  text-align: left;  /* 👈 내용 왼쪽 정렬 */
+  text-align: left; 
 }
 
 /* 리뷰 내용 */
