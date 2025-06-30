@@ -1,19 +1,25 @@
 package com.bob.smash.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bob.smash.dto.ChatRoomDTO;
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.service.ChatService;
-import com.bob.smash.service.ChatServiceImpl;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -22,41 +28,62 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
     private final ChatService chatService;
 
+    @Value("${front.server.url}")
+    private String frontServerUrl;
+
     //  채팅방 목록 조회
-    @GetMapping("/chatList")
-    public String chatList(@RequestParam String username, Model model){
-        List<ChatRoom> roomList = chatService.findRoomsByUser(username);
-        model.addAttribute("roomList", roomList);
-        model.addAttribute("username", username);
-        model.addAttribute("title", "채팅방 목록");
-        return "smash/chat/chatList";
+    @GetMapping("/roomList")
+    public String roomList(@RequestParam String myUser, Model model, HttpSession session) {
+        try{
+            CurrentUserDTO currntUser = (CurrentUserDTO) session.getAttribute("currentUser");
+            if(currntUser == null) {
+                return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
+            }else if(!currntUser.getEmailId().equals(myUser)) {
+                return "redirect:" + frontServerUrl + "/profile?error=invalidUser";
+            }
+    
+            List<ChatRoom> roomList = chatService.findRoomsByUser(myUser);
+            model.addAttribute("roomList", roomList == null ? new ArrayList<>() : roomList);
+            model.addAttribute("myUser", myUser == null ? "" : myUser);
+            model.addAttribute("title", "채팅방 목록");
+            return "smash/chat/roomList";
+        }catch (Exception e) {
+            throw new RuntimeException("채팅방 목록 조회 실패: " + e.getMessage());
+        }
     }
 
     // 1:1 채팅방 생성
     @PostMapping("/createRoom")
-    public String createRoom(Model model,
-                            @RequestParam String username,         // 나
-                            @RequestParam String targetUsername) { // 상대방
-        // 1:1 채팅방 중복 체크 후 없으면 생성
-        ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, targetUsername);
-        model.addAttribute("room", room);
-        model.addAttribute("username", username);
-        model.addAttribute("targetUsername", targetUsername);
-        return "smash/chat/chatRoom";
+    @ResponseBody
+    public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
+        try{
+            String username = params.get("username");
+            String targetUsername = params.get("targetUsername");
+            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, targetUsername);
+            return room;
+        }catch (Exception e) {
+            throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());
+        }
     }
 
     // 1:1 채팅방 조회
     @GetMapping("/chatRoom")
-    public String chatRoom(Model model,
-                        @RequestParam String targetUser, // 상대방 id
-                        @RequestParam String myUser) {   // 내 id
-        ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(myUser, targetUser);
-        model.addAttribute("room", room);
-        model.addAttribute("userA", myUser);
-        model.addAttribute("userB", targetUser);
-        model.addAttribute("title", room.getName());
-        // 이전 메시지 로딩
-        model.addAttribute("messages", chatService.getMessages(room.getRoomId()));
-        return "smash/chat/chatRoom";
+    public String chatRoom(@RequestParam String roomId,
+                        @RequestParam String myUser,
+                        @RequestParam String targetUser,
+                        Model model) {
+        try{
+            ChatRoomDTO room = chatService.findRoomById(roomId); // roomId로 조회
+            model.addAttribute("room", room);
+            model.addAttribute("myUser", myUser);
+            model.addAttribute("targetUser", targetUser);
+            model.addAttribute("messages", chatService.getMessages(roomId));
+            model.addAttribute("title", room.getName());
+            return "smash/chat/chatRoom";
+        }
+        catch (Exception e) {
+            throw new RuntimeException("채팅방 조회 실패: " + e.getMessage());
+        }
     }
+    
 }

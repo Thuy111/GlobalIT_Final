@@ -39,6 +39,10 @@ public class ChatMessage {
     @Column(columnDefinition = "TEXT")
     private String message;
 
+    // 메시지 보낸 사람의 닉네임
+    @Column(nullable = false)
+    private String senderNickname;
+
     // 발송 시각
     @Column(nullable = false)
     private LocalDateTime time;

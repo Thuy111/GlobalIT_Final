@@ -20,6 +20,7 @@
 {font-size: 16px !important;}
 
 ::selection {background-color: #A8F1FF;color: #1498b3;}
+body.dark ::selection {background-color: #FFFA8D; color: #e98f00;}
 
 body {
   width: 100%;
@@ -58,8 +59,8 @@ button {
   cursor: pointer;
   background-color: #4ED7F1;
   color: white;
-  padding: 0.5rem 0.8rem;
-  border-radius: 4px;
+  padding: 0.5rem 0.8rem !important;
+  border-radius: 4px !important;
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   /* background-color: transparent; */

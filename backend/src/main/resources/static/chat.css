@@ -1,0 +1,18 @@
+.chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;}
+.chatRoom_container .messageArea {width: 100%; max-width: 768px;display: flex;flex-direction: column;}
+.chatRoom_container .inputArea {width: 100%; max-width: 768px; display: flex;justify-content: space-around;align-items: center;position: fixed; bottom: 90px;}
+.chatRoom_container .inputArea input {width: calc(100% - 80px);}
+.chatRoom_container .inputArea button {margin-bottom: 3px;}
+
+.chatRoom_container .msg {
+  width: auto;
+  max-width: 280px; 
+  display: inline-block; 
+  padding: 8px 20px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+  margin: 0.5rem;
+}
+.chatRoom_container .msg.me {margin-left: auto; background-color: #A8F1FF;color: #1498b3;}
+body.dark .chatRoom_container .msg.me {margin-right: auto; background-color: #FFFA8D;color: #e98f00;}
+.chatRoom_container .msg.you {margin-right: auto; background-color: rgb(240, 240, 240); color: rgb(22, 22, 22);}
