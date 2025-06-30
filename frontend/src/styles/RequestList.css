@@ -133,7 +133,7 @@
 
 .request-container .request-search-box {
   position: relative;
-  width: 50%;
+  width: 50%; 
   min-width: 320px;
 }
 
@@ -238,7 +238,7 @@ body.dark .request-container .request-content {color: #ececec;}
   color: #e53935;
   border-radius: 12px;
   padding: 4px 10px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: bold;
 }
 
@@ -262,7 +262,7 @@ body.dark .request-container .request-content {color: #ececec;}
 }
 
 .request-container .request-title {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 700;
   color: #333;
   flex-grow: 1;
@@ -272,7 +272,7 @@ body.dark .request-container .request-content {color: #ececec;}
 
 /* 상태 뱃지 */
 .request-container .request-status {
-  font-size: 12px;
+  font-size: 16px;
   padding: 4px 10px;
   border-radius: 999px;
   font-weight: bold;
@@ -321,7 +321,30 @@ body.dark .request-container .request-content {color: #ececec;}
   background-color: #f4f4f4;
   border-radius: 16px;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: 16px;
   color: #666;
   white-space: nowrap;
+}
+/* 모바일 */
+@media (max-width: 768px) {
+  .request-container .request-title {
+    font-size: 18px;
+  }
+
+  .request-container .request-status {
+    font-size: 13px;
+  }
+
+  .request-container .request-dday,
+  .request-container .request-tags .hashtag-badge {
+    font-size: 13px;
+  }
+
+  /* 캐러셀숨김 */
+    .request-container .carousel-wrapper {
+    display: none;
+  }
+    .request-container .hide-on-mobile {
+    display: none;
+  }
 }
