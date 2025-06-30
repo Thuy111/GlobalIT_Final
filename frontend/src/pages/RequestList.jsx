@@ -105,8 +105,8 @@ function RequestList() {
           ))}
         </Slider>
       ) : (
-        <div style={{ padding: "1rem", textAlign: "center", margin: '2rem auto' }}>
-          <span className="dday-badge">D-2 이하</span> 의뢰서가 없습니다.
+        <div className="hide-on-mobile" style={{ padding: "1rem", textAlign: "center", margin: '2rem auto' }}>
+          <span className="dday-badge">D-4 이하</span> 의뢰서가 없습니다.
         </div>
       )}
 
