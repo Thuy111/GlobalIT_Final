@@ -27,6 +27,10 @@ public class AlarmEventListener {
   private final ReviewRepository reviewRepository;
 
   @EventListener
+  public void handleRequest(RequestEvent event) {
+  }
+
+  @EventListener
   public void handleEstimate(EstimateEvent event) {
     Estimate estimate = estimateRepository.findById(event.getEstimateIdx())
                                           .orElseThrow(() -> new RuntimeException("Estimate not found"));
