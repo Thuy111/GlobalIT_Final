@@ -11,6 +11,14 @@
   font-family: "Asta Sans", sans-serif;
 }
 
+.estimate_container h1,
+.estimate_container h2,
+.estimate_container h3,
+.request_container h1,
+.request_container h2,
+.request_container h3
+{font-size: 16px !important;}
+
 ::selection {background-color: #A8F1FF;color: #1498b3;}
 
 body {
@@ -31,7 +39,7 @@ body.dark button:hover, body.dark [class*="btn"]:hover {background-color: rgb(25
 body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7) 60%, rgba(30, 30, 30, 0));}
 body.dark button:disabled, body.dark [class*="btn"]:disabled {background-color: #ccc;color: #666;cursor: default;}
 body.dark button:disabled:hover, body.dark [class*="btn"]:disabled:hover {background-color: #ccc;color: #666;cursor: default;}
-body.dark input[type="text"]:focus,body.dark input[type="password"]:focus,body.dark input[type="email"]:focus,body.dark input[type="number"]:focus, body.dark input[type="datetime-local"]:focus {outline: none;border: 2px solid #FFFA8D;box-shadow: inset 0 1px 3px #FFFA8D;}
+body.dark input[type="text"]:focus,body.dark input[type="password"]:focus,body.dark input[type="email"]:focus,body.dark input[type="number"]:focus, body.dark input[type="datetime-local"]:focus, body.dark textarea:focus {outline: none;border: 2px solid #FFFA8D;box-shadow: inset 0 1px 3px #FFFA8D;}
 
 /* 공용 */
 .hide {
@@ -87,6 +95,17 @@ textarea {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
   margin: 0.5rem;
 }
+body.dark input[type="text"],
+body.dark input[type="password"],
+body.dark input[type="email"],
+body.dark input[type="number"],
+body.dark input[type="datetime-local"],
+body.dark textarea {
+  background-color: #1b1b1b;
+  border: 1px solid #3a3a3a;
+  color: white;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
@@ -113,7 +132,7 @@ textarea::-webkit-scrollbar-track { background: #f1f1f1; }
 
 .root{
   width: 100%;
-  margin: 100px auto;
+  margin: 100px auto 2rem auto;
   text-align: center;
 }
 
@@ -181,6 +200,8 @@ nav ul.nav-list li a {
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: none;
+  text-decoration: none;
 }
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
@@ -210,6 +231,29 @@ nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
   text-align: start;
 }
 body.dark .titleBar_container {background: #1d1d1d;}
+
+/* 크롬에서 기본 캘린더 아이콘 제거 */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 대신 아이콘 직접 추가 */
+.calendar_box{
+  position: relative;
+  width: 94%;
+  max-width: 320px;
+  z-index: 1;
+}
+.calendar_box .custom-datetime {
+  padding-right: 30px;
+  background-size: 20px;
+  position: absolute;
+  right: -26px;
+  bottom: 21px;
+  z-index: 1;
+}
 
 
 /* 의뢰서.견적서 등록 페이지 공통 코드********************************************* */
@@ -312,6 +356,7 @@ body.dark .titleBar_container {background: #1d1d1d;}
 {
   width: 94%;
   max-width: 768px;
+  margin: 0.5rem;
 }
 .request_container input[type="datetime-local"], 
 .estimate_container input[type="datetime-local"] {

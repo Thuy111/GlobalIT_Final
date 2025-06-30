@@ -19,24 +19,27 @@
           <!-- 제목 -->
           <div class="re_form_group">
               <label>제목</label>
-              <input type="text" name="title" class="form-control" required>
+              <input type="text" name="title" required>
           </div>
         
 
             <!-- 해시태그 -->
           <div class="re_form_group">
             <label for="hashtag">해시태그 <small class="text-muted">(띄어쓰기 기준으로 적용)</small></label>
-            <input type="text" id="hashtag" class="form-control"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
+            <input type="text" id="hashtag"  name="hashtags" placeholder="해시태그 입력 (예: 캠핑 운동)">
           </div>
 
           <div class="re_form_group">
               <label>내용</label>
-              <textarea name="content" class="form-control re_detail" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
+              <textarea name="content" class=" re_detail" placeholder="대여 기간과 자세한 내용을 기재해주세요." required></textarea>
           </div>
 
           <div class="re_form_group">
               <label>대여 날짜</label>
-              <input type="datetime-local" id="use_date_input" name="useDate" class="form-control use_date" required>
+              <input type="datetime-local" id="use_date_input" name="useDate" class=" use_date" required>
+              <div class="calendar_box">
+                <i class="fa-regular fa-calendar custom-datetime"></i>
+            </div>
           </div>
 
         <!-- 대여 지역 -->
@@ -44,19 +47,19 @@
             <label for="useRegion">대여 지역</label>
             <div class="find_addr input-group mb-2">
               <input type="text" 
-                    class="form-control" 
+                    
                     id="use_Region" 
                     name="useRegion"                
                     placeholder="주소를 검색해주세요" 
                     readonly 
                     required>
               <div class="input-group-append">
-                <button type="button" class="btn btn-dark re_address" onclick="execDaumPostcode()">주소 찾기</button>
+                <button type="button" class="re_address" onclick="execDaumPostcode()">주소 찾기</button>
               </div>
             </div>
 
             <input type="text" 
-                  class="form-control" 
+                  
                   id="detail_Address" 
                   name="detailAddress" 
                   placeholder="상세 주소를 입력하세요" 
@@ -65,7 +68,7 @@
 
           <!-- 제출 버튼 -->
           <div class="submit_box">
-            <button type="submit" class="btn btn-dark btn-block mt-4 re_submit_btn submit_style">작성 완료</button>
+            <button type="submit" class="re_submit_btn submit_style">작성 완료</button>
           </div>
 
         </form>

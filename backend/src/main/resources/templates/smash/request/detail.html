@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="request_btn_group">
+    <div class="request_button_group">
       
       <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');"
         th:if="${dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}">
