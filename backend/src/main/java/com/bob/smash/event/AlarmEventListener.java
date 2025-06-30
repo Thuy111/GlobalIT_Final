@@ -137,12 +137,22 @@ public class AlarmEventListener {
       // 해당 의뢰서의 모든 견적서 작성자 ID를 검색
       List<Estimate> estimates = estimateRepository.findByRequest_Idx(event.getRequestIdx());
       List<String> partnerIdList = estimates.stream()
+                                            .filter(e -> e.getPartnerInfo() != null && e.getPartnerInfo().getMember() != null)
                                             .map(e -> e.getPartnerInfo().getMember().getEmailId())
                                             .distinct() // 중복 제거 (동일 업체가 여러 번 견적을 썼을 수 있으므로)
                                             .toList();
       receiverId.addAll(partnerIdList); // 해당 의뢰서의 모든 견적서 작성자 ID를 수신자로 설정
       receiverId.add(request.getMember().getEmailId()); // 의뢰서 작성자 ID도 수신자로 추가
-      receiverId.removeIf(id -> id.equals(estimate.getPartnerInfo().getMember().getEmailId())); // 해당 견적서 작성자 ID는 제외
+      // 해당 견적서 작성자는 제외
+      final String excludeEmailId;
+      if (estimate.getPartnerInfo() != null && estimate.getPartnerInfo().getMember() != null) {
+        excludeEmailId = estimate.getPartnerInfo().getMember().getEmailId();
+      } else {
+        excludeEmailId = null;
+      }
+      if (excludeEmailId != null) {
+        receiverId.removeIf(id -> id.equals(excludeEmailId));
+      }
       if(event.getAction() == EstimateEvent.Action.CREATED) {
         message = String.format(
           "%s에서 [%s] 의뢰에 새로운 견적서를 등록했습니다. (금액: %,d원)",
