@@ -37,13 +37,13 @@
           
           <label class="request_el">
             <h2>내용</h2>
-            <textarea name="content" required></textarea>
+            <textarea name="content" required placeholder="견적 내용과 자세한 내용을 기재해주세요."></textarea>
           </label>
 
           <label class="request_el">
             <h2>가격</h2>
             <div class="price_box">
-              <input type="text" name="price" required>원
+              <input type="text" name="price" required placeholder="숫자를 입력하세요.">원
             </div>
           </label>
           
@@ -58,6 +58,9 @@
           <div class="request_el">
             <h3>반납 날짜</h3>
             <input type="datetime-local" name="returnDate" required>
+            <div class="calendar_box">
+              <i class="fa-regular fa-calendar custom-datetime"></i>
+            </div>
           </div>
           
           <div class="submit_box">

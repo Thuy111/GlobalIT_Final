@@ -113,6 +113,7 @@
   justify-content: start;
   white-space: nowrap;
 }
+body.dark .estimate_container .request_el .mode{background-color: #181818;box-shadow: 0 2px 4px black;}
 .estimate_container .request_el .mode{
   white-space: nowrap;
   margin: 0.5rem;

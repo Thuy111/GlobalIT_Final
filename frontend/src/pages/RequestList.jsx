@@ -125,19 +125,21 @@ function RequestList() {
       </form>
 
       {/* 해시태그 */}
-      <div className="hashtag-badge-container">
-        {hashtags.map((tag, index) => (
-          <button
-            key={index}
-            className={`hashtag-badge ${
-              selectedTag === tag || (tag === "전체" && selectedTag === "") ? "active" : ""
-            }`}
-            onClick={() => handleTagClick(tag)}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
+      {hashtags&&
+        <div className="hashtag-badge-container">
+          {hashtags.map((tag, index) => (
+            <button
+              key={index}
+              className={`hashtag-badge ${
+                selectedTag === tag || (tag === "전체" && selectedTag === "") ? "active" : ""
+              }`}
+              onClick={() => handleTagClick(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      }
 
       {/* 의뢰서 카드 */}
       {filteredRequests.map(item => (
