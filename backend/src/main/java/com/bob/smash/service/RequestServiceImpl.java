@@ -11,6 +11,8 @@ import com.bob.smash.entity.HashtagMapping;
 
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
+import com.bob.smash.event.EstimateEvent;
+import com.bob.smash.event.RequestEvent;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +47,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class RequestServiceImpl implements RequestService {
-
     private final RequestRepository requestRepository;    
     private final EstimateRepository estimateRepository;
     private final EstimateService estimateService;
@@ -58,75 +60,64 @@ public class RequestServiceImpl implements RequestService {
     //사진
     private final ImageService imageService;
 
+    // 알림 생성용 이벤트 발행
+    private final ApplicationEventPublisher eventPublisher;
+
     // 등록/////////////////////////////////////////////////////////////////////////////////
     @Override
     public Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles) {
-    Request entity = dtoToEntity(dto, member);
-    Request saved = requestRepository.save(entity);
+        Request entity = dtoToEntity(dto, member);
+        Request saved = requestRepository.save(entity);
 
-    // [1] 해시태그 처리
-    if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
-        String[] tags = dto.getHashtags().trim().split("\\s+");
-
-        for (String rawTag : tags) {
-            String tag = rawTag.trim();
-
-            if (!tag.isEmpty()) {
-                // 존재하는 해시태그 있는지 확인
-                Hashtag hashtag = hashtagRepository.findByTag(tag)
-                        .orElseGet(() -> hashtagRepository.save(
-                                Hashtag.builder().tag(tag).build()));
-
-                // 매핑 생성 후 저장
-                HashtagMapping mapping = HashtagMapping.builder()
-                        .hashtag(hashtag)
-                        .request(saved)
-                        .build();
-
-                hashtagMappingRepository.save(mapping);
+        // [1] 해시태그 처리
+        if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
+            String[] tags = dto.getHashtags().trim().split("\\s+");
+            for (String rawTag : tags) {
+                String tag = rawTag.trim();
+                if (!tag.isEmpty()) {
+                    // 존재하는 해시태그 있는지 확인
+                    Hashtag hashtag = hashtagRepository.findByTag(tag)
+                                                       .orElseGet(() -> hashtagRepository.save(Hashtag.builder().tag(tag).build()));
+                    // 매핑 생성 후 저장
+                    HashtagMapping mapping = HashtagMapping.builder()
+                                                           .hashtag(hashtag)
+                                                           .request(saved)
+                                                           .build();
+                    hashtagMappingRepository.save(mapping);
+                }
             }
         }
-    }
-
-     // [2] 이미지 업로드 및 매핑
-    if (imageFiles != null && !imageFiles.isEmpty()) {
-        imageFiles.stream()
-            .filter(file -> !file.isEmpty())
-            .forEach(file -> {
-                try {
-                    imageService.uploadAndMapImage("request", saved.getIdx(), file);
-                } catch (Exception e) {
-                    log.error("이미지 업로드 실패: {}", e.getMessage());
-                }
-            });
-    }
-    
-    return saved.getIdx();
-
+        // [2] 이미지 업로드 및 매핑
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            imageFiles.stream()
+                .filter(file -> !file.isEmpty())
+                .forEach(file -> {
+                    try {
+                        imageService.uploadAndMapImage("request", saved.getIdx(), file);
+                    } catch (Exception e) {
+                        log.error("이미지 업로드 실패: {}", e.getMessage());
+                    }
+                });
+        }
+        return saved.getIdx();
     }
 
     // 상세 페이지 보기///////////////////////////////////////////////////////////////////
     @Override
     public RequestDTO get(Integer idx) {
         Optional<Request> result = requestRepository.findById(idx);
-
         //** hashtag**********************/
         if (result.isPresent()) {
-        Request request = result.get();
-
-        // hashtagrepository에서 꺼냄
-        List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(idx);
-        
-       // Request DTO 기본 변환 (이미지 제외)
-        RequestDTO dto = entityToDto(request, hashtags);
-
-        // 이미지 리스트 조회 
-        List<ImageDTO> images = imageService.getImagesByTarget("request", idx);
-
-        // 이미지 리스트 DTO에 세팅
-        dto.setImages(images);
-
-        return dto;
+            Request request = result.get();
+            // hashtagrepository에서 꺼냄
+            List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(idx);
+            // Request DTO 기본 변환 (이미지 제외)
+            RequestDTO dto = entityToDto(request, hashtags);
+            // 이미지 리스트 조회 
+            List<ImageDTO> images = imageService.getImagesByTarget("request", idx);
+            // 이미지 리스트 DTO에 세팅
+            dto.setImages(images);
+            return dto;
         }    
         return null;
     }
@@ -147,57 +138,49 @@ public class RequestServiceImpl implements RequestService {
     public Map<String, Object> getPagedRequestList(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("idx").descending());
         Page<Request> requestPage;
-
         if (search != null && !search.isBlank()) {
             requestPage = requestRepository.findByTitleContaining(search, pageable);
         } else {
             requestPage = requestRepository.findAll(pageable);
         }
-
         List<RequestDTO> requestDTOs = requestPage.getContent()
-                .stream()
-                .map(request -> {
-                    // 해시태그 리스트 조회
-                    List<Hashtag> hashtagList = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
-
-                    // 해시태그 리스트 -> 문자열 (공백 구분) 변환
-                    String hashtagsString = hashtagList.stream()
-                            .map(Hashtag::getTag)
-                            .collect(Collectors.joining(" "));
-                    // D-DAY
-                    String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
-
-                    return RequestDTO.builder()
-                            .idx(request.getIdx())
-                            .title(request.getTitle())
-                            .content(request.getContent())
-                            .createdAt(request.getCreatedAt())  // LocalDateTime 그대로
-                            .useDate(request.getUseDate())
-                            .isDone(request.getIsDone()) 
-                            .hashtagList(hashtagList)
-                            .hashtags(hashtagsString)
-                            .dDay(dDay)
-                            // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
-                            .build();  
-                })
-                .collect(Collectors.toList());
-
+                                                  .stream()
+                                                  .map(request -> {
+            // 해시태그 리스트 조회
+            List<Hashtag> hashtagList = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
+            // 해시태그 리스트 -> 문자열 (공백 구분) 변환
+            String hashtagsString = hashtagList.stream()
+                    .map(Hashtag::getTag)
+                    .collect(Collectors.joining(" "));
+            // D-DAY
+            String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
+            return RequestDTO.builder()
+                              .idx(request.getIdx())
+                              .title(request.getTitle())
+                              .content(request.getContent())
+                              .createdAt(request.getCreatedAt())  // LocalDateTime 그대로
+                              .useDate(request.getUseDate())
+                              .isDone(request.getIsDone()) 
+                              .hashtagList(hashtagList)
+                              .hashtags(hashtagsString)
+                              .dDay(dDay)
+                              // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
+                              .build();
+        })
+                                                  .collect(Collectors.toList());
         Map<String, Object> response = new HashMap<>();
         response.put("request", requestDTOs);
         response.put("currentPage", page);
         response.put("totalPages", requestPage.getTotalPages());
         response.put("hasNext", requestPage.hasNext());
-
         // 전체 해시태그 추가 (문자열 리스트)
-            List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
-                .stream()
-                .map(mapping -> mapping.getHashtag().getTag())
-                .distinct()
-                .limit(12)
-                .collect(Collectors.toList());
-                
+        List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
+                                                           .stream()
+                                                           .map(mapping -> mapping.getHashtag().getTag())
+                                                           .distinct()
+                                                           .limit(12)
+                                                           .collect(Collectors.toList());
         response.put("hashtags", allHashtags);
-
         return response;
     }
 
@@ -205,7 +188,6 @@ public class RequestServiceImpl implements RequestService {
     private String calculateDDay(LocalDateTime createdAt, LocalDateTime useDate) {
         long seconds = ChronoUnit.SECONDS.between(createdAt, useDate);
         long days = seconds / (60 * 60 * 24); // 초 → 일 변환
-
         if (days == 0) return "D-DAY";
         else if (days > 0) return "D-" + days;
         else return "D+" + Math.abs(days);
@@ -220,7 +202,6 @@ public class RequestServiceImpl implements RequestService {
         for (Request request : requests) {
             System.out.println("request = " + request);
             hashtagMappingRepository.deleteByRequest_Idx(request.getIdx()); // 의뢰서 번호 : 관련 해시태그 매핑 삭제
-
             // 의뢰서 번호 : 관련 견적서 전부 삭제
             List<Estimate> estimates = estimateRepository.findByRequest_Idx(request.getIdx());
             for (Estimate estimate : estimates) {
@@ -238,23 +219,19 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public void delete(Integer idx) {
-       Request request = requestRepository.findById(idx)
-      .orElseThrow(() -> new IllegalArgumentException(idx + "번 의뢰서를 찾을 수 없습니다."));
-    // [1] 첨부 이미지 삭제
-    imageService.deleteImagesByTarget("request", idx);
-
-    // [2] 해시태그 매핑 삭제
-    hashtagMappingRepository.deleteByRequest_Idx(idx);
-
-    // [3] 해당 견적서들 삭제
-      List<Estimate> estimateList = estimateRepository.findByRequest_Idx(idx);
+        Request request = requestRepository.findById(idx)
+                                           .orElseThrow(() -> new IllegalArgumentException(idx + "번 의뢰서를 찾을 수 없습니다."));
+        // [1] 첨부 이미지 삭제
+        imageService.deleteImagesByTarget("request", idx);
+        // [2] 해시태그 매핑 삭제
+        hashtagMappingRepository.deleteByRequest_Idx(idx);
+        // [3] 해당 견적서들 삭제
+        List<Estimate> estimateList = estimateRepository.findByRequest_Idx(idx);
         for (Estimate estimate : estimateList) {
             estimateService.deleteWithImage(estimate.getIdx());
         }
-
-
-    // [4] 의뢰서 삭제
-    requestRepository.delete(request); 
+        // [4] 의뢰서 삭제
+        requestRepository.delete(request); 
     }
 
     //수정/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,94 +240,87 @@ public class RequestServiceImpl implements RequestService {
      public void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds){
         // [1] 기존 의뢰서 가져오기
         Request request = requestRepository.findById(dto.getIdx())
-            .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + dto.getIdx()));
-
+                                           .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + dto.getIdx()));
         // [2] 값 변경
         request.changeTitle(dto.getTitle());
         request.changeContent(dto.getContent());
         request.changeUseDate(dto.getUseDate());
         request.changeUseRegion(dto.getUseRegion());
         request.changeIsModify((byte) 1);
-
         // [3] 기존 해시태그 매핑 삭제
         hashtagMappingRepository.deleteByRequest_Idx(request.getIdx());
-
         // [4] 새로운 해시태그 추가
         if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
             String[] tags = dto.getHashtags().trim().split("\\s+");
-
             for (String rawTag : tags) {
                 String tag = rawTag.trim();
-
                 if (!tag.isEmpty()) {
                     Hashtag hashtag = hashtagRepository.findByTag(tag)
-                        .orElseGet(() -> hashtagRepository.save(Hashtag.builder().tag(tag).build()));
-
+                                                       .orElseGet(() -> hashtagRepository.save(Hashtag.builder().tag(tag).build()));
                     HashtagMapping mapping = HashtagMapping.builder()
-                        .hashtag(hashtag)
-                        .request(request)
-                        .build();
-
+                                                           .hashtag(hashtag)
+                                                           .request(request)
+                                                           .build();
                     hashtagMappingRepository.save(mapping);
                 }
             }
         }
-         // [5] 기존 이미지 삭제  (사용자 지정하는 이미지만 삭제)      
+        // [5] 기존 이미지 삭제  (사용자 지정하는 이미지만 삭제)      
         if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
-        for (Integer imageId : deleteImageIds) {
-            imageService.deleteImageFromTarget("request", dto.getIdx(), imageId);
+            for (Integer imageId : deleteImageIds) {
+                imageService.deleteImageFromTarget("request", dto.getIdx(), imageId);
+            }
         }
-    }
         // [6] 새로운 이미지 업로드
         if (newImages != null && !newImages.isEmpty()) {
             newImages.stream()
-                .filter(file -> !file.isEmpty())
-                .forEach(file -> {
-                    try {
-                        imageService.uploadAndMapImage("request", dto.getIdx(), file);
-                    } catch (Exception e) {
-                        log.error("이미지 업로드 실패: {}", e.getMessage());
-                    }
-                });
+                     .filter(file -> !file.isEmpty())
+                     .forEach(file -> {
+                        try {
+                            imageService.uploadAndMapImage("request", dto.getIdx(), file);
+                        } catch (Exception e) {
+                            log.error("이미지 업로드 실패: {}", e.getMessage());
+                        }
+            });
         }
-
+        // 의뢰서 수정 이벤트 발행(알림 생성용)
+        eventPublisher.publishEvent(new RequestEvent(this, dto.getIdx(), RequestEvent.Action.UPDATED));
     }
 
     // 낙찰현황(isDone) 변경
     @Override
     @Transactional
     public Integer changeIsDone(Integer idx,
-                            Integer estimateIdx, 
-                            String memberEmail,
-                            String partnerBno,
-                            Integer price) {
+                                Integer estimateIdx, 
+                                String memberEmail,
+                                String partnerBno,
+                                Integer price) {
         Request request = requestRepository.findById(idx)
-                .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
-
+                                           .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
         PaymentDTO savedPayment = paymentService.savePayment(memberEmail, partnerBno, estimateIdx, price);
         if(savedPayment == null){
             throw new IllegalArgumentException("결제 저장에 실패했습니다.");
         }
-
         // 낙찰된 의뢰서 상태 1로 변경
         request.changeIsDone((byte) 1);
         requestRepository.save(request);
-
         // 해당 의뢰서에 속한 견적서들 상태 변경
         EstimateDTO estimateDTO = estimateService.get(estimateIdx);
         estimateService.selectStatus(estimateDTO);
-
+        // 의뢰서 낙찰 이벤트 발행(알림 생성용)
+        eventPublisher.publishEvent(new RequestEvent(this, idx, RequestEvent.Action.BID));
         return savedPayment.getIdx();
     }
 
+    // 물품 수령 확인(isGet) 변경
     @Override
-    public Integer changeIsGet(Integer Idx) {
-        Request request = requestRepository.findById(Idx)
-                .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + Idx));
-
+    public Integer changeIsGet(Integer idx) {
+        Request request = requestRepository.findById(idx)
+                                           .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
         request.changeIsGet((byte) 1); // isGet을 1로 변경
         requestRepository.save(request);
-        return Idx;
-        }
-
+        // 의뢰서 수령 이벤트 발행(알림 생성용)
+        eventPublisher.publishEvent(new RequestEvent(this, idx, RequestEvent.Action.GET));
+        return idx;
+    }
 }
