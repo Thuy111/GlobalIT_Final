@@ -7,6 +7,8 @@ import com.bob.smash.entity.Member;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.RequestService;
+import com.bob.smash.service.ReviewService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +35,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final MemberRepository memberRepository; 
+    private final ReviewService reviewService;
 
     @GetMapping("/")
     public String estimate() {
@@ -108,10 +111,22 @@ public class RequestController {
         } else {
             model.addAttribute("currentUserEmail", null);
         }
+        String currentUserEmail = (authentication != null) ? authentication.getPrincipal().getAttribute("email") : null;
         
         // 해당 의뢰서에 대한 견적서 목록도 가져오기
         List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
         model.addAttribute("estimates", estimates);
+
+        //🤚 Review 작성 여부 Map<EstimateIdx, Boolean> 생성
+        Map<Integer, Boolean> reviewStatusMap = new HashMap<>();
+        if (currentUserEmail != null) {
+            for (EstimateDTO estimate : estimates) {
+                boolean reviewed = reviewService.hasUserReviewed(currentUserEmail, estimate.getIdx());
+                reviewStatusMap.put(estimate.getIdx(), reviewed);
+            }
+        }
+        model.addAttribute("reviewStatusMap", reviewStatusMap);
+
         return "smash/request/detail";
     }
 

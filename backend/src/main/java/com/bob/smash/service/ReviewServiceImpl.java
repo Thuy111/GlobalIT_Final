@@ -152,7 +152,7 @@ if (imageFiles != null && imageFiles.stream().anyMatch(file -> !file.isEmpty()))
                     .build();
         }
 
-        //리뷰평균점수
+  //리뷰평균점수
 @Override
 public double getAverageStarByEstimateIdx(Integer estimateIdx) {
     List<Review> reviews = reviewRepository.findByEstimate_Idx(estimateIdx);
@@ -162,6 +162,12 @@ public double getAverageStarByEstimateIdx(Integer estimateIdx) {
             .mapToDouble(r -> r.getStar())  // star는 Byte → double
             .average()
             .orElse(0.0);
+}
+
+// 🤚 Review 작성 여부
+@Override
+public boolean hasUserReviewed(String emailId, Integer estimateIdx) {
+    return reviewRepository.existsByMember_EmailIdAndEstimate_Idx(emailId, estimateIdx);
 }
 
 
