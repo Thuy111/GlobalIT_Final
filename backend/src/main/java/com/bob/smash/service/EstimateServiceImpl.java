@@ -13,6 +13,8 @@ import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.event.EstimateEvent;
 import com.bob.smash.repository.EstimateRepository;
+import com.bob.smash.repository.PartnerInfoRepository;
+import com.bob.smash.repository.RequestRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,6 +23,8 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @RequiredArgsConstructor
 public class EstimateServiceImpl implements EstimateService {
+  private final PartnerInfoRepository partnerInfoRepository;
+  private final RequestRepository requestRepository;
   private final EstimateRepository repository;
   private final ImageService imageService;
   private final ApplicationEventPublisher eventPublisher;
@@ -44,7 +48,7 @@ public class EstimateServiceImpl implements EstimateService {
       imageService.uploadAndMapImages("estimate", estimate.getIdx(), imageFiles);
     }
     // 견적서 생성 이벤트 발행(알림 생성용)
-    eventPublisher.publishEvent(new EstimateEvent(this, dto.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.CREATED));
+    eventPublisher.publishEvent(new EstimateEvent(this, estimate.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.CREATED));
     return estimate.getIdx();
   }
 
@@ -207,5 +211,51 @@ public class EstimateServiceImpl implements EstimateService {
         // (필요 시)리뷰 등 다른 연관 데이터도 여기서 삭제 가능
     }
     repository.deleteByPartnerInfo_Bno(bno); // 사업자번호로 견적 정보 전체 삭제
+  }
+
+  // dto → entity
+  Estimate dtoToEntity(EstimateDTO dto) {
+    Estimate estimate = Estimate.builder()
+                                .idx(dto.getIdx())
+                                .request(requestRepository.findById(dto.getRequestIdx())
+                                                          .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 의뢰서 정보입니다.")))
+                                .partnerInfo(partnerInfoRepository.findById(dto.getPartnerBno())
+                                                                  .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 업체 정보입니다.")))
+                                .title(dto.getTitle())
+                                .content(dto.getContent())
+                                .price(dto.getPrice())
+                                .returnDate(dto.getReturnDate())
+                                .isDelivery(Boolean.TRUE.equals(dto.getIsDelivery()) ? (byte) 1 : (byte) 0)
+                                .isPickup(Boolean.TRUE.equals(dto.getIsPickup()) ? (byte) 1 : (byte) 0)
+                                .isSelected(dto.getIsSelected())
+                                .isReturn(Boolean.TRUE.equals(dto.getIsReturn()) ? (byte) 1 : (byte) 0)
+                                .createdAt(dto.getCreatedAt())
+                                .modifiedAt(dto.getModifiedAt())
+                                .build();
+    return estimate;
+  }
+  // entity → dto
+  EstimateDTO entityToDto(Estimate estimate) {
+    EstimateDTO dto = EstimateDTO.builder()
+                                 .idx(estimate.getIdx())
+                                 .title(estimate.getTitle())
+                                 .content(estimate.getContent())
+                                 .price(estimate.getPrice())
+                                 .returnDate(estimate.getReturnDate())
+                                 .isDelivery(estimate.getIsDelivery() == 1)
+                                 .isPickup(estimate.getIsPickup() == 1)
+                                 .isSelected(estimate.getIsSelected())
+                                 .isReturn(estimate.getIsReturn() == 1)
+                                 .createdAt(estimate.getCreatedAt())
+                                 .modifiedAt(estimate.getModifiedAt())
+                                 .requestIdx(estimate.getRequest().getIdx())
+                                 .requestTitle(estimate.getRequest().getTitle())
+                                 .requestMemberId(estimate.getRequest().getMember().getEmailId())
+                                 .partnerBno(estimate.getPartnerInfo().getBno())
+                                 .partnerName(estimate.getPartnerInfo().getName())
+                                 .partnerTel(estimate.getPartnerInfo().getTel())
+                                 .partnerRegion(estimate.getPartnerInfo().getRegion())
+                                 .build();
+    return dto;
   }
 }
