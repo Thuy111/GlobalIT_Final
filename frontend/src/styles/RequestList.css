@@ -14,7 +14,7 @@
 
 /* 캐러셀 감싸는 래퍼 */
 .request-container .carousel-wrapper {
-  margin-bottom: 30px;
+  margin: 3rem auto 1rem auto;
 }
 
 /* 캐러셀 카드 */
