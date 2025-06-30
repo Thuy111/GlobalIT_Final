@@ -117,18 +117,31 @@ public class MemberController {
   // 회원 탈퇴
   @DeleteMapping("/delete")
   public String deleteMember(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient, OAuth2AuthenticationToken authentication, RedirectAttributes redirectAttributes) {
-    // access token 바로 사용 가능
-    String accessToken = authorizedClient.getAccessToken().getTokenValue();
+    try{
+      // access token 바로 사용 가능
+      String accessToken = authorizedClient.getAccessToken().getTokenValue();
+      MemberDTO currentUser = memberService.getCurrentUser(authentication);
 
-    MemberDTO currentUser = memberService.getCurrentUser(authentication);
+      if (currentUser == null) {
+          redirectAttributes.addFlashAttribute("error", "로그인 정보가 없습니다.");
+          return "redirect:"+frontServerUrl+"/profile?unlinked=false";
+      }
+      if (accessToken == null || accessToken.isEmpty()) {
+          redirectAttributes.addFlashAttribute("error", "Access token이 유효하지 않습니다.");
+          return "redirect:"+frontServerUrl+"/profile?unlinked=false";
+      }
 
-    switch (currentUser.getLoginType()) {
-        case kakao -> memberService.unlinkAndDeleteKakaoMember(accessToken, currentUser);
-        case google -> memberService.unlinkAndDeleteGoogleMember(accessToken, currentUser);
-        default -> throw new UnsupportedOperationException("지원하지 않는 로그인 타입입니다.");
+      switch (currentUser.getLoginType()) {
+          case kakao -> memberService.unlinkAndDeleteKakaoMember(accessToken, currentUser);
+          case google -> memberService.unlinkAndDeleteGoogleMember(accessToken, currentUser);
+          default -> throw new UnsupportedOperationException("지원하지 않는 로그인 타입입니다.");
+      }
+      redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+      return "redirect:"+frontServerUrl+"/profile?unlinked=true";
+    }catch(Exception e){
+      redirectAttributes.addFlashAttribute("error", "회원 탈퇴 중 오류가 발생했습니다: " + e.getMessage());
+      return "redirect:"+frontServerUrl+"/profile?unlinked=false";
     }
-    redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
-    return "redirect:"+frontServerUrl+"/profile?unlinked=true";
   }
 
 
