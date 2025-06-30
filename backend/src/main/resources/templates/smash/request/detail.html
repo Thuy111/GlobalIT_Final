@@ -56,7 +56,8 @@
           의뢰서 수정
       </a>
     
-      <a class="btn" th:if="${dto.isDone == 0}" th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
+      <a class="btn" th:if="${dto.isDone == 0 and currentUser != null and currentUser.role == 1}" 
+       th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}">
           견적서 작성
       </a>
     </div>
