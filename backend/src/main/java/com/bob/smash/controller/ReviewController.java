@@ -1,7 +1,9 @@
 package com.bob.smash.controller;
 
 import com.bob.smash.dto.CurrentUserDTO;
+import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ReviewDTO;
+import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.ImageService;
 import com.bob.smash.service.ReviewService;
 
@@ -25,6 +27,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final ImageService imageService;
+    private final EstimateService estimateService;
 
     // 리뷰 등록 폼
     @GetMapping("/register")
@@ -51,7 +54,12 @@ public class ReviewController {
             imageService.uploadAndMapImages("review", reviewIdx, imageFiles);
         }
 
-        return "redirect:/smash/review/list?estimateIdx=" + reviewDTO.getEstimateIdx();
+         // ✅ Truy ngược từ estimateIdx → requestIdx để quay lại trang chi tiết
+        Integer estimateIdx = reviewDTO.getEstimateIdx();
+        EstimateDTO estimateDTO = estimateService.get(estimateIdx);
+        Integer requestIdx = estimateDTO.getRequestIdx();
+
+        return "redirect:/smash/request/detail/" + requestIdx;             
     }
 
     // 리뷰 목록

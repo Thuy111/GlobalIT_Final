@@ -17,5 +17,9 @@ List<ReviewDTO> getReviewsByMemberId(String memberId);
 //평균별점
 double getAverageStarByEstimateIdx(Integer estimateIdx);
 
+// 🤚 Review 작성 여부
+ boolean hasUserReviewed(String emailId, Integer estimateIdx);
+ 
+
 
 }
