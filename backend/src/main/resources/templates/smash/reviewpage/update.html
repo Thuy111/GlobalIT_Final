@@ -12,11 +12,13 @@
         <form th:action="@{/smash/review/update}" method="post"
               enctype="multipart/form-data" th:object="${review}"
               onsubmit="return confirmUpdate();">
-            <!-- 필수 hidden -->
-            <input type="hidden" th:field="*{idx}" />
-            <input type="hidden" th:field="*{estimateIdx}" />
-            <input type="hidden" name="from" th:value="${from}" />
-            <input type="hidden" name="isImageReset" id="isImageReset" value="false" />
+            <!-- idx null 문제 해결: 직접 name/value 사용 -->
+    <input type="hidden" name="idx" th:value="${review.idx != null} ? ${review.idx} : ''" />
+    <input type="hidden" name="estimateIdx" th:value="${review.estimateIdx != null} ? ${review.estimateIdx} : ''" />
+    <input type="hidden" name="requestIdx" th:value="${review.requestIdx != null} ? ${review.requestIdx} : ''" />
+
+    <input type="hidden" name="from" th:value="${from}" />
+    <input type="hidden" name="isImageReset" id="isImageReset" value="false" />
 
             <!-- 이미지 업로드 -->
             <div id="image_preview_wrapper" class="image_preview_wrapper">
@@ -40,15 +42,15 @@
             <!-- 별점 -->
             <label for="star">별점 (1~5):</label>
             <div class="star-rating" id="star-rating">
-                <input type="radio" id="star5" name="star" value="5" required />
+                <input type="radio" id="star5" th:field="*{star}" value="5" />
                 <label for="star5" title="5 stars">★</label>
-                <input type="radio" id="star4" name="star" value="4" />
+                <input type="radio" id="star4" th:field="*{star}" value="4" />
                 <label for="star4" title="4 stars">★</label>
-                <input type="radio" id="star3" name="star" value="3" />
+                <input type="radio" id="star3" th:field="*{star}" value="3" />
                 <label for="star3" title="3 stars">★</label>
-                <input type="radio" id="star2" name="star" value="2" />
+                <input type="radio" id="star2" th:field="*{star}" value="2" />
                 <label for="star2" title="2 stars">★</label>
-                <input type="radio" id="star1" name="star" value="1" />
+                <input type="radio" id="star1" th:field="*{star}" value="1" />
                 <label for="star1" title="1 star">★</label>
             </div>
 

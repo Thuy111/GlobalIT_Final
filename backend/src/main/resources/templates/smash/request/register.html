@@ -11,7 +11,7 @@
                   <i class="fas fa-camera fa-2x"></i> 
                   <span><span id="image_count">0</span>/10</span>
                 </label>              
-                <button type="button" id="image_reset_btn">이미지 초기화</button>
+                <button type="button" id="image_reset_btn">이미지 전체삭제</button>
               </div>
                 <input type="file" id="image_files" name="imageFiles" class="re_image" multiple accept="image/*" hidden />
             </div>
@@ -181,7 +181,7 @@
           imageInput.files = dataTransfer.files;
         }
 
-        // 이미지 초기화 버튼 처리
+        // IMG 전체 삭제 버튼 처리
         const resetBtn = document.getElementById('image_reset_btn');
         resetBtn.addEventListener('click', function () {
           //  전부 thumnail 삭제
