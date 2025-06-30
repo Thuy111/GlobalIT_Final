@@ -3,6 +3,7 @@ package com.bob.smash.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.entity.Estimate;
+import com.bob.smash.event.EstimateEvent;
 import com.bob.smash.repository.EstimateRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import lombok.extern.log4j.Log4j2;
 public class EstimateServiceImpl implements EstimateService {
   private final EstimateRepository repository;
   private final ImageService imageService;
+  private final ApplicationEventPublisher eventPublisher;
 
   // 등록
   @Override
@@ -40,6 +43,8 @@ public class EstimateServiceImpl implements EstimateService {
     if (imageFiles != null && !imageFiles.isEmpty()) {
       imageService.uploadAndMapImages("estimate", estimate.getIdx(), imageFiles);
     }
+    // 견적서 생성 이벤트 발행(알림 생성용)
+    eventPublisher.publishEvent(new EstimateEvent(this, dto.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.CREATED));
     return estimate.getIdx();
   }
 
@@ -57,12 +62,12 @@ public class EstimateServiceImpl implements EstimateService {
     // 한 번에 모든 견적서의 이미지 목록을 조회
     Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
     return result.stream()
-        .map(estimate -> {
-            EstimateDTO dto = entityToDto(estimate);
-            dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
-            return dto;
-        }).toList();
-
+    .map(estimate -> {
+      EstimateDTO dto = entityToDto(estimate);
+      dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
+      return dto;
+    }).toList();
+    
   }
   // 목록: 의뢰서 번호로 필터링 (이미지 포함)
   @Override
@@ -74,32 +79,32 @@ public class EstimateServiceImpl implements EstimateService {
     Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
     // DTO에 이미지 세팅해서 반환
     return result.stream()
-        .map(estimate -> {
+    .map(estimate -> {
             EstimateDTO dto = entityToDto(estimate);
             dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
             return dto;
         }).toList();
-  }
-  
-  // 조회
-  @Override
-  public EstimateDTO get(Integer idx) {
-    Estimate estimate = repository.findById(idx)
+      }
+      
+      // 조회
+      @Override
+      public EstimateDTO get(Integer idx) {
+        Estimate estimate = repository.findById(idx)
                                   .orElseThrow(() -> new IllegalArgumentException(idx+"번 견적서를 찾을 수 없습니다."));
-    return entityToDto(estimate);
-  }
+                                  return entityToDto(estimate);
+                                }
   // 조회: 견적서 + 첨부 이미지 목록까지 DTO로 반환
   @Override
   public EstimateDTO getWithImage(Integer idx) {
     Estimate estimate = repository.findById(idx)
-      .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
+    .orElseThrow(() -> new IllegalArgumentException(idx + "번 견적서를 찾을 수 없습니다."));
     EstimateDTO dto = entityToDto(estimate);
     // 이미지 목록 조회 및 DTO에 세팅
     List<ImageDTO> images = imageService.getImagesByTarget("estimate", idx);
     dto.setImages(images);
     return dto;
   }
-
+  
   // 수정
   @Override
   @Transactional
@@ -119,21 +124,23 @@ public class EstimateServiceImpl implements EstimateService {
   @Override
   @Transactional
   public Integer modifyWithImage(EstimateDTO dto, 
-                                 List<Integer> deleteImageIdxList, 
-                                 List<MultipartFile> newImageFiles) {
+  List<Integer> deleteImageIdxList, 
+  List<MultipartFile> newImageFiles) {
     // 견적서 수정
     Estimate estimate = repository.findById(dto.getIdx())
                                   .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
-    estimate.changeTitle(dto.getTitle());
-    estimate.changeContent(dto.getContent());
-    estimate.changePrice(dto.getPrice());
-    estimate.changeIsDelivery(dto.getIsDelivery() ? (byte) 1 : (byte) 0);
-    estimate.changeIsPickup(dto.getIsPickup() ? (byte) 1 : (byte) 0);
-    estimate.changeReturnDate(dto.getReturnDate());
+                                  estimate.changeTitle(dto.getTitle());
+                                  estimate.changeContent(dto.getContent());
+                                  estimate.changePrice(dto.getPrice());
+                                  estimate.changeIsDelivery(dto.getIsDelivery() ? (byte) 1 : (byte) 0);
+                                  estimate.changeIsPickup(dto.getIsPickup() ? (byte) 1 : (byte) 0);
+                                  estimate.changeReturnDate(dto.getReturnDate());
     estimate.changeModifiedAt(dto.getModifiedAt());
     repository.save(estimate);
     // 이미지 수정(삭제 + 추가 통합) 처리
     imageService.updateImagesByTarget("estimate", dto.getIdx(), deleteImageIdxList, newImageFiles);
+    // 견적서 수정 이벤트 발행(알림 생성용)
+    eventPublisher.publishEvent(new EstimateEvent(this, dto.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.UPDATED));
     return estimate.getIdx();
   }
 
@@ -166,6 +173,8 @@ public class EstimateServiceImpl implements EstimateService {
                                   .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
     estimate.changeIsReturn(Boolean.TRUE.equals(dto.getIsReturn()) ? (byte) 1 : (byte) 0);
     repository.save(estimate);
+    // 견적서 반납 이벤트 발행(알림 생성용)
+    eventPublisher.publishEvent(new EstimateEvent(this, dto.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.RETURNED));
     return estimate.getIdx();
   }
 
