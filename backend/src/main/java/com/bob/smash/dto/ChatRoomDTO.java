@@ -7,13 +7,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ChatRoomDTO {
 
     private String roomId;
 
-    private String userA; // 나
+    private String myUser; // 나
 
-    private String userB; // 상대방
+    private String targetUser; // 상대방
 
     private String name; // 채팅방 이름
 }

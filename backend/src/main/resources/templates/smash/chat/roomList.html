@@ -1,0 +1,56 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+  <th:block th:fragment="content">
+
+    <div class="roomList_container">
+      <h1>테스트 유저 목록</h1>
+      <div style="display: flex; gap:4px; flex-wrap: wrap;">
+        <button type="button"
+            th:attr="data-me=${myUser},data-other='user1@example.com'"
+            onclick="startChat(this.dataset.me, this.dataset.other)">
+            runner01 님과 채팅하기
+        </button>
+        <button type="button"
+                th:attr="data-me=${myUser},data-other='user2@example.com'"
+                onclick="startChat(this.dataset.me, this.dataset.other)">
+            soccerking 님과 채팅하기
+        </button>
+        <button type="button"
+                th:attr="data-me=${myUser},data-other='user3@example.com'"
+                onclick="startChat(this.dataset.me, this.dataset.other)">
+            tennispro 님과 채팅하기
+        </button>
+        <button type="button"
+                th:attr="data-me=${myUser},data-other='seasign10@gmail.com'"
+                onclick="startChat(this.dataset.me, this.dataset.other)">
+            seasign10@gmail.com 님과 채팅하기
+        </button>
+      </div>
+
+
+      <table>
+        <tr th:if="${#lists.isEmpty(roomList)}">
+          <td colspan="3">채팅방이 없습니다.</td>
+        </tr>
+        <tr th:each="room : ${roomList}">
+            <td>
+                <a th:href="@{chatRoom(roomId=${room.roomId}, myUser=${myUser}, targetUser=${room.targetUser})}"
+                  th:class="|${room.roomId} chat_room|"
+                  th:text="${room.name}"></a>
+            </td>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      function startChat(me, otherUser) {
+          axios.post('/smash/chat/createRoom', {
+              username: me,
+              targetUsername: otherUser
+          }).then(res => {
+              const roomId = res.data.roomId;
+             window.location.href = '/smash/chat/chatRoom?roomId=' + roomId + '&myUser=' + me + '&targetUser=' + otherUser;
+          });
+      }
+    </script>
+  </th:block>
+</th:block>

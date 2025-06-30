@@ -17,10 +17,10 @@ public class ChatRoom {
     private String roomId;
 
     @Column(nullable = false)
-    private String userA;
+    private String myUser;
 
     @Column(nullable = false)
-    private String userB;
+    private String targetUser;
 
     @Column(nullable = false) // 방 이름
     private String name;

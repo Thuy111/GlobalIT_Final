@@ -1,5 +1,6 @@
 package com.bob.smash.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -23,9 +24,13 @@ public class GlobalModelAttributeAdvice {
 
     // 현재 로그인된 유저 정보
     @ModelAttribute
-    public void addCurrentUserToModel(Model model, HttpSession session) {
+    public void addCurrentUserToModel(Model model, HttpSession session, HttpServletRequest request) {
         CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
         System.out.println("Current User=========[[MODEL: currentUser]]==========" + currentUser);
+        if(currentUser == null) {
+            request.getSession().invalidate(); // 세션 무효화
+            // return; // 현재 유저가 없으면 아무것도 추가하지 않음
+        }
         model.addAttribute("currentUser", currentUser);
     }
 }

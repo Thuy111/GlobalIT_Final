@@ -11,6 +11,7 @@
       <link rel="stylesheet" href="/basic.css" />
       <link rel="stylesheet" href="/estimate.css" />
       <link rel="stylesheet" href="/request.css" />
+      <link rel="stylesheet" href="/chat.css" />
       <link rel="stylesheet" href="/reviewlist.css" />
       <!-- fontawsome -->
       <script src="https://kit.fontawesome.com/e7c9242ec2.js" crossorigin="anonymous"></script>
@@ -46,6 +47,11 @@
                   <i class="fa-solid fa-house"></i>홈
                 </a>
               </li>
+              <li th:if="${currentUser}" class="chat">
+                <a th:href="@{'/smash/chat/roomList?myUser=' + ${currentUser.emailId}}">
+                  <i class="fa-solid fa-comment"></i>채팅
+                </a>
+              </li>
               <li class="profile">
                 <a th:href="${@environment.getProperty('front.server.url') + '/profile'}">
                   <i class="fa-solid fa-user"></i>프로필
@@ -69,6 +75,9 @@
         } else if (currentUrl.includes('/profile')) {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .profile').addClass('active');
+        } else if(currentUrl.includes('/chat')) {
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .chat').addClass('active');
         } else {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .alarm').addClass('active');
