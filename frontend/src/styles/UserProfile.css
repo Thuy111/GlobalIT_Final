@@ -4,11 +4,28 @@
 /* Main Container */
 .profile_main_container{margin: 0 100px; display: flex; flex-direction: column;}
 
-/* Main Header */
-/* .profile_main_container h1{margin: 0 0 100px 0; text-align: left; font-size: 30px; font-weight: bold;} */
+/* Toggle button */
+.profile_toggle_container{position: fixed; top: 84px; left: 0px; width: 100%; background-color: rgb(243, 243, 243); z-index: 1;}
+.change_role_toggle{margin: 0 auto 0 auto ; padding: 1.5rem 2rem; display:flex ;justify-content: space-between; position: relative; width: 80%; align-items: center;}
+/* 기존의 checkbox 버튼 숨기기 */
+.toggle_input {display: none;}
+/* 토글 스타일 지정*/
+.toggle_label {position: relative;display: block;width: 40px;height: 24px;background-color: #4ED7F1;border-radius: 12px;cursor: pointer;transition: background-color 0.3s ease;}
+/* 토글 버튼 스타일 지정 */
+.toggle_label::before {content: "";position: absolute;top: 2px;left: 2px;width: 20px;height: 20px;background-color: white;border-radius: 50%;transition: transform 0.3s ease;}
+/* 토글 ON인 경우에 버튼 위치 지정 */
+.toggle_input:checked + .toggle_label::before {transform: translateX(16px);}
+.toggle_text{z-index: 1; font-size: 20px;} 
+
+/* Toggle dark theme */
+body.dark .toggle_input + .toggle_label{background-color: #FFFA8D;}
+body.dark .toggle_label::before{background-color: black;}
+body.dark .profile_toggle_container{background-color: rgb(46, 46, 46);}
+
+
 
 /* information box */
-.profile_main_container .profile_inform{display: flex; width: 60%; justify-content:space-around; margin: 0 auto 100px auto}
+.profile_inform{display: flex; width: 60%; justify-content:space-around; margin: 100px auto 100px auto}
 
 /* profile image */
 .profile_image { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #ccc; object-fit: fill;}

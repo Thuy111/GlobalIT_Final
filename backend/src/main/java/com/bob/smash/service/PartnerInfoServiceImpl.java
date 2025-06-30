@@ -14,7 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.PartnerInfoDTO;
 import com.bob.smash.dto.PartnerVerificationResponseDTO;
 import com.bob.smash.entity.Member;
@@ -23,8 +26,12 @@ import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.PartnerInfoRepository;
 import com.bob.smash.repository.PaymentRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +40,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   private final MemberRepository memberRepository;
   private final PaymentRepository paymentRepository;
   private final PartnerInfoRepository partnerInfoRepository;
+
   
   // 파트너 정보 조회 : 이메일
   @Override
@@ -133,6 +141,8 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     member.changeRole((byte) 1);
     memberRepository.save(member);
 
+    updateSessionRole(member.getRole());  // 세션 갱신
+
     return new PartnerVerificationResponseDTO(true, "사업자 등록 및 전환 완료");
   }
 
@@ -149,6 +159,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
     member.changeRole((byte)0);    
+    updateSessionRole(member.getRole());  // 세션 갱신
   }
 
   // 유저(사업자 번호가 DB에 등록된) -> 파트너
@@ -162,6 +173,30 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     if (hasPartnerInfo) {
       member.changeRole((byte)1);
       memberRepository.save(member);
+      updateSessionRole(member.getRole());  // 세션 갱신
     }
   }
+
+  
+  // 세션의 currentUser role 업데이트 헬퍼 메서드
+  private void updateSessionRole(Byte newRole) {
+    ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attr == null) return;
+    HttpServletRequest request = attr.getRequest();
+    HttpSession session = request.getSession(false);
+    if (session == null) return;
+
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) return;
+
+    CurrentUserDTO updatedUser = CurrentUserDTO.builder()
+        .emailId(currentUser.getEmailId())
+        .nickname(currentUser.getNickname())
+        .role(newRole)
+        .bno(currentUser.getBno())
+        .build();
+
+    session.setAttribute("currentUser", updatedUser);
+  }
+
 }
