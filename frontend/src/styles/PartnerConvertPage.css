@@ -1,0 +1,38 @@
+.partner_convert_form {
+  width: 100%;
+  max-width: 420px;
+  margin: 2rem auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* padding-right: 1rem; */
+}
+.partner_convert_form label {width: 100%; text-align: center;margin: 0.5rem 0;display: flex;flex-direction: column; justify-content: center;align-items: start;}
+.partner_convert_form label h2 {width: 100%; max-width: 420px; text-align: start;margin-left: 1rem;}
+.partner_convert_form input, .partner_convert_form textarea {width: 100%; max-width: 420px;}
+.partner_convert_form input.short_input {width: 100%; max-width: 320px;}
+.partner_convert_buttons {width:100%; display: flex; justify-content: center;align-items: center;flex-direction: column;}
+.partner_convert_buttons .error_text {margin: 1rem 0;}
+.partner_convert_buttons button{border-radius: 30px; margin-top: 1rem;}
+
+.partner_convert_form .partner_convert_tel {width: 100%; display: flex; justify-content: start; align-items: center; margin: 0.5rem 0;}
+.partner_convert_form .partner_convert_tel input {width: 80px;}
+
+.partner_convert_address {width:100%; max-width: 420px; display: flex; justify-content: space-around; align-items: center;}
+.partner_convert_form .partner_convert_address input{width: calc(100% - 120px);}
+
+body.dark .partner_convert_form .partner_convert_address button{background-color: #3a3a3a;color: white; border: 1px solid #575757;}
+body.dark .partner_convert_form .partner_convert_address button:hover{background-color: rgb(49, 49, 49);}
+.partner_convert_form .partner_convert_address button{
+  background-color: #e9e9e9;
+  color: #6a6a6a;
+  height: 34px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px !important;
+}
+.partner_convert_form .partner_convert_address button:hover{
+  background-color: #d9d9d9;
+  border: 1px solid #bdbdbd;
+  color: #333;
+}
