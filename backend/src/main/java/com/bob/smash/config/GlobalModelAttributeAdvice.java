@@ -36,13 +36,13 @@ public class GlobalModelAttributeAdvice {
         if ("true".equals(header)) {
             System.out.println("[ModelAttr] 프론트 요청 감지, 세션 검사 패스\"");
             return;
-        }else {
-            System.out.println("[ModelAttr] 프론트 요청 아님, 세션 무효화");
-            session.invalidate(); // 프론트 요청이 아니면 세션 무효화(프론트 검증 로직은 구현되어 있음)
         }
         
         // currentUser가 null이면 모델에 넣지 않음
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            System.out.println("[ModelAttr] 프론트 요청 아님, currentUser 없음, 세션 무효화");
+            session.invalidate(); // 프론트 요청이 아니면 세션 무효화(프론트 검증 로직은 구현되어 있음)
+        }
         model.addAttribute("currentUser", currentUser);
     }
 }

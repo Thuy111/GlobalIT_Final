@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import { useUser } from '../contexts/UserContext';
 import apiClient from '../config/apiClient';
+import axios from 'axios';
 import RequestList from '../pages/RequestList';
 
 const Home = () => {
   const { isDarkMode, setIsDarkMode } = useDarkMode();
+  const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
+  console.log('baseUrl:', baseUrl);
   const user = useUser();
   
   return (
@@ -19,7 +22,7 @@ const Home = () => {
 
         {user && user.role !== 1 && // 일반 사용자일 때만 요청 작성 버튼 표시
         <div className="reg_button_box">
-          <a className="register_btn" href={'/request/register'}>
+          <a className="register_btn" href={`${baseUrl}/smash/request/register`}>
             <i className="fa-solid fa-plus"></i>
           </a>
         </div>
@@ -37,7 +40,6 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
   const [isChecked, setIsChecked] = useState(isDarkMode); 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const baseUrl = import.meta.env.VITE_API_URL;
-  console.log('baseUrl:', baseUrl);
 
   useEffect(() => {
     // 로그인 상태 확인
@@ -81,7 +83,7 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
 
   const logoutHandler = async () => {
     try {
-      await apiClient.post(`${baseUrl}/logout`, {}, { withCredentials: true });
+      await axios.post(`${baseUrl}/logout`, {}, { withCredentials: true });
       setIsLoggedIn(false);
       alert('로그아웃 되었습니다.');
       // 로그아웃 후 홈으로 새로고침
