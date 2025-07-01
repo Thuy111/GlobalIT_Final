@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import apiClient from '../config/apiClient';
+import '../styles/ReviewList.css';
 
-function PartnerReviewList({ bno }) {
+function ReviewList({ bno }) {
   const [reviewList, setReviewList] = useState([]);
   const [avgStar, setAvgStar] = useState(0);
-
+  
   useEffect(() => {
     if (!bno) return;
-    apiClient.get(`/smash/review/bno`, { params: { bno } })
+    console.log("bno 확인:", bno);
+    apiClient.get(`/review/bno`, { params: { bno } })
       .then(res => {
+        console.log("응답 확인:", res.data);
         setReviewList(res.data.reviews);
         setAvgStar(res.data.avgScore);
       })
@@ -18,7 +21,7 @@ function PartnerReviewList({ bno }) {
   }, [bno]);
 
   return (
-    <div className="partner-review-list">
+    <div className="review_list">
 <h3>⭐ 평균 별점: {(avgStar ?? 0).toFixed(1)} / 5.0</h3>
 
 
@@ -35,7 +38,7 @@ function PartnerReviewList({ bno }) {
             <div className="comment">{review.comment}</div>
             <div className="images">
               {review.images && review.images.map((img, i) => (
-                <img key={i} src={img.path} alt="리뷰 이미지" />
+                <img key={i} src={`http://localhost:8080${img.path}`} alt="리뷰 이미지" />
               ))}
             </div>
           </div>
@@ -45,4 +48,4 @@ function PartnerReviewList({ bno }) {
   );
 }
 
-export default PartnerReviewList;
+export default ReviewList;
