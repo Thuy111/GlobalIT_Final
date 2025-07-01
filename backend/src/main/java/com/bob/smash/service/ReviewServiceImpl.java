@@ -44,8 +44,8 @@ public class ReviewServiceImpl implements ReviewService {
                               .createdAt(reviewDTO.getCreatedAt())
                               .build();
         Review savedReview = reviewRepository.save(review);
-        // 견적서 작성 이벤트 발행(알림 생성용)
-        eventPublisher.publishEvent(new ReviewEvent(this, reviewDTO.getIdx(), reviewDTO.getEstimateIdx(), reviewDTO.getRequestIdx(), ReviewEvent.Action.CREATED));
+        // 리뷰 작성 이벤트 발행(알림 생성용)
+        eventPublisher.publishEvent(new ReviewEvent(this, savedReview.getIdx(), reviewDTO.getEstimateIdx(), ReviewEvent.Action.CREATED));
         return savedReview.getIdx();
     }
 
@@ -93,7 +93,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 리뷰 수정
     @Override
-    public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles,boolean isImageReset) {
+    public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles, boolean isImageReset) {
         Review review = reviewRepository.findById(reviewDTO.getIdx())
                                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
         // 리뷰 내용 수정 (change 메서드 호출)
@@ -110,6 +110,8 @@ public class ReviewServiceImpl implements ReviewService {
             imageService.deleteImagesByTarget("review", review.getIdx());
             imageService.uploadAndMapImages("review", review.getIdx(), imageFiles);
         }
+        // 리뷰 수정 이벤트 발행(알림 생성용)
+        eventPublisher.publishEvent(new ReviewEvent(this, review.getIdx(), review.getEstimate().getIdx(), ReviewEvent.Action.UPDATED));
     }
 
     // 삭제
@@ -173,8 +175,8 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewDTO> getReviewsByPartnerBno(String bno) {
         List<Review> reviewList = reviewRepository.findByPartnerBno(bno);
         return reviewList.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                         .map(this::convertToDTO)
+                         .collect(Collectors.toList());
     }
 
     //업체별 평균 별점

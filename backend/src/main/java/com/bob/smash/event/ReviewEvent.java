@@ -7,14 +7,12 @@ import lombok.Getter;
 public class ReviewEvent extends ApplicationEvent {
   private final Integer reviewIdx;
   private final Integer estimateIdx;
-  private final Integer requestIdx;
   private final Action action;
 
-  public ReviewEvent(Object source, Integer reviewIdx, Integer estimateIdx, Integer requestIdx, Action action) {
+  public ReviewEvent(Object source, Integer reviewIdx, Integer estimateIdx, Action action) {
     super(source);
     this.reviewIdx = reviewIdx;
     this.estimateIdx = estimateIdx;
-    this.requestIdx = requestIdx;
     this.action = action;
   }
   
