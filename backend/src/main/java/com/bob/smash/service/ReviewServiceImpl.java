@@ -45,7 +45,7 @@ public class ReviewServiceImpl implements ReviewService {
                               .build();
         Review savedReview = reviewRepository.save(review);
         // 리뷰 작성 이벤트 발행(알림 생성용)
-        eventPublisher.publishEvent(new ReviewEvent(this, savedReview.getIdx(), reviewDTO.getEstimateIdx(), ReviewEvent.Action.CREATED));
+        eventPublisher.publishEvent(new ReviewEvent(this, savedReview.getIdx(), ReviewEvent.Action.CREATED));
         return savedReview.getIdx();
     }
 
@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
             imageService.uploadAndMapImages("review", review.getIdx(), imageFiles);
         }
         // 리뷰 수정 이벤트 발행(알림 생성용)
-        eventPublisher.publishEvent(new ReviewEvent(this, review.getIdx(), review.getEstimate().getIdx(), ReviewEvent.Action.UPDATED));
+        eventPublisher.publishEvent(new ReviewEvent(this, review.getIdx(), ReviewEvent.Action.UPDATED));
     }
 
     // 삭제

@@ -189,14 +189,22 @@ public class AlarmEventListener {
                                     .orElseThrow(() -> new RuntimeException("Review not found"));
     // 알림 수신 회원 설정 및 메시지 생성
     List<String> receiverId = new ArrayList<>();
+    receiverId.add(review.getEstimate().getPartnerInfo().getMember().getEmailId()); // 견적서 작성자 ID를 수신자로 설정
     String message = String.format("리뷰: %s", event.getAction().getDisplayName());
+    message = String.format(
+          "%s님이 [%s] 의뢰의 견적서에 리뷰를 %s했습니다. (별점: %d원)",
+          review.getMember().getNickname(), // 리뷰 작성자 닉네임
+          review.getEstimate().getRequest().getTitle(),
+          event.getAction().getDisplayName(), // 리뷰 작성 또는 수정
+          review.getStar() // 리뷰 별점
+    );
     // 신규 알림 생성
     NotificationDTO dto = NotificationDTO.builder()
                                          .notice(message)
                                          .createdAt(LocalDateTime.now())
-                                         .targetType("estimate")
-                                         .targetIdx(event.getEstimateIdx())
-                                         .memberIdList(receiverId)
+                                         .targetType("review")
+                                         .targetIdx(event.getReviewIdx())
+                                         .memberIdList(receiverId)         
                                          .build();
     service.createNotification(dto);
   }
