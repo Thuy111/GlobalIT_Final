@@ -77,7 +77,7 @@ function RequestList() {
     dots: false,
     infinite: true,
     speed: 500,
-    slidesToShow: 2,
+    slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
@@ -88,9 +88,13 @@ function RequestList() {
     <div className="request-container">
       {ddayFilteredRequests.length > 0 ? (
         <Slider {...sliderSettings} className="carousel-slider">
-          {ddayFilteredRequests.map((req) => (
-            <div key={req.idx} className="carousel-wrapper">
-              <div className="carousel-card">
+            {ddayFilteredRequests.map((req) => (
+              <div
+                key={req.idx}
+                className="carousel-wrapper"
+                onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${req.idx}`}
+              >
+                <div className="carousel-card" style={{ cursor: "pointer" }}>
                 <div className="carousel-overlay" />
                 <div className="carousel-badge">🔥 마감임박</div>
                 <div className="carousel-icon">
@@ -166,11 +170,13 @@ function RequestList() {
 
           <p className="request-content">{item.content}</p>
 
-          <div className="request-tags">
-            {item.hashtags?.split(" ").map((tag, index) => (
-              <span key={index} className="hashtag-badge">{tag}</span>
-            ))}
-          </div>
+            <div className="request-tags">
+              {item.hashtags && item.hashtags.split(" ").map((tag, index) => (
+                tag && (
+                  <span key={index} className="hashtag-badge">{tag}</span>
+                )
+              ))}
+            </div>
         </div>
       ))}
     </div>
