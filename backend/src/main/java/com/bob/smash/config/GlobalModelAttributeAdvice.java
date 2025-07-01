@@ -38,7 +38,7 @@ public class GlobalModelAttributeAdvice {
             return;
         }else {
             System.out.println("[ModelAttr] 프론트 요청 아님, 세션 무효화");
-            // session.invalidate(); // 프론트 요청이 아니면 세션 무효화(프론트 검증 로직은 구현되어 있음)
+            session.invalidate(); // 프론트 요청이 아니면 세션 무효화(프론트 검증 로직은 구현되어 있음)
         }
         
         // currentUser가 null이면 모델에 넣지 않음

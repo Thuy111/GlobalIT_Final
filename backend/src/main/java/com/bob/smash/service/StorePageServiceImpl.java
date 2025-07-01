@@ -37,7 +37,7 @@ public class StorePageServiceImpl implements StorePageService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 업체입니다."));
 
         // 이미지
-        List<String> imageURLs = introRepo.findByPartnerNumber(partner.getBno()).stream()
+        List<String> imageURLs = introRepo.findByPartnerInfo_Bno(partner.getBno()).stream()
                 .map(img -> "/uploads/" + img.getPath() + "/" + img.getSName())
                 .collect(Collectors.toList());
                 
