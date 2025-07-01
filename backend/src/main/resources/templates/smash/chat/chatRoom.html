@@ -2,7 +2,7 @@
   <th:block th:fragment="content">
 
     <div class="chatRoom_container">
-        currntUser : [[${currentUser.bno}]], [[${currentUser.emailId}]]
+      <div class="chat_start"><span>대화가 시작 되었습니다.</span></div>
       <div class="messageArea">
         <div th:each="message : ${messages}"
             class="msg"

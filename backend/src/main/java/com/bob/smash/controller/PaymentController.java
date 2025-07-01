@@ -112,6 +112,7 @@ public class PaymentController {
                 model.addAttribute("payment", payment);
                 model.addAttribute("now", java.time.LocalDateTime.now());
                 model.addAttribute("partner", "결제 정보");
+                model.addAttribute("title", "결제 상세");
                 return "smash/payment/detail"; // 결제 상세 페이지로 이동
             } else {
                 throw new Exception("결제 정보를 찾을 수 없습니다.");

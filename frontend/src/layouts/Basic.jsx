@@ -3,12 +3,13 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import { UnreadAlarmProvider } from '../contexts/UnreadAlarmContext';
 import Nav from '../components/Navigation.jsx';
-import apiClient from '../config/apiClient';
+import axios from 'axios';
 
 const Layout = () => {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(null); // null: 로딩 중
   const [user, setUser] = useState(null);
+  const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
 
   // 로그인 상태 확인
   useEffect(() => {
@@ -19,7 +20,7 @@ const Layout = () => {
 
     // 현재 로그인된 유저의 DB 정보
     const checkUser = async () => {
-      await apiClient.get(`/member/current-user`, { withCredentials: true })
+      await axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
         .then(res => {
           setUser(res.data); // Member 객체
           regUser(); // 유저 유효성 검사 (번호등록, 가입여부 등)
@@ -32,7 +33,7 @@ const Layout = () => {
 
     // 현재 유저의 유효성 검사
     const regUser = async () => {
-      await apiClient.get(`/member/check`, { withCredentials: true })
+      await axios.get(`${baseUrl}/smash/member/check`, { withCredentials: true }) // headers를 보내지 않기 위해 appClient 사용하지 않음
         .then(res => {
           if(res) setIsLoggedIn(true);
         })
