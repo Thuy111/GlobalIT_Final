@@ -21,7 +21,7 @@ import java.util.Map;
 public interface RequestService {
 
     // 등록 (이미지, hashtags 포함)
-    Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles);
+    Integer register(RequestDTO dto, List<MultipartFile> imageFiles);
 
     // 상세 페이지 보기 (detail 페이지용)
     RequestDTO get(Integer idx);

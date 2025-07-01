@@ -66,8 +66,9 @@ public class RequestServiceImpl implements RequestService {
 
     // 등록/////////////////////////////////////////////////////////////////////////////////
     @Override
-    public Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles) {
+    public Integer register(RequestDTO dto, List<MultipartFile> imageFiles) {
         Request entity = dtoToEntity(dto);
+        
         Request saved = requestRepository.save(entity);
 
         // [1] 해시태그 처리

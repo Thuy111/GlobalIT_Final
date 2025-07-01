@@ -1,5 +1,6 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
@@ -10,6 +11,7 @@ import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,37 +60,41 @@ public class RequestController {
     }
 
     @PostMapping("/register")
+    // public String register(@ModelAttribute RequestDTO requestDTO,
+    //                      @RequestParam("imageFiles") List<MultipartFile> imageFiles,
+    //                      @AuthenticationPrincipal OAuth2User oauth2User,
+    //                      Model model) {
+
+    //     String email;
+    //     if (oauth2User.getAttribute("email") != null) {
+    //         email = (String) oauth2User.getAttribute("email");
+    //     } else {
+    //         Map<String, Object> kakaoAccount = (Map<String, Object>) oauth2User.getAttribute("kakao_account");
+    //         email = (String) kakaoAccount.get("email");
+    //     }
+    //     log.info(" Logged in email: {}", email);
     public String register(@ModelAttribute RequestDTO requestDTO,
-                         @RequestParam("imageFiles") List<MultipartFile> imageFiles,
-                         @AuthenticationPrincipal OAuth2User oauth2User,
-                         Model model) {
+                       @RequestParam("imageFiles") List<MultipartFile> imageFiles,
+                       HttpSession session,
+                       Model model) {
 
-        String email;
-        if (oauth2User.getAttribute("email") != null) {
-            email = (String) oauth2User.getAttribute("email");
-        } else {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) oauth2User.getAttribute("kakao_account");
-            email = (String) kakaoAccount.get("email");
-        }
-        log.info(" Logged in email: {}", email);
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+       
+            String mainAddress = requestDTO.getUseRegion() != null ? requestDTO.getUseRegion().trim() : "";
+            String detailAddr = requestDTO.getDetailAddress() != null ? requestDTO.getDetailAddress().trim() : "";
+    
+            String fullAddress = mainAddress;
+            if (!detailAddr.isEmpty()) {
+                fullAddress += " " + detailAddr;
+            }
+    
+            requestDTO.setUseRegion(fullAddress);
+            requestDTO.setDetailAddress(null);
+    
+            Integer savedIdx = requestService.register(requestDTO, imageFiles);
+            model.addAttribute("msg", savedIdx);
+            return "redirect:/smash/request/detail/" + savedIdx;
 
-        Member member = memberRepository.findByEmailId(email)
-                        .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다"));
-
-        String mainAddress = requestDTO.getUseRegion() != null ? requestDTO.getUseRegion().trim() : "";
-        String detailAddr = requestDTO.getDetailAddress() != null ? requestDTO.getDetailAddress().trim() : "";
-
-        String fullAddress = mainAddress;
-        if (!detailAddr.isEmpty()) {
-            fullAddress += " " + detailAddr;
-        }
-
-        requestDTO.setUseRegion(fullAddress);
-        requestDTO.setDetailAddress(null);
-
-        Integer savedIdx = requestService.register(requestDTO, member, imageFiles);
-        model.addAttribute("msg", savedIdx);
-        return "redirect:/smash/request/detail/" + savedIdx;
     }
 
     // ✅ 수정 시작: 의뢰서 상세 보기
