@@ -4,6 +4,7 @@
     <div class="request_container">
       <div class="container mt-5">     
         <form th:action="@{/smash/request/register}" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="writerEmail" th:value="${currentUser.emailId}">
           <!-- 이미지 -->                 
             <div id="image_preview_wrapper" class="image_preview_wrapper">
               <div class="camera_wrapper">   
