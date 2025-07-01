@@ -33,11 +33,11 @@
 
             <div class="info">      
             <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
-            <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy.MM.dd')}]]</p>      
+            <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
             </div>
           </div>    
 
-          <div class="created_at">작성날짜: [[${#temporals.format(dto.createdAt, 'yy.MM.dd')}]]</div>
+          <div class="created_at">작성날짜: [[${#temporals.format(dto.createdAt, 'yyyy-MM-dd HH:mm')}]]</div>
         </div>
       </div>
     </div>
@@ -46,12 +46,12 @@
       
       <!-- 의뢰서 작성한 자만 보이는 버튼 -->
       <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');"
-        th:if="${dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}">
+        th:if="${dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId}">
         <input type="hidden" name="idx" th:value="${dto.idx}" />
         <button class="btn delete">의뢰서 삭제</button>
       </form>    
       
-      <a th:if="${dto.isModify != 1 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail }"           
+      <a th:if="${dto.isModify != 1 and dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId }"           
           th:href="@{'/smash/request/update/' + ${dto.idx}}" 
           class="btn"
           onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
@@ -153,7 +153,7 @@
               <input type="hidden" name="isDone" th:value="${dto.isDone}" />
               <input type="hidden" name="isSelected" th:value="2" />
               <button type="button"
-              th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUserEmail != null and dto.writerEmail == currentUserEmail}"
+              th:if="${estimate.isSelected == 0 and dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId}"
               onclick="handleIsDone(this)">낙찰</button>
             </div>    
           </form>
@@ -163,8 +163,8 @@
                       and dto.isGet == 0
                       and estimate.isSelected == 2 
                       and dto.writerEmail != null 
-                      and currentUserEmail != null 
-                      and dto.writerEmail == currentUserEmail}">
+                      and currentUser != null 
+                      and dto.writerEmail == currentUser.emailId}">
           <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
           <button type="submit" onclick="return confirm('대여를 확인하시겠습니까?');">대여확인</button>
         </form>        
@@ -187,8 +187,8 @@
               th:if="${estimate.isSelected == 2
                       and dto.isGet == 1
                       and dto.writerEmail != null
-                      and currentUserEmail != null
-                      and dto.writerEmail == currentUserEmail
+                      and currentUser != null
+                      and dto.writerEmail == currentUser.emailId
                       and reviewStatusMap != null
                       and (reviewStatusMap[estimate.idx] == null or !reviewStatusMap[estimate.idx])}">
           <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
@@ -215,14 +215,23 @@
         const bno = container.dataset.bno;
 
         const rIdx = Number(requestIdx);
-        const eIdx = Number(estimateIdx);    
+        const eIdx = Number(estimateIdx);  
+        
+        console.log("requestIdx:", rIdx);
+        console.log("estimateIdx:", eIdx);
+        console.log("memberEmail:", email);
+        console.log("partnerBno:", bno);
+        console.log("price:", price);
 
         const paymentDTO = {
           memberEmail: email,
           partnerBno: bno,
           estimateIdx: eIdx,
           suggestedPrice: Number(price)
-        }                       
+        } 
+        
+         console.log("✅ paymentDTO to send:", paymentDTO);
+        
         const isConfirm = confirm("낙찰하시겠습니까?");
         if(isConfirm){
           axios.post(`/smash/request/changeIsDone?requestIdx=${rIdx}&estimateIdx=${eIdx}`, paymentDTO)

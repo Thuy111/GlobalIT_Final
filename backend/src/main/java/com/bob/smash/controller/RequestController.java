@@ -163,10 +163,10 @@ public class RequestController {
     @PostMapping("/changeIsDone")
     public ResponseEntity<?> changeIsDone(
             @RequestParam("requestIdx") Integer idx,
-            @RequestParam("estimateIdx") Integer estimateIdx,
+            @RequestParam("estimateIdx") Integer eIdx,
             @RequestBody PaymentDTO dto) {
         try {
-            Integer paymentIdx = requestService.changeIsDone(idx, estimateIdx, dto.getMemberEmail(), dto.getPartnerBno(), dto.getSuggestedPrice());
+            Integer paymentIdx = requestService.changeIsDone(idx, eIdx, dto.getMemberEmail(), dto.getPartnerBno(), dto.getSuggestedPrice());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "성공적으로 낙찰 되었습니다. 결제서로 이동합니다.");
