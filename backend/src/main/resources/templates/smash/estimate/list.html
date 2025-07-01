@@ -2,7 +2,6 @@
   <th:block th:fragment="content">
     <div class="estimate_container">
       <div class="estimate_list">
-        <a th:href="@{/smash/estimate/register?requestIdx=1}">새로운 견적서 등록</a>
         <div class="estimate_box" th:each="estimate : ${result}">
           <div class="estimate_card">
             <div class="estimate_header">

@@ -47,7 +47,7 @@ public class EstimateServiceImpl implements EstimateService {
     if (imageFiles != null && !imageFiles.isEmpty()) {
       imageService.uploadAndMapImages("estimate", estimate.getIdx(), imageFiles);
     }
-    // 견적서 생성 이벤트 발행(알림 생성용)
+    // 견적서 작성 이벤트 발행(알림 생성용)
     eventPublisher.publishEvent(new EstimateEvent(this, estimate.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.CREATED));
     return estimate.getIdx();
   }
