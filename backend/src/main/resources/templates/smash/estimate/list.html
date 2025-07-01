@@ -1,11 +1,6 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <h1>
-        <a href="#">〈 </a>
-        견적서 목록<span>([[${#lists.size(result)}]]개)</span>
-      </h1>
-      <hr>
       <div class="estimate_list">
         <a th:href="@{/smash/estimate/register?requestIdx=1}">새로운 견적서 등록</a>
         <div class="estimate_box" th:each="estimate : ${result}">
@@ -35,7 +30,7 @@
               </tr>
               <tr>
                 <th>반납 기한</th>
-                <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
+                <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yy년 MM월 dd일 HH:mm').format(estimate.returnDate)}"></td>
               </tr>
               <tr>
                 <th>대여 방법</th>
@@ -51,8 +46,11 @@
             <p class="estimate_content">[[${estimate.content}]]</p>
             <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
               <div class="attached_image" th:each="image : ${estimate.images}">
-                <img th:src="@{${image.path}}" alt="첨부 이미지"/>
+                <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
               </div>
+            </div>
+            <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+              <img id="lightbox_img" src="" alt="zoom" />
             </div>
             <table>
               <caption>업체 정보</caption>
@@ -70,22 +68,10 @@
               </tr>
             </table>
             <p class="estimate_date">
-              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
+              [[${T(java.time.format.DateTimeFormatter).ofPattern('yy.MM.dd HH:mm').format(estimate.modifiedAt)}]]
               <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
-              <span th:if="${estimate.isSelected != null}"><br></span>
-              <span th:if="${estimate.isSelected == 0}">낙찰 대기중</span>
-              <span th:if="${estimate.isSelected == 1}">낙찰 실패</span>
-              <span th:if="${estimate.isSelected == 2}">낙찰 완료</span>
-              <span th:if="${estimate.isReturn != null}"> / </span>
-              <span th:if="${estimate.isReturn == true}">반납 완료</span>
-              <span th:if="${estimate.isReturn == false}">반납 대기중</span>
             </p>
           </div>
-          <form th:action="@{/smash/estimate/select}" method="post" th:id="'select-'+ ${estimate.idx}">
-            <input type="hidden" name="idx" th:value="${estimate.idx}" />
-            <input type="hidden" name="isSelected" th:value="2" />
-            <button type="submit" th:if="${estimate.isSelected == 0}">낙찰</button>
-          </form>
           <div th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
             <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
@@ -98,20 +84,26 @@
 
       <script>
         document.addEventListener("DOMContentLoaded", function () {
+          // 이미지 lightbox. Js code((이미지 크게 보기)
+          const images = document.querySelectorAll(".zoomable_image");
+          const lightbox = document.getElementById("lightbox");
+          const lightboxImg = document.getElementById("lightbox_img");
+          images.forEach(img => {
+            img.addEventListener("click", () => {
+              lightbox.style.display = "flex";
+              lightboxImg.src = img.src;
+            });
+          });
+          window.closeLightbox = function () {
+            lightbox.style.display = "none";
+            lightboxImg.src = "";
+          };
+
           // 삭제 confirm
           const deleteForms = document.querySelectorAll("form[id^='delete-']");
           deleteForms.forEach(form => {
             form.addEventListener("submit", function (e) {
               if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
-                e.preventDefault();
-              }
-            });
-          });
-          // 낙찰 confirm
-          const selectForms = document.querySelectorAll("form[id^='select-']");
-          selectForms.forEach(form => {
-            form.addEventListener("submit", function (e) {
-              if (!confirm("이 견적서를 낙찰 처리하시겠습니까?")) {
                 e.preventDefault();
               }
             });

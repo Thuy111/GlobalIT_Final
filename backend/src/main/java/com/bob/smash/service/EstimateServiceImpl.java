@@ -83,20 +83,34 @@ public class EstimateServiceImpl implements EstimateService {
     Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
     // DTO에 이미지 세팅해서 반환
     return result.stream()
-    .map(estimate -> {
-            EstimateDTO dto = entityToDto(estimate);
-            dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
-            return dto;
-        }).toList();
-      }
-      
-      // 조회
-      @Override
-      public EstimateDTO get(Integer idx) {
-        Estimate estimate = repository.findById(idx)
+                 .map(estimate -> {EstimateDTO dto = entityToDto(estimate);
+                                   dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
+                                   return dto;
+                                  }).toList();
+  }
+  // 목록: 사업자 번호로 필터링 (이미지 포함)
+  @Override
+  public List<EstimateDTO> getListByPartnerBno(String partnerBno) {
+    // 사업자 번호로 견적서 필터링
+    List<Estimate> result = repository.findByPartnerInfo_Bno(partnerBno);
+    List<Integer> idxList = result.stream().map(Estimate::getIdx).toList();
+    // 견적서 이미지 한 번에 조회
+    Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", idxList);
+    // DTO에 이미지 세팅해서 반환
+    return result.stream()
+                 .map(estimate -> {EstimateDTO dto = entityToDto(estimate);
+                                   dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
+                                   return dto;
+                                  }).toList();
+  }
+
+  // 조회
+  @Override
+  public EstimateDTO get(Integer idx) {
+    Estimate estimate = repository.findById(idx)
                                   .orElseThrow(() -> new IllegalArgumentException(idx+"번 견적서를 찾을 수 없습니다."));
-                                  return entityToDto(estimate);
-                                }
+    return entityToDto(estimate);
+  }
   // 조회: 견적서 + 첨부 이미지 목록까지 DTO로 반환
   @Override
   public EstimateDTO getWithImage(Integer idx) {

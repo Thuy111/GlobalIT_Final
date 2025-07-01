@@ -1,7 +1,10 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.service.EstimateService;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -12,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,16 +31,31 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class EstimateController {
   private final EstimateService service;
 
+  @Value("${front.server.url}")
+  private String frontendUrl;
+
   @GetMapping("/")
   public String estimate() {
     return "redirect:/smash/estimate/list";
   }
 
-  // 목록(이미지 포함)
+  // 업체가 쓴 견적서 목록(이미지 포함)
   @GetMapping("/list")
-  public void list(Model model) {
-    model.addAttribute("result", service.getListWithImage());
+  public void list(@RequestParam("partnerBno") String partnerBno, Model model) {
+    model.addAttribute("result", service.getListByPartnerBno(partnerBno));
     model.addAttribute("title", "견적서 목록");
+  }
+  // 내가 쓴 견적서 목록(이미지 포함)
+  @GetMapping("/mylist")
+  public String myList(HttpSession session, Model model) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    // currentUser 또는 bno가 null이면 홈으로 리다이렉트
+    if (currentUser == null || currentUser.getBno() == null) {
+      return frontendUrl;
+    }
+    model.addAttribute("result", service.getListByPartnerBno(currentUser.getBno()));
+    model.addAttribute("title", "견적서 목록");
+    return "redirect:/smash/estimate/list?partnerBno=" + currentUser.getBno();
   }
 
   // 등록(이미지 포함)

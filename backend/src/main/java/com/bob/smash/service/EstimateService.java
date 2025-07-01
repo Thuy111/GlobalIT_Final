@@ -15,6 +15,8 @@ public interface EstimateService {
   List<EstimateDTO> getListWithImage();
   // 목록(의뢰서 번호로 필터링)
   List<EstimateDTO> getListByRequestIdx(Integer requestIdx);
+  // 목록(사업자 번호로 필터링)
+  List<EstimateDTO> getListByPartnerBno(String partnerBno);
   // 조회
   EstimateDTO get(Integer idx);
   // 조회(이미지 포함)

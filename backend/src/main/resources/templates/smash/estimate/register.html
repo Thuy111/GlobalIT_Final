@@ -1,11 +1,6 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <!-- <h1>
-        <a href="/smash/estimate/list">〈 </a>
-        견적서 작성
-      </h1> -->
-      
       <div class="estimate_form">
         <form th:action="@{/smash/estimate/register}" enctype="multipart/form-data" method="post">
           <input type="hidden" name="requestIdx" th:value="${requestIdx}" required>
@@ -24,9 +19,7 @@
                 <span><span id="image_count">0</span>/10</span>
                 <input type="file" name="imageFiles" multiple hidden>
               </label>
-              <p id="image_reset_btn">이미지 초기화</p>
-            </div>
-            <div class="attached_image_area">
+              <button type="button" id="image_reset_btn">이미지 전체삭제</button>
             </div>
           </div>
 
@@ -73,49 +66,81 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // 첨부 이미지관련 기능
+        let selectedFiles = [];
         const imageInput = document.querySelector('input[name="imageFiles"]');
-        const attachedArea = document.querySelector('.attached_image_area');
-        const imageCountDisplay = document.getElementById('image_count');
+        const wrapper = document.getElementById('image_preview');
+        const countSpan = document.getElementById('image_count');
         const MAX_IMAGES = 10;
+        
         // 이미지 선택 시 미리보기 처리
-        imageInput.addEventListener('change', function (event) {
-          const files = event.target.files;
-          if (files.length > MAX_IMAGES) {
-            alert("이미지는 최대 10개까지만 업로드할 수 있습니다.");
+        imageInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+          // 사진 10개까지
+          if (selectedFiles.length + files.length > MAX_IMAGES) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
             imageInput.value = '';
             return;
           }
-          // 기존 이미지 초기화
-          attachedArea.innerHTML = '';
-          if (files.length > 0) {
-            Array.from(files).forEach(file => {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('attached_image');
-                const imgElement = document.createElement('img');
-                imgElement.src = e.target.result;
-                imgElement.alt = "첨부 이미지";
-                wrapper.appendChild(imgElement);
-                attachedArea.appendChild(wrapper);
-              };
-              reader.readAsDataURL(file);
-            });
-            imageCountDisplay.textContent = files.length;
-          } else {
-            imageCountDisplay.textContent = '0';
-          }
+          files.forEach(file => {
+            selectedFiles.push(file);
+            renderThumbnail(file);
+          });
+          updateCount();
+          refreshFileInput();
         });
 
-        // 이미지 초기화 버튼 처리
+        function renderThumbnail(file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'image_thumb';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = '✕';
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove_btn';
+            removeBtn.onclick = () => {
+              wrapper.removeChild(thumb);
+              selectedFiles = selectedFiles.filter(f => f !== file);
+              updateCount();
+              refreshFileInput();
+            };
+
+            thumb.appendChild(img);
+            thumb.appendChild(removeBtn);
+
+            // camera_wrapper 다음에 삽입
+            const label = wrapper.querySelector('.camera_wrapper');
+            if (label && label.nextSibling) {
+              wrapper.insertBefore(thumb, label.nextSibling);
+            } else {
+              wrapper.appendChild(thumb);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        function updateCount() {
+          countSpan.innerText = selectedFiles.length;
+        }
+
+        function refreshFileInput() {
+          const dataTransfer = new DataTransfer();
+          selectedFiles.forEach(f => dataTransfer.items.add(f));
+          imageInput.files = dataTransfer.files;
+        }
+
+        // IMG 전체 삭제 버튼 처리
         const resetBtn = document.getElementById('image_reset_btn');
         resetBtn.addEventListener('click', function () {
+          //  모든 thumnail 삭제
+          const thumbs = wrapper.querySelectorAll('.image_thumb');
+          thumbs.forEach(thumb => thumb.remove());      
+          selectedFiles = [];        
           imageInput.value = '';
-          attachedArea.innerHTML = '';
-          const noImageDiv = document.createElement('div');
-          noImageDiv.classList.add('no_image');
-          attachedArea.appendChild(noImageDiv);
-          imageCountDisplay.textContent = '0';
+          updateCount();       
+          refreshFileInput();
         });
 
         // 현재 시간을 모든 datetime input에 입력
