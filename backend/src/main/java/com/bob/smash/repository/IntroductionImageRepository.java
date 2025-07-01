@@ -4,6 +4,6 @@ import com.bob.smash.entity.IntroductionImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface IntroductionImageRepository extends JpaRepository<IntroductionImage, Long>{
+public interface IntroductionImageRepository extends JpaRepository<IntroductionImage, Integer>{
     List<IntroductionImage> findByPartnerInfo_Bno(String bno);
 }

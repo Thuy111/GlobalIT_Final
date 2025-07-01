@@ -36,38 +36,43 @@ public class StorePageServiceImpl implements StorePageService {
         PartnerInfo partner = partnerRepo.findByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 업체입니다."));
 
-        // 이미지
         List<String> imageURLs = introRepo.findByPartnerInfo_Bno(partner.getBno()).stream()
                 .map(img -> "/uploads/" + img.getPath() + "/" + img.getSName())
                 .collect(Collectors.toList());
-                
-        // 견적서
+
         List<Estimate> estimates = estimateRepo.findByPartnerInfo_Bno(partner.getBno());
-        List<Long> estimateIds = estimates.stream().map(e -> Long.valueOf(e.getIdx())).toList();
 
         List<EstimateDTO> estimateDTOs = estimates.stream()
-                .map(e -> {
-                    EstimateDTO dto = new EstimateDTO();
-                    dto.setIdx(e.getIdx());
-                    dto.setTitle(e.getTitle());
-                    dto.setContent(e.getContent());
-                    dto.setPrice(e.getPrice());
-                    dto.setCreatedAt(e.getCreatedAt());
-                    return dto;
-                }).toList();     
-        
+                .map(e -> EstimateDTO.builder()
+                        .idx(e.getIdx())
+                        .title(e.getTitle())
+                        .content(e.getContent())
+                        .price(e.getPrice())
+                        .isDelivery(e.getIsDelivery() != null && e.getIsDelivery() == 1)
+                        .isPickup(e.getIsPickup() != null && e.getIsPickup() == 1)
+                        .returnDate(e.getReturnDate())
+                        .isSelected(e.getIsSelected())
+                        .isReturn(e.getIsReturn() != null && e.getIsReturn() == 1)
+                        .createdAt(e.getCreatedAt())
+                        .modifiedAt(e.getModifiedAt())
+                        // 생략된 필드들 추가 가능
+                        .build())
+                .collect(Collectors.toList());
+
+        boolean isOwner = partner.getMember() != null
+                && partner.getMember().getEmailId().equals(loggedInMemberId);
 
         return StorePageDTO.builder()
+                .bno(partner.getBno())
                 .code(partner.getCode())
                 .name(partner.getName())
                 .tel(partner.getTel())
                 .region(partner.getRegion())
                 .description(partner.getDescription())
-                .bno(partner.getBno())
-                .isOwner(partner.getMember().equals(loggedInMemberId))
+                .isOwner(isOwner)
                 .imageURLs(imageURLs)
                 .estimates(estimateDTOs)
-                .build();           
+                .build();
     }
 
     @Override
@@ -82,10 +87,10 @@ public class StorePageServiceImpl implements StorePageService {
         partner.changeDescription(dto.getDescription());
         partnerRepo.save(partner);
 
-        // 이미지 삭제
+       // 이미지 삭제
         if (dto.getDeleteImageIds() != null) {
-            for (Long id : dto.getDeleteImageIds()) {
-                introRepo.deleteById(id); // 실제 파일 삭제 로직은 생략
+            for (Integer id : dto.getDeleteImageIds()) {
+                introRepo.deleteById(id); // IntroductionImage의 PK가 Integer라서 타입 일치
             }
         }
 

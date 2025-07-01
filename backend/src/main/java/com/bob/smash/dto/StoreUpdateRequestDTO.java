@@ -14,5 +14,5 @@ public class StoreUpdateRequestDTO {
     private String bno; // 업체 bno로 식별
 
     private List<MultipartFile> newImages; // 새로 업로드할 이미지들
-    private List<Long> deleteImageIds; // 삭제할 이미지 ID 목록
+    private List<Integer> deleteImageIds; // 삭제할 이미지 ID 목록 (Long -> Integer로 변경)
 }
