@@ -64,7 +64,7 @@ public class AlarmEventListener {
         NotificationDTO dto = NotificationDTO.builder()
             .notice(message)
             .createdAt(LocalDateTime.now())
-            .targetType("estimate")
+            .targetType("request")
             .targetIdx(lose.getIdx())
             .memberIdList(List.of(lose.getPartnerInfo().getMember().getEmailId()))
             .build();
@@ -171,6 +171,25 @@ public class AlarmEventListener {
         throw new IllegalArgumentException("Unknown action type: " + event.getAction());
       }
     }
+    // 신규 알림 생성
+    NotificationDTO dto = NotificationDTO.builder()
+                                         .notice(message)
+                                         .createdAt(LocalDateTime.now())
+                                         .targetType("estimate")
+                                         .targetIdx(event.getEstimateIdx())
+                                         .memberIdList(receiverId)
+                                         .build();
+    service.createNotification(dto);
+  }
+
+  @EventListener
+  public void handleReview(ReviewEvent event) {
+    // 이벤트 발생한 리뷰 정보 조회
+    Review review = reviewRepository.findById(event.getReviewIdx())
+                                    .orElseThrow(() -> new RuntimeException("Review not found"));
+    // 알림 수신 회원 설정 및 메시지 생성
+    List<String> receiverId = new ArrayList<>();
+    String message = String.format("리뷰: %s", event.getAction().getDisplayName());
     // 신규 알림 생성
     NotificationDTO dto = NotificationDTO.builder()
                                          .notice(message)

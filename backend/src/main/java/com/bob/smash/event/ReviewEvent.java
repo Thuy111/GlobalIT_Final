@@ -4,22 +4,23 @@ import org.springframework.context.ApplicationEvent;
 import lombok.Getter;
 
 @Getter
-public class EstimateEvent extends ApplicationEvent {
+public class ReviewEvent extends ApplicationEvent {
+  private final Integer reviewIdx;
   private final Integer estimateIdx;
   private final Integer requestIdx;
   private final Action action;
-  
-  public EstimateEvent(Object source, Integer estimateIdx, Integer requestIdx, Action action) {
+
+  public ReviewEvent(Object source, Integer reviewIdx, Integer estimateIdx, Integer requestIdx, Action action) {
     super(source);
+    this.reviewIdx = reviewIdx;
     this.estimateIdx = estimateIdx;
     this.requestIdx = requestIdx;
     this.action = action;
   }
-
+  
   public enum Action {
     CREATED("작성"), 
-    UPDATED("수정"),
-    RETURNED ("반납");
+    UPDATED("수정");
 
     private final String displayName;
 
