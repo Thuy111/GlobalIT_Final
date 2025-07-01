@@ -12,26 +12,18 @@
           <input type="hidden" name="requestIdx" th:value="${dto.requestIdx}" readonly>
           <input type="hidden" class="datetime" name="modifiedAt" readonly>
 
-          <div id="image_preview">
-            <div id="image_control">
-              <label id="upload_images">
-                <i class="fa-solid fa-camera" style="font-size: 2em;"></i>
-                <span><span id="image_count">0</span>/10</span>
-                <input type="file" name="imageFiles" multiple hidden>
-              </label>
-              <p id="reset_images">이미지 초기화</p>
-              <input type="hidden" name="delete_images">
+          <div id="image_preview_wrapper" class="image_preview_wrapper">
+            <div class="camera_wrapper">   
+              <label for="image_Files" class="image_upload_box">                
+                <i class="fas fa-camera fa-2x"></i> 
+                <span><span id="image_count">0</span>/10</span>               
+              </label>              
+              <button type="button" id="image_reset_btn">이미지 전체삭제</button>
             </div>
-            <div class="attached_image_area">
-              <div th:if="${#lists.isEmpty(dto.images)}">
-              </div>
-              <div class="attached_image" th:each="image : ${dto.images}">
-                <img th:src="@{${image.path}}" alt="첨부 이미지"/>
-                <label>
-                  <i class="remove_image fa-solid fa-xmark"></i>
-                  <input type="checkbox" name="remove_check" th:value="${image.imageIdx}" hidden>
-                </label>
-              </div>
+            <input type="file" id="image_Files" name="newImages" class="re_image" multiple accept="image/*" hidden />
+            <div class="image_thumb" th:each="image : ${dto.images}">
+              <img th:src="@{${image.path}}" alt="기존 이미지" />
+              <button type="button" class="remove_btn" th:attr="data-id=${image.imageIdx}">✕</button>
             </div>
           </div>
 
@@ -79,121 +71,142 @@
       document.addEventListener("DOMContentLoaded", function () {
         // 요소 모음
         const form = document.querySelector("form");
-        const attachedArea = document.querySelector(".attached_image_area");
-        const imageCountSpan = document.getElementById("image_count");
-        const uploadInput = document.querySelector('input[type="file"][name="imageFiles"]');
-        const deleteInput = document.querySelector('input[type="hidden"][name="delete_images"]');
-        const resetBtn = document.getElementById("reset_images");
-        // 시간 입력
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        const datetimeValue = now.toISOString().slice(0, 16);
-        document.querySelectorAll('.datetime').forEach(input => input.value = datetimeValue);
-        // 1. 이미지 개수 표시
-        function updateImageCount() {
-          let existingCount = 0;
-          attachedArea.querySelectorAll(".attached_image").forEach(div => {
-            const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
-            if (!check || !check.checked) existingCount++;
-          });
-          let addedCount = attachedArea.querySelectorAll(".added_image").length;
-          imageCountSpan.textContent = existingCount + addedCount;
-        }
-        // 2. 삭제할 이미지 목록 관리
-        function updateDeleteImagesInput() {
-          const removeIdxs = Array.from(
-            attachedArea.querySelectorAll('.attached_image input[type="checkbox"][name="remove_check"]:checked')
-          ).map(chk => chk.value);
-          deleteInput.value = removeIdxs.join(",");
-        }
-        // 3. 기존 이미지 삭제 UI
-        function setupExistingImageDeleteUI() {
-          attachedArea.querySelectorAll(".attached_image").forEach(imgDiv => {
-            const check = imgDiv.querySelector('input[type="checkbox"][name="remove_check"]');
-            const xIcon = imgDiv.querySelector(".remove_image");
-            if (!check || !xIcon) return;
-            function toggle() {
-              check.checked = !check.checked;
-              imgDiv.classList.toggle("remove_check", check.checked);
-              xIcon.className = check.checked
-                ? "remove_image fa-solid fa-plus"
-                : "remove_image fa-solid fa-xmark";
-              updateImageCount();
-              updateDeleteImagesInput();
-            }
-            xIcon.onclick = function (e) { e.preventDefault(); toggle(); };
-            check.onchange = function () { toggle(); };
+        let selectedFiles = [];
+        const imageInput = document.getElementById('image_Files');
+        const wrapper = document.getElementById('image_preview_wrapper');
+        const countSpan = document.getElementById('image_count');
+
+        // [1] 기존 이미지 삭제 버튼
+        function bindOldRemoveBtns() {
+          wrapper.querySelectorAll('.image_thumb:not(.new) .remove_btn').forEach(btn => {
+            btn.onclick = function () {
+              const thumb = this.closest('.image_thumb');
+              thumb.remove();
+
+              // 삭제 대상 ID hidden input으로 추가
+              const deletedInput = document.createElement("input");
+              deletedInput.type = "hidden";
+              deletedInput.name = "deleteImageIds";  // 컨트롤러에서 처리
+              deletedInput.value = this.dataset.id;
+              document.querySelector("form").appendChild(deletedInput);
+
+              updateCount();
+            };
           });
         }
-        // 4. 신규 이미지 업로드 및 미리보기
-        if (uploadInput) {
-          uploadInput.addEventListener("change", function () {
-            const files = Array.from(uploadInput.files);
-            let existingCount = 0;
-            attachedArea.querySelectorAll(".attached_image").forEach(div => {
-              const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
-              if (!check || !check.checked) existingCount++;
-            });
-            let addedCount = attachedArea.querySelectorAll(".added_image").length;
-            if ((existingCount + addedCount + files.length) > 10) {
-              alert("이미지는 최대 10개까지 첨부할 수 있습니다.");
-              uploadInput.value = "";
-              return;
-            }
-            files.forEach(file => {
-              const reader = new FileReader();
-              reader.onload = function (evt) {
-                const div = document.createElement("div");
-                div.className = "added_image";
-                div.innerHTML = `
-                  <img src="${evt.target.result}" alt="추가 이미지 미리보기"/>
-                  <i class="remove_image fa-solid fa-xmark"></i>
-                `;
-                div.querySelector(".remove_image").onclick = function () {
-                  div.remove();
-                  updateImageCount();
-                };
-                attachedArea.appendChild(div);
-                updateImageCount();
+
+        // [2] 새 이미지 추가
+        imageInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+          if (selectedFiles.length + getOldImageCount() + files.length > 10) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+            imageInput.value = '';
+            return;
+          }
+          selectedFiles = selectedFiles.concat(files);
+          refreshFileInput();
+          updateCount();
+          renderAllThumbnails();
+        });
+
+        // [3] 썸네일 렌더링(새로 추가된 파일만)
+        function renderAllThumbnails() {
+          // 기존 - new 썸네일 삭제
+          wrapper.querySelectorAll('.image_thumb.new').forEach(el => el.remove());
+          selectedFiles.forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const thumb = document.createElement('div');
+              thumb.className = 'image_thumb new';
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              const removeBtn = document.createElement('button');
+              removeBtn.innerText = '✕';
+              removeBtn.className = 'remove_btn';
+              removeBtn.onclick = () => {
+                selectedFiles.splice(idx, 1);
+                refreshFileInput();
+                updateCount();
+                renderAllThumbnails();
               };
-              reader.readAsDataURL(file);
-            });
+              thumb.appendChild(img);
+              thumb.appendChild(removeBtn);
+              const label = wrapper.querySelector('.camera_wrapper');
+              if (label && label.nextSibling) {
+                wrapper.insertBefore(thumb, label.nextSibling);
+              } else {
+                wrapper.appendChild(thumb);
+              }
+            };
+            reader.readAsDataURL(file);
           });
         }
-        // 5. 이미지 초기화 버튼
-        if (resetBtn) {
-          resetBtn.onclick = function () {
-            attachedArea.querySelectorAll(".attached_image").forEach(div => {
-              const check = div.querySelector('input[type="checkbox"][name="remove_check"]');
-              if (check && check.checked) {
-                check.checked = false;
-                div.classList.remove("remove_check");
-                div.querySelector(".remove_image").className = "remove_image fa-solid fa-xmark";
-              }
-            });
-            attachedArea.querySelectorAll(".added_image").forEach(div => div.remove());
-            if (uploadInput) uploadInput.value = "";
-            updateImageCount();
-            updateDeleteImagesInput();
-          };
+
+        // [4] 이미지 수 업데이트
+        function updateCount() {
+          countSpan.innerText = getOldImageCount() + selectedFiles.length;
         }
-        // 6. 폼 제출 시 검증
-        form.addEventListener("submit", function (e) {
-          updateDeleteImagesInput();
-          const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
-          const isPickup = form.querySelector('input[name="isPickup"]').checked;
+        function getOldImageCount() {
+          return wrapper.querySelectorAll('.image_thumb:not(.new)').length;
+        }
+
+        // [5] input[type=file] 값 재설정
+        function refreshFileInput() {
+          const dataTransfer = new DataTransfer();
+          selectedFiles.forEach(f => dataTransfer.items.add(f));
+          imageInput.files = dataTransfer.files;
+        }
+
+        // [6] 전체 삭제 버튼
+        document.getElementById('image_reset_btn').onclick = function () {
+          const form = document.querySelector("form");
+          // 기존 삭제 input 모두 삭제
+          form.querySelectorAll('input[name="deleteImageIds"]').forEach(el => el.remove());
+          // 기존 이미지 hidden 처리
+          wrapper.querySelectorAll('.image_thumb:not(.new)').forEach(thumb => {
+            const removeBtn = thumb.querySelector('.remove_btn');
+            if (removeBtn && removeBtn.dataset.id) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'deleteImageIds';
+              input.value = removeBtn.dataset.id;
+              form.appendChild(input);
+            }
+          });
+          // 썸네일 모두 삭제
+          wrapper.querySelectorAll('.image_thumb').forEach(el => el.remove());
+          selectedFiles = [];
+          imageInput.value = '';
+          refreshFileInput();
+          updateCount();
+        };
+
+        // [7] 최초 로딩 시 기존 이미지 삭제 이벤트 바인딩 및 카운트
+        window.addEventListener('DOMContentLoaded', () => {
+          updateCount();
+          bindOldRemoveBtns();
+          // 날짜 입력 자동 처리
+          const now = new Date();
+          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+          document.querySelectorAll('.datetime').forEach(input => input.value = now.toISOString().slice(0, 16));
+        });
+
+        // [8] 대여 방법 필수 체크
+        document.querySelector("form").addEventListener("submit", function (e) {
+          const isDelivery = this.querySelector('input[name="isDelivery"]').checked;
+          const isPickup = this.querySelector('input[name="isPickup"]').checked;
           if (!isDelivery && !isPickup) {
             e.preventDefault();
             alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
           }
           ['isDelivery', 'isPickup'].forEach(name => {
-            const checkbox = form.querySelector(`input[name="${name}"]`);
-            if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
+            const checkbox = this.querySelector(`input[name="${name}"]`);
+            if (!checkbox.checked && !this.querySelector(`input[type="hidden"][name="${name}"]`)) {
               const hidden = document.createElement("input");
               hidden.type = "hidden";
               hidden.name = name;
               hidden.value = "false";
-              form.appendChild(hidden);
+              this.appendChild(hidden);
             }
           });
         });
