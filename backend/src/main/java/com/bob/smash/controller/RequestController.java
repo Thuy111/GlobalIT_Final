@@ -59,20 +59,7 @@ public class RequestController {
         return "/smash/request/register";
     }
 
-    @PostMapping("/register")
-    // public String register(@ModelAttribute RequestDTO requestDTO,
-    //                      @RequestParam("imageFiles") List<MultipartFile> imageFiles,
-    //                      @AuthenticationPrincipal OAuth2User oauth2User,
-    //                      Model model) {
-
-    //     String email;
-    //     if (oauth2User.getAttribute("email") != null) {
-    //         email = (String) oauth2User.getAttribute("email");
-    //     } else {
-    //         Map<String, Object> kakaoAccount = (Map<String, Object>) oauth2User.getAttribute("kakao_account");
-    //         email = (String) kakaoAccount.get("email");
-    //     }
-    //     log.info(" Logged in email: {}", email);
+    @PostMapping("/register")  
     public String register(@ModelAttribute RequestDTO requestDTO,
                        @RequestParam("imageFiles") List<MultipartFile> imageFiles,
                        HttpSession session,
