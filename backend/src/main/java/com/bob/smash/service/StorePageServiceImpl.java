@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.nio.file.Paths;
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bob.smash.dto.EstimateDTO;
@@ -30,9 +32,11 @@ public class StorePageServiceImpl implements StorePageService {
     private final IntroductionImageRepository introRepo;
     private final EstimateRepository estimateRepo;
 
+    @Value("${com.bob.upload.path}")
+    private String uploadPath;
 
     @Override
-    public StorePageDTO getStorePage(String code, String loggedInMemberId){
+    public StorePageDTO getStorePage(String code, String loggedInMemberId) {
         PartnerInfo partner = partnerRepo.findByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 업체입니다."));
 
@@ -55,7 +59,6 @@ public class StorePageServiceImpl implements StorePageService {
                         .isReturn(e.getIsReturn() != null && e.getIsReturn() == 1)
                         .createdAt(e.getCreatedAt())
                         .modifiedAt(e.getModifiedAt())
-                        // 생략된 필드들 추가 가능
                         .build())
                 .collect(Collectors.toList());
 
@@ -75,49 +78,90 @@ public class StorePageServiceImpl implements StorePageService {
                 .build();
     }
 
+    
     @Override
     @Transactional
     public void updateStore(StoreUpdateRequestDTO dto) {
         PartnerInfo partner = partnerRepo.findById(dto.getBno())
                 .orElseThrow(() -> new IllegalArgumentException("업체 정보 없음"));
 
+        // 업체 기본 정보 업데이트
         partner.changeName(dto.getName());
         partner.changeTel(dto.getTel());
         partner.changeRegion(dto.getRegion());
         partner.changeDescription(dto.getDescription());
         partnerRepo.save(partner);
 
-       // 이미지 삭제
+        // 이미지 삭제 처리
         if (dto.getDeleteImageIds() != null) {
             for (Integer id : dto.getDeleteImageIds()) {
-                introRepo.deleteById(id); // IntroductionImage의 PK가 Integer라서 타입 일치
+                introRepo.findById(id).ifPresent(img -> {
+                    // 실제 파일 삭제
+                    String fullPath = Paths.get(uploadPath, img.getPath(), img.getSName()).toAbsolutePath().toString();
+                    File file = new File(fullPath);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+                    // DB에서 삭제
+                    introRepo.deleteById(id);
+                });
             }
         }
 
-        // 이미지 업로드
+        // 이미지 순서 및 대표 이미지 설정
+        if (dto.getImageOrders() != null) {
+            for (StoreUpdateRequestDTO.ImageOrder imageOrder : dto.getImageOrders()) {
+                introRepo.findById(imageOrder.getImageId()).ifPresent(img -> {
+                    img.changeOrderIndex(imageOrder.getOrderIndex());
+                    img.changeIsMain((byte) (imageOrder.isMain() ? 1 : 0));
+                    introRepo.save(img);
+                });
+            }
+        }
+
+        // 새 이미지 업로드
         if (dto.getNewImages() != null) {
             for (MultipartFile file : dto.getNewImages()) {
-                String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                String path = "uploads/intro"; // 예시 경로
-                File saveFile = new File(path, storedName);
-                try {
-                    file.transferTo(saveFile);
-                    IntroductionImage img = IntroductionImage.builder()
-                            .partnerInfo(partner)
-                            .sName(storedName)
-                            .oName(file.getOriginalFilename())
-                            .path("intro")
-                            .type(file.getContentType())
-                            .size(file.getSize())
-                            .isMain((byte)0)
-                            .orderIndex(0)
-                            .build();
-                    introRepo.save(img);
-                } catch (IOException e) {
-                    throw new RuntimeException("이미지 저장 실패", e);
-                }
+                saveIntroductionImage(partner, file);
             }
         }
     }
 
+    private void saveIntroductionImage(PartnerInfo partner, MultipartFile file) {
+        String uuid = UUID.randomUUID().toString();
+        String originalName = file.getOriginalFilename();
+        String ext = originalName.substring(originalName.lastIndexOf("."));
+        String saveName = uuid + ext;
+
+        // 절대 경로 확보 및 폴더 생성
+        String absUploadPath = Paths.get(uploadPath, "intro").toAbsolutePath().toString();
+        File dir = new File(absUploadPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        File savePath = new File(dir, saveName);
+
+        // 로그 추가
+        System.out.println("파일 경로: " + savePath.getAbsolutePath());
+        try {
+            file.transferTo(savePath);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 실패: " + savePath.getAbsolutePath(), e);
+        }
+
+        // DB에 저장
+        IntroductionImage img = IntroductionImage.builder()
+                .partnerInfo(partner)
+                .sName(saveName)
+                .oName(originalName)
+                .path("intro")
+                .type(file.getContentType())
+                .size(file.getSize())
+                .isMain((byte) 0)
+                .orderIndex(0)
+                .build();
+        introRepo.save(img);
+    }
 }

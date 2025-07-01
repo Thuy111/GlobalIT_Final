@@ -1,6 +1,9 @@
 package com.bob.smash.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,4 +18,14 @@ public class StoreUpdateRequestDTO {
 
     private List<MultipartFile> newImages; // 새로 업로드할 이미지들
     private List<Integer> deleteImageIds; // 삭제할 이미지 ID 목록 (Long -> Integer로 변경)
+    private List<ImageOrder> imageOrders;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ImageOrder {
+        private Integer imageId;
+        private int orderIndex;
+        private boolean isMain;
+    }
 }

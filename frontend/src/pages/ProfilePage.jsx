@@ -18,8 +18,6 @@ const Profile = () => {
   const isPartner = profileData?.partner ?? false;
 
 
-  
-
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -32,6 +30,7 @@ const Profile = () => {
         const res = await apiClient.get(`/profile`, {
           withCredentials: true,
         });
+         console.log('프로필 응답:', res.data); // 👈 여기 추가
         setProfileData(res.data);
         setIsChecked(res.data?.partner ?? false);
         setIsLoggedIn(true);

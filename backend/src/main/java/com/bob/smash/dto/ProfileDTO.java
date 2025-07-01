@@ -28,5 +28,6 @@ public class ProfileDTO {
     private String partnerName; // 업체명
     private String partnerTel;
     private String partnerRegion;
+    private String code;
 
 }

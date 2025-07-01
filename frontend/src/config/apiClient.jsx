@@ -9,4 +9,5 @@ const apiClient = axios.create({
   },
 });
 
+export { baseUrl };  // baseUrl을 export
 export default apiClient;
