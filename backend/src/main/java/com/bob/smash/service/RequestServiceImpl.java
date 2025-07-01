@@ -16,7 +16,7 @@ import com.bob.smash.event.RequestEvent;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.HashtagMappingRepository;
 import com.bob.smash.repository.HashtagRepository;
-
+import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.PaymentRepository;
 import com.bob.smash.repository.RequestRepository;
 
@@ -52,6 +52,7 @@ public class RequestServiceImpl implements RequestService {
     private final EstimateService estimateService;
     private final PaymentRepository paymentRepository;
     private final PaymentService paymentService;
+    private final MemberRepository memberRepository;
 
     // hashtag
     private final HashtagRepository hashtagRepository;
@@ -66,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
     // 등록/////////////////////////////////////////////////////////////////////////////////
     @Override
     public Integer register(RequestDTO dto, Member member,List<MultipartFile> imageFiles) {
-        Request entity = dtoToEntity(dto, member);
+        Request entity = dtoToEntity(dto);
         Request saved = requestRepository.save(entity);
 
         // [1] 해시태그 처리
@@ -297,6 +298,7 @@ public class RequestServiceImpl implements RequestService {
                                 Integer price) {
         Request request = requestRepository.findById(idx)
                                            .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
+
         PaymentDTO savedPayment = paymentService.savePayment(memberEmail, partnerBno, estimateIdx, price);
         if(savedPayment == null){
             throw new IllegalArgumentException("결제 저장에 실패했습니다.");
@@ -322,5 +324,60 @@ public class RequestServiceImpl implements RequestService {
         // 의뢰서 수령 이벤트 발행(알림 생성용)
         eventPublisher.publishEvent(new RequestEvent(this, idx, RequestEvent.Action.GET));
         return idx;
+    }
+
+    // DTO → Entity 변환
+    Request dtoToEntity(RequestDTO dto) {
+        return Request.builder()
+                    .idx(dto.getIdx())
+                    .title(dto.getTitle())
+                    .content(dto.getContent())
+                    .useDate(dto.getUseDate())                
+                    .useRegion(dto.getUseRegion()) 
+                    .isDone((byte) 0)
+                    .isGet((byte) 0)
+                    .isModify((byte) 0)
+                    .createdAt(LocalDateTime.now())
+                    .member(memberRepository.findByEmailId(dto.getWriterEmail())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지않는 회원입니다.")))
+                    .build();
+    }
+
+    // Entity → DTO 변환
+    RequestDTO entityToDto(Request request,List<Hashtag> hashtags) {  //hashtag
+        //hashtags 묶음
+        String hashtagStr = hashtags.stream()
+        .map(Hashtag::getTag)  
+        .collect(Collectors.joining(" "));
+        //주소
+        String useRegion = request.getUseRegion();
+        String mainAddress = "";
+        String detailAddress = "";
+
+        if (useRegion != null) {
+            int spaceIndex = useRegion.indexOf(" ");
+            if (spaceIndex > 0) {
+                mainAddress = useRegion.substring(0, spaceIndex);
+                detailAddress = useRegion.substring(spaceIndex + 1);
+            } else {
+                mainAddress = useRegion;
+            }
+        }
+
+        return RequestDTO.builder()
+                        .idx(request.getIdx())
+                        .title(request.getTitle())
+                        .content(request.getContent())
+                        .useDate(request.getUseDate())
+                        .createdAt(request.getCreatedAt())
+                        .useRegion(mainAddress)         // 메인 주소
+                        .detailAddress(detailAddress)  // 나머지 주소
+                        .hashtags(hashtagStr)  //묶음 Hashtag 추가
+                        .hashtagList(hashtags)  //Hashtag 추가  
+                        .isModify(request.getIsModify())
+                        .isDone(request.getIsDone())
+                        .isGet(request.getIsGet())
+                        .writerEmail(request.getMember().getEmailId())      
+                        .build();
     }
 }
