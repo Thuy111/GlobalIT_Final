@@ -31,7 +31,7 @@ public class ReviewController {
     public String showReviewRegisterForm(@RequestParam("estimateIdx") Integer estimateIdx, Model model) {
         model.addAttribute("estimateIdx", estimateIdx);
         model.addAttribute("title", "리뷰 등록");
-        return "smash/reviewPage/register";
+        return "smash/review/register";
     }
 
     // 리뷰 등록 처리
@@ -66,7 +66,7 @@ public class ReviewController {
         model.addAttribute("estimateIdx", estimateIdx);
         model.addAttribute("avgScore", avg);
         model.addAttribute("title", "리뷰 목록");
-        return "smash/reviewPage/list";
+        return "smash/review/list";
     }
 
     // 리뷰 수정 폼
@@ -89,7 +89,7 @@ public class ReviewController {
         model.addAttribute("review", reviewDTO);
         model.addAttribute("from", from); // ⭐ 추가
         model.addAttribute("title", "리뷰 수정");
-        return "smash/reviewPage/update";
+        return "smash/review/update";
     }
 
     // 리뷰 수정 처리
@@ -146,6 +146,6 @@ public class ReviewController {
         model.addAttribute("reviewList", myReviewList);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("isMyList", true); // 내 리뷰 전용 표시
-        return "smash/reviewPage/list";
+        return "smash/review/list";
     }
 }
