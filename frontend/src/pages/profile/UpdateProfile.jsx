@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TitleBar from '../../components/TitleBar';
-import apiClient from '../../config/apiClient';
+import apiClient, { baseUrl } from '../../config/apiClient';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UpdateProfile.css';
 

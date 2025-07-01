@@ -1,58 +1,71 @@
 import { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { useUser } from '../contexts/UserContext'; 
 import TitleBar from '../components/TitleBar';
 import EditableField from '../components/UpdateStore';
 import Slider from 'react-slick';
-import apiClient from '../config/apiClient';
+import apiClient , { baseUrl } from '../config/apiClient';
+import EstimateList from '../components/EstimateList'; 
+import ReviewList from '../components/ReviewList';
 import '../styles/StoreInfo.css';
 
-const dummyImages = [
-  'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
-  'https://images.pexels.com/photos/863988/pexels-photo-863988.jpeg',
-  'https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg',
-  'https://images.pexels.com/photos/163452/basketball-dunk-blue-game-163452.jpeg',
-]
+const sliderSettings = {
+  dots: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  arrows: false,
+};
 
-// react-slick 슬라이더 설정
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: false,
-  };
-
-// StorePage
 const StorePage = () => {
-  const [view, setView] = useState('estimate'); // 'estimate' or 'review'
+  const [view, setView] = useState('estimate');
   const [isEditing, setIsEditing] = useState(false);
   const nameRef = useRef();
-
+  const [isOwner, setIsOwner] = useState(false);
   const [storeName, setStoreName] = useState('');
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
   const [description, setDescription] = useState('');
   const [bno, setBno] = useState('');
   const [imageURLs, setImageURLs] = useState([]);
-  const [newImages, setNewImages] = useState([]); // 새로 업로드할 이미지 파일들
-  const [deleteImageIds, setDeleteImageIds] = useState([]); // 삭제할 이미지 ID 목록
+  const [newImages, setNewImages] = useState([]);
+  const [deleteImageIds, setDeleteImageIds] = useState([]);
+  const [previewImages, setPreviewImages] = useState([]);  // 미리보기 이미지 상태 추가
   const [estimatesCount, setEstimatesCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
 
+  const { code } = useParams();
+  const user = useUser();
+  const loggedInMemberId = user?.emailId;
+  
 
   const handleNewImagesChange = (e) => {
-    setNewImages([...newImages, ...e.target.files]);
+    const files = Array.from(e.target.files);
+    setNewImages([...newImages, ...files]);
+
+    // 미리보기 이미지 추가
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages([...previewImages, ...previews]);
+  };
+
+  const handleImageDelete = (imgId) => {
+    setDeleteImageIds([...deleteImageIds, imgId]);
+  };
+
+  const handleAllImagesDelete = () => {
+    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제
   };
 
   useEffect(() => {
-    // 서버에서 업체 정보 가져오기
     if (!code || !loggedInMemberId) return;
 
     apiClient
       .get(`/store/${code}`, { params: { memberId: loggedInMemberId } })
       .then((res) => {
+        console.log("서버 응답 데이터:", res.data); // 서버 응답 확인
         const data = res.data;
         setStoreName(data.name || '');
         setLocation(data.region || '');
@@ -62,23 +75,18 @@ const StorePage = () => {
         setImageURLs(data.imageURLs || []);
         setEstimatesCount(data.estimates?.length || 0);
         setReviewsCount(data.reviews?.length || 0);
+        setIsOwner(data.owner);  
       })
       .catch((err) => {
         console.error('업체 정보 불러오기 실패:', err);
       });
-  
 
     if (isEditing && nameRef.current) {
       nameRef.current.focus();
     }
-  },[code, loggedInMemberIdisEditing]);
+  }, [code, loggedInMemberId, isEditing]);
 
-  const viewHandler = (type) => {
-    setView(type);
-    // 견적서 & 리뷰 API 호출
-  };
-
-  const updateHandelr = async () => {
+  const updateHandler = async () => {
     if (isEditing) {
       try {
         const formData = new FormData();
@@ -88,21 +96,25 @@ const StorePage = () => {
         formData.append('description', description);
         formData.append('bno', bno);
 
-        // 새 이미지 추가
         newImages.forEach((file) => {
           formData.append('newImages', file);
         });
 
-    await apiClient.put(`/store/update`, formData, {
+        // 삭제할 이미지 ID도 같이 전송
+        deleteImageIds.forEach((id) => {
+          formData.append('deleteImageIds', id);
+        });
+
+        await apiClient.put(`/store/update`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
         alert('업체 정보가 수정되었습니다.');
 
-        // 수정 후 다시 최신 정보 불러오기
         setIsEditing(false);
         setNewImages([]);
         setDeleteImageIds([]);
+        setPreviewImages([]);  // 미리보기 이미지 상태 초기화
 
         const res = await apiClient.get(`/store/${code}`, { params: { memberId: loggedInMemberId } });
         const data = res.data;
@@ -123,14 +135,20 @@ const StorePage = () => {
     }
   };
 
+  const viewHandler = (viewType) => {
+    setView(viewType);  // 클릭한 버튼에 맞춰 탭을 변경
+  };
+
   return (
     <>
       <TitleBar title="업체 이름" />
       <div className="storeInfo_container">
-        {/* 상점 이미지 수정 버튼 */}
-        <div className="updateStore">
-          <span onClick={updateHandler}>{isEditing ? '수정 완료' : '업체정보 수정'}</span>
-        </div>
+        {isOwner && (
+          <div className="updateStore">
+            <span onClick={updateHandler}>{isEditing ? '수정 완료' : '업체정보 수정'}</span>
+          </div>
+        )}
+
         {/* 이미지 슬라이더 */}
         {imageURLs.length > 0 ? (
           <Slider {...sliderSettings} className="carousel-slider">
@@ -138,7 +156,7 @@ const StorePage = () => {
               <div key={idx} className="carousel-wrapper" style={{ position: 'relative' }}>
                 <div className="carousel-card">
                   <div className="carousel-overlay" />
-                  <img src={imgUrl} alt={`store image ${idx}`} />
+                  <img src={`${baseUrl}${imgUrl}`} alt={`store image ${idx}`} />
                 </div>
               </div>
             ))}
@@ -154,6 +172,25 @@ const StorePage = () => {
           <div style={{ marginTop: '1rem' }}>
             <label htmlFor="newImages">새 이미지 추가: </label>
             <input type="file" id="newImages" multiple onChange={handleNewImagesChange} />
+          </div>
+        )}
+
+        {/* 미리보기 이미지 */}
+        {isEditing && previewImages.length > 0 && (
+          <div className="image-preview">
+            {previewImages.map((preview, idx) => (
+              <img key={idx} src={preview} alt={`preview ${idx}`} style={{ width: '100px', margin: '5px' }} />
+            ))}
+          </div>
+        )}
+
+        {/* 이미지 삭제 및 전체 삭제 */}
+        {isEditing && (
+          <div>
+            <button onClick={handleAllImagesDelete}>전체 이미지 삭제</button>
+            {imageURLs.map((img, idx) => (
+              <button key={idx} onClick={() => handleImageDelete(idx)}>삭제 {idx + 1}</button>
+            ))}
           </div>
         )}
 
@@ -214,10 +251,11 @@ const StorePage = () => {
           </div>
 
           <hr className="line" />
+
           <div className="view_more">
             <div className={`button ${view === 'estimate' ? 'active' : ''}`} onClick={() => viewHandler('estimate')}>
               견적서 목록({estimatesCount})
-            </div>
+          </div>
             <div className={`button ${view === 'review' ? 'active' : ''}`} onClick={() => viewHandler('review')}>
               대여 후기({reviewsCount})
             </div>
@@ -226,11 +264,11 @@ const StorePage = () => {
           <div className="view_content">
             {view === 'estimate' ? (
               <div className="estimate_list">
-                <p>견적서 목록이 여기에 표시됩니다.</p>
+                <EstimateList bno={bno} />
               </div>
             ) : (
               <div className="review_list">
-                <p>대여 후기 목록이 여기에 표시됩니다.</p>
+                <ReviewList bno={bno}/>
               </div>
             )}
           </div>

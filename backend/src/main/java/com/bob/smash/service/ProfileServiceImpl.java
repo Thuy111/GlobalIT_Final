@@ -69,6 +69,7 @@ public class ProfileServiceImpl implements ProfileService {
             builder.partnerName(p.getName());
             builder.partnerTel(p.getTel());
             builder.partnerRegion(p.getRegion());
+            builder.code(p.getCode());
         });
 
         return builder.build();

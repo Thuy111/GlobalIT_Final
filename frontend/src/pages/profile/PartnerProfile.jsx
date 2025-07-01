@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import TitleBar from '../../components/TitleBar';
-import apiClient from '../../config/apiClient';
+import apiClient, { baseUrl }  from '../../config/apiClient';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
@@ -88,7 +88,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
         <section className="profile_account_setting">
           <h2>SMaSh 이용 내역</h2>
           <ul>
-            <li>회사 소개</li>
+             <li onClick={() => navigate(`/store/${profile.code}`)}>회사 소개</li>
             <li>보낸 견적서</li>
             <li>작성된 리뷰</li>
           </ul>

@@ -21,7 +21,7 @@ function App() {
         { path: '/profile', element: <Profile /> },
         { path: '/profile/update', element: <UpdateProfile /> },
         { path: '/profile/convert-to-partner', element: <PartnerConvertPage /> },
-        { path: '/store', element: <StorePage /> }, // 추후 code를 이용한 업체 정보 페이지로 변경 예정
+        { path: '/store/:code', element: <StorePage /> },
         { path: '/member/authenticated', element: <Authenticated /> },
       ],
     },

@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,11 +12,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.security.core.Authentication;
 
 import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.PartnerInfoDTO;
@@ -141,7 +149,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     member.changeRole((byte) 1);
     memberRepository.save(member);
 
-    updateSessionRole(member.getRole());  // 세션 갱신
+    updateSecurityContextRole(member); // 즉시 권한 반영
 
     return new PartnerVerificationResponseDTO(true, "사업자 등록 및 전환 완료");
   }
@@ -159,7 +167,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
                 .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
 
     member.changeRole((byte)0);    
-    updateSessionRole(member.getRole());  // 세션 갱신
+    updateSecurityContextRole(member); // 즉시 권한 반영
   }
 
   // 유저(사업자 번호가 DB에 등록된) -> 파트너
@@ -173,7 +181,7 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     if (hasPartnerInfo) {
       member.changeRole((byte)1);
       memberRepository.save(member);
-      updateSessionRole(member.getRole());  // 세션 갱신
+      updateSecurityContextRole(member); // 즉시 권한 반영
     }
   }
 
@@ -198,5 +206,41 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
 
     session.setAttribute("currentUser", updatedUser);
   }
+
+  private void updateSecurityContextRole(Member member) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    if (auth == null || !(auth.getPrincipal() instanceof OAuth2User)) return;
+
+    OAuth2User currentOAuth2User = (OAuth2User) auth.getPrincipal();
+    Map<String, Object> attributes = new HashMap<>(currentOAuth2User.getAttributes());
+
+    // ✅ Kakao 사용자라면 "kakao_account" 내부에서 email 추출
+    if (!attributes.containsKey("email") && attributes.containsKey("kakao_account")) {
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        attributes.put("email", kakaoAccount.get("email"));
+    }
+
+    // ✅ 권한 목록 업데이트
+    List<GrantedAuthority> updatedAuthorities = List.of(
+        new SimpleGrantedAuthority(member.getRole() == 1 ? "ROLE_PARTNER" : "ROLE_USER")
+    );
+
+    // ✅ 새로운 OAuth2User 객체 생성 (email을 nameAttributeKey로 사용)
+    OAuth2User updatedUser = new DefaultOAuth2User(
+        updatedAuthorities,
+        attributes,
+        "email" // 🔥 email이 attributes에 꼭 있어야 함!
+    );
+
+    // ✅ Authentication 새로 설정
+    Authentication newAuth = new UsernamePasswordAuthenticationToken(
+        updatedUser,
+        auth.getCredentials(),
+        updatedUser.getAuthorities()
+    );
+
+    SecurityContextHolder.getContext().setAuthentication(newAuth);
+}
 
 }
