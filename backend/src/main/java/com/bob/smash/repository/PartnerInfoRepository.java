@@ -14,6 +14,7 @@ public interface PartnerInfoRepository extends JpaRepository<PartnerInfo, String
     // 이메일로 bno 조회
     @Query("SELECT p.bno FROM PartnerInfo p WHERE p.member.emailId = :emailId")
     String findBnoByMember_EmailId(@Param("emailId") String emailId);
-    // 새로운 메서드: code가 중복되는지 체크하는 메서드
+    // code가 중복되는지 체크하는 메서드
     boolean existsByCode(String code);
+    Optional<PartnerInfo> findByCode(String code);
 }
