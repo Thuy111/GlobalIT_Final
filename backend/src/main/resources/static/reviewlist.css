@@ -14,11 +14,6 @@
   margin: 1em 0 2em 0;
 }
 
-/* 리뷰 카드 그룹 */
-.review_container .review_box {
-
-}
-
 /* 오른쪽 정렬 */
 .review_container .right_align {
   text-align: right;
@@ -73,7 +68,7 @@
   top: 15px;
   right: 15px;
   display: flex;
-  gap: 8px;
+  gap: 3px;
 }
 
 .review_container .review_actions_top button {

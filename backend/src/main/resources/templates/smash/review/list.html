@@ -44,7 +44,7 @@
 
                 <div class="review_actions_top">
                     <!-- 수정 버튼 (본인 글 + 수정 안 했을 때만) -->
-                    <div th:if="${review.memberId == currentUser and review.isModify == 0}">
+                    <div th:if="${review.memberId == currentUser.emailId and review.isModify == 0}">
                         <form th:action="@{/smash/review/update}" method="get">
                             <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
                             <input type="hidden" name="from" th:value="${isMyList != null and isMyList} ? 'mylist' : 'list'" />
@@ -53,7 +53,7 @@
                     </div>
 
                     <!-- 삭제 버튼 (본인 글만) -->
-                    <div th:if="${review.memberId == currentUser}">
+                    <div th:if="${review.memberId == currentUser.emailId}">
                         <form th:action="@{/smash/review/delete}" method="get" onsubmit="return confirmDelete();">
                             <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
                             <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />

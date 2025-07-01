@@ -117,26 +117,30 @@ public String updateReview(
         @ModelAttribute ReviewDTO reviewDTO,
         @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
         @RequestParam(value = "isImageReset", required = false) String isImageReset,
-        @RequestParam(value = "from", required = false) String from,
+        @RequestParam(value = "from", required = false) String from, 
         @AuthenticationPrincipal OAuth2User oauth2User
 ) {
-
     reviewService.updateReview(reviewDTO, imageFiles, "true".equals(isImageReset));
 
+    if ("mylist".equals(from)) {
+        return "redirect:/smash/review/mylist";
+    }
+
     if (reviewDTO.getRequestIdx() == null) {
-        // fallback : requestIdx가 없으면 estimateIdx 기반으로 가져오기
         EstimateDTO estimateDTO = estimateService.get(reviewDTO.getEstimateIdx());
         return "redirect:/smash/request/detail/" + estimateDTO.getRequestIdx();
     }
     return "redirect:/smash/request/detail/" + reviewDTO.getRequestIdx();
 }
 
+
+// 리뷰 삭제
 @GetMapping("/delete")
 public String deleteReview(
         @RequestParam("reviewIdx") Integer reviewIdx,
         @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx,
-        @RequestParam(value = "requestIdx", required = false) Integer requestIdx, // ✅ 추가
-        @RequestParam(value = "from", required = false) String from,
+        @RequestParam(value = "requestIdx", required = false) Integer requestIdx,
+        @RequestParam(value = "from", required = false) String from, // ⬅ 이미 받아오고 있음
         @AuthenticationPrincipal OAuth2User oauth2User
 ) {
     if (oauth2User == null) {
@@ -150,9 +154,14 @@ public String deleteReview(
 
     reviewService.deleteReview(reviewIdx, currentUser);
 
-    // ✅ 삭제 후 상세페이지로 리다이렉트
+    // ✅ 수정된 부분: from 파라미터 확인
+    if ("mylist".equals(from)) {
+        return "redirect:/smash/review/mylist";
+    }
+
     return "redirect:/smash/request/detail/" + requestIdx;
 }
+
 
 
 
