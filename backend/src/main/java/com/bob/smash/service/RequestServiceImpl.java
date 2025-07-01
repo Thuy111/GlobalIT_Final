@@ -74,8 +74,8 @@ public class RequestServiceImpl implements RequestService {
         // [1] 해시태그 처리
         if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
             String[] tags = dto.getHashtags().trim().split("\\s+");
-            for (String rawTag : tags) {
-                String tag = rawTag.trim();
+            for (String rawTag : tags) {               
+                String tag = rawTag.trim().replaceFirst("^#", "");
                 if (!tag.isEmpty()) {
                     // 존재하는 해시태그 있는지 확인
                     Hashtag hashtag = hashtagRepository.findByTag(tag)
