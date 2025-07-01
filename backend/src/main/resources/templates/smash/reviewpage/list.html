@@ -32,15 +32,15 @@
     </div>
 
     <!-- 리뷰 카드 반복 -->
-    <div class="review_box">
-<div class="review_card" th:each="review : ${reviewList}" 
-     th:onclick="'location.href=\'/estimate/detail/' + ${review.estimateIdx} + '\';'"
-     style="cursor:pointer;">
-            <div class="review_header">
-                <div class="review_meta">
-                    <span class="review_title" th:text="${review.nickname}">작성자</span>
-                    <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
-                </div>
+<div class="review_box">
+    <div th:each="review : ${reviewList}">
+        <a th:href="@{'/smash/request/detail/' + ${review.estimateIdx}}" style="text-decoration:none; color:inherit;">
+            <div class="review_card" style="cursor:pointer;">
+                <div class="review_header">
+                    <div class="review_meta">
+                        <span class="review_title" th:text="${review.nickname}">작성자</span>
+                        <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
+                    </div>
 
                 <div class="review_actions_top">
                     <!-- 수정 버튼 (본인 글 + 수정 안 했을 때만) -->

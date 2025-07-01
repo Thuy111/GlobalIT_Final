@@ -35,7 +35,7 @@ function PartnerReviewList({ bno }) {
             <div className="comment">{review.comment}</div>
             <div className="images">
               {review.images && review.images.map((img, i) => (
-                <img key={i} src={img.url} alt="리뷰 이미지" />
+                <img key={i} src={img.path} alt="리뷰 이미지" />
               ))}
             </div>
           </div>
