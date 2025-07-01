@@ -170,5 +170,21 @@ public boolean hasUserReviewed(String emailId, Integer estimateIdx) {
     return reviewRepository.existsByMember_EmailIdAndEstimate_Idx(emailId, estimateIdx);
 }
 
+//업체리뷰
+@Override
+public List<ReviewDTO> getReviewsByPartnerBno(String bno) {
+    List<Review> reviewList = reviewRepository.findByPartnerBno(bno);
+    return reviewList.stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+}
+
+
+@Override
+public double getAverageStarByPartnerBno(String bno) {
+    Double avg = reviewRepository.findAvgStarByPartnerBno(bno);
+    return avg != null ? avg : 0.0;
+}
+
 
 }

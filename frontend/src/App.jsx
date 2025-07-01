@@ -8,7 +8,6 @@ import StorePage from './pages/StorePage';
 import UpdateProfile from './pages/profile/UpdateProfile';
 import PartnerConvertPage from './pages/profile/PartnerConvertPage';
 import Authenticated from './pages/member/AuthenticatedPage';
-
 import './App.css';
 
 function App() {

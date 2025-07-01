@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">리뷰 목록</title>
     <link rel="stylesheet" href="/reviewlist.css" />
     <script>
         // 삭제 확인 알림
@@ -9,12 +11,10 @@
         }
     </script>
 </head>
-
-<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
-<th:block th:fragment="content">
+<body>
 
 <div class="review_container">
-    <h1>리뷰 목록</h1>
+    <h1>내가 쓴 리뷰 목록</h1>
 
     <!-- 리뷰등록 버튼 (mylist일 때는 숨김) -->
     <div class="review_box right_align" th:if="${isMyList == null or !isMyList}">
@@ -24,12 +24,12 @@
         </form>
     </div>
 
-<div style="text-align: right; font-size: 1rem; margin-bottom: 10px;">
-  <span th:if="${avgScore != null}">
-    ⭐ 평균 별점: <strong th:text="${#numbers.formatDecimal(avgScore, 1, 1)}">0.0</strong> / 5.0
-  </span>
-</div>
-
+    <!-- 평균 별점 -->
+    <div style="text-align: right; font-size: 1rem; margin-bottom: 10px;">
+        <span th:if="${avgScore != null}">
+            ⭐ 평균 별점: <strong th:text="${#numbers.formatDecimal(avgScore, 1, 1)}">0.0</strong> / 5.0
+        </span>
+    </div>
 
     <!-- 리뷰 카드 반복 -->
     <div class="review_box">
@@ -78,5 +78,5 @@
     </div>
 </div>
 
-</th:block>
-</th:block>
+</body>
+</html>

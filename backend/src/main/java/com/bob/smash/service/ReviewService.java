@@ -20,6 +20,8 @@ double getAverageStarByEstimateIdx(Integer estimateIdx);
 // 🤚 Review 작성 여부
  boolean hasUserReviewed(String emailId, Integer estimateIdx);
  
-
+// 업체리뷰
+List<ReviewDTO> getReviewsByPartnerBno(String bno);
+double getAverageStarByPartnerBno(String bno);
 
 }
