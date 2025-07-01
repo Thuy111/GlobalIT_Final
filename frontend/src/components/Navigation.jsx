@@ -5,7 +5,6 @@ import { useUnreadAlarm } from '../contexts/UnreadAlarmContext';
 import { useUser } from '../contexts/UserContext';
 
 const Nav = () => {
-  const baseUrl = import.meta.env.VITE_API_URL;
   const user = useUser();
 
   // active 상태: 현재 활성화된 메뉴를 나타냄
@@ -14,6 +13,8 @@ const Nav = () => {
   const { unreadCount } = useUnreadAlarm();
   // 현재 경로에 따라 active 상태 설정
   const location = useLocation();
+
+  const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
   
   useEffect(() => {
     // location.pathname: 현재 URL의 경로
@@ -41,7 +42,7 @@ const Nav = () => {
         </li>
         <li className={active === 'home' ? 'active' : ''}><Link to="/"><i className="fa-solid fa-house"></i>홈</Link></li>
         { user &&
-          <li className={active === 'chat' ? 'active' : ''}><Link to={`${baseUrl}/smash/chat/roomList?myUser=${user.emailId}`}><i className="fa-solid fa-comment"></i>채팅</Link></li>
+          <li className={active === 'chat' ? 'active' : ''}><Link to={`${baseUrl}/chat/roomList?myUser=${user.emailId}`}><i className="fa-solid fa-comment"></i>채팅</Link></li>
         }
         <li className={active === 'profile' ? 'active' : ''}><Link to="/profile"><i className="fa-solid fa-user"></i>프로필</Link></li>
       </ul>

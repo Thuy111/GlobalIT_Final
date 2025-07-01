@@ -1,5 +1,5 @@
 .chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;}
-.chatRoom_container .messageArea {width: 100%; max-width: 768px;display: flex;flex-direction: column;}
+.chatRoom_container .messageArea {width: 100%; max-width: 768px;display: flex;flex-direction: column;padding-bottom: 2rem;}
 .chatRoom_container .inputArea {width: 100%; max-width: 768px; display: flex;justify-content: space-around;align-items: center;position: fixed; bottom: 90px;}
 .chatRoom_container .inputArea input {width: calc(100% - 80px);}
 .chatRoom_container .inputArea button {margin-bottom: 3px;}

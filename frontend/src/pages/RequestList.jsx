@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from '../config/apiClient';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import '../styles/RequestList.css';
 
 function RequestList() {
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   const [allRequests, setAllRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
@@ -17,7 +16,7 @@ function RequestList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/smash/request/list`);
+        const res = await apiClient.get(`/request/list`);
         setAllRequests(res.data.request ?? []);
         setFilteredRequests(res.data.request ?? []);
         const fetchedTags = res.data.hashtags ?? [];
@@ -146,7 +145,7 @@ function RequestList() {
         <div
           key={item.idx}
           className="request-card"
-          onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`}
+          onClick={() => window.location.href = `/request/detail/${item.idx}`}
           style={{ cursor: "pointer" }}
         >
           <div className="request-dday">{item.dday}</div>

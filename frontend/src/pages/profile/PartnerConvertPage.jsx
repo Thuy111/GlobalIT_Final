@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TitleBar from '../../components/TitleBar';
 import '../../styles/PartnerConvertPage.css';
-import axios from 'axios';
+import apiClient from '../../config/apiClient';
 
 const PartnerConvertPage = () => {
   const [form, setForm] = useState({
@@ -19,7 +19,6 @@ const PartnerConvertPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     const { name, value, maxLength  } = e.target;
@@ -62,7 +61,7 @@ const PartnerConvertPage = () => {
       delete payload.telSnd;
       delete payload.telThr;
 
-      const res = await axios.post(`${baseUrl}/smash/partner/convert`, payload, { withCredentials: true });
+      const res = await apiClient.post(`/partner/convert`, payload, { withCredentials: true });
       if (res.data.valid) {
         alert('사업자 전환 성공');
         setSuccess(true);

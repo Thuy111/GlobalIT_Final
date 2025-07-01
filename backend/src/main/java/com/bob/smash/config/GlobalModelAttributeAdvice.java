@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.bob.smash.dto.CurrentUserDTO;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
 
 // 전역으로 모델에 정보를 추가하는 어드바이스 클래스
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalModelAttributeAdvice {
+    @Value("${front.server.url}")
+    private String frontServerUrl;
+
     // 테마
     @ModelAttribute
     public void addThemeToModel(HttpSession session, Model model) {
@@ -27,10 +31,18 @@ public class GlobalModelAttributeAdvice {
     public void addCurrentUserToModel(Model model, HttpSession session, HttpServletRequest request) {
         CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
         System.out.println("Current User=========[[MODEL: currentUser]]==========" + currentUser);
-        if(currentUser == null) {
-            request.getSession().invalidate(); // 세션 무효화
-            // return; // 현재 유저가 없으면 아무것도 추가하지 않음
+
+        String header = request.getHeader("X-Frontend-Auth-Check");
+        if ("true".equals(header)) {
+            System.out.println("[ModelAttr] 프론트 요청 감지, 세션 검사 패스\"");
+            return;
+        }else {
+            System.out.println("[ModelAttr] 프론트 요청 아님, 세션 무효화");
+            // session.invalidate(); // 프론트 요청이 아니면 세션 무효화(프론트 검증 로직은 구현되어 있음)
         }
+        
+        // currentUser가 null이면 모델에 넣지 않음
+        if (currentUser == null) return;
         model.addAttribute("currentUser", currentUser);
     }
 }

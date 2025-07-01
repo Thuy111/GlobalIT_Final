@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
+import apiClient from '../config/apiClient';
 
 function PartnerReviewList({ bno }) {
   const [reviewList, setReviewList] = useState([]);
@@ -7,7 +7,7 @@ function PartnerReviewList({ bno }) {
 
   useEffect(() => {
     if (!bno) return;
-    axios.get(`/smash/review/bno`, { params: { bno } })
+    apiClient.get(`/smash/review/bno`, { params: { bno } })
       .then(res => {
         setReviewList(res.data.reviews);
         setAvgStar(res.data.avgScore);

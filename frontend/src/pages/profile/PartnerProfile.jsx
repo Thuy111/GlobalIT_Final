@@ -1,11 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import TitleBar from '../../components/TitleBar';
-import axios from 'axios';
+import apiClient from '../../config/apiClient';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UserProfile.css';
 
 const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) => {
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate();
 
@@ -26,7 +25,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
   const secessionHandler = async () => {
     if(!window.confirm('정말로 탈퇴하시겠습니까?')) return;
     try {
-      await axios.delete(`${baseUrl}/smash/member/delete`, { withCredentials: true });
+      await apiClient.delete(`/member/delete`, { withCredentials: true });
       setIsLoggedIn(false);
       alert('탈퇴가 완료되었습니다.');
       // 탈퇴 후 홈으로 새로고침

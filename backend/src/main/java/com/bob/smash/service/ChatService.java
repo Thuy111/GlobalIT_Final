@@ -10,7 +10,8 @@ import java.util.List;
 public interface ChatService {
 
     // 채팅방의 모든 메시지 조회
-    List<ChatMessage> getMessages(String roomId);
+    // 새로고침 후에도 (무조건 세션이 끊김)을 해도 채팅방에 들어갈 수 있도록 메시지 조회
+    List<ChatMessageDTO> getMessages(String roomId);
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회
     List<ChatRoom> findRoomsByUser(String username);
@@ -47,23 +48,28 @@ public interface ChatService {
     }
 
     // (ChatMessage) Entity -> DTO
-    default ChatMessage dtoToEntity(ChatMessage chatMessage) {
+    default ChatMessageDTO entityToDto(ChatMessage chatMessage) {
         if (chatMessage == null) return null;
-        return ChatMessage.builder()
+        return ChatMessageDTO.builder()
                 .roomId(chatMessage.getRoomId())
                 .sender(chatMessage.getSender())
+                .senderNickname(chatMessage.getSenderNickname())
                 .message(chatMessage.getMessage())
+                .type(chatMessage.getType())
                 .time(chatMessage.getTime())
                 .build();
     }
-    // (ChatMessage) DTO -> Entity
-    default ChatMessage entityToDto(ChatMessage chatMessage) {
-        if (chatMessage == null) return null;
+
+    // (ChatMessageDTO) DTO -> Entity
+    default ChatMessage dtoToEntity(ChatMessageDTO chatMessageDTO) {
+        if (chatMessageDTO == null) return null;
         return ChatMessage.builder()
-                .roomId(chatMessage.getRoomId())
-                .sender(chatMessage.getSender())
-                .message(chatMessage.getMessage())
-                .time(chatMessage.getTime())
+                .roomId(chatMessageDTO.getRoomId())
+                .sender(chatMessageDTO.getSender())
+                .senderNickname(chatMessageDTO.getSenderNickname())
+                .message(chatMessageDTO.getMessage())
+                .type(chatMessageDTO.getType())
+                .time(chatMessageDTO.getTime())
                 .build();
-    }   
+    } 
 }

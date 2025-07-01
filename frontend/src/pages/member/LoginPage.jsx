@@ -10,8 +10,8 @@ function useQuery() {
 
 const Login = () => {
   const { isDarkMode } = useDarkMode();
-  const baseUrl = import.meta.env.VITE_API_URL;
   const query = useQuery();
+  const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
 
   // 로그인 실패 시 쿼리 파라미터를 확인하고 알림 표시
   useEffect(() => {
