@@ -2,6 +2,7 @@
   <th:block th:fragment="content">
 
     <div class="chatRoom_container">
+        currntUser : [[${currentUser.bno}]], [[${currentUser.emailId}]]
       <div class="messageArea">
         <div th:each="message : ${messages}"
             class="msg"
@@ -22,40 +23,62 @@
         const roomId = /*[[${room.roomId}]]*/ "";
         const sender = /*[[${myUser}]]*/ "";
 
+        // 1. 메시지 불러오기 (axios)
+        document.addEventListener('DOMContentLoaded', function() {
+            axios.get(`/api/chat/rooms/${roomId}/messages`)
+            .then(res => {
+                const messages = res.data;
+                let messageArea = document.querySelector('.messageArea');
+                messageArea.innerHTML = "";
+                messages.forEach(msg => {
+                    let div = document.createElement('div');
+                    div.className = (msg.sender === sender) ? "msg me" : "msg you";
+                    div.innerText = msg.message;
+                    messageArea.append(div);
+                });
+                // 스크롤 맨 아래로
+                messageArea.scrollTop = messageArea.scrollHeight;
+            })
+            .then(() => {
+                // 2. WebSocket 연결 및 이벤트 등록
+                connectWebSocket();
+            });
+        });
+
+        function connectWebSocket() {
+            let socket = new WebSocket("ws://localhost:8080/ws/chat");
+            window.socket = socket; // sendmessage 등에서 접근 가능하게
+
+            socket.onopen = function (e) {
+                console.log('open server!');
+                enterRoom(socket);
+            };
+            socket.onclose = function(e){
+                console.log('disconnect');
+            }
+            socket.onerror = function (e){
+                console.log(e);
+            }
+            socket.onmessage = function (e) {
+                let messageArea = document.querySelector('.messageArea');
+                let newmessage = document.createElement('div');
+                try {
+                    let payload = JSON.parse(e.data);
+                    let isMe = payload.sender === sender;
+                    newmessage.className = isMe ? "msg me" : "msg you";
+                    newmessage.innerText = payload.message;
+                } catch {
+                    newmessage.innerText = e.data;
+                }
+                messageArea.append(newmessage);
+                // 스크롤 맨 아래로
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+        }
+
         function enterRoom(socket){
             const entermessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "ENTER", "senderNickname": /*[[${myUser}]]*/ ""};
             socket.send(JSON.stringify(entermessage));
-        }
-
-        let socket = new WebSocket("ws://localhost:8080/ws/chat");
-
-        socket.onopen = function (e) {
-            console.log('open server!');
-            enterRoom(socket);
-        };
-        socket.onclose = function(e){
-            console.log('disconnect');
-        }
-        socket.onerror = function (e){
-            console.log(e);
-        }
-        //메세지 수신 이벤트
-        socket.onmessage = function (e) {
-            console.log(e.data);
-            let messageArea = document.querySelector('.messageArea');
-            let newmessage = document.createElement('div');
-            // e.data는 json string이라고 가정
-            try {
-                let payload = JSON.parse(e.data);
-                // 내 메시지면 "me", 상대면 "you" 클래스 붙이기
-                let isMe = payload.sender === sender;
-                newmessage.className = isMe ? "msg me" : "msg you";
-                // 출력
-                newmessage.innerText = payload.message;
-            } catch {
-                newmessage.innerText = e.data;
-            }
-            messageArea.append(newmessage);
         }
 
         //메세지 보내기 버튼
@@ -63,9 +86,14 @@
             let content = document.querySelector('.content').value;
             if (!content) return;
             const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${myUser}]]*/ ""};
-            socket.send(JSON.stringify(talkmessage));
+            window.socket.send(JSON.stringify(talkmessage));
             document.querySelector('.content').value = '';
+
+            // 스크롤을 맨 아래로 내리기
+            let messageArea = document.querySelector('.messageArea');
+            messageArea.scrollTop = messageArea.scrollHeight;
         }
+
         // 엔터키로 메세지 전송
         document.querySelector('.content').addEventListener('keydown', function(e){
             if(e.key === 'Enter') sendmessage();
@@ -74,8 +102,8 @@
         // 방 나가기 버튼 (필요X)
         function quit(){
             const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${myUser}]]*/ ""};
-            socket.send(JSON.stringify(quitmessage));
-            socket.close();
+            window.socket.send(JSON.stringify(quitmessage));
+            window.socket.close();
         }
     </script>
   </th:block>

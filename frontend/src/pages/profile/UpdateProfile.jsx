@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TitleBar from '../../components/TitleBar';
-import axios from 'axios';
+import apiClient from '../../config/apiClient';
 import DefaultImage from '../../assets/images/default-profile.png';
 import '../../styles/UpdateProfile.css';
 
@@ -27,11 +27,10 @@ const UpdateProfile = () => {
     partnerRegionDetail: '',
   });
 
-  const baseUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`${baseUrl}/smash/profile`, { withCredentials: true })
+    apiClient.get(`/profile`, { withCredentials: true })
       .then(res => {
         const data = res.data;
 
@@ -104,7 +103,7 @@ const UpdateProfile = () => {
   };
 
   const handleImageDelete = () => {
-    axios.delete(`${baseUrl}/smash/profile/image`, { withCredentials: true })
+    apiClient.delete(`/profile/image`, { withCredentials: true })
       .then(() => {
         setImageFile(null);
         setPreviewUrl(null);
@@ -117,7 +116,7 @@ const UpdateProfile = () => {
     const nickname = form.nickname;
     if (!nickname) return;
 
-    axios.get(`${baseUrl}/smash/profile/check-nickname`, {
+    apiClient.get(`/profile/check-nickname`, {
       params: { nickname }
     }).then(res => {
       if (res.data.duplicated) {
@@ -146,7 +145,7 @@ const UpdateProfile = () => {
       return;
     }
 
-    axios.get(`${baseUrl}/smash/profile/check-phone`, {
+    apiClient.get(`/profile/check-phone`, {
       params: { phone }
     }).then(res => {
       if (!res.data.valid) {
@@ -205,14 +204,14 @@ const UpdateProfile = () => {
       region: `${form.region},${addressDetail.regionDetail}`,
     };
 
-    await axios.put(`${baseUrl}/smash/profile/${isPartner ? 'partner' : 'member'}`, dto, {
+    await apiClient.put(`/profile/${isPartner ? 'partner' : 'member'}`, dto, {
       withCredentials: true,
     });
 
     if (imageFile) {
       const fd = new FormData();
       fd.append("file", imageFile);
-      await axios.post(`${baseUrl}/smash/profile/image`, fd, {
+      await apiClient.post(`/profile/image`, fd, {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' },
       });

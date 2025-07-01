@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { useUser } from '../contexts/UserContext';
 import { useUnreadAlarm } from '../contexts/UnreadAlarmContext';
 import TitleBar from "../components/TitleBar";
-import axios from "axios";
+import apiClient from '../config/apiClient';
 
 const Alarm = () => {
-  axios.defaults.withCredentials = true;
-  const baseUrl = import.meta.env.VITE_API_URL;
+  apiClient.defaults.withCredentials = true;
   const user = useUser();
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +17,9 @@ const Alarm = () => {
     setLoading(true);
     let url =
       selectedType === 'all'
-        ? `${baseUrl}/smash/alarm/list`
-        : `${baseUrl}/smash/alarm/list?type=${selectedType}`;
-    axios
+        ? `/alarm/list`
+        : `/alarm/list?type=${selectedType}`;
+    apiClient
       .get(url, { headers: { Accept: "application/json" } })
       .then(res => {
         setAlarms(Array.isArray(res.data) ? res.data : []);
@@ -31,7 +30,7 @@ const Alarm = () => {
 
   // 미읽음 알림 개수 fetch
   const fetchUnreadCount = () => {
-  axios.get(`${baseUrl}/smash/alarm/unread`, { withCredentials: true })
+  apiClient.get(`/alarm/unread`, { withCredentials: true })
     .then(res => setUnreadCount(res.data))
     .catch(() => setUnreadCount(0));
   };
@@ -39,12 +38,12 @@ const Alarm = () => {
   useEffect(() => {
     fetchAlarms();
     fetchUnreadCount();
-  }, [baseUrl, selectedType]);
+  }, [selectedType]);
 
   // 알람 읽음 처리
   const handleRead = async (idx) => {
     try {
-      await axios.post(`${baseUrl}/smash/alarm/read?idx=${idx}`, null);
+      await apiClient.post(`/alarm/read?idx=${idx}`, null);
       fetchAlarms();
       fetchUnreadCount();
     } catch (err) {

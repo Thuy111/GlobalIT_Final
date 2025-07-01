@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../config/apiClient';
 import Login from './member/LoginPage';
 import UserProfile from './profile/UserProfile';
 import PartnerProfile from './profile/PartnerProfile';
@@ -17,7 +17,6 @@ const Profile = () => {
   // ✔️ profileData가 있을 때만 isPartner 체크
   const isPartner = profileData?.partner ?? false;
 
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   
 
@@ -30,7 +29,7 @@ const Profile = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/smash/profile`, {
+        const res = await apiClient.get(`/profile`, {
           withCredentials: true,
         });
         setProfileData(res.data);
@@ -55,14 +54,14 @@ const Profile = () => {
       if (newChecked) {
         const bno = profileData?.bno;
         if (bno) {
-          await axios.post(`${baseUrl}/smash/partner/update`, {}, { withCredentials: true });
+          await apiClient.post(`/partner/update`, {}, { withCredentials: true });
           alert('파트너 회원으로 전환되었습니다.');
           window.location.href = '/profile';
         } else {
           window.location.href = '/profile/convert-to-partner';
         }
       } else {
-        await axios.post(`${baseUrl}/smash/partner/revert`, {}, { withCredentials: true });
+        await apiClient.post(`/partner/revert`, {}, { withCredentials: true });
         alert('일반 회원으로 전환되었습니다.');
         window.location.href = '/profile';
       }

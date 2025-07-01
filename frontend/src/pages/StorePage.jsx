@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import TitleBar from '../components/TitleBar';
 import EditableField from '../components/UpdateStore';
 import Slider from 'react-slick';
-import axios from 'axios';
+import apiClient from '../config/apiClient';
 import '../styles/StoreInfo.css';
 
 const dummyImages = [
@@ -41,7 +41,6 @@ const StorePage = () => {
   const [estimatesCount, setEstimatesCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
 
-  const baseUrl = import.meta.env.VITE_API_URL;
 
   const handleNewImagesChange = (e) => {
     setNewImages([...newImages, ...e.target.files]);
@@ -51,8 +50,8 @@ const StorePage = () => {
     // 서버에서 업체 정보 가져오기
     if (!code || !loggedInMemberId) return;
 
-    axios
-      .get(`${baseUrl}/smash/store/${code}`, { params: { memberId: loggedInMemberId } })
+    apiClient
+      .get(`/store/${code}`, { params: { memberId: loggedInMemberId } })
       .then((res) => {
         const data = res.data;
         setStoreName(data.name || '');
@@ -94,7 +93,7 @@ const StorePage = () => {
           formData.append('newImages', file);
         });
 
-    await axios.put(`${baseUrl}/smash/store/update`, formData, {
+    await apiClient.put(`/store/update`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
@@ -105,7 +104,7 @@ const StorePage = () => {
         setNewImages([]);
         setDeleteImageIds([]);
 
-        const res = await axios.get(`${baseUrl}/smash/store/${code}`, { params: { memberId: loggedInMemberId } });
+        const res = await apiClient.get(`/store/${code}`, { params: { memberId: loggedInMemberId } });
         const data = res.data;
         setStoreName(data.name || '');
         setLocation(data.region || '');

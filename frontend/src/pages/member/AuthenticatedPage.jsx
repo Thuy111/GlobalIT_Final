@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDarkMode } from '../../contexts/DarkModeContext';
-import axios from 'axios';
+import apiClient from '../../config/apiClient';
 
 const Authenticated = ({}) => {
-  const baseUrl = import.meta.env.VITE_API_URL;
   const { isDarkMode } = useDarkMode();
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -15,24 +14,10 @@ const Authenticated = ({}) => {
 
   useEffect(() => {
     window.onload = () => {
-      const currentUser = () => { // 현재 로그인된 사용자의 정보를 가져옴
-        try {
-          const res = axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true });
-          if (res.data) {
-            console.log('현재 사용자 정보:', res.data);
-            setEmail(res.data.emailId);
-          }
-        } catch (err) {
-          console.error('현재 사용자 정보 요청 실패:', err);
-          alert('잘못된 접근입니다. 다시 로그인해주세요.');
-          window.location = '/profile'; // 세션 없으면 프로필(로그인)로 이동
-        }
-      }
-
       const getSessionInfo = async () => {
         // 세션 정보를 백엔드에서 받아옴
-        try{
-            const res = await axios.get(`${baseUrl}/smash/member/auth/session-info`, { withCredentials: true })
+        try{ // "X-Frontend-Auth-Check": "true" : 백엔드용 구분 헤더
+            const res = await apiClient.get(`/member/auth/session-info`, { headers: {"X-Frontend-Auth-Check": "true"}, withCredentials: true })
             // console.log('세션 정보:', res.data);
             setEmail(res.data.email);
             setProvider(res.data.provider);
@@ -44,6 +29,20 @@ const Authenticated = ({}) => {
             currentUser();
           };
       }
+
+      const currentUser = () => { // 현재 로그인된 사용자의 정보를 가져옴
+        try {
+          const res = apiClient.get(`/member/current-user`, { withCredentials: true });
+          if (res.data) {
+            console.log('현재 사용자 정보:', res.data);
+            setEmail(res.data.emailId);
+          }
+        } catch (err) {
+          console.error('현재 사용자 정보 요청 실패:', err);
+          alert('잘못된 접근입니다. 다시 로그인해주세요.');
+          window.location = '/profile'; // 세션 없으면 프로필(로그인)로 이동
+        }
+      }
       getSessionInfo();
     }
   }, []);
@@ -52,7 +51,7 @@ const Authenticated = ({}) => {
     e.preventDefault();
     if (isExistUser){ // 기존 사용자 정보 제출
       try{
-        const res = await axios.post(`${baseUrl}/smash/member/auth/register-phone`, {
+        const res = await apiClient.post(`/member/auth/register-phone`, {
           email,
           phone,
         }, { withCredentials: true });
@@ -69,7 +68,7 @@ const Authenticated = ({}) => {
       }
     }else{ // 신규 사용자 정보 제출
       try {
-        const res = await axios.post(`${baseUrl}/smash/member/auth/complete-social`, {
+        const res = await apiClient.post(`/member/auth/complete-social`, {
           email,
           nickname,
           provider,

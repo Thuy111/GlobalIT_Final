@@ -3,6 +3,7 @@ package com.bob.smash.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -23,11 +24,6 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
-
-    // 채팅방의 모든 메시지 조회
-    public List<ChatMessage> getMessages(String roomId) {
-        return chatMessageRepository.findByRoomIdOrderByTimeAsc(roomId);
-    }
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회 (한 명의 유저가 참여한 모든 채팅방)
     public List<ChatRoom> findRoomsByUser(String username) {
@@ -81,5 +77,18 @@ public class ChatServiceImpl implements ChatService {
                 .time(LocalDateTime.now())
                 .build();
         chatMessageRepository.save(entity);
+    }
+
+    // 새로고침 후에도 (무조건 세션이 끊김)을 해도 채팅방에 들어갈 수 있도록 메시지 조회
+    // 채팅방의 모든 메시지 조회
+    @Override
+    public List<ChatMessageDTO> getMessages(String roomId) {
+        // 1. 메시지 엔티티를 roomId로 조회 (예: JPA 리포지토리)
+        List<ChatMessage> messages = chatMessageRepository.findByRoomIdOrderByTimeAsc(roomId);
+
+        // 2. 엔티티를 DTO로 매핑
+        return messages.stream()
+            .map(this::entityToDto)
+            .collect(Collectors.toList());
     }
 }

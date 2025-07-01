@@ -1,6 +1,7 @@
 package com.bob.smash.websocket;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,18 +39,18 @@ public class WebSockChatHandler extends TextWebSocketHandler {
 
         // 메시지 타입별 처리
         switch (chatMessage.getType()) {
-            // case ENTER:
-            //     sessions.add(session);
-            //     chatMessage.setMessage(chatMessage.getSender() + "님 안녕하세요.");
-            //     sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
-            //     // (DB저장 필요 없으면 생략)
-            //     break;
-            // case QUIT:
-            //     sessions.remove(session);
-            //     chatMessage.setMessage(chatMessage.getSender() + "님과의 대화가 종료되었습니다.");
-            //     sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
-            //     // (DB저장 필요 없으면 생략)
-            //     break;
+            case ENTER:
+                sessions.add(session);
+                chatMessage.setMessage(chatMessage.getSender() + "님 안녕하세요.");
+                sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+                // (DB저장 필요 없으면 생략)
+                break;
+            case QUIT:
+                sessions.remove(session);
+                chatMessage.setMessage(chatMessage.getSender() + "님과의 대화가 종료되었습니다.");
+                sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+                // (DB저장 필요 없으면 생략)
+                break;
             case TALK:
                 // DB 저장
                 chatService.saveMessage(chatMessage);
@@ -60,13 +61,23 @@ public class WebSockChatHandler extends TextWebSocketHandler {
     }
 
     private void sendToEachSocket(Set<WebSocketSession> sessions, TextMessage message){
-        sessions.parallelStream().forEach(roomSession -> {
+        // 세션이 닫혀있으면 제거하고, 열려있으면 메시지 전송
+        Iterator<WebSocketSession> iterator = sessions.iterator();
+        while (iterator.hasNext()) {
+            WebSocketSession session = iterator.next();
             try {
-                roomSession.sendMessage(message);
-            } catch (IOException e) {
+                if (session.isOpen()) {
+                    session.sendMessage(message);
+                } else {
+                    // 세션이 닫혀있으면 리스트에서 제거
+                    iterator.remove();
+                }
+            } catch (Exception e) {
+                // 전송 중 에러가 나면 세션을 제거 (안전하게)
+                // iterator.remove();
                 throw new RuntimeException(e);
             }
-        });
+        }
     }
 
 }
