@@ -31,6 +31,9 @@ public interface MemberService {
   // 현재 유저 정보를 세션에 저장
   void saveCurrentUserToSession();
 
+  // 소셜 로그인 연동 해제
+  void unlinkSocial();
+
   // Dto → Entity 변환
   default Member dtoToEntity(MemberDTO dto) {
     Member member = Member.builder()

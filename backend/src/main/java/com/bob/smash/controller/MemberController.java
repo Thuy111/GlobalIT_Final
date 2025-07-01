@@ -21,6 +21,7 @@ import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.service.MemberService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,8 +36,9 @@ public class MemberController {
 
   // 현재 유저정보 + 유효성 체크
   @GetMapping("/check")
-  public ResponseEntity<?> getCheckCurrentUser(OAuth2AuthenticationToken authentication, HttpServletRequest request) {
+  public ResponseEntity<?> getCheckCurrentUser(OAuth2AuthenticationToken authentication, HttpServletRequest request, HttpSession session) {
     if (authentication == null) {
+        memberService.unlinkSocial(); // 소셜 로그인 연동 해제
         return ResponseEntity.ok().build(); // 로그인하지 않은 상태도 OK로 처리
         // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보가 없습니다.");
     }

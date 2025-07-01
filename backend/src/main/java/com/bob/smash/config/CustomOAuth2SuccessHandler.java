@@ -8,8 +8,10 @@ import com.bob.smash.service.PartnerInfoService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Http;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -35,6 +37,7 @@ import java.util.Optional;
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
     
+    private final HttpSession session; // HttpServletRequest에서 세션을 가져옴
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
@@ -45,18 +48,21 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         MemberRepository memberRepository, 
         OAuth2AuthorizedClientService authorizedClientService,
         MemberService memberService,
-        PartnerInfoService partnerInfoService
+        PartnerInfoService partnerInfoService,
+        HttpSession session
         ) {
         this.authorizedClientService = authorizedClientService;
         this.memberRepository = memberRepository;
         this.memberService = memberService; 
         this.frontServerUrl = frontServerUrl;
+        this.session = session;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication
+                                        ) throws IOException, ServletException {
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oauthUser = oauthToken.getPrincipal(); // OAuth2User 객체를 통해 사용자 정보에 접근
 
@@ -149,7 +155,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 } else {
                     System.out.println("===전화번호 X 이메일 X >>> 신규 회원 >>> 핸드폰 입력 페이지===");
                 }
-
+  
+                session.setAttribute("gogole_token", accessToken); // 구글 토큰 저장
                 response.sendRedirect(frontServerUrl + "/member/authenticated");
                 return;
             }

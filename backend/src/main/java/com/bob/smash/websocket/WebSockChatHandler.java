@@ -41,8 +41,8 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         switch (chatMessage.getType()) {
             case ENTER:
                 sessions.add(session);
-                chatMessage.setMessage(chatMessage.getSender() + "님 안녕하세요.");
-                sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+                // chatMessage.setMessage(chatMessage.getSender() + "님 안녕하세요.");
+                // sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
                 // (DB저장 필요 없으면 생략)
                 break;
             case QUIT:

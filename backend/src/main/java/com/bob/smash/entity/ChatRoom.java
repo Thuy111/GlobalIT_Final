@@ -1,5 +1,7 @@
 package com.bob.smash.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,4 +26,7 @@ public class ChatRoom {
 
     @Column(nullable = false) // 방 이름
     private String name;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt; // 방 생성 시간
 }

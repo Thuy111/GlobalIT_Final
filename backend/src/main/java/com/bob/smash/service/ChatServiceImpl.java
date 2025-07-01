@@ -40,6 +40,10 @@ public class ChatServiceImpl implements ChatService {
 
     // 1:1 채팅방 찾거나 없으면 생성
     public ChatRoomDTO getOrCreateOneToOneRoom(String myUser, String targetUser) {
+        // 상대방 이메일 아이디 유효성 검사
+        memberRepository.findByEmailId(targetUser)
+            .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
         // DB에서 1:1 채팅방 먼저 찾기
         ChatRoom found = chatRoomRepository.findByMyUserAndTargetUser(myUser, targetUser)
             .orElseGet(() -> chatRoomRepository.findByMyUserAndTargetUser(targetUser, myUser).orElse(null));
@@ -56,6 +60,7 @@ public class ChatServiceImpl implements ChatService {
             .myUser(myUser)
             .targetUser(targetUser)
             .name(targetUserName + "님과의 채팅방")
+            .createdAt(LocalDateTime.now()) 
             .build();
         chatRoomRepository.save(chatRoom);
         return entityToDto(chatRoom);
@@ -90,5 +95,19 @@ public class ChatServiceImpl implements ChatService {
         return messages.stream()
             .map(this::entityToDto)
             .collect(Collectors.toList());
+    }
+
+    // 읽음 처리
+    public void markAsRead(String roomId, String userEmail) {
+        // 아직 읽지 않은 메시지 리스트 조회 (예: 자신이 보낸 메시지 X, 방의 모든 메시지 중 읽지 않은 것들)
+        List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessagesByRoomIdAndUser(roomId, userEmail);
+
+        // 각 메시지의 읽음 상태를 변경
+        for (ChatMessage msg : unreadMessages) {
+            msg.setRead(true); // 사용자별 읽음 여부 처리 (구현 방식에 따라 다름)
+        }
+
+        // 일괄 저장
+        chatMessageRepository.saveAll(unreadMessages);
     }
 }

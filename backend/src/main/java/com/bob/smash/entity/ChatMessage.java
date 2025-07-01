@@ -47,6 +47,10 @@ public class ChatMessage {
     @Column(nullable = false)
     private LocalDateTime time;
 
+    // 읽음 여부 (단체 채팅방일 경우에는 읽음을 여러 사용자별로 관리할 함수 필요. 현재는 1:1 채팅방만 고려)
+    @Column(nullable = false)
+    private boolean isRead;
+
     // 메시지 저장 전 자동으로 시간 세팅
     @PrePersist
     protected void onCreate() {

@@ -100,8 +100,17 @@ public class ChatController {
 
     // 새로고침(무조건 세션이 끊김)을 해도 채팅방에 들어갈 수 있도록 메시지 조회
     @GetMapping("/rooms/{roomId}/messages")
+    @ResponseBody
     public List<ChatMessageDTO> getMessages(@PathVariable String roomId) {
-        return chatService.getMessages(roomId); // 시간순 정렬해서 반환
+        return chatService.getMessages(roomId);
+    }
+
+    // 채팅방 메시지 읽음 처리
+    @PostMapping("/rooms/{roomId}/read")
+    @ResponseBody
+    public void readMessages(@PathVariable String roomId, @RequestBody String userEmail) {
+        System.out.println("읽음 처리 요청: roomId=" + roomId + ", userEmail=" + userEmail);
+        chatService.markAsRead(roomId, userEmail); // roomId, userEmail로 읽음 처리
     }
     
 }
