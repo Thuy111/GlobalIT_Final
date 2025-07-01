@@ -33,7 +33,9 @@
 
     <!-- 리뷰 카드 반복 -->
     <div class="review_box">
-        <div th:each="review : ${reviewList}" class="review_card">
+<div class="review_card" th:each="review : ${reviewList}" 
+     th:onclick="'location.href=\'/estimate/detail/' + ${review.estimateIdx} + '\';'"
+     style="cursor:pointer;">
             <div class="review_header">
                 <div class="review_meta">
                     <span class="review_title" th:text="${review.nickname}">작성자</span>

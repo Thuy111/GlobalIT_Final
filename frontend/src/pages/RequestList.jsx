@@ -13,6 +13,8 @@ function RequestList() {
   const [hashtags, setHashtags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
 
+  const baseUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -145,7 +147,7 @@ function RequestList() {
         <div
           key={item.idx}
           className="request-card"
-          onClick={() => window.location.href = `/request/detail/${item.idx}`}
+          onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`}
           style={{ cursor: "pointer" }}
         >
           <div className="request-dday">{item.dday}</div>
