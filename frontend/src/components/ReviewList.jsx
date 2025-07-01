@@ -9,7 +9,7 @@ function ReviewList({ bno }) {
   useEffect(() => {
     if (!bno) return;
     console.log("bno 확인:", bno);
-    apiClient.get(`/review/bno`, { params: { bno } })
+    apiClient.get(`/store/reviews`, { params: { bno } })
       .then(res => {
         console.log("응답 확인:", res.data);
         setReviewList(res.data.reviews);

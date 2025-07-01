@@ -79,7 +79,9 @@ const UserProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange  }) => 
           <ul>
             <li>작성 글</li>
             <li>받은 견적서</li>
-            <li>작성한 리뷰</li>
+              <li onClick={() => window.location.href = 'http://localhost:8080/smash/review/mylist'}>
+                작성한 리뷰
+              </li>
           </ul>
         </section>
 
