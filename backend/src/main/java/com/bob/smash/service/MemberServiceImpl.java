@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +44,7 @@ public class MemberServiceImpl implements MemberService {
     private final EstimateService estimateService;
     private final RequestService requestService;
     private final ProfileService profileService;
+    private final HttpSession session;
     // private final ReviewRepository reviewRepository;
 
   // 소셜로그인 이메일을 통한 유저정보 DTO 반환
@@ -323,11 +325,17 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    private void unlinkSocial() {
-        System.out.println("!!!!!!!!!!!!!!!!!!!소셜 로그인 연동 해제 요청!!!!!!!!!!!!!!!!!!!");
+    @Override
+    public void unlinkSocial() {
+        // System.out.println("!!!!!!!!!!!!!!!!!!!소셜 로그인 연동 해제 요청!!!!!!!!!!!!!!!!!!!");
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String googleToken = (String) session.getAttribute("gogole_token");
+    
+        System.out.println("googleToken = " + googleToken);
 
         if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+            System.out.println("OAuth2AuthenticationToken 인증 정보가 있습니다.");
+
             String registrationId = oauthToken.getAuthorizedClientRegistrationId(); // 예: "kakao", "google"
             String principalName = auth.getName(); // 사용자 식별자
             OAuth2User oauthUser = oauthToken.getPrincipal(); // 사용자 정보 객체
@@ -342,7 +350,7 @@ public class MemberServiceImpl implements MemberService {
 
             // 이미 revoke 요청했던 토큰이면 중복 호출 방지
             if (!revokedTokens.add(accessToken)) {
-                System.out.println("🔁 이미 revoke 시도한 토큰입니다. 요청 생략.");
+                System.out.println("이미 revoke 시도한 토큰입니다. 요청 생략.");
                 return;
             }
 
@@ -362,6 +370,20 @@ public class MemberServiceImpl implements MemberService {
                         .bodyToMono(String.class)
                         .block();
             }
+
+        }else if(googleToken != null && !googleToken.isEmpty()) { // 구글 토큰이 있는 경우
+            System.out.println("구글 토큰 인증 정보가 있습니다. 토큰 폐기 요청을 보냅니다.");
+            WebClient.create()
+                    .post()
+                    .uri("https://oauth2.googleapis.com/revoke?token=" + googleToken)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+            // 구글 토큰 세션 삭제
+            session.removeAttribute("gogole_token");
+            System.out.println(">>>구글 토큰 연동 해제 요청 완료.");
+        } else {
+            // System.out.println(">>>소셜 로그인 연동 해제 요청 실패: 인증 정보가 없습니다.");
         }
     }
 }

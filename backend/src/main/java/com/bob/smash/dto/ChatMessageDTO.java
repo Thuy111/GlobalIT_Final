@@ -17,10 +17,10 @@ public class ChatMessageDTO {
 
     private Long id;
 
-    @JsonProperty("message")
+    @JsonProperty("message") // n/과 같이 JSON에서 "message"로 매핑
     private String message;
 
-    @JsonProperty("messageType")
+    @JsonProperty("messageType") // enum 타입을 JSON에서 "messageType"으로 매핑
     private MessageType type;
 
     private String roomId;
@@ -30,4 +30,6 @@ public class ChatMessageDTO {
     private String senderNickname;
 
     private LocalDateTime time;
+
+    private boolean isRead;
 }

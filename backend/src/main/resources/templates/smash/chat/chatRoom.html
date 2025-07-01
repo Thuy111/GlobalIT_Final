@@ -3,15 +3,31 @@
 
     <div class="chatRoom_container">
       <div class="chat_start"><span>대화가 시작 되었습니다.</span></div>
-      <div class="messageArea">
-        <div th:each="message : ${messages}"
-            class="msg"
-            th:classappend="${currentUser.emailId} == ${message.sender} ? 'me' : 'you'"
-            th:text="${message.message}">
-        </div>
-      </div>
+      <div class="messageArea"></div>
 
-      <div class="inputArea">
+      <!-- <div class="messageArea" th:each="message, iterStat : ${messages}">
+        <div th:if="${iterStat.index == 0 or #temporals.format(messages[iterStat.index-1].time, 'yyyy/MM/dd') != #temporals.format(message.time, 'yyyy/MM/dd')}"
+            class="date_label"
+            th:text="${#temporals.format(message.time, 'yyyy/MM/dd')}"></div>
+
+        <div class="msg_box"
+        th:classappend="${currentUser.emailId} == ${message.sender} ? 'me' : 'you'">
+          <div class="info_box">
+            <div class="idRead">전송됨</div>
+            <div th:if="${currentUser.emailId} == ${message.sender}" class="created_at" th:text="${#temporals.format(message.time, 'HH:mm')}"></div>
+          </div>
+          <div
+          class="msg"
+          th:classappend="${currentUser.emailId} == ${message.sender} ? 'me' : 'you'"
+          th:text="${message.message}">
+          </div>
+          <div class="info_box">
+            <div th:if="${currentUser.emailId} != ${message.sender}" class="created_at" th:text="${#temporals.format(message.time, 'HH:mm')}"></div>
+          </div>
+        </div>
+      </div> -->
+
+      <div th:if="${title != '탈퇴한 사용자'}" class="inputArea">
         <input type="text" placeholder="보낼 메세지를 입력하세요." class="content">
         <button type="button" value="전송" class="sendBtn" onclick="sendmessage()"><i class="fa-solid fa-paper-plane"></i></button>
         <!-- <button type="button" value="방나가기" class="quit" onclick="quit()">방 나가기 </button> -->
@@ -25,60 +41,203 @@
 
         // 1. 메시지 불러오기 (axios)
         document.addEventListener('DOMContentLoaded', function() {
-            axios.get(`/api/chat/rooms/${roomId}/messages`)
-            .then(res => {
-                const messages = res.data;
-                let messageArea = document.querySelector('.messageArea');
-                messageArea.innerHTML = "";
-                messages.forEach(msg => {
-                    let div = document.createElement('div');
-                    div.className = (msg.sender === sender) ? "msg me" : "msg you";
-                    div.innerText = msg.message;
-                    messageArea.append(div);
-                });
-                // 스크롤 맨 아래로
-                messageArea.scrollTop = messageArea.scrollHeight;
-            })
-            .then(() => {
-                // 2. WebSocket 연결 및 이벤트 등록
-                connectWebSocket();
+          // 페이지가 로드되면 메시지를 불러오면서 스크롤을 맨 아래로 내림.
+          window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+          
+
+          axios.get(`/smash/chat/rooms/${roomId}/messages`)
+          .then(res => {
+            const messages = res.data;
+            let messageArea = document.querySelector('.messageArea'); // 메시지 영역 선택
+            messageArea.innerHTML = ''; // 기존 메시지 초기화
+
+            let lastDateStr = '';
+            messages.forEach((msg, idx) => {
+              // 날짜 라벨 표시
+              const dateObj = new Date(msg.time);
+              const dateStr = dateObj.getFullYear() + '/' +
+                              String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+                              String(dateObj.getDate()).padStart(2, '0');
+              if (lastDateStr !== dateStr) {
+                let dateLabel = document.createElement('div');
+                dateLabel.className = 'date_label';
+                dateLabel.innerText = dateStr;
+                messageArea.append(dateLabel);
+                lastDateStr = dateStr;
+              }
+
+              // 시간 표시 (24시간제 HH:mm)
+              // const hours = String(dateObj.getHours()).padStart(2, '0');
+              // const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+              // const timeStr = `${hours}:${minutes}`;
+
+              // 시간 표시 (12시간제 hh:mm)
+              let hours = dateObj.getHours();
+              const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+              // 오전/오후 판별
+              const ampm = hours < 12 ? '오전' : '오후';
+              // 12시간제로 변환 (0시는 12시로 표시)
+              hours = hours % 12;
+              if (hours === 0) hours = 12;
+              const timeStr = `${ampm} ${hours}:${minutes}`;
+
+              // msg_box div 생성
+              let msgBox = document.createElement('div');
+              msgBox.className = 'msg_box ' + (msg.sender === sender ? 'me' : 'you');
+
+              // info_box 1
+              let infoBox1 = document.createElement('div');
+              infoBox1.className = 'info_box';
+
+              if (msg.sender === sender) {
+                // 내 메시지: "전송됨" + 시간
+                let idRead = document.createElement('div');
+                idRead.className = 'idRead';
+
+                // isRead가 true면 '읽음', 아니면 '전송됨'으로 표시
+                idRead.innerText = msg.isRead ? '읽음' : '전송됨';
+                infoBox1.appendChild(idRead);
+
+                let createdAt = document.createElement('div');
+                createdAt.className = 'created_at';
+                createdAt.innerText = timeStr;
+                infoBox1.appendChild(idRead);
+                infoBox1.appendChild(createdAt);
+              } // 상대방 메세지는 표시하지 X
+
+              // msg div
+              let msgDiv = document.createElement('div');
+              msgDiv.className = 'msg ' + (msg.sender === sender ? 'me' : 'you');
+              msgDiv.innerText = msg.message;
+
+              // info_box 2
+              let infoBox2 = document.createElement('div');
+              infoBox2.className = 'info_box';
+              if (msg.sender !== sender) {
+                let createdAt = document.createElement('div');
+                createdAt.className = 'created_at';
+                createdAt.innerText = timeStr;
+                infoBox2.appendChild(createdAt);
+              }
+
+              // 조립
+              msgBox.appendChild(infoBox1);
+              msgBox.appendChild(msgDiv);
+              msgBox.appendChild(infoBox2);
+
+              messageArea.append(msgBox);
+
+              // 스크롤 맨 아래로
+              window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
             });
+
+          })
+          .then(() => {
+              // 2. WebSocket 연결 및 이벤트 등록
+              connectWebSocket();
+          });
         });
 
         function connectWebSocket() {
-            let socket = new WebSocket("ws://localhost:8080/ws/chat");
-            window.socket = socket; // sendmessage 등에서 접근 가능하게
+          let socket = new WebSocket("ws://localhost:8080/ws/chat");
+          window.socket = socket; // sendmessage 등에서 접근 가능하게
 
-            socket.onopen = function (e) {
-                console.log('open server!');
-                enterRoom(socket);
-            };
-            socket.onclose = function(e){
-                console.log('disconnect');
+          socket.onopen = function (e) {
+              console.log('open server!');
+              enterRoom(socket);
+          };
+          socket.onclose = function(e){
+              console.log('disconnect');
+          }
+          socket.onerror = function (e){
+              console.log(e);
+          }
+          socket.onmessage = function (e) {
+            let messageArea = document.querySelector('.messageArea');
+            let payload;
+            try {
+                payload = JSON.parse(e.data);
+            } catch {
+                // 에러 처리
+                return;
             }
-            socket.onerror = function (e){
-                console.log(e);
+            let dateObj = new Date(payload.time || new Date());
+
+            let hours = dateObj.getHours();
+            let minutes = String(dateObj.getMinutes()).padStart(2, '0');
+
+            // 날짜 라벨 표시 (24시간제 HH:mm)
+            // let timeStr = `${String(hours).padStart(2, '0')}:${minutes}`;
+
+            // 오전/오후 표시
+            const ampm = hours < 12 ? '오전' : '오후';
+            let displayHour = hours % 12 === 0 ? 12 : hours % 12;
+            let timeStr = `${ampm} ${displayHour}:${minutes}`;
+            let isMe = payload.sender === sender;
+
+            // msg_box 생성
+            let msgBox = document.createElement('div');
+            msgBox.className = 'msg_box ' + (isMe ? 'me' : 'you');
+
+            // info_box 1
+            let infoBox1 = document.createElement('div');
+            infoBox1.className = 'info_box';
+            if (isMe) {
+                let idRead = document.createElement('div');
+                idRead.className = 'idRead';
+                idRead.innerText = '전송됨';
+                let createdAt = document.createElement('div');
+                createdAt.className = 'created_at';
+                createdAt.innerText = timeStr;
+                infoBox1.appendChild(idRead);
+                infoBox1.appendChild(createdAt);
             }
-            socket.onmessage = function (e) {
-                let messageArea = document.querySelector('.messageArea');
-                let newmessage = document.createElement('div');
-                try {
-                    let payload = JSON.parse(e.data);
-                    let isMe = payload.sender === sender;
-                    newmessage.className = isMe ? "msg me" : "msg you";
-                    newmessage.innerText = payload.message;
-                } catch {
-                    newmessage.innerText = e.data;
-                }
-                messageArea.append(newmessage);
-                // 스크롤 맨 아래로
-                messageArea.scrollTop = messageArea.scrollHeight;
+
+            // msg div
+            let msgDiv = document.createElement('div');
+            msgDiv.className = 'msg ' + (isMe ? 'me' : 'you');
+            msgDiv.innerText = payload.message;
+
+            // info_box 2
+            let infoBox2 = document.createElement('div');
+            infoBox2.className = 'info_box';
+            if (!isMe) {
+                let createdAt = document.createElement('div');
+                createdAt.className = 'created_at';
+                createdAt.innerText = timeStr;
+                infoBox2.appendChild(createdAt);
             }
+
+            // 조립
+            msgBox.appendChild(infoBox1);
+            msgBox.appendChild(msgDiv);
+            msgBox.appendChild(infoBox2);
+
+            messageArea.append(msgBox);
+            window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+        }
         }
 
         function enterRoom(socket){
-            const entermessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "ENTER", "senderNickname": /*[[${myUser}]]*/ ""};
-            socket.send(JSON.stringify(entermessage));
+          const entermessage = {
+            "roomId": roomId,
+            "sender": sender,
+            "message": "",
+            "messageType": "ENTER",
+            "senderNickname": sender // myUser
+          };
+          socket.send(JSON.stringify(entermessage));
+
+          // 읽음 처리 요청
+          axios.post(`/smash/chat/rooms/${roomId}/read`, sender )
+            .then(() => {
+              // 읽음 처리 후, 메시지 목록을 다시 불러와서 렌더링
+              return axios.get(`/smash/chat/rooms/${roomId}/messages`);
+            })
+            .then(res => {
+              // 여기서 messageArea.innerHTML = ""; 등으로 DOM을 다시 그림
+              renderMessages(res.data);
+            });
         }
 
         //메세지 보내기 버튼
@@ -90,8 +249,7 @@
             document.querySelector('.content').value = '';
 
             // 스크롤을 맨 아래로 내리기
-            let messageArea = document.querySelector('.messageArea');
-            messageArea.scrollTop = messageArea.scrollHeight;
+            window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
         }
 
         // 엔터키로 메세지 전송

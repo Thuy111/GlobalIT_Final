@@ -47,6 +47,9 @@
 .toggle-text{position:absolute;left:-1.6rem;top: 1px;z-index: 1;}
 
 /* Navigation */
+body.dark nav {background-color: #171717;}
+body.dark nav ul.nav-list li a, body.dark nav ul.nav-list li i{color: #808080;}
+body.dark nav ul.nav-list li.active a, body.dark nav ul.nav-list li.active i{color: #ececec;}
 nav {
   position: fixed;
   bottom: 0;

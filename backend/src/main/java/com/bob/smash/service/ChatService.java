@@ -25,6 +25,9 @@ public interface ChatService {
     // 1:1 채팅방 찾거나 없으면 생성
     ChatRoomDTO getOrCreateOneToOneRoom(String myUser, String targetUser);
 
+    // 채팅방 메시지 읽음 처리
+    void markAsRead(String roomId, String userEmail);
+
     // (ChatRoom) Entity -> DTO
     default ChatRoomDTO entityToDto(ChatRoom entity) {
         if (entity == null) return null;
@@ -33,6 +36,7 @@ public interface ChatService {
                 .myUser(entity.getMyUser())
                 .targetUser(entity.getTargetUser())
                 .name(entity.getName())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
@@ -44,6 +48,7 @@ public interface ChatService {
                 .myUser(dto.getMyUser())
                 .targetUser(dto.getTargetUser())
                 .name(dto.getName())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 
@@ -57,6 +62,7 @@ public interface ChatService {
                 .message(chatMessage.getMessage())
                 .type(chatMessage.getType())
                 .time(chatMessage.getTime())
+                .isRead(chatMessage.isRead())
                 .build();
     }
 
@@ -70,6 +76,7 @@ public interface ChatService {
                 .message(chatMessageDTO.getMessage())
                 .type(chatMessageDTO.getType())
                 .time(chatMessageDTO.getTime())
+                .isRead(chatMessageDTO.isRead())
                 .build();
     } 
 }
