@@ -57,14 +57,7 @@ public class ReviewController {
 
     // 리뷰 목록
     @GetMapping("/list")
-    public String showReviewList(@RequestParam(value = "estimateIdx", required = false) Integer estimateIdx, Model model) {
-        List<ReviewDTO> reviewList = (estimateIdx != null)
-                ? reviewService.getReviewsByEstimateIdx(estimateIdx)
-                : List.of();
-        double avg = reviewService.getAverageStarByEstimateIdx(estimateIdx);
-        model.addAttribute("reviewList", reviewList);
-        model.addAttribute("estimateIdx", estimateIdx);
-        model.addAttribute("avgScore", avg);
+    public String showReviewList(Model model) {
         model.addAttribute("title", "리뷰 목록");
         return "smash/review/list";
     }
@@ -140,12 +133,12 @@ public class ReviewController {
         if (currentUserDTO == null) {
             return "redirect:/smash/"; // 로그인 안 되어 있으면 로그인 페이지로 리디렉트
         }
-        String currentUser = currentUserDTO.getEmailId();
+        String currentUserId = currentUserDTO.getEmailId();
         // 내 리뷰만 조회
-        List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUser);
+        List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUserId);
         model.addAttribute("reviewList", myReviewList);
-        model.addAttribute("currentUser", currentUser);
         model.addAttribute("isMyList", true); // 내 리뷰 전용 표시
+        model.addAttribute("title", "내가 쓴 리뷰 목록");
         return "smash/review/list";
     }
 }
