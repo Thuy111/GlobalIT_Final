@@ -1,8 +1,10 @@
 package com.bob.smash.controller;
 
+import java.lang.StackWalker.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
 import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.entity.ChatRoom;
+import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.ChatService;
 
 import jakarta.servlet.http.HttpSession;
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/smash/chat")
 public class ChatController {
     private final ChatService chatService;
+    private final MemberRepository memberRepository;
 
     @Value("${front.server.url}")
     private String frontServerUrl;
@@ -76,11 +80,17 @@ public class ChatController {
                         Model model) {
         try{
             ChatRoomDTO room = chatService.findRoomById(roomId); // roomId로 조회
+            // targetUser가 존재하는지 확인
+            String targetUserNickname = memberRepository.findNicknameByEmailId(targetUser);
+            if (targetUserNickname == null || targetUserNickname.isEmpty()) {
+                targetUserNickname = "탈퇴한 사용자"; // 닉네임이 없으면 기본값 설정
+            }
+            
             model.addAttribute("room", room);
             model.addAttribute("myUser", myUser);
             model.addAttribute("targetUser", targetUser);
             model.addAttribute("messages", chatService.getMessages(roomId));
-            model.addAttribute("title", room.getName());
+            model.addAttribute("title", targetUserNickname);
             return "smash/chat/chatRoom";
         }
         catch (Exception e) {

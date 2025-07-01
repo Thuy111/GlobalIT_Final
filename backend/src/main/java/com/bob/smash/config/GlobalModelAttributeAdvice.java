@@ -33,7 +33,8 @@ public class GlobalModelAttributeAdvice {
         System.out.println("Current User=========[[MODEL: currentUser]]==========" + currentUser);
 
         String header = request.getHeader("X-Frontend-Auth-Check");
-        if ("true".equals(header)) {
+        String accept = request.getHeader("Accept");
+        if ("true".equals(header) && "*/*".equals(accept)) {
             System.out.println("[ModelAttr] 프론트 요청 감지, 세션 검사 패스\"");
             return;
         }
