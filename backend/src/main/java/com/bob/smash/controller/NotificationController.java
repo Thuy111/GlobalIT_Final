@@ -35,6 +35,9 @@ public class NotificationController {
   @GetMapping("/list")
   public ResponseEntity<List<NotificationMappingDTO>> list(HttpSession session, @RequestParam(required = false) String type) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) {
+      return ResponseEntity.ok(List.of());
+    }
     List<NotificationMappingDTO> result;
     if (type == null) {
       result = service.getNotificationByMember(currentUser.getEmailId());
@@ -47,6 +50,9 @@ public class NotificationController {
   @GetMapping("/unread")
   public ResponseEntity<Integer> unreadCount(HttpSession session) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) {
+      return ResponseEntity.ok(0);
+    }
     int count = service.countUnreadNotifications(currentUser.getEmailId());
     return ResponseEntity.ok(count);
   }
@@ -57,6 +63,10 @@ public class NotificationController {
                           HttpSession session,
                           RedirectAttributes rttr) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) {
+      rttr.addFlashAttribute("error", "로그인이 필요합니다.");
+      return "redirect:/smash";
+    }
     service.readNotification(currentUser.getEmailId(), idx);
     return "ok";
   }
@@ -65,6 +75,9 @@ public class NotificationController {
   @PostMapping("/read/all")
   public String readAll(HttpSession session) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) {
+      return "로그인이 필요합니다.";
+    }
     service.markAllAsRead(currentUser.getEmailId());
     return "ok";
   }
@@ -73,6 +86,9 @@ public class NotificationController {
   @PostMapping("/delete")
   public String delete(@RequestParam("idx") Integer idx, HttpSession session) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) {
+      return "로그인이 필요합니다.";
+    }
     service.deleteNotification(currentUser.getEmailId(), idx);
     return "ok";
   }
