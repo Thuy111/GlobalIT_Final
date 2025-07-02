@@ -72,10 +72,11 @@ public class NotificationServiceImpl implements NotificationService {
                    .map(this::entityToDto)
                    .toList();
   }
-  // (개수) 회원별 읽음/미읽음 알림 개수 조회
+  // (개수) 회원별 읽은/읽지 않은 알림 개수 조회
   @Override
-  public int countUnreadNotifications(String memberId) {
-    return mappingRepository.countByMember_EmailIdAndIsRead(memberId, (byte) 0);
+  public int countUnreadNotifications(String memberId, boolean isRead) {
+    byte readByte = isRead ? (byte) 1 : (byte) 0;
+    return mappingRepository.countByMember_EmailIdAndIsRead(memberId, readByte);
   }
 
   // (읽음 처리)

@@ -44,6 +44,7 @@ public class MemberServiceImpl implements MemberService {
     private final EstimateService estimateService;
     private final RequestService requestService;
     private final ProfileService profileService;
+    private final NotificationService notificationService;
     private final HttpSession session;
     // private final ReviewRepository reviewRepository;
 
@@ -104,8 +105,8 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
   }
 
-  @Override
-  public void checkUser(OAuth2AuthenticationToken user, HttpServletRequest request) { // (가입된 번호, DB 이메일 조회) 유효성 체크
+    @Override
+    public void checkUser(OAuth2AuthenticationToken user, HttpServletRequest request) { // (가입된 번호, DB 이메일 조회) 유효성 체크
         if (user == null) {
             System.out.println("!!! 유저 정보가 없습니다. ::: 401 ERROR !!!");
             // 유저 정보가 없을 경우, 인증 실패로 처리
@@ -139,6 +140,14 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("가입되지 않은 계정입니다.");
         } else {
             System.out.println("=====>>> 회원은 존재함 → " + memberOpt.get().getEmailId() + ", 전화번호: " + memberOpt.get().getTel());
+            // unreadAlarm 최신화
+            HttpSession session = request.getSession();
+            CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+            if (currentUser != null) {
+                int unreadAlarm = notificationService.countUnreadNotifications(email, false); // 최신 unreadAlarm 값 조회
+                currentUser.setUnreadAlarm(unreadAlarm); // DTO에 반영
+                session.setAttribute("currentUser", currentUser); // 세션에 다시 저장
+            }
         }
 
         if (member.getTel() == null) {
@@ -277,6 +286,7 @@ public class MemberServiceImpl implements MemberService {
         if (user != null){
             CurrentUserDTO currentUser = null;
             String bno = (partnerInfo != null) ? partnerInfo.getBno() : null;
+            int unreadAlarm = notificationService.countUnreadNotifications(email, false);
 
             if (partnerInfo == null) {
                 System.out.println("===파트너 정보가 없습니다.===");
@@ -289,6 +299,7 @@ public class MemberServiceImpl implements MemberService {
                     .nickname(user.getNickname())
                     .role(user.getRole())
                     .bno(bno)
+                    .unreadAlarm(unreadAlarm)
                     .build();
 
             session.setAttribute("currentUser", currentUser);

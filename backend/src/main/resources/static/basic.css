@@ -203,6 +203,7 @@ nav ul.nav-list {
   display: flex;
   justify-content: space-around;
 }
+nav ul.nav-list li {position: relative;}
 nav ul.nav-list li a {
   display: flex;
   flex-direction: column;
@@ -213,6 +214,18 @@ nav ul.nav-list li a {
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
+nav ul.nav-list li a span, .unread_alarm {
+  background: rgb(255, 99, 71);
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  position: absolute;
+  top: -7px;
+  right: -14px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-left: 6px;
+  padding: 2px 6px;
+}
 
 /* TitleBar */
 .titleBar_container {

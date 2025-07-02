@@ -40,6 +40,7 @@
               <li class="alarm">
                 <a th:href="${@environment.getProperty('front.server.url') + '/alarm'}">
                   <i class="fa-solid fa-bell"></i>알림
+                  <span th:if="${currentUser != null and currentUser.unreadAlarm > 0}" class="unread_alarm" >[[${currentUser.unreadAlarm}]]</span>
                 </a>
               </li>
               <li class="home active">
