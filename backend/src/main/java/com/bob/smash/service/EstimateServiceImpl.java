@@ -217,12 +217,10 @@ public class EstimateServiceImpl implements EstimateService {
     return estimate.getIdx();
   }
   // 의뢰서에 해당하는 견적서 전체 자동 미낙찰
-  // 🛠️ 추후 의뢰서 목록으로 받아서 한번에 처리하는 코드로 변경 필요
-  // (의뢰서가 많을 경우 여러면 조회해야해서 DB에 무리갈 수 있음)
   @Override
   @Transactional
-  public void autoSelect(Integer requestIdx) {
-    List<Estimate> estimates = repository.findByRequest_IdxAndIsSelected(requestIdx, (byte)0); // 미정만
+  public void autoSelect(List<Integer> requestIdxList) {
+    List<Estimate> estimates = repository.findByRequest_IdxInAndIsSelected(requestIdxList, (byte)0);
     for (Estimate e : estimates) {
         e.changeIsSelected((byte)1); // 미낙찰 처리
         repository.save(e);

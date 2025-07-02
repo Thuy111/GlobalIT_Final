@@ -1,0 +1,78 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+  <th:block th:fragment="content">
+
+    <div class="request_container">
+      <div class="request_wrapper" th:each="request : ${result}">
+        <div class="request_header">
+          <h3 class="request_title"> [[${request.title}]]</h3>
+          <span class="status_tag" th:if="${request.isDone == 1}">낙찰 완료</span>
+        </div>
+        <div class="small_box">
+          <!-- 이미지 -->
+          <div class="attached_image_area" th:if="${not #lists.isEmpty(request.images)}">
+            <div class="attached_image" th:each="image : ${request.images}" th:if="${image.path != null}">
+              <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
+            </div>
+          </div>
+          <!-- 이미지 Lightbox (이미지 크게 보기) -->
+          <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+            <img id="lightbox_img" src="" alt="zoom" />
+          </div>
+          <div class="request_content_box">
+            <div class="xsmall_box">       
+              <div class="hashtags">
+                <span th:each="tag : ${#strings.arraySplit(request.hashtags, ' ')}">
+                  #<span th:text="${tag}"></span>&nbsp;
+                </span>
+              </div>
+              <div class="description">
+                <pre th:text="${request.content}"></pre>
+              </div>     
+              <div class="info">      
+                <p>사용 지역: [[${request.useRegion}]] [[${request.detailAddress}]]</p>
+                <p>사용 예정 날짜: [[${#temporals.format(request.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
+              </div>                    
+            </div>    
+            <div class="created_at"> [[${#temporals.format(request.createdAt, 'yyyy-MM-dd HH:mm')}]]</div>
+          </div>
+        </div>
+        <div class="request_button_group">
+          <div th:if="${request.isDone == 0 and
+                        (request.writerEmail != null and currentUser != null and request.writerEmail == currentUser.emailId) or 
+                        (currentUser != null and currentUser.role == 2)}">
+            <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+              <input type="hidden" name="idx" th:value="${request.idx}" />          
+              <button class="btn delete">의뢰서 삭제</button>
+            </form>        
+            <a th:href="@{'/smash/request/update/' + ${request.idx}}" class="btn" onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');"
+             th:if="${request.isModify != 1}">
+              의뢰서 수정
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+
+    <script th:inline="javascript">
+      document.addEventListener("DOMContentLoaded", function () {
+        // 이미지 lightbox. Js code((이미지 크게 보기)
+        const images = document.querySelectorAll(".zoomable_image");
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightbox_img");
+
+        images.forEach(img => {
+          img.addEventListener("click", () => {
+            lightbox.style.display = "flex";
+            lightboxImg.src = img.src;
+          });
+        });
+
+        window.closeLightbox = function () {
+          lightbox.style.display = "none";
+          lightboxImg.src = "";
+        };
+      });
+    </script>
+  </th:block>
+</th:block>

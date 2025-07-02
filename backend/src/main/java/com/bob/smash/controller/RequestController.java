@@ -1,5 +1,6 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
@@ -8,6 +9,7 @@ import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,15 +36,45 @@ public class RequestController {
     private final ReviewService reviewService;
 
     @GetMapping("/")
-    public String estimate() {
-        return "redirect:/smash/request/listTest";
+    public String request() {
+        return "redirect:/smash/request/list";
     }
 
-    @GetMapping("/listTest")
-    public String list(Model model) {
-        List<RequestDTO> result = requestService.getList();
-        model.addAttribute("result", result); 
-        return "smash/request/listTest";
+    // 의뢰서 목록
+    @GetMapping("/list")
+    public void list(Model model) {
+        model.addAttribute("title", "의뢰서 목록");
+    }
+    // 내가 쓴 의뢰서 목록
+    @GetMapping("/mylist")
+    public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        if(currentUser == null && currentUser.getRole() != 0) {
+            // 일반 회원이 아닌 경우, 홈으로
+            return "redirect:/smash";
+        } else {
+            // 일반 회원인 경우, 자신이 작성한 의뢰서 목록을 조회
+            redirectAttributes.addFlashAttribute("result", requestService.getListByMemberId(currentUser.getEmailId()));
+        }
+        return "redirect:/smash/request/list";
+    }
+    // 전체 의뢰서 목록
+    @GetMapping("/all")
+    public String allList(HttpSession session, RedirectAttributes redirectAttributes) {
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        // currentUser가 null이면 홈으로 리다이렉트
+        if (currentUser == null) {
+            return "redirect:/smash";
+        } else {
+            if(currentUser.getRole() == 2) {
+                // 관리자인 경우, 전체 의뢰서 목록을 조회
+                redirectAttributes.addFlashAttribute("result", requestService.getList());
+            } else {
+                // 관리자가 아닌 경우, 자신이 작성한 의뢰서 목록을 조회
+                return "redirect:/smash/request/mylist";
+            }
+        }
+        return "redirect:/smash/request/list";
     }
 
     @GetMapping("/register")
@@ -166,7 +198,8 @@ public class RequestController {
         return "redirect:/smash/request/detail/" + requestIdx;
     }
 
-    @GetMapping("/list")
+    // 홈페이지용 목록 조회
+    @GetMapping("/main")
     public ResponseEntity<Map<String, Object>> getPagedRequests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

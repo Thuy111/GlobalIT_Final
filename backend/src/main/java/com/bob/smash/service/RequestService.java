@@ -16,8 +16,10 @@ public interface RequestService {
     // 상세 페이지 보기 (detail 페이지용)
     RequestDTO get(Integer idx);
 
-    // 목록 조회////////(test 용, 추후 삭제 필요)
+    // 목록 조회
     List<RequestDTO> getList();
+    // 목록 조회(내가 작성한 의뢰서)
+    List<RequestDTO> getListByMemberId(String memberId);
 
     // 삭제 (의뢰서 삭제하면 견적서도 삭제됨)
     void delete(Integer idx);

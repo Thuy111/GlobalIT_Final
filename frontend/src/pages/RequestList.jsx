@@ -18,7 +18,7 @@ function RequestList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await apiClient.get(`/request/list`);
+        const res = await apiClient.get(`/request/main`);
         setAllRequests(res.data.request ?? []);
         setFilteredRequests(res.data.request ?? []);
         const fetchedTags = res.data.hashtags ?? [];

@@ -15,6 +15,8 @@ public interface EstimateRepository extends JpaRepository<Estimate, Integer> {
   List<Estimate> findByRequest_Idx(Integer requestIdx);
   // 낙찰 여부에 따라 의뢰서에 해당하는 견적서 전체 조회(알림 생성용)
   List<Estimate> findByRequest_IdxAndIsSelected(Integer requestIdx, Byte isSelected);
+  // 낙찰 여부에 따라 의뢰서 목록에 해당하는 견적서 전체 조회(자동 미낙찰용)
+  List<Estimate> findByRequest_IdxInAndIsSelected(List<Integer> requestIdxList, Byte isSelected);
   
   // 사업자번호에 해당하는 모든 견적 정보 삭제(회원 탈퇴 시)
   void deleteByPartnerInfo_Bno(String bno);

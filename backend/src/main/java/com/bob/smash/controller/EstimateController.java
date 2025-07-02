@@ -33,7 +33,7 @@ public class EstimateController {
 
   @GetMapping("/")
   public String estimate() {
-    return "redirect:/smash/estimate/all";
+    return "redirect:/smash/estimate/list";
   }
 
   // 견적서 목록 페이지로 이동
