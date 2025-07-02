@@ -13,4 +13,5 @@ public class CurrentUserDTO {
     private String nickname;
     private byte role;
     private String bno; // 사업자 회원일 경우에만 존재
+    private int unreadAlarm = 0;
 }

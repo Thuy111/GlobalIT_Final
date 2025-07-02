@@ -17,8 +17,8 @@ public interface NotificationService {
   List<NotificationMappingDTO> getUnreadNotifications(String memberId, boolean isRead);
   // (목록) 회원별 알림 목록 조회: 타입별
   List<NotificationMappingDTO> getNotificationsByType(String memberId, String targetType);
-  // (개수) 회원별 읽지 않은 알림 개수
-  int countUnreadNotifications(String memberId);
+  // (개수) 회원별 읽은/읽지 않은 알림 개수
+  int countUnreadNotifications(String memberId, boolean isRead);
   // (읽음 처리)
   NotificationMappingDTO readNotification(String memberId, Integer idx);
   // (읽음 처리) 회원별 모든 알림 읽음 처리

@@ -75,7 +75,7 @@ nav ul.nav-list li a {
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
-nav ul.nav-list li a span {
+nav ul.nav-list li a span, .unread_alarm {
   background: rgb(255, 99, 71);
   color: rgb(255, 255, 255);
   font-weight: bold;
