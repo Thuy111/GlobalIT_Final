@@ -35,6 +35,8 @@ public class EstimateServiceImpl implements EstimateService {
   public Integer register(EstimateDTO dto) {
     Estimate estimate = dtoToEntity(dto);
     repository.save(estimate);
+    // 견적서 작성 이벤트 발행(알림 생성용)
+    eventPublisher.publishEvent(new EstimateEvent(this, estimate.getIdx(), dto.getRequestIdx(), EstimateEvent.Action.CREATED));
     return estimate.getIdx();
   }
   // 등록: 견적서 저장 + 이미지 저장 및 매핑

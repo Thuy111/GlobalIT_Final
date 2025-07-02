@@ -50,7 +50,6 @@ public class RequestController {
         model.addAttribute("title", "의뢰서 작성");
         return "/smash/request/register";
     }
-
     @PostMapping("/register")  
     public String register(@ModelAttribute RequestDTO requestDTO,
                            @RequestParam("imageFiles") List<MultipartFile> imageFiles,
