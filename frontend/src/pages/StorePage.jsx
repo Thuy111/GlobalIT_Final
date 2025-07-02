@@ -154,22 +154,22 @@ const StorePage = () => {
   arrows: false,
 };
 
-  // const handleNewImagesChange = (e) => {
-  //   const files = Array.from(e.target.files);
-  //   setNewImages([...newImages, ...files]);
+  const handleNewImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setNewImages([...newImages, ...files]);
  
-  //   // 미리보기 이미지 추가
-  //   const previews = files.map((file) => URL.createObjectURL(file));
-  //   setPreviewImages([...previewImages, ...previews]);
-  // };
+    // 미리보기 이미지 추가
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages([...previewImages, ...previews]);
+  };
 
-  // const handleImageDelete = (imgId) => {
-  //   setDeleteImageIds([...deleteImageIds, imgId]);
-  // };
+  const handleImageDelete = (imgId) => {
+    setDeleteImageIds([...deleteImageIds, imgId]);
+  };
 
-  // const handleAllImagesDelete = () => {
-  //   setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제 
-  // };
+  const handleAllImagesDelete = () => {
+    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제 
+  };
 
 
   return (
