@@ -5,22 +5,22 @@
       <h1>테스트 유저 목록</h1>
       <div style="display: flex; gap:4px; flex-wrap: wrap;">
         <button type="button"
-            th:attr="data-me=${myUser},data-other='user1@example.com'"
+            th:attr="data-me=${createUser},data-other='user1@example.com'"
             onclick="startChat(this.dataset.me, this.dataset.other)">
             runner01 님과 채팅하기
         </button>
         <button type="button"
-                th:attr="data-me=${myUser},data-other='user2@example.com'"
+                th:attr="data-me=${createUser},data-other='user2@example.com'"
                 onclick="startChat(this.dataset.me, this.dataset.other)">
             soccerking 님과 채팅하기
         </button>
         <button type="button"
-                th:attr="data-me=${myUser},data-other='user3@example.com'"
+                th:attr="data-me=${createUser},data-other='user3@example.com'"
                 onclick="startChat(this.dataset.me, this.dataset.other)">
             tennispro 님과 채팅하기
         </button>
         <button type="button"
-                th:attr="data-me=${myUser},data-other='seasign10@gmail.com'"
+                th:attr="data-me=${createUser},data-other='seasign10@gmail.com'"
                 onclick="startChat(this.dataset.me, this.dataset.other)">
             seasign10@gmail.com 님과 채팅하기
         </button>
@@ -33,9 +33,9 @@
         </tr>
         <tr th:each="room : ${roomList}">
             <td>
-                <a th:href="@{chatRoom(roomId=${room.roomId}, myUser=${myUser}, targetUser=${room.targetUser})}"
+                <a th:href="@{chatRoom(roomId=${room.roomId})}"
                   th:class="|${room.roomId} chat_room|"
-                  th:text="${room.name}"></a>
+                  th:text="${currentUser == createUser ? room.targetNickname : room.myNickname}">님과의 채팅방 입장</a>
             </td>
         </tr>
       </table>
@@ -45,10 +45,10 @@
       function startChat(me, otherUser) {
           axios.post('/smash/chat/createRoom', {
               username: me,
-              targetUsername: otherUser
+              inviteUsername: otherUser
           }).then(res => {
               const roomId = res.data.roomId;
-             window.location.href = '/smash/chat/chatRoom?roomId=' + roomId + '&myUser=' + me + '&targetUser=' + otherUser;
+             window.location.href = '/smash/chat/chatRoom?roomId=' + roomId;
           });
       }
     </script>

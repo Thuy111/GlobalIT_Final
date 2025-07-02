@@ -70,8 +70,6 @@
         let infoBox1 = document.createElement('div');
         infoBox1.className = 'info_box';
 
-        console.log("메시지: " + msg);
-        console.dir(msg);
         if (msg.sender === sender) {
           let idRead = document.createElement('div');
           idRead.className = 'idRead';
@@ -163,22 +161,11 @@
         window.scrollTo(0, document.body.scrollHeight + 64);
       }
 
-      // 읽음 처리 메시지 STOMP로 전송
-      function sendReadEvent() {
-        const payload = {
-          roomId: roomId,
-          sender: sender
-          // 메시지ID목록은 서버에서 markAsRead가 반환
-        };
-        stompClient.send(`/app/chat/${roomId}/read`, {}, JSON.stringify(payload));
-      }
-
       // Thymeleaf 변수 JS로 전달
       const roomId = /*[[${room.roomId}]]*/ "";
       const sender = /*[[${createUser}]]*/ "";
 
       // 1. 메시지 불러오기 (axios)
-      let stompClient = null;
       document.addEventListener('DOMContentLoaded', function() {
         // 페이지가 로드되면 메시지를 불러오면서 스크롤을 맨 아래로 내림.
         window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
@@ -199,18 +186,33 @@
       }); // ===DOMContentLoaded end===
 
       function connectWebSocket() {
-        let socket = new SockJS("http://localhost:8080/ws/chat");
-        stompClient = Stomp.over(socket);
+        let socket = new WebSocket("ws://localhost:8080/ws/chat");
+        window.socket = socket; // sendmessage 등에서 접근 가능하게
 
-        stompClient.connect({}, function(frame) {
-        console.log('Connected: ' + frame);
+        socket.onopen = function (e) {
+            console.log('open server!');
+            enterRoom(socket);
+        };
+        socket.onclose = function(e){
+            console.log('disconnect');
+        }
+        socket.onerror = function (e){
+            console.log(e);
+        }
+        socket.onmessage = function (e) { // 메시지 수신 이벤트
+          let payload;
+          try {
+              payload = JSON.parse(e.data);
+          } catch {
+              console.error('Invalid JSON received:', e.data);
+              // 에러 처리
+              return;
+          }
+          // renderMessages([payload]); // 단일 메시지도 배열로 감싸서 전달
 
-        // 구독: 서버에서 메시지가 오면 이 콜백 실행
-        stompClient.subscribe("/topic/chat/" + roomId, function(message) {
-          const payload = JSON.parse(message.body);
-
-          // 읽음 처리 분기
+          // 읽음 처리
           if (payload.messageType === "READ" && Array.isArray(payload.messageIds)) {
+            // 읽음 처리: 해당 메시지의 idRead 텍스트를 '읽음'으로 변경
             payload.messageIds.forEach(id => {
               let msgBox = document.getElementById('msg_' + id);
               if (msgBox) {
@@ -218,62 +220,59 @@
                 if (idReadDiv) idReadDiv.innerText = '읽음';
               }
             });
-            // 최신 읽음 id 기록 (여러개라면 가장 큰 id로)
-            if (payload.messageIds.length > 0) {
-              lastReadMessageId = Math.max(...payload.messageIds);
-            }
             return;
           }
 
-          // 메세지 추가
+          // TALK 등 다른 메시지는 기존대로 append
           appendMessage(payload);
+        }
+      }
 
-          // 자동 읽음 처리 (상대가 보낸 메시지면 즉시 읽음 이벤트 전송)
-          if (payload.sender !== sender && payload.messageType === "TALK") {
-            // 중복 호출 방지: 이미 읽은 메시지는 넘어감
-            if (payload.id && payload.id !== lastReadMessageId) {
-              sendReadEvent();
-              lastReadMessageId = payload.id;
-            }
-          }
-        });
-
-        // 입장 메시지 전송 (ENTER)
+      function enterRoom(socket){
         const entermessage = {
           "roomId": roomId,
           "sender": sender,
           "message": "",
           "messageType": "ENTER",
-          "senderNickname": sender
+          "senderNickname": sender // createUser
         };
-        stompClient.send("/app/chat.enter", {}, JSON.stringify(entermessage));
-        sendReadEvent(); // 읽음 처리 이벤트 전송  
-      });
-      }
+        socket.send(JSON.stringify(entermessage));
 
-      //메세지 보내기 버튼
-      function sendmessage() {
-          let content = document.querySelector('.content').value;
-          if (!content) return;
-          const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${createUser}]]*/ ""};
-          stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
-          document.querySelector('.content').value = '';
+        // 읽음 처리 요청
+        axios.post(`/smash/chat/rooms/${roomId}/read`, sender )
+          .then(() => {
+            // 읽음 처리 후, 메시지 목록을 다시 불러와서 렌더링
+            return axios.get(`/smash/chat/rooms/${roomId}/messages`);
+          })
+          .then(res => {
+            messageArea.innerHTML = '';
+            renderMessages(res.data);
+          });
+        }
 
-          // 스크롤을 맨 아래로 내리기
-          window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
-      }
+        //메세지 보내기 버튼
+        function sendmessage() {
+            let content = document.querySelector('.content').value;
+            if (!content) return;
+            const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${createUser}]]*/ ""};
+            window.socket.send(JSON.stringify(talkmessage));
+            document.querySelector('.content').value = '';
 
-      // 엔터키로 메세지 전송
-      document.querySelector('.content').addEventListener('keydown', function(e){
-          if(e.key === 'Enter') sendmessage();
-      });
+            // 스크롤을 맨 아래로 내리기
+            window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+        }
 
-      // 방 나가기 버튼 (필요X)
-      function quit(){
-          const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${createUser}]]*/ ""};
-          stompClient.send("/app/chat.quit", {}, JSON.stringify(quitmessage));
-          stompClient.disconnect();
-      }
+        // 엔터키로 메세지 전송
+        document.querySelector('.content').addEventListener('keydown', function(e){
+            if(e.key === 'Enter') sendmessage();
+        });
+
+        // 방 나가기 버튼 (필요X)
+        function quit(){
+            const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${createUser}]]*/ ""};
+            window.socket.send(JSON.stringify(quitmessage));
+            window.socket.close();
+        }
     </script>
   </th:block>
 </th:block>

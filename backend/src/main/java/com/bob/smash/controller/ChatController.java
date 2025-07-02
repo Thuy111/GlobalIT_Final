@@ -1,12 +1,14 @@
 package com.bob.smash.controller;
 
-import java.lang.StackWalker.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
 import com.bob.smash.dto.CurrentUserDTO;
+import com.bob.smash.dto.ReadEventDTO;
 import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.ChatService;
@@ -33,24 +36,25 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
     private final ChatService chatService;
     private final MemberRepository memberRepository;
+    private final HttpSession session;
 
     @Value("${front.server.url}")
     private String frontServerUrl;
 
     //  채팅방 목록 조회
     @GetMapping("/roomList")
-    public String roomList(@RequestParam String myUser, Model model, HttpSession session) {
+    public String roomList(@RequestParam String createUser, Model model, HttpSession session) {
         try{
             CurrentUserDTO currntUser = (CurrentUserDTO) session.getAttribute("currentUser");
             if(currntUser == null) {
                 return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
-            }else if(!currntUser.getEmailId().equals(myUser)) {
+            }else if(!currntUser.getEmailId().equals(createUser)) {
                 return "redirect:" + frontServerUrl + "/profile?error=invalidUser";
             }
     
-            List<ChatRoom> roomList = chatService.findRoomsByUser(myUser);
+            List<ChatRoom> roomList = chatService.findRoomsByUser(createUser);
             model.addAttribute("roomList", roomList == null ? new ArrayList<>() : roomList);
-            model.addAttribute("myUser", myUser == null ? "" : myUser);
+            model.addAttribute("createUser", createUser == null ? "" : createUser);
             model.addAttribute("title", "채팅방 목록");
             return "smash/chat/roomList";
         }catch (Exception e) {
@@ -64,8 +68,8 @@ public class ChatController {
     public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
         try{
             String username = params.get("username");
-            String targetUsername = params.get("targetUsername");
-            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, targetUsername);
+            String inviteUsername = params.get("inviteUsername");
+            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, inviteUsername);
             return room;
         }catch (Exception e) {
             throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());
@@ -75,22 +79,41 @@ public class ChatController {
     // 1:1 채팅방 조회
     @GetMapping("/chatRoom")
     public String chatRoom(@RequestParam String roomId,
-                        @RequestParam String myUser,
-                        @RequestParam String targetUser,
-                        Model model) {
+                            Model model) {
         try{
             ChatRoomDTO room = chatService.findRoomById(roomId); // roomId로 조회
-            // targetUser가 존재하는지 확인
-            String targetUserNickname = memberRepository.findNicknameByEmailId(targetUser);
-            if (targetUserNickname == null || targetUserNickname.isEmpty()) {
-                targetUserNickname = "탈퇴한 사용자"; // 닉네임이 없으면 기본값 설정
+            if (room == null) { // 
+                throw new RuntimeException("존재하지 않는 채팅방입니다.");
+            }
+            // 세션에서 로그인 정보 확인
+            CurrentUserDTO myAccount = (CurrentUserDTO) session.getAttribute("currentUser");
+            if(myAccount == null) {
+                return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
+            }
+
+            String myEmail = myAccount.getEmailId();
+
+            // room DTO에서 상대방 정보 추출
+            String inviteUser;
+            if (room.getCreateUser().equals(myEmail)) {
+                inviteUser = room.getInviteUser();
+            } else if (room.getInviteUser().equals(myEmail)) {
+                inviteUser = room.getCreateUser();
+            } else {
+                throw new RuntimeException("이 채팅방에 접근 권한이 없습니다.");
+            }
+
+            // 상대방 닉네임 조회
+            String yourNickname = memberRepository.findNicknameByEmailId(inviteUser);
+            if (yourNickname == null || yourNickname.isEmpty()) {
+                yourNickname = "탈퇴한 사용자";
             }
             
             model.addAttribute("room", room);
-            model.addAttribute("myUser", myUser);
-            model.addAttribute("targetUser", targetUser);
+            model.addAttribute("createUser", myEmail);
+            model.addAttribute("inviteUser", inviteUser);
             model.addAttribute("messages", chatService.getMessages(roomId));
-            model.addAttribute("title", targetUserNickname);
+            model.addAttribute("title", yourNickname);
             return "smash/chat/chatRoom";
         }
         catch (Exception e) {
@@ -105,12 +128,29 @@ public class ChatController {
         return chatService.getMessages(roomId);
     }
 
-    // 채팅방 메시지 읽음 처리
-    @PostMapping("/rooms/{roomId}/read")
-    @ResponseBody
-    public void readMessages(@PathVariable String roomId, @RequestBody String userEmail) {
-        System.out.println("읽음 처리 요청: roomId=" + roomId + ", userEmail=" + userEmail);
-        chatService.markAsRead(roomId, userEmail); // roomId, userEmail로 읽음 처리
+    // 채팅방 메시지 읽음 처리 (DB + STOMP)
+    @MessageMapping("/chat/{roomId}/read")
+    public void readMessages(@Payload ReadEventDTO request, @DestinationVariable String roomId) {
+        // 1. DB에서 읽음 처리
+        List<Long> readMessageIds = chatService.markAsRead(roomId, request.getSender());
+        // 2. 새로 읽은 메시지 ID, 읽은 유저 정보를 브로드캐스트
+        chatService.sendReadEvent(roomId, readMessageIds, request.getSender());
+    }
+
+    // 채팅 메시지 전송 (STOMP)
+    @MessageMapping("/chat/{roomId}/sendMessage")
+    @SendTo("/topic/chat/{roomId}")
+    public ChatMessageDTO sendMessage(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
+        ChatMessageDTO saved = chatService.saveMessage(message); // 메시지 저장
+        // 2. id가 포함된 saved 객체를 브로드캐스트
+        return saved;
+    }
+    // 채팅방 입장 (STOMP)
+    @MessageMapping("/chat.enter")
+    @SendTo("/topic/chat/{roomId}")
+    public ChatMessageDTO enter(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
+        
+        return message;
     }
     
 }
