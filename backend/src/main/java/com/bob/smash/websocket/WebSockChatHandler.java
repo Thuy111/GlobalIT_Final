@@ -1,6 +1,5 @@
 package com.bob.smash.websocket;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
+// >>>>> 순수 WebSocket 핸들러. 커스텀이 필요할 때 빼고 STOMP에서는 사용 X
 @RequiredArgsConstructor
 @Component
 // WebSocket 핸들러 클래스 : 핵심 실시간 통신 담당 컴포넌트, roomId별로 WebSocketSession을 관리하여 메시지를 전송
@@ -47,8 +47,8 @@ public class WebSockChatHandler extends TextWebSocketHandler {
                 break;
             case QUIT:
                 sessions.remove(session);
-                chatMessage.setMessage(chatMessage.getSender() + "님과의 대화가 종료되었습니다.");
-                sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
+                // chatMessage.setMessage(chatMessage.getSender() + "님과의 대화가 종료되었습니다.");
+                // sendToEachSocket(sessions, new TextMessage(objectMapper.writeValueAsString(chatMessage)));
                 // (DB저장 필요 없으면 생략)
                 break;
             case TALK:

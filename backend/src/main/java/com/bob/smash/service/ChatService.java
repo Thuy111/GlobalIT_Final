@@ -20,21 +20,26 @@ public interface ChatService {
     ChatRoomDTO findRoomById(String roomId);
 
     // 채팅 메시지 저장
-    void saveMessage(ChatMessageDTO dto);
+    ChatMessageDTO saveMessage(ChatMessageDTO dto);
 
     // 1:1 채팅방 찾거나 없으면 생성
-    ChatRoomDTO getOrCreateOneToOneRoom(String myUser, String targetUser);
+    ChatRoomDTO getOrCreateOneToOneRoom(String createUser, String inviteUser);
 
     // 채팅방 메시지 읽음 처리
-    void markAsRead(String roomId, String userEmail);
+    List<Long> markAsRead(String roomId, String userEmail);
+
+    // 읽음 이벤트를 WebSocket으로 전송
+    void sendReadEvent(String roomId, List<Long> readMessageIds, String sender);
 
     // (ChatRoom) Entity -> DTO
     default ChatRoomDTO entityToDto(ChatRoom entity) {
         if (entity == null) return null;
         return ChatRoomDTO.builder()
                 .roomId(entity.getRoomId())
-                .myUser(entity.getMyUser())
-                .targetUser(entity.getTargetUser())
+                .createUser(entity.getCreateUser())
+                .myNickname(entity.getMyNickname())
+                .inviteUser(entity.getInviteUser())
+                .targetNickname(entity.getTargetNickname()) 
                 .name(entity.getName())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -45,8 +50,10 @@ public interface ChatService {
         if (dto == null) return null;
         return ChatRoom.builder()
                 .roomId(dto.getRoomId())
-                .myUser(dto.getMyUser())
-                .targetUser(dto.getTargetUser())
+                .createUser(dto.getCreateUser())
+                .myNickname(dto.getMyNickname())
+                .inviteUser(dto.getInviteUser())
+                .targetNickname(dto.getTargetNickname())
                 .name(dto.getName())
                 .createdAt(dto.getCreatedAt())
                 .build();
@@ -56,6 +63,7 @@ public interface ChatService {
     default ChatMessageDTO entityToDto(ChatMessage chatMessage) {
         if (chatMessage == null) return null;
         return ChatMessageDTO.builder()
+                .id(chatMessage.getId())
                 .roomId(chatMessage.getRoomId())
                 .sender(chatMessage.getSender())
                 .senderNickname(chatMessage.getSenderNickname())
@@ -70,6 +78,7 @@ public interface ChatService {
     default ChatMessage dtoToEntity(ChatMessageDTO chatMessageDTO) {
         if (chatMessageDTO == null) return null;
         return ChatMessage.builder()
+                .id(chatMessageDTO.getId())
                 .roomId(chatMessageDTO.getRoomId())
                 .sender(chatMessageDTO.getSender())
                 .senderNickname(chatMessageDTO.getSenderNickname())

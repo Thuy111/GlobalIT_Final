@@ -19,13 +19,16 @@ public class ChatRoom {
     private String roomId;
 
     @Column(nullable = false)
-    private String myUser;
+    private String createUser;
+    @Column(nullable = false) // 나의 닉네임
+    private String myNickname;
 
     @Column(nullable = false)
-    private String targetUser;
+    private String inviteUser;
+    @Column(nullable = false) // 상대방의 닉네임
+    private String targetNickname;
 
-    @Column(nullable = false) // 방 이름
-    private String name;
+    private String name; // 방 이름
 
     @Column(nullable = false)
     private LocalDateTime createdAt; // 방 생성 시간

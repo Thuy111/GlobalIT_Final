@@ -4,7 +4,7 @@
 body.dark .chatRoom_container .chat_start span{background-color: #686868;color: #cdcdcd;}
 .chatRoom_container .info_box{display: flex;flex-direction: column;justify-content: center;align-items: right;}
 
-.chatRoom_container .idRead{font-size: 14px;}
+.chatRoom_container .idRead{font-size: 14px;text-align: right;}
 .chatRoom_container .date_label{margin: 3rem auto;color: gray;}
 body.dark .chatRoom_container .date_label{color: #a5a5a5;}
 
@@ -13,6 +13,7 @@ body.dark .chatRoom_container .date_label{color: #a5a5a5;}
 .chatRoom_container .messageArea .msg_box.me {margin-left: auto;}
 .chatRoom_container .messageArea .msg_box.you {margin-right: auto;}
 .chatRoom_container .messageArea .msg_box .created_at{font-size: 15px;margin-bottom: 4px;}
+.chatRoom_container .messageArea .msg_box.you .created_at{font-size: 15px;margin-bottom: 18px;}
 body.dark .chatRoom_container .messageArea .msg_box .created_at{color:#9d9a88;}
 .chatRoom_container .inputArea {width: 100%; max-width: 768px; display: flex;justify-content: space-around;align-items: center;position: fixed; bottom: 90px;}
 .chatRoom_container .inputArea input {width: calc(100% - 80px);}
@@ -32,3 +33,5 @@ body.dark .chatRoom_container .messageArea .msg_box .created_at{color:#9d9a88;}
 .chatRoom_container .msg.me {background-color: #ccf7ff;color: #0c7a91}
 body.dark .chatRoom_container .msg.me {background-color: #784a67;color: #ffe581;}
 .chatRoom_container .msg.you {background-color: #f0f0f0; color: #161616;}
+
+.chatRoom_container .up_scroll {}
