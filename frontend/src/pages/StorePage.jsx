@@ -44,25 +44,6 @@ const StorePage = () => {
   const [avgStar, setAvgStar] = useState(0);
   //여기까지
 
-  const handleNewImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    setNewImages([...newImages, ...files]);
-
-    // 미리보기 이미지 추가
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages([...previewImages, ...previews]);
-  };
-
-  const handleImageDelete = (imgId) => {
-    setDeleteImageIds([...deleteImageIds, imgId]);
-  };
-
-  const handleAllImagesDelete = () => {
-    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제
-  };
-
-
-
   useEffect(() => {
     if (!code || !loggedInMemberId) return;
 
