@@ -1,5 +1,6 @@
 package com.bob.smash.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,14 @@ public class EstimateServiceImpl implements EstimateService {
   private final EstimateRepository repository;
   private final ImageService imageService;
   private final ApplicationEventPublisher eventPublisher;
+
+  // 등록을 위한 의뢰서 사용 날짜 검색
+  @Override
+  public LocalDateTime getUseDateByRequestIdx(Integer requestIdx) {
+    return requestRepository.findById(requestIdx)
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 의뢰서 정보입니다."))
+                            .getUseDate();
+  }
 
   // 등록
   @Override

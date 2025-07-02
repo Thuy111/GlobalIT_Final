@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +59,9 @@ public class EstimateController {
   @GetMapping("/register")
   public void register(@RequestParam("requestIdx") Integer requestIdx, Model model) {
     model.addAttribute("requestIdx", requestIdx);
+    // 의뢰서 사용 날짜를 가져와서 모델에 추가
+    LocalDateTime useDate = service.getUseDateByRequestIdx(requestIdx);
+    model.addAttribute("useDate", useDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
     model.addAttribute("title", "견적서 등록");
   }
   @PostMapping("/register")

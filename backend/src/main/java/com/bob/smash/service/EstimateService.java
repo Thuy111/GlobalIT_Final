@@ -1,10 +1,13 @@
 package com.bob.smash.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.EstimateDTO;
 
 public interface EstimateService {
+  // 의뢰서 사용 날짜 검색(등록시 필요)
+  public LocalDateTime getUseDateByRequestIdx(Integer requestIdx);
   // 등록
   Integer register(EstimateDTO dto);
   // 등록(이미지 포함)
