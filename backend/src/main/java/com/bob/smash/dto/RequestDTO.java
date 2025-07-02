@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.bob.smash.entity.Hashtag;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Builder
@@ -26,6 +27,7 @@ public class RequestDTO {
     private String dDay;
 
     // 해시태그 (Entity 객체 목록)
+     @JsonIgnore
     private List<Hashtag> hashtagList;
 
     // 해시태그 입력 문자열 (예: "운동 캠핑 자전거")
