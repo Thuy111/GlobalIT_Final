@@ -31,25 +31,27 @@
             <div class="info">      
             <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
             <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
-            </div>
+            </div>                    
           </div>    
           <div class="created_at"> [[${#temporals.format(dto.createdAt, 'yyyy-MM-dd HH:mm')}]]</div>
         </div>
       </div>
     </div>
-
+ 
     <div class="request_button_group">
       <!-- 의뢰서 작성한 자만 보이는 버튼 -->
-      <div th:if="${(dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) or 
+      <div th:if="${dto.isDone == 0 and
+                    (dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) or 
                     (currentUser != null and currentUser.role == 2)}">
         <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
-          <input type="hidden" name="idx" th:value="${dto.idx}" />
+          <input type="hidden" name="idx" th:value="${dto.idx}" />          
           <button class="btn delete">의뢰서 삭제</button>
-        </form>
+        </form>        
         <a th:href="@{'/smash/request/update/' + ${dto.idx}}" class="btn" onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
           의뢰서 수정
         </a>
       </div>
+      
       <!-- 업체만 보이는 견적서 작성 버튼 -->
       <a class="btn"
          th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}"
@@ -140,62 +142,63 @@
               th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUserEmail}, ${estimate.idx}, ${false})}">
           </div>
           <!-- 리뷰 테스트 -->
-          <!-- 의뢰서 작성자가 처리하는 버튼 모음--------------------------------------------------------->
-          <div th:if="${(dto.writerEmail != null and 
-                         currentUser != null and 
-                         dto.writerEmail == currentUser.emailId) or 
-                        (currentUser != null and currentUser.role == 2)}">
-            <!-- 낙찰 버튼(+ 결제) -->
-            <form>
-              <div th:id="|select-${estimate.idx}|"
-                   th:data-request-idx="${dto.idx}"                                                                                                                                                        
-                   th:data-estimate-idx="${estimate.idx}"
-                   th:data-price="${estimate.price}"
-                   th:data-email="|${dto.writerEmail}|"
-                   th:data-bno="|${estimate.partnerBno}|">
-                <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
-                <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
-                <input type="hidden" name="isDone" th:value="${dto.isDone}" />
-                <input type="hidden" name="isSelected" th:value="2" />
-                <button type="button"
-                        th:if="${estimate.isSelected == 0}"
-                        onclick="handleIsDone(this)">
-                  낙찰
-                </button>
-              </div>    
-            </form>
-            <!--대여확인 버튼  --> 
-            <form th:action="@{/smash/request/changeIsGet}" method="post"
-                  th:if="${dto.isDone == 1 and 
-                           dto.isGet == 0 and 
-                           estimate.isSelected == 2}">
+        </div>
+        <!-- 의뢰서 작성자가 처리하는 버튼 모음--------------------------------------------------------->
+        <div th:if="${(dto.writerEmail != null and 
+                        currentUser != null and 
+                        dto.writerEmail == currentUser.emailId) or 
+                      (currentUser != null and currentUser.role == 2)}">
+          <!-- 낙찰 버튼(+ 결제) -->
+          <form>
+            <div th:id="|select-${estimate.idx}|"
+                  th:data-request-idx="${dto.idx}"                                                                                                                                                        
+                  th:data-estimate-idx="${estimate.idx}"
+                  th:data-price="${estimate.price}"
+                  th:data-email="|${dto.writerEmail}|"
+                  th:data-bno="|${estimate.partnerBno}|">
               <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
-              <button type="submit" onclick="return confirm('대여를 확인하시겠습니까?');">대여확인</button>
-            </form>
-            <!-- 리뷰 버튼(한번만 리뷰 가능) -->        
-            <form th:action="@{/smash/review/register}" method="get"
-                  th:if="${estimate.isSelected == 2 and 
-                           dto.isGet == 1 and 
-                           reviewStatusMap != null and 
-                           (reviewStatusMap[estimate.idx] == null or !reviewStatusMap[estimate.idx])}">
               <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
-              <button type="submit">리뷰 작성</button>
-            </form>
-          </div><!-- 의뢰서 작성자가 처리하는 버튼 모음 끝--------------------------------------------------------->
-          <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
-          <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
-                        (currentUser != null and currentUser.role == 2)}">
-            <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
-              <input type="hidden" name="idx" th:value="${estimate.idx}" />
-              <input type="hidden" name="isReturn" th:value="true" />
-              <button type="submit" 
-                th:if="${estimate.isReturn == false 
-                         and estimate.isSelected == 2
-                         and requestDto.isGet == 1 }">
-                반납 확인
+              <input type="hidden" name="isDone" th:value="${dto.isDone}" />
+              <input type="hidden" name="isSelected" th:value="2" />
+              <button type="button"
+                      th:if="${estimate.isSelected == 0}"
+                      onclick="handleIsDone(this)">
+                낙찰
               </button>
-            </form>
-          </div><!-- 견적서 작성자가 처리하는 (반납확인) 버튼 끝 -->
+            </div>    
+          </form>
+          <!--대여확인 버튼  --> 
+          <form th:action="@{/smash/request/changeIsGet}" method="post"
+                th:if="${dto.isDone == 1 and 
+                          dto.isGet == 0 and 
+                          estimate.isSelected == 2}">
+            <input type="hidden" name="requestIdx" th:value="${dto.idx}" />
+            <button type="submit" onclick="return confirm('대여를 확인하시겠습니까?');">대여확인</button>
+          </form>
+          <!-- 리뷰 버튼(한번만 리뷰 가능) -->        
+          <form th:action="@{/smash/review/register}" method="get"
+                th:if="${estimate.isSelected == 2 and 
+                          dto.isGet == 1 and 
+                          reviewStatusMap != null and 
+                          (reviewStatusMap[estimate.idx] == null or !reviewStatusMap[estimate.idx])}">
+            <input type="hidden" name="estimateIdx" th:value="${estimate.idx}" />
+            <button type="submit">리뷰 작성</button>
+          </form>
+        </div><!-- 의뢰서 작성자가 처리하는 버튼 모음 끝--------------------------------------------------------->
+        <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
+        <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                      (currentUser != null and currentUser.role == 2)}">
+          <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
+            <input type="hidden" name="idx" th:value="${estimate.idx}" />
+            <input type="hidden" name="isReturn" th:value="true" />
+            <button type="submit" 
+              th:if="${estimate.isReturn == false 
+                        and estimate.isSelected == 2
+                        and requestDto.isGet == 1 }">
+              반납 확인
+            </button>
+          </form>
+        </div><!-- 견적서 작성자가 처리하는 (반납확인) 버튼 끝 -->
       </div>
     </div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
