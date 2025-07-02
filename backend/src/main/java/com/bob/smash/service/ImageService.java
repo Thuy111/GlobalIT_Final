@@ -1,12 +1,9 @@
 package com.bob.smash.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.ImageDTO;
-import com.bob.smash.entity.Image;
-import com.bob.smash.entity.ImageMapping;
 
 public interface ImageService {
   // (등록-단건)게시글에서 이미지 + 매핑 동시
@@ -35,57 +32,4 @@ public interface ImageService {
   boolean okImageName(String sName);
   // 이미지 유효성 검사
   boolean validateImage(MultipartFile file);
-  
-  // Image entity 생성
-  default Image toImageEntity(MultipartFile file, String uploadDir, String saveName, String originalFilename) {
-    String webPath = "/" + LocalDate.now() + "/" + saveName;
-    return Image.builder()
-                .sName(saveName)
-                .oName(originalFilename)
-                .path(webPath)
-                .type(file.getContentType())
-                .size(file.getSize())
-                .build();
-  }
-  // ImageMapping entity 생성
-  default ImageMapping toImageMappingEntity(String targetType, Integer targetIdx, Image image) {
-    return ImageMapping.builder()
-                       .targetType(ImageMapping.TargetType.valueOf(targetType.toLowerCase()))
-                       .targetIdx(targetIdx)
-                       .image(image)
-                       .build();
-  }
-
-  // dto → entity(Image)
-  default Image dtoToEntity(ImageDTO dto) {
-    return Image.builder()
-                .idx(dto.getImageIdx())
-                .sName(dto.getSName())
-                .oName(dto.getOName())
-                .path(dto.getPath())
-                .type(dto.getType())
-                .size(dto.getSize())
-                .build();
-  }
-  // dto → entity(ImageMapping)
-  default ImageMapping dtoToMappingEntity(ImageDTO dto) {
-    return ImageMapping.builder()
-                       .targetType(ImageMapping.TargetType.valueOf(dto.getTargetType().toLowerCase()))
-                       .targetIdx(dto.getTargetIdx())
-                       .image(Image.builder().idx(dto.getImageIdx()).build())
-                       .build();
-  }
-  // entity → dto
-  default ImageDTO entityToDto(Image image, ImageMapping mapping) {
-    return ImageDTO.builder()
-                   .imageIdx(image.getIdx())
-                   .sName(image.getSName())
-                   .oName(image.getOName())
-                   .path(image.getPath())
-                   .type(image.getType())
-                   .size(image.getSize())
-                   .targetType(mapping.getTargetType().name().toLowerCase()) // "request", "estimate", "review"
-                   .targetIdx(mapping.getTargetIdx())
-                   .build();
-  }
 }
