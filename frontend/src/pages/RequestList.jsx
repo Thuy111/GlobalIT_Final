@@ -58,8 +58,8 @@ function RequestList() {
   const handleTagClick = (tag) => {
     if (tag === "전체") {
       setSelectedTag("");
-      setSearch(""); // ✅ 검색어 초기화
-      setFilteredRequests(allRequests); // ✅ 전체 데이터 복원
+      setSearch("");
+      setFilteredRequests(allRequests);
     } else {
       const newTag = selectedTag === tag ? "" : tag;
       setSelectedTag(newTag);
@@ -69,6 +69,7 @@ function RequestList() {
   const ddayFilteredRequests = allRequests.filter((req) => {
     const ddayStr = req.dday;
     if (!ddayStr || !ddayStr.startsWith("D-")) return false;
+    if (ddayStr === "D-DAY") return true;
     const num = parseInt(ddayStr.replace("D-", ""));
     return !isNaN(num) && num <= 4;
   });
@@ -86,15 +87,18 @@ function RequestList() {
 
   return (
     <div className="request-container">
-      {ddayFilteredRequests.length > 0 ? (
+      {/* 🔥 캐러셀 영역 */}
+      {ddayFilteredRequests.length > 1 ? (
         <Slider {...sliderSettings} className="carousel-slider">
-            {ddayFilteredRequests.map((req) => (
-              <div
-                key={req.idx}
-                className="carousel-wrapper"
-                onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${req.idx}`}
-              >
-                <div className="carousel-card" style={{ cursor: "pointer" }}>
+          {ddayFilteredRequests.map((req) => (
+            <div
+              key={req.idx}
+              className="carousel-wrapper"
+              onClick={() =>
+                window.location.href = `${baseUrl}/smash/request/detail/${req.idx}`
+              }
+            >
+              <div className="carousel-card" style={{ cursor: "pointer" }}>
                 <div className="carousel-overlay" />
                 <div className="carousel-badge">🔥 마감임박</div>
                 <div className="carousel-icon">
@@ -109,13 +113,36 @@ function RequestList() {
             </div>
           ))}
         </Slider>
+      ) : ddayFilteredRequests.length === 1 ? (
+        <div
+          className="carousel-wrapper"
+          onClick={() =>
+            window.location.href = `${baseUrl}/smash/request/detail/${ddayFilteredRequests[0].idx}`
+          }
+        >
+          <div className="carousel-card" style={{ cursor: "pointer" }}>
+            <div className="carousel-overlay" />
+            <div className="carousel-badge">🔥 마감임박</div>
+            <div className="carousel-icon">
+              <i className="fas fa-hourglass-half fa-beat"></i>
+            </div>
+            <img src="/images/main.jpg" alt="이미지" />
+            <div className="carousel-text">
+              <h4>{ddayFilteredRequests[0].title}</h4>
+              <p>{ddayFilteredRequests[0].dday}</p>
+            </div>
+          </div>
+        </div>
       ) : (
-        <div className="hide-on-mobile" style={{ padding: "1rem", textAlign: "center", margin: '2rem auto' }}>
+        <div
+          className="hide-on-mobile"
+          style={{ padding: "1rem", textAlign: "center", margin: "2rem auto" }}
+        >
           <span className="dday-badge">D-4 이하</span> 의뢰서가 없습니다.
         </div>
       )}
 
-      {/* 검색창 */}
+      {/* 🔍 검색창 */}
       <form onSubmit={handleSearchSubmit} className="request-search-form">
         <div className="request-search-box">
           <input
@@ -124,13 +151,14 @@ function RequestList() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="무엇을 찾으시나요?"
           />
-          {/* <button type="submit">검색</button> */}
-          <button type="submit" id="search"><i className="fa-solid fa-magnifying-glass"></i></button>
+          <button type="submit" id="search">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
       </form>
 
-      {/* 해시태그 */}
-      {hashtags&&
+      {/* 🏷 해시태그 필터 */}
+      {hashtags && (
         <div className="hashtag-badge-container">
           {hashtags.map((tag, index) => (
             <button
@@ -144,39 +172,52 @@ function RequestList() {
             </button>
           ))}
         </div>
-      }
+      )}
 
-      {/* 의뢰서 카드 */}
-      {filteredRequests.map(item => (
+      {/* 📄 의뢰서 카드 리스트 */}
+      {filteredRequests.map((item) => (
         <div
           key={item.idx}
           className="request-card"
-          onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`}
+          onClick={() =>
+            window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`
+          }
           style={{ cursor: "pointer" }}
         >
           <div className="request-dday">{item.dday}</div>
-          <div className="request-date">{item.createdAt?.split('T')[0]}</div>
+          <div className="request-date">{item.createdAt?.split("T")[0]}</div>
 
           <div className="request-header">
             <h3 className="request-title">{item.title}</h3>
-            <p className={`request-status ${
-              item.isDone === 0 ? 'pending' :
-              item.isDone === 1 ? 'completed' : 'failed'
-            }`}>
-              {item.isDone === 0 ? "낙찰대기" :
-               item.isDone === 1 ? "낙찰완료" : "미낙찰"}
+            <p
+              className={`request-status ${
+                item.isDone === 0
+                  ? "pending"
+                  : item.isDone === 1
+                  ? "completed"
+                  : "failed"
+              }`}
+            >
+              {item.isDone === 0
+                ? "낙찰대기"
+                : item.isDone === 1
+                ? "낙찰완료"
+                : "미낙찰"}
             </p>
           </div>
 
           <p className="request-content">{item.content}</p>
 
-            <div className="request-tags">
-              {item.hashtags && item.hashtags.split(" ").map((tag, index) => (
-                tag && (
-                  <span key={index} className="hashtag-badge">{tag}</span>
-                )
-              ))}
-            </div>
+          <div className="request-tags">
+            {item.hashtags &&
+              item.hashtags.split(" ").map((tag, index) =>
+                tag ? (
+                  <span key={index} className="hashtag-badge">
+                    {tag}
+                  </span>
+                ) : null
+              )}
+          </div>
         </div>
       ))}
     </div>

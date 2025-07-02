@@ -185,4 +185,9 @@ public class ReviewServiceImpl implements ReviewService {
         Double avg = reviewRepository.findAvgStarByPartnerBno(bno);
         return avg != null ? avg : 0.0;
     }
+    // 리뷰카운트
+    @Override
+    public int countReviewsByPartnerBno(String bno) {
+    return reviewRepository.countByPartnerBno(bno);
+}
 }

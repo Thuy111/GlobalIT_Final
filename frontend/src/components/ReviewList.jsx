@@ -2,28 +2,34 @@ import { useEffect, useState } from 'react';
 import apiClient from '../config/apiClient';
 import '../styles/ReviewList.css';
 
-function ReviewList({ bno }) {
+function ReviewList({ bno, onUpdateStats }) {  // onUpdateStats 콜백 추가
   const [reviewList, setReviewList] = useState([]);
   const [avgStar, setAvgStar] = useState(0);
   
   useEffect(() => {
     if (!bno) return;
-    console.log("bno 확인:", bno);
     apiClient.get(`/store/reviews`, { params: { bno } })
       .then(res => {
-        console.log("응답 확인:", res.data);
-        setReviewList(res.data.reviews);
-        setAvgStar(res.data.avgScore);
+        const reviews = res.data.reviews || [];
+        const avgScore = res.data.avgScore || 0;
+        setReviewList(reviews);
+        setAvgStar(avgScore);
+
+        // 부모에게 리뷰수와 평균별점 전달
+        if (onUpdateStats) {
+          onUpdateStats({ count: reviews.length, avgStar: avgScore });
+        }
       })
       .catch(err => {
         console.error('리뷰 목록 불러오기 실패:', err);
+        if (onUpdateStats) {
+          onUpdateStats({ count: 0, avgStar: 0 });
+        }
       });
-  }, [bno]);
+  }, [bno, onUpdateStats]);
 
   return (
     <div className="review_list">
-<h3>⭐ 평균 별점: {(avgStar ?? 0).toFixed(1)} / 5.0</h3>
-
 
       {(!reviewList || reviewList.length === 0) ?(
         <p>등록된 리뷰가 없습니다.</p>

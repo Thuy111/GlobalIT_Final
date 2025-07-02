@@ -60,10 +60,12 @@ public class StorePageController {
     public ResponseEntity<?> getReviewsByPartnerBno(@RequestParam("bno") String bno) {
         List<ReviewDTO> reviews = reviewService.getReviewsByPartnerBno(bno);
         double avgScore = reviewService.getAverageStarByPartnerBno(bno);
+        int reviewCount = reviewService.countReviewsByPartnerBno(bno);
 
         return ResponseEntity.ok(Map.of(
             "reviews", reviews,
-            "avgScore", avgScore
+            "avgScore", avgScore,
+            "count", reviewCount
         ));
     }
 

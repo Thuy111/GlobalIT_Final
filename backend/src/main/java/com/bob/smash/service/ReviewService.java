@@ -27,4 +27,6 @@ public interface ReviewService {
   List<ReviewDTO> getReviewsByPartnerBno(String bno);
   // 업체별 평균 별점
   double getAverageStarByPartnerBno(String bno);
+  // 업체 리뷰갯수
+  int countReviewsByPartnerBno(String bno);
 }

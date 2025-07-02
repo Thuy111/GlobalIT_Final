@@ -42,6 +42,17 @@ const StorePage = () => {
   const loggedInMemberId = user?.emailId;
   
 
+
+  // 이찬영이 추가
+    // ReviewList에서 전달받을 함수 추가
+  const handleReviewStatsUpdate = ({ count, avgStar }) => {
+    setReviewsCount(count);
+    setAvgStar(avgStar);
+  }; 
+   // avgStar 상태 추가
+  const [avgStar, setAvgStar] = useState(0);
+  //여기까지
+
   const handleNewImagesChange = (e) => {
     const files = Array.from(e.target.files);
     setNewImages([...newImages, ...files]);
@@ -194,16 +205,18 @@ const StorePage = () => {
           </div>
         )}
 
-        {/* 업체 별점 (임시 하드코딩) */}
+        {/* 업체 별점 - 하드코딩 대신 실제 avgStar 출력 이찬영 수정부분*/}
         <div className="storeRating">
           <div className="ratingStars">
-            <i className="fa-solid fa-star"></i>
-            <i className="fa-solid fa-star"></i>
-            <i className="fa-solid fa-star"></i>
-            <i className="fa-regular fa-star-half-stroke"></i>
-            <i className="fa-regular fa-star"></i>
+            {/* 별점 아이콘은 필요에 따라 동적으로 변경해도 됩니다 */}
+            {[...Array(5)].map((_, i) => {
+              const starValue = i + 1;
+              if (avgStar >= starValue) return <i key={i} className="fa-solid fa-star"></i>;
+              if (avgStar >= starValue - 0.5) return <i key={i} className="fa-regular fa-star-half-stroke"></i>;
+              return <i key={i} className="fa-regular fa-star"></i>;
+            })}
           </div>
-          <span className="point">3.8점</span>
+          <span className="point">{avgStar.toFixed(1)}점</span>
         </div>
 
         {/* 업체 정보 */}
@@ -268,7 +281,7 @@ const StorePage = () => {
               </div>
             ) : (
               <div className="review_list">
-                <ReviewList bno={bno}/>
+                <ReviewList bno={bno} onUpdateStats={handleReviewStatsUpdate} />
               </div>
             )}
           </div>
