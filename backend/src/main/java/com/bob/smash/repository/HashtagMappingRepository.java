@@ -16,4 +16,8 @@ public interface HashtagMappingRepository extends JpaRepository<HashtagMapping, 
 
   @Query("SELECT hm.hashtag FROM HashtagMapping hm WHERE hm.request.idx = :requestIdx")
   List<Hashtag> findHashtagsByRequestIdx(@Param("requestIdx") Integer requestIdx);
+
+  @Query("SELECT hm FROM HashtagMapping hm WHERE hm.request.idx IN :requestIdxs")
+List<HashtagMapping> findAllByRequestIdxIn(@Param("requestIdxs") List<Integer> requestIdxs);
+
 }

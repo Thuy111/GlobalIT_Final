@@ -37,6 +37,7 @@ import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -136,55 +137,70 @@ public class RequestServiceImpl implements RequestService {
     }
 
     // 무한스크롤용 페이지네이션 기능 구현
-    @Override
-    public Map<String, Object> getPagedRequestList(int page, int size, String search) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("idx").descending());
-        Page<Request> requestPage;
-        if (search != null && !search.isBlank()) {
-            requestPage = requestRepository.findByTitleContaining(search, pageable);
-        } else {
-            requestPage = requestRepository.findAll(pageable);
-        }
-        List<RequestDTO> requestDTOs = requestPage.getContent()
-                                                  .stream()
-                                                  .map(request -> {
-            // 해시태그 리스트 조회
-            List<Hashtag> hashtagList = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
-            // 해시태그 리스트 -> 문자열 (공백 구분) 변환
-            String hashtagsString = hashtagList.stream()
-                    .map(Hashtag::getTag)
-                    .collect(Collectors.joining(" "));
-            // D-DAY
-            String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
-            return RequestDTO.builder()
-                              .idx(request.getIdx())
-                              .title(request.getTitle())
-                              .content(request.getContent())
-                              .createdAt(request.getCreatedAt())  // LocalDateTime 그대로
-                              .useDate(request.getUseDate())
-                              .isDone(request.getIsDone()) 
-                              .hashtagList(hashtagList)
-                              .hashtags(hashtagsString)
-                              .dDay(dDay)
-                              // useRegion과 images 정보가 필요하면 아래에 넣어야 함 (현재 정보 없음)
-                              .build();
-        })
-                                                  .collect(Collectors.toList());
-        Map<String, Object> response = new HashMap<>();
-        response.put("request", requestDTOs);
-        response.put("currentPage", page);
-        response.put("totalPages", requestPage.getTotalPages());
-        response.put("hasNext", requestPage.hasNext());
-        // 전체 해시태그 추가 (문자열 리스트)
-        List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
-                                                           .stream()
-                                                           .map(mapping -> mapping.getHashtag().getTag())
-                                                           .distinct()
-                                                           .limit(12)
-                                                           .collect(Collectors.toList());
-        response.put("hashtags", allHashtags);
-        return response;
-    }
+                @Override
+                public Map<String, Object> getPagedRequestList(int page, int size, String search) {
+                    Pageable pageable = PageRequest.of(page, size, Sort.by("idx").descending());
+                    Page<Request> requestPage;
+                    if (search != null && !search.isBlank()) {
+                        requestPage = requestRepository.findByTitleContaining(search, pageable);
+                    } else {
+                        requestPage = requestRepository.findAll(pageable);
+                    }
+
+                    // 요청된 의뢰서 idx 리스트 수집
+                    List<Integer> requestIds = requestPage.getContent().stream()
+                                                .map(Request::getIdx)
+                                                .collect(Collectors.toList());
+
+                    // 모든 해시태그 매핑 한 번에 조회
+                    List<HashtagMapping> allMappings = hashtagMappingRepository.findAllByRequestIdxIn(requestIds);
+
+                    // requestId별 해시태그 리스트로 그룹핑
+                    Map<Integer, List<Hashtag>> hashtagsMap = allMappings.stream()
+                        .collect(Collectors.groupingBy(
+                            mapping -> mapping.getRequest().getIdx(),
+                            Collectors.mapping(HashtagMapping::getHashtag, Collectors.toList())
+                        ));
+
+                    List<RequestDTO> requestDTOs = requestPage.getContent()
+                        .stream()
+                        .map(request -> {
+                            List<Hashtag> hashtagList = hashtagsMap.getOrDefault(request.getIdx(), Collections.emptyList());
+                            String hashtagsString = hashtagList.stream()
+                                .map(Hashtag::getTag)
+                                .collect(Collectors.joining(" "));
+                            String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
+                            return RequestDTO.builder()
+                                .idx(request.getIdx())
+                                .title(request.getTitle())
+                                .content(request.getContent())
+                                .createdAt(request.getCreatedAt())
+                                .useDate(request.getUseDate())
+                                .isDone(request.getIsDone())
+                                .hashtagList(hashtagList)
+                                .hashtags(hashtagsString)
+                                .dDay(dDay)
+                                .build();
+                        })
+                        .collect(Collectors.toList());
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("request", requestDTOs);
+                    response.put("currentPage", page);
+                    response.put("totalPages", requestPage.getTotalPages());
+                    response.put("hasNext", requestPage.hasNext());
+
+                    List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
+                        .stream()
+                        .map(mapping -> mapping.getHashtag().getTag())
+                        .distinct()
+                        .limit(12)
+                        .collect(Collectors.toList());
+                    response.put("hashtags", allHashtags);
+
+                    return response;
+                }
+
 
     // D-DAY 계산 함수
     private String calculateDDay(LocalDateTime createdAt, LocalDateTime useDate) {
