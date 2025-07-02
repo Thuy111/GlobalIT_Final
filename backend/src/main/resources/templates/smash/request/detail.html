@@ -31,25 +31,27 @@
             <div class="info">      
             <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
             <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
-            </div>
+            </div>                    
           </div>    
           <div class="created_at"> [[${#temporals.format(dto.createdAt, 'yyyy-MM-dd HH:mm')}]]</div>
         </div>
       </div>
     </div>
-
+ 
     <div class="request_button_group">
       <!-- 의뢰서 작성한 자만 보이는 버튼 -->
-      <div th:if="${(dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) or 
+      <div th:if="${dto.isDone == 0 and
+                    (dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) or 
                     (currentUser != null and currentUser.role == 2)}">
         <form th:action="@{/smash/request/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
-          <input type="hidden" name="idx" th:value="${dto.idx}" />
+          <input type="hidden" name="idx" th:value="${dto.idx}" />          
           <button class="btn delete">의뢰서 삭제</button>
-        </form>
+        </form>        
         <a th:href="@{'/smash/request/update/' + ${dto.idx}}" class="btn" onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
           의뢰서 수정
         </a>
       </div>
+      
       <!-- 업체만 보이는 견적서 작성 버튼 -->
       <a class="btn"
          th:href="@{/smash/estimate/register(requestIdx=${dto.idx})}"
