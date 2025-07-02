@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ImageDTO;
 import com.bob.smash.entity.Estimate;
+import com.bob.smash.entity.Request;
 import com.bob.smash.event.EstimateEvent;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.PartnerInfoRepository;
@@ -112,6 +113,29 @@ public class EstimateServiceImpl implements EstimateService {
                                    dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
                                    return dto;
                                   }).toList();
+  }
+  // 목록: 회원 ID로 필터링(이미지 포함)
+  @Override
+  public List<EstimateDTO> getListByMemberId(String memberId) {
+    // 회원이 작성한 의뢰서 목록 조회 후 idx 리스트 생성
+    List<Request> requests = requestRepository.findByMember_EmailId(memberId);
+    List<Integer> requestIdxList = requests.stream().map(Request::getIdx).toList();
+    // 의뢰서가 없는 경우 빈 리스트 반환
+    if (requestIdxList.isEmpty()) return List.of();
+    // 해당 의뢰서에 속한 견적서 목록 조회 후 idx 리스트 생성
+    List<Estimate> estimates = repository.findByRequest_IdxIn(requestIdxList);
+    List<Integer> estimateIdxList = estimates.stream().map(Estimate::getIdx).toList();
+    // 견적서 idx 리스트로 이미지 매핑 조회
+    Map<Integer, List<ImageDTO>> imageMap = imageService.getImagesMapByTargets("estimate", estimateIdxList);
+    // 견적서 DTO 리스트로 변환
+    List<EstimateDTO> result = estimates.stream()
+                                        .map(this::entityToDto)
+                                        .toList();
+    // 각 견적서 DTO에 이미지 목록 세팅
+    for (EstimateDTO dto : result) {
+      dto.setImages(imageMap.getOrDefault(dto.getIdx(), List.of()));
+    }
+    return result;
   }
 
   // 조회
