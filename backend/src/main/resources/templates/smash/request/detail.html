@@ -47,7 +47,8 @@
           <input type="hidden" name="idx" th:value="${dto.idx}" />          
           <button class="btn delete">의뢰서 삭제</button>
         </form>        
-        <a th:href="@{'/smash/request/update/' + ${dto.idx}}" class="btn" onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');">
+        <a th:href="@{'/smash/request/update/' + ${dto.idx}}" class="btn" onclick="return confirm('한번만 수정가능합니다. 수정하시겠습니까?');"
+         th:if="${dto.isModify != 1}">
           의뢰서 수정
         </a>
       </div>
