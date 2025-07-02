@@ -9,16 +9,6 @@ import EstimateList from '../components/EstimateList';
 import ReviewList from '../components/ReviewList';
 import '../styles/StoreInfo.css';
 
-const sliderSettings = {
-  dots: true,
-  infinite: true,
-  speed: 500,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 3000,
-  arrows: false,
-};
 
 const StorePage = () => {
   const [view, setView] = useState('estimate');
@@ -41,24 +31,6 @@ const StorePage = () => {
   const user = useUser();
   const loggedInMemberId = user?.emailId;
   
-
-  const handleNewImagesChange = (e) => {
-    const files = Array.from(e.target.files);
-    setNewImages([...newImages, ...files]);
-
-    // 미리보기 이미지 추가
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages([...previewImages, ...previews]);
-  };
-
-  const handleImageDelete = (imgId) => {
-    setDeleteImageIds([...deleteImageIds, imgId]);
-  };
-
-  const handleAllImagesDelete = () => {
-    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제
-  };
-
   useEffect(() => {
     if (!code || !loggedInMemberId) return;
 
@@ -139,6 +111,35 @@ const StorePage = () => {
     setView(viewType);  // 클릭한 버튼에 맞춰 탭을 변경
   };
 
+  const sliderSettings = {
+  dots: true,
+  infinite: imageURLs > 1,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 100,
+  arrows: false,
+};
+
+  const handleNewImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setNewImages([...newImages, ...files]);
+
+    // 미리보기 이미지 추가
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages([...previewImages, ...previews]);
+  };
+
+  const handleImageDelete = (imgId) => {
+    setDeleteImageIds([...deleteImageIds, imgId]);
+  };
+
+  const handleAllImagesDelete = () => {
+    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제
+  };
+
+
   return (
     <>
       <TitleBar title="업체 이름" />
@@ -152,11 +153,11 @@ const StorePage = () => {
         {/* 이미지 슬라이더 */}
         {imageURLs.length > 0 ? (
           <Slider {...sliderSettings} className="carousel-slider">
-            {imageURLs.map((imgUrl, idx) => (
+            {imageURLs.map((imgURL, idx) => (
               <div key={idx} className="carousel-wrapper" style={{ position: 'relative' }}>
                 <div className="carousel-card">
                   <div className="carousel-overlay" />
-                  <img src={`${baseUrl}${imgUrl}`} alt={`store image ${idx}`} />
+                  <img src={`${baseUrl}${imgURL}`} alt={`store image ${idx}`} />
                 </div>
               </div>
             ))}
