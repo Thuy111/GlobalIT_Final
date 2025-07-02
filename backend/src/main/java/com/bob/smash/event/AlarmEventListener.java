@@ -130,7 +130,6 @@ public class AlarmEventListener {
     if(event.getAction() == EstimateEvent.Action.RETURNED) {
       // 견적서 반납의 경우
       receiverId.add(request.getMember().getEmailId()); // 의뢰서 작성자 ID를 수신자로 설정
-      System.out.println("견적서 등록 알림 수신자: " + receiverId);
       message = String.format(
         "%s에서 대여 물품 반납을 확인했습니다.",
         estimate.getPartnerInfo().getName() // 업체명
@@ -144,9 +143,7 @@ public class AlarmEventListener {
                                             .distinct() // 중복 제거 (동일 업체가 여러 번 견적을 썼을 수 있으므로)
                                             .toList();
       receiverId.addAll(partnerIdList); // 해당 의뢰서의 모든 견적서 작성자 ID를 수신자로 설정
-      System.out.println("견적서 등록 알림 수신자1: " + receiverId);
       receiverId.add(request.getMember().getEmailId()); // 의뢰서 작성자 ID도 수신자로 추가
-      System.out.println("견적서 등록 알림 수신자2: " + receiverId);
       // 해당 견적서 작성자는 제외
       final String excludeEmailId;
       if (estimate.getPartnerInfo() != null && estimate.getPartnerInfo().getMember() != null) {
@@ -157,7 +154,6 @@ public class AlarmEventListener {
       if (excludeEmailId != null) {
         receiverId.removeIf(id -> id.equals(excludeEmailId));
       }
-      System.out.println("견적서 등록 알림 수신자3: " + receiverId);
       if(event.getAction() == EstimateEvent.Action.CREATED) {
         // 견적서 신규 작성의 경우
         message = String.format(
