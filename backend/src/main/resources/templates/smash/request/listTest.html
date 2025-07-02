@@ -2,7 +2,10 @@
   <th:block th:fragment="content">
 
     <div class="request_container">
-      <div class="request_box" th:each="request : ${result}">
+      <!-- <div class="request_box" th:each="request : ${result}"> -->
+       <div class="request_box" 
+        th:each="request : ${result}" 
+        th:if="${request.writerEmail == currentUser.emailId}"> <!--내 의뢰서-->
          <th scope="row" style="font-weight: normal;">
 
           <a th:href="@{/smash/request/detail/{idx}(idx = ${request.idx})}">

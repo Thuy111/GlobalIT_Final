@@ -87,12 +87,12 @@
       </div>
     </div>
 
-    <!-- 오늘 이후 날짜만 선택 가능하도록 제한 -->
+    <!--오늘 이후 날짜만 선택 가능하도록 제한------------------------------>
     <script>    
       window.addEventListener('DOMContentLoaded', () => {
+        // 오늘 이후 날짜만 선택 가능하도록 제한--->
         const useDateInput = document.getElementById('use_date_input');
         const now = new Date();
-
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const date = String(now.getDate()).padStart(2, '0');
@@ -101,6 +101,13 @@
 
         const minDateTime = `${year}-${month}-${date}T${hours}:${minutes}`;
         useDateInput.min = minDateTime;
+
+        // Enter 누르 시 자동 submit 막음 (textarea 제외)--->
+        document.querySelector('form').addEventListener('keydown', function (e) {          
+          if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+          }
+        });
       });
     </script>
 
