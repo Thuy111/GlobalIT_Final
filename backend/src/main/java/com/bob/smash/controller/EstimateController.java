@@ -8,14 +8,12 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
-import org.springframework.ui.Model;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +28,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/smash/estimate")
 public class EstimateController {
   private final EstimateService service;
-
-  @Value("${front.server.url}")
-  private String frontendUrl;
 
   @GetMapping("/")
   public String estimate() {
@@ -51,7 +46,7 @@ public class EstimateController {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
     // currentUser 또는 bno가 null이면 홈으로 리다이렉트
     if (currentUser == null || currentUser.getBno() == null) {
-      return frontendUrl;
+      return "redirect:/smash";
     }
     model.addAttribute("result", service.getListByPartnerBno(currentUser.getBno()));
     model.addAttribute("title", "견적서 목록");
@@ -94,19 +89,6 @@ public class EstimateController {
     service.modifyWithImage(dto, deleteImageIdxList, imageFiles);
     return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }
-  
-  // 낙찰 상태(isSelected) 수정
-  @PostMapping("/select")
-  public String estimateSelect(@RequestParam("idx") Integer idx,
-                               @RequestParam("isSelected") Byte isSelected,
-                                RedirectAttributes rttr) {
-    // log.info("낙찰 상태 수정 요청: idx={}, isSelected={}", idx, isSelected);  
-    EstimateDTO dto = service.get(idx);
-    dto.setIsSelected(isSelected);
-    service.selectStatus(dto);
-    rttr.addFlashAttribute("message", "견적서 낙찰 상태가 수정되었습니다. (ID: " + idx + ")");
-    return "redirect:/smash/request/detail/" + dto.getRequestIdx();
-  }
 
   // 반납 상태(isReturn) 수정
   @PostMapping("/return")
@@ -116,7 +98,7 @@ public class EstimateController {
     // log.info("반납 현황 수정 요청: idx={}, isReturn={}", idx, isReturn);
     EstimateDTO dto = service.get(idx);
     dto.setIsReturn(isReturn);
-    service.returnStatus(dto);
+    service.changeReturnStatus(dto);
     rttr.addFlashAttribute("message", "반납 현황이 수정되었습니다. (ID: " + idx + ")");
     return "redirect:/smash/request/detail/" + dto.getRequestIdx();
   }

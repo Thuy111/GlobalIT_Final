@@ -164,7 +164,7 @@ public class EstimateServiceImpl implements EstimateService {
   // 낙찰 현황 수정
   @Override
   @Transactional
-  public Integer selectStatus(EstimateDTO dto) {
+  public Integer changeSelectStatus(EstimateDTO dto) {
     Estimate estimate = repository.findById(dto.getIdx())
                                   .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
     // 낙찰된 견적서 상태 2로 변경
@@ -181,11 +181,23 @@ public class EstimateServiceImpl implements EstimateService {
     }
     return estimate.getIdx();
   }
+  // 의뢰서에 해당하는 견적서 전체 자동 미낙찰
+  // 🛠️ 추후 의뢰서 목록으로 받아서 한번에 처리하는 코드로 변경 필요
+  // (의뢰서가 많을 경우 여러면 조회해야해서 DB에 무리갈 수 있음)
+  @Override
+  @Transactional
+  public void autoSelect(Integer requestIdx) {
+    List<Estimate> estimates = repository.findByRequest_IdxAndIsSelected(requestIdx, (byte)0); // 미정만
+    for (Estimate e : estimates) {
+        e.changeIsSelected((byte)1); // 미낙찰 처리
+        repository.save(e);
+    }
+  }
 
   // 반납 현황 수정
   @Override
   @Transactional
-  public Integer returnStatus(EstimateDTO dto) {
+  public Integer changeReturnStatus(EstimateDTO dto) {
     Estimate estimate = repository.findById(dto.getIdx())
                                   .orElseThrow(() -> new IllegalArgumentException(dto.getIdx() + "번 견적서를 찾을 수 없습니다."));
     estimate.changeIsReturn(Boolean.TRUE.equals(dto.getIsReturn()) ? (byte) 1 : (byte) 0);

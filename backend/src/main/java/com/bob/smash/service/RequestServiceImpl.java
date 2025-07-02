@@ -9,9 +9,7 @@ import com.bob.smash.entity.Hashtag;
 import com.bob.smash.entity.HashtagMapping;
 
 
-import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Request;
-import com.bob.smash.event.EstimateEvent;
 import com.bob.smash.event.RequestEvent;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.HashtagMappingRepository;
@@ -20,7 +18,6 @@ import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.PaymentRepository;
 import com.bob.smash.repository.RequestRepository;
 
-// import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,8 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
-
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -68,9 +64,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Integer register(RequestDTO dto, List<MultipartFile> imageFiles) {
         Request entity = dtoToEntity(dto);
-        
         Request saved = requestRepository.save(entity);
-
         // [1] 해시태그 처리
         if (dto.getHashtags() != null && !dto.getHashtags().trim().isEmpty()) {
             String[] tags = dto.getHashtags().trim().split("\\s+");
@@ -237,9 +231,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     //수정/////////////////////////////////////////////////////////////////////////////////////////////////
-     @Override
-     @Transactional
-     public void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds){
+    @Override
+    @Transactional
+    public void modify(RequestDTO dto,List<MultipartFile> newImages,List<Integer> deleteImageIds){
         // [1] 기존 의뢰서 가져오기
         Request request = requestRepository.findById(dto.getIdx())
                                            .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + dto.getIdx()));
@@ -292,14 +286,13 @@ public class RequestServiceImpl implements RequestService {
     // 낙찰현황(isDone) 변경
     @Override
     @Transactional
-    public Integer changeIsDone(Integer idx,
+    public Integer changeIsDone(Integer requestidx,
                                 Integer estimateIdx, 
                                 String memberEmail,
                                 String partnerBno,
                                 Integer price) {
-        Request request = requestRepository.findById(idx)
-                                           .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + idx));
-
+        Request request = requestRepository.findById(requestidx)
+                                           .orElseThrow(() -> new IllegalArgumentException("의뢰서를 찾을 수 없습니다: " + requestidx));
         PaymentDTO savedPayment = paymentService.savePayment(memberEmail, partnerBno, estimateIdx, price);
         if(savedPayment == null){
             throw new IllegalArgumentException("결제 저장에 실패했습니다.");
@@ -309,10 +302,21 @@ public class RequestServiceImpl implements RequestService {
         requestRepository.save(request);
         // 해당 의뢰서에 속한 견적서들 상태 변경
         EstimateDTO estimateDTO = estimateService.get(estimateIdx);
-        estimateService.selectStatus(estimateDTO);
+        estimateService.changeSelectStatus(estimateDTO);
         // 의뢰서 낙찰 이벤트 발행(알림 생성용)
-        eventPublisher.publishEvent(new RequestEvent(this, idx, RequestEvent.Action.BID));
+        eventPublisher.publishEvent(new RequestEvent(this, requestidx, RequestEvent.Action.BID));
         return savedPayment.getIdx();
+    }
+    // 사용 일시가 지난 견적서 자동 미낙찰
+    @Override
+    @Transactional
+    @Scheduled(cron = "0 0/10 * * * ?") // 10분마다, 필요시 조정
+    public void autoBid() {
+        List<Request> expiredRequests = requestRepository.findByUseDateBeforeAndIsDone(LocalDateTime.now(), (byte)0);
+        for (Request request : expiredRequests) {
+            // 견적서 서비스의 자동 낙찰 처리 호출
+            estimateService.autoSelect(request.getIdx());
+        }
     }
 
     // 물품 수령 확인(isGet) 변경
