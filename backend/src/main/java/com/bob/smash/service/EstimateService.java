@@ -21,6 +21,8 @@ public interface EstimateService {
   List<EstimateDTO> getListByRequestIdx(Integer requestIdx);
   // 목록(사업자 번호로 필터링)
   List<EstimateDTO> getListByPartnerBno(String partnerBno);
+  // 목록(회원으로 필터링)
+  List<EstimateDTO> getListByMemberId(String memberId);
 
   // 조회
   EstimateDTO get(Integer idx);

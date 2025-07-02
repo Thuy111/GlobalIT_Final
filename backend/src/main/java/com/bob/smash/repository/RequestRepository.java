@@ -18,7 +18,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     Page<Request> findByTitleContaining(String keyword, Pageable pageable); 
 
     // (마이페이지 연동) 회원의 모든 의뢰서 조회
-    List<Request> findByMember_EmailId(String email);
+    List<Request> findByMember_EmailId(String emailId);
     
     // (회원 탈퇴용) 회원의 모든 의뢰서 삭제
     void deleteByMember_EmailId(String email);
