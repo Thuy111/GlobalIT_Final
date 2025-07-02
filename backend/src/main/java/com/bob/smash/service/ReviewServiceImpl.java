@@ -5,7 +5,6 @@ import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Review;
-import com.bob.smash.event.EstimateEvent;
 import com.bob.smash.event.ReviewEvent;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.MemberRepository;
@@ -49,7 +48,14 @@ public class ReviewServiceImpl implements ReviewService {
         return savedReview.getIdx();
     }
 
-    // 리뷰 조회(견적서별)
+    // 리뷰 목록
+    public List<ReviewDTO> getAllReviews() {
+        List<Review> reviewList = reviewRepository.findAll();
+        return reviewList.stream()
+                         .map(this::convertToDTO)
+                         .collect(Collectors.toList());
+    }
+    // 리뷰 목록(견적서별)
     @Override
     public List<ReviewDTO> getReviewsByEstimateIdx(Integer estimateIdx) {
         List<Review> reviewList = reviewRepository.findByEstimate_Idx(estimateIdx);
@@ -69,6 +75,14 @@ public class ReviewServiceImpl implements ReviewService {
                                             .images(imageDTOs)
                                             .build();
                          })
+                         .collect(Collectors.toList());
+    }
+    // 리뷰 목록(업체별)
+    @Override
+    public List<ReviewDTO> getReviewsByPartnerBno(String bno) {
+        List<Review> reviewList = reviewRepository.findByPartnerBno(bno);
+        return reviewList.stream()
+                         .map(this::convertToDTO)
                          .collect(Collectors.toList());
     }
 
@@ -169,15 +183,6 @@ public class ReviewServiceImpl implements ReviewService {
     public boolean hasUserReviewed(String emailId, Integer estimateIdx) {
         return reviewRepository.existsByMember_EmailIdAndEstimate_Idx(emailId, estimateIdx);
     }
-    
-    //업체리뷰
-    @Override
-    public List<ReviewDTO> getReviewsByPartnerBno(String bno) {
-        List<Review> reviewList = reviewRepository.findByPartnerBno(bno);
-        return reviewList.stream()
-                         .map(this::convertToDTO)
-                         .collect(Collectors.toList());
-    }
 
     //업체별 평균 별점
     @Override
@@ -185,6 +190,7 @@ public class ReviewServiceImpl implements ReviewService {
         Double avg = reviewRepository.findAvgStarByPartnerBno(bno);
         return avg != null ? avg : 0.0;
     }
+
     // 리뷰카운트
     @Override
     public int countReviewsByPartnerBno(String bno) {

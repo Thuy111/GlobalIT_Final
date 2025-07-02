@@ -29,15 +29,19 @@ public class SmashController {
     return "redirect:" + frontendUrl;
   }
 
+  @GetMapping("/request")
+  public String request() {
+    return "redirect:/smash/request/";
+  }
+
   @GetMapping("/estimate")
   public String estimate() {
     return "redirect:/smash/estimate/";
   }
 
-  @GetMapping("/request")
-  public String request() {
-    log.info("Smash request page requested");
-    return "redirect:/smash/request/";
+  @GetMapping("/review")
+  public String review() {
+    return "redirect:/smash/review/";
   }
 
   @GetMapping("/profile/update")

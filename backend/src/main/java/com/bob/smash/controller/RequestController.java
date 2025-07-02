@@ -49,7 +49,7 @@ public class RequestController {
     @GetMapping("/mylist")
     public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
         CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        if(currentUser == null && currentUser.getRole() != 0) {
+        if(currentUser == null || currentUser.getRole() != 0) {
             // 일반 회원이 아닌 경우, 홈으로
             return "redirect:/smash";
         } else {
