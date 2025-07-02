@@ -11,7 +11,8 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
                 <b class="estimate_title">[[${estimate.title}]]</b>
               </div>
-              <div class="estimate_actions" th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
+              <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                                                     (currentUser != null and currentUser.role == 2)}">
                 <form th:action="@{/smash/estimate/update}" method="get" th:id="'update'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
                   <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
@@ -25,7 +26,7 @@
             <table>
               <tr>
                 <th>제시 가격</th>
-                <td>[[${estimate.price}]]원</td>
+                <td>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</td>
               </tr>
               <tr>
                 <th>반납 기한</th>
@@ -71,7 +72,8 @@
               <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
             </p>
           </div>
-          <div th:if="${currentUser != null and estimate.partnerBno == currentUser.bno}">
+          <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                        (currentUser != null and currentUser.role == 2)}">
             <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
               <input type="hidden" name="isReturn" th:value="true" />
@@ -107,6 +109,7 @@
               }
             });
           });
+
           // 반납 confirm
           const returnForms = document.querySelectorAll("form[id^='return-']");
           returnForms.forEach(form => {
