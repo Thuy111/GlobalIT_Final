@@ -21,7 +21,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     List<Request> findByMember_EmailId(String emailId);
     
     // (회원 탈퇴용) 회원의 모든 의뢰서 삭제
-    void deleteByMember_EmailId(String email);
+    void deleteByMember_EmailId(String emailId);
 
     //주소
     @Query("SELECT r.useRegion FROM Request r")
