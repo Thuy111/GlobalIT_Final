@@ -3,6 +3,8 @@ package com.bob.smash.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cglib.core.Local;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,13 +29,13 @@ public class EstimateDTO {
   private LocalDateTime modifiedAt;
   // 의뢰서 정보
   private Integer requestIdx;
-  private String requestTitle;
-  private String requestMemberId;
+  private LocalDateTime useDate;
   // 파트너 업체 정보
   private String partnerBno;
   private String partnerName;
   private String partnerTel;
   private String partnerRegion;
-  // 이미지 정보
+  private String partnerCode;
+  // 첨부 이미지 정보
   private List<ImageDTO> images;
 }

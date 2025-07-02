@@ -58,7 +58,7 @@ public class EstimateServiceImpl implements EstimateService {
     List<Estimate> result = repository.findAll();
     return result.stream().map(estimate -> entityToDto(estimate)).toList();
   }
-  // 목록: 견적서 리스트 반환 (이미지 포함하고 싶으면 각 DTO에 이미지 세팅)
+  // 목록: 견적서 리스트 반환(이미지 포함)
   @Override
   public List<EstimateDTO> getListWithImage() {
     List<Estimate> result = repository.findAll();
@@ -71,9 +71,8 @@ public class EstimateServiceImpl implements EstimateService {
       dto.setImages(imageMap.getOrDefault(estimate.getIdx(), List.of()));
       return dto;
     }).toList();
-    
   }
-  // 목록: 의뢰서 번호로 필터링 (이미지 포함)
+  // 목록: 의뢰서 번호로 필터링(이미지 포함)
   @Override
   public List<EstimateDTO> getListByRequestIdx(Integer requestIdx) {
     // 의뢰서 번호로 견적서 필터링
@@ -88,7 +87,7 @@ public class EstimateServiceImpl implements EstimateService {
                                    return dto;
                                   }).toList();
   }
-  // 목록: 사업자 번호로 필터링 (이미지 포함)
+  // 목록: 사업자 번호로 필터링(이미지 포함)
   @Override
   public List<EstimateDTO> getListByPartnerBno(String partnerBno) {
     // 사업자 번호로 견적서 필터링
@@ -263,12 +262,12 @@ public class EstimateServiceImpl implements EstimateService {
                                  .createdAt(estimate.getCreatedAt())
                                  .modifiedAt(estimate.getModifiedAt())
                                  .requestIdx(estimate.getRequest().getIdx())
-                                 .requestTitle(estimate.getRequest().getTitle())
-                                 .requestMemberId(estimate.getRequest().getMember().getEmailId())
+                                 .useDate(estimate.getRequest().getUseDate())
                                  .partnerBno(estimate.getPartnerInfo().getBno())
                                  .partnerName(estimate.getPartnerInfo().getName())
                                  .partnerTel(estimate.getPartnerInfo().getTel())
                                  .partnerRegion(estimate.getPartnerInfo().getRegion())
+                                 .partnerCode(estimate.getPartnerInfo().getCode())
                                  .build();
     return dto;
   }

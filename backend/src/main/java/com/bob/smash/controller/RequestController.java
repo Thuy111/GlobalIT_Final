@@ -1,25 +1,19 @@
 package com.bob.smash.controller;
 
-import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
-import com.bob.smash.dto.ReviewDTO; // ✅ 추가됨
-import com.bob.smash.entity.Member;
-import com.bob.smash.repository.MemberRepository;
+import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList; // ✅ 추가됨
 
 @Controller
 @RequestMapping("/smash/request")
@@ -38,7 +31,6 @@ import java.util.ArrayList; // ✅ 추가됨
 public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
-    private final MemberRepository memberRepository; 
     private final ReviewService reviewService;
 
     @GetMapping("/")
@@ -61,30 +53,25 @@ public class RequestController {
 
     @PostMapping("/register")  
     public String register(@ModelAttribute RequestDTO requestDTO,
-                       @RequestParam("imageFiles") List<MultipartFile> imageFiles,
-                       HttpSession session,
-                       Model model) {
+                           @RequestParam("imageFiles") List<MultipartFile> imageFiles,
+                           Model model) {
 
-        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-       
-            String mainAddress = requestDTO.getUseRegion() != null ? requestDTO.getUseRegion().trim() : "";
-            String detailAddr = requestDTO.getDetailAddress() != null ? requestDTO.getDetailAddress().trim() : "";
-    
-            String fullAddress = mainAddress;
-            if (!detailAddr.isEmpty()) {
-                fullAddress += " " + detailAddr;
-            }
-    
-            requestDTO.setUseRegion(fullAddress);
-            requestDTO.setDetailAddress(null);
-    
-            Integer savedIdx = requestService.register(requestDTO, imageFiles);
-            model.addAttribute("msg", savedIdx);
-            return "redirect:/smash/request/detail/" + savedIdx;
+        String mainAddress = requestDTO.getUseRegion() != null ? requestDTO.getUseRegion().trim() : "";
+        String detailAddr = requestDTO.getDetailAddress() != null ? requestDTO.getDetailAddress().trim() : "";
 
+        String fullAddress = mainAddress;
+        if (!detailAddr.isEmpty()) {
+            fullAddress += " " + detailAddr;
+        }
+        requestDTO.setUseRegion(fullAddress);
+        requestDTO.setDetailAddress(null);
+
+        Integer savedIdx = requestService.register(requestDTO, imageFiles);
+        model.addAttribute("msg", savedIdx);
+        return "redirect:/smash/request/detail/" + savedIdx;
     }
 
-    // ✅ 수정 시작: 의뢰서 상세 보기
+    // 수정: 의뢰서 상세 보기
     @GetMapping("/detail/{idx}")
     public String detail(@PathVariable("idx") Integer idx, Model model, OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
@@ -97,15 +84,15 @@ public class RequestController {
         List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
         model.addAttribute("estimates", estimates);
 
-        // ✅ 견적서 ID별 리뷰 리스트 Map 추가
+        // 견적서 ID별 리뷰 리스트 Map 추가
         Map<Integer, List<ReviewDTO>> estimateReviewMap = new HashMap<>();
         for (EstimateDTO estimate : estimates) {
           List<ReviewDTO> reviews = reviewService.getReviewsByEstimateIdx(estimate.getIdx());
             estimateReviewMap.put(estimate.getIdx(), reviews);
         }
-        model.addAttribute("estimateReviewMap", estimateReviewMap); // ✅ 모델에 추가
+        model.addAttribute("estimateReviewMap", estimateReviewMap); // 모델에 추가
 
-        // ✅ 유저가 작성한 리뷰 여부 (기존 코드 유지)
+        // 유저가 작성한 리뷰 여부 (기존 코드 유지)
         Map<Integer, Boolean> reviewStatusMap = new HashMap<>();
         if (currentUserEmail != null) {
             for (EstimateDTO estimate : estimates) {
@@ -117,7 +104,6 @@ public class RequestController {
 
         return "smash/request/detail";
     }
-    // ✅ 수정 끝
 
     @PostMapping("/delete")
     public String deleteRequest(@RequestParam("idx") Integer idx) {
@@ -134,10 +120,9 @@ public class RequestController {
     }
 
     @PostMapping("/modify")
-    public String modifyRequest(
-            @ModelAttribute RequestDTO dto,
-            @RequestParam(value = "deleteImageIds", required = false) List<Integer> deleteImageIds,
-            @RequestParam(value = "newImages", required = false) List<MultipartFile> newImages) {
+    public String modifyRequest(@ModelAttribute RequestDTO dto,
+                                @RequestParam(value = "deleteImageIds", required = false) List<Integer> deleteImageIds,
+                                @RequestParam(value = "newImages", required = false) List<MultipartFile> newImages) {
         
         String mainAddress = dto.getUseRegion() != null ? dto.getUseRegion().trim() : "";
         String detailAddr = dto.getDetailAddress() != null ? dto.getDetailAddress().trim() : "";
@@ -154,14 +139,17 @@ public class RequestController {
     }
 
     @PostMapping("/changeIsDone")
-    public ResponseEntity<?> changeIsDone(
-            @RequestParam("requestIdx") Integer idx,
-            @RequestParam("estimateIdx") Integer eIdx,
-            @RequestBody PaymentDTO dto) {
+    public ResponseEntity<?> changeIsDone(@RequestParam("requestIdx") Integer idx,
+                                          @RequestParam("estimateIdx") Integer eIdx,
+                                          @RequestBody PaymentDTO dto) {
         try {
-            Integer paymentIdx = requestService.changeIsDone(idx, eIdx, dto.getMemberEmail(), dto.getPartnerBno(), dto.getSuggestedPrice());
-
+            Integer paymentIdx = requestService.changeIsDone(idx, 
+                                                             eIdx, 
+                                                             dto.getMemberEmail(), 
+                                                             dto.getPartnerBno(), 
+                                                             dto.getSuggestedPrice());
             Map<String, Object> response = new HashMap<>();
+
             response.put("message", "성공적으로 낙찰 되었습니다. 결제서로 이동합니다.");
             response.put("paymentIdx", paymentIdx);
 
@@ -186,7 +174,4 @@ public class RequestController {
             @RequestParam(required = false) String search) {
         return ResponseEntity.ok(requestService.getPagedRequestList(page, size, search));
     }
-
-    
-
 }
