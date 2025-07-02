@@ -30,5 +30,10 @@ List<Review> findByPartnerBno(@Param("bno") String bno);
 """)
 Double findAvgStarByPartnerBno(@Param("bno") String bno);
 
-  
+@Query("""
+    SELECT COUNT(r) FROM Review r
+    JOIN Estimate e ON r.estimate.idx = e.idx
+    WHERE e.partnerInfo.bno = :bno
+""")
+int countByPartnerBno(@Param("bno") String bno);
 }
