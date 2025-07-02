@@ -197,7 +197,7 @@ body.dark .request-container .hashtag-badge-container .hashtag-badge.active, bod
   border: none;
   border-radius: 20px;
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   height: 30px;
@@ -298,7 +298,7 @@ body.dark .request-container .request-content {color: #ececec;}
 
 /* 카드 본문 요약 (2줄만) */
 .request-container .request-content {
-  font-size: 14px;
+  font-size: 18px;
   color: #444;
   margin-bottom: 20px;
   margin-left: 1rem;
@@ -329,8 +329,14 @@ body.dark .request-container .request-content {color: #ececec;}
 }
 /* 모바일 */
 @media (max-width: 768px) {
+  .request-container .hashtag-badge-container .hashtag-badge{
+    font-size: 14px;
+  }
   .request-container .request-title {
     font-size: 18px;
+  }
+  .request-container .request-content {
+    font-size: 14px;
   }
 
   .request-container .request-status {
