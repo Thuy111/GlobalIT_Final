@@ -138,7 +138,7 @@ const StorePage = () => {
   const handleNewImagesChange = (e) => {
     const files = Array.from(e.target.files);
     setNewImages([...newImages, ...files]);
-
+ 
     // 미리보기 이미지 추가
     const previews = files.map((file) => URL.createObjectURL(file));
     setPreviewImages([...previewImages, ...previews]);
@@ -149,7 +149,7 @@ const StorePage = () => {
   };
 
   const handleAllImagesDelete = () => {
-    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제
+    setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제 
   };
 
 

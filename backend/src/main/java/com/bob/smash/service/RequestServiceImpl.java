@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -120,15 +121,43 @@ public class RequestServiceImpl implements RequestService {
     }
     
 
-    // 전체 목록 조회////////////////////////////////////(test 용, 추후 삭제 필요)
+    // 전체 목록 조회////////////////////////////////////(test 용, 추후 삭제 필요) //탄튀님 전코드
+    // @Override
+    // public List<RequestDTO> getList() {
+    //     List<Request> list = requestRepository.findAll();        
+    //     return list.stream().map(request -> {
+    //     List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
+    //             return entityToDto(request, hashtags);
+    //     }).collect(Collectors.toList());
+    // }
+
+    // 위에랑 같은코드지만 N+1 개선된 코드 입니다
     @Override
-    public List<RequestDTO> getList() {
-        List<Request> list = requestRepository.findAll();        
-        return list.stream().map(request -> {
-        List<Hashtag> hashtags = hashtagMappingRepository.findHashtagsByRequestIdx(request.getIdx());
-                return entityToDto(request, hashtags);
-        }).collect(Collectors.toList());
-    }
+public List<RequestDTO> getList() {
+    List<Request> list = requestRepository.findAll();
+
+    // 요청된 의뢰서 idx 리스트 수집
+    List<Integer> requestIds = list.stream()
+                                   .map(Request::getIdx)
+                                   .collect(Collectors.toList());
+
+    // 모든 해시태그 매핑 한 번에 조회
+    List<HashtagMapping> allMappings = hashtagMappingRepository.findAllByRequestIdxInWithHashtag(requestIds);
+
+    // requestId별 해시태그 리스트로 그룹핑
+    Map<Integer, List<Hashtag>> hashtagsMap = allMappings.stream()
+        .collect(Collectors.groupingBy(
+            mapping -> mapping.getRequest().getIdx(),
+            Collectors.mapping(HashtagMapping::getHashtag, Collectors.toList())
+        ));
+
+    return list.stream()
+               .map(request -> {
+                   List<Hashtag> hashtagList = hashtagsMap.getOrDefault(request.getIdx(), Collections.emptyList());
+                   return entityToDto(request, hashtagList);
+               })
+               .collect(Collectors.toList());
+}
 
     // 무한스크롤용 페이지네이션 기능 구현
                 @Override
@@ -147,7 +176,7 @@ public class RequestServiceImpl implements RequestService {
                                                 .collect(Collectors.toList());
 
                     // 모든 해시태그 매핑 한 번에 조회
-                    List<HashtagMapping> allMappings = hashtagMappingRepository.findAllByRequestIdxIn(requestIds);
+                    List<HashtagMapping> allMappings = hashtagMappingRepository.findAllByRequestIdxInWithHashtag(requestIds);
 
                     // requestId별 해시태그 리스트로 그룹핑
                     Map<Integer, List<Hashtag>> hashtagsMap = allMappings.stream()
@@ -163,7 +192,7 @@ public class RequestServiceImpl implements RequestService {
                             String hashtagsString = hashtagList.stream()
                                 .map(Hashtag::getTag)
                                 .collect(Collectors.joining(" "));
-                            String dDay = calculateDDay(request.getCreatedAt(), request.getUseDate());
+                           String dDay = calculateDDay(request.getUseDate());
                             return RequestDTO.builder()
                                 .idx(request.getIdx())
                                 .title(request.getTitle())
@@ -184,26 +213,41 @@ public class RequestServiceImpl implements RequestService {
                     response.put("totalPages", requestPage.getTotalPages());
                     response.put("hasNext", requestPage.hasNext());
 
-                    List<String> allHashtags = hashtagMappingRepository.findAll(Sort.by(Sort.Direction.DESC, "request.createdAt"))
+                    List<String> allHashtags = hashtagMappingRepository.findAllWithHashtagOrderByCreatedAt()
                         .stream()
                         .map(mapping -> mapping.getHashtag().getTag())
                         .distinct()
                         .limit(12)
                         .collect(Collectors.toList());
-                    response.put("hashtags", allHashtags);
-
+                        
+                        response.put("hashtags", allHashtags);
                     return response;
                 }
 
 
     // D-DAY 계산 함수
-    private String calculateDDay(LocalDateTime createdAt, LocalDateTime useDate) {
-        long seconds = ChronoUnit.SECONDS.between(createdAt, useDate);
-        long days = seconds / (60 * 60 * 24); // 초 → 일 변환
-        if (days == 0) return "D-DAY";
-        else if (days > 0) return "D-" + days;
-        else return "D+" + Math.abs(days);
-    }
+                private String calculateDDay(LocalDateTime useDate) {
+                    LocalDateTime now = LocalDateTime.now();
+
+                    // 이미 지난 경우
+                    if (now.isAfter(useDate)) {
+                        return "종료";
+                    }
+
+                    long totalMinutes = ChronoUnit.MINUTES.between(now, useDate);
+                    long totalHours = totalMinutes / 60;
+                    long days = totalHours / 24;
+
+                    if (days >= 1) {
+                        return "D-" + days;
+                    } else {
+                        long hours = totalHours;
+                        long minutes = totalMinutes % 60;
+                        return String.format("⏰ %02d:%02d 남음", hours, minutes);
+                    }
+                }
+
+
     
 
     // 임시 : 이메일에 해당하는 모든 견적 정보 삭제
