@@ -30,8 +30,6 @@ public interface RequestService {
 
     // 낙찰현황(isDone) 변경
     Integer changeIsDone(Integer idx,Integer estimateIdx, String memberEmail,String partnerBno,Integer price);
-    // 사용 일시가 지난 견적서 자동 미낙찰
-    void autoBid();
 
     // 대여 현황(isGet) 변경
     Integer changeIsGet(Integer Idx);
