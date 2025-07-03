@@ -411,6 +411,12 @@ public class RequestServiceImpl implements RequestService {
         return idx;
     }
 
+    // ✋ 낙찰된 업체 조회///////////////////////////////////////////////
+    @Override
+    public Optional<Long> findWinnerBnoByRequestIdx(Integer requestIdx) {
+        return estimateRepository.findWinnerBnoByRequestIdx(requestIdx);
+    }
+
     // DTO → Entity 변환
     Request dtoToEntity(RequestDTO dto) {
         return Request.builder()
