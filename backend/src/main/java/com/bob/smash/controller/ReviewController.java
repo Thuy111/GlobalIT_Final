@@ -150,24 +150,29 @@ public class ReviewController {
 
 
     // 리뷰 삭제
-    @GetMapping("/delete")
-    public String deleteReview(@RequestParam("reviewIdx") Integer reviewIdx,
-                              @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx,
-                              @RequestParam(value = "requestIdx", required = false) Integer requestIdx,
-                              @RequestParam(value = "from", required = false) String from,
-                              HttpSession session) {
-        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        if (currentUser == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-        if (currentUser.getEmailId() == null) {
-            throw new IllegalStateException("로그인 이메일 정보를 불러올 수 없습니다.");
-        }
-        reviewService.deleteReview(reviewIdx, currentUser.getEmailId());
+            @GetMapping("/delete")
+            public String deleteReview(@RequestParam("reviewIdx") Integer reviewIdx,
+                                    @RequestParam(value = "estimateIdx", required = false) Integer estimateIdx,
+                                    @RequestParam(value = "requestIdx", required = false) Integer requestIdx,
+                                    @RequestParam(value = "from", required = false) String from,
+                                    HttpSession session) {
+                CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+                if (currentUser == null || currentUser.getEmailId() == null) {
+                    throw new IllegalStateException("로그인이 필요합니다.");
+                }
 
-        if ("mylist".equals(from)) {
-            return "redirect:/smash/review/mylist";
-        }
-        return "redirect:/smash/request/detail/" + requestIdx;
-    }
+                reviewService.deleteReview(reviewIdx, currentUser.getEmailId());
+
+                // ⭐ 보정 코드 추가
+                if (!"mylist".equals(from) && requestIdx == null && estimateIdx != null) {
+                    requestIdx = estimateService.get(estimateIdx).getRequestIdx();
+                }
+
+                if ("mylist".equals(from)) {
+                    return "redirect:/smash/review/mylist";
+                }
+
+                return "redirect:/smash/request/detail/" + requestIdx;
+            }
+
 }
