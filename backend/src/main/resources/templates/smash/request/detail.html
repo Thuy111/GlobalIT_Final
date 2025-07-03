@@ -40,7 +40,7 @@
               <p>사용 지역: [[${dto.useRegion}]]</p>
             </div>
 
-            <!-- 조소: 작성자 또는 낙찰된 업체(배송 가능)만 상세 주소 -->             
+            <!-- 조소: 작성자,낙찰된 업체(배송 가능)만 상세 주소 -->             
             <div th:if="${(dto.isDone == 1 
                         and currentUser != null 
                         and winnerBno != null 

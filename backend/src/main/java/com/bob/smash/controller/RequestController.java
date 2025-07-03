@@ -6,7 +6,6 @@ import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.service.EstimateService;
-import com.bob.smash.service.MemberService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
@@ -36,7 +35,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final ReviewService reviewService;
-    private final MemberService memberService;
+    
 
     @GetMapping("/")
     public String request() {
@@ -124,7 +123,7 @@ public class RequestController {
                 .filter(e -> e.getIsSelected() == 2)
                 .findFirst()
                 .orElse(null);
-        model.addAttribute("estimates", estimates);
+        model.addAttribute("estimates", estimates);  //견적서 가져오기
         model.addAttribute("selectedEstimate", selectedEstimate);
     
 
