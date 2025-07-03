@@ -113,27 +113,28 @@
               <button type="submit">삭제</button>
             </form>
           </div>
-          <table class="estimate_info">
-            <tr>
-              <th><p class="badge">제시 가격</p></th>
-              <td>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</td>
-            </tr>
-            <tr>
-              <th><p class="badge">반납 기한</p></th>
-              <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
-            </tr>
-            <tr>
-              <th><p class="badge">대여 방법</p></th>
-              <td class="deal_method">
+          <div class="estimate_info">
+            <div>
+              <span class="badge">제시 가격</span>
+              <span>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</span>
+            </div>
+            <div>
+              <span class="badge">반납 기한</span>
+              <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}]]</span>
+            </div>
+            <div>
+              <span class="badge">대여 방법</span>
+              <p class="deal_method">
                 <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
                 <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
-                
                 <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
                 <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
-              </td>
-            </tr>
-          </table>
-          <div class="estimate_content">[[${estimate.content}]]</div>
+              </p>
+            </div>
+            <div class="estimate_content">
+              <pre>[[${estimate.content}]]</pre>
+            </div>
+          </div>
           <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
             <div class="attached_image" th:each="image : ${estimate.images}">
               <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
@@ -142,26 +143,23 @@
           <div id="lightbox" class="lightbox" onclick="closeLightbox()">
             <img id="lightbox_img" src="" alt="zoom" />
           </div>
-          <table class="partner_info">
-            <tr class="partner_name">
-              <th>
-                <div class="store_icon_box">
-                  <i class="fa-solid fa-store"></i>
-                </div>
-              </th>
-              <td>
-                <div class="name" th:text="${estimate.partnerName}"></div>
-              </td>
-            </tr>
-            <tr class="patner_tel">
-              <th><p class="badge">연락처</p></th>
-              <td th:text="${estimate.partnerTel}"></td>
-            </tr>
-            <tr>
-              <th><p class="badge">주소</p></th>
-              <td th:text="${estimate.partnerRegion}"></td>
-            </tr>
-          </table>
+          <div class="partner_info">
+            <div class="partner_name"
+                 th:attr="data-href=@{/smash/store/{code}(code=${estimate.partnerCode}, memberId=${currentUser != null && currentUser.emailId != null ? currentUser.emailId : ''})}">
+              <div class="store_icon_box">
+                <i class="fa-solid fa-store"></i>
+              </div>
+              <p class="name" th:text="${estimate.partnerName}"></p>
+            </div>
+            <div class="patner_tel">
+              <span class="badge">연락처</span>
+              <span th:text="${estimate.partnerTel}"></span>
+            </div>
+            <div>
+              <span class="badge">주소</span>
+              <span th:text="${estimate.partnerRegion}"></span>
+            </div>
+          </div>
           <p class="estimate_date">
             [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
             <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
@@ -326,6 +324,21 @@
             if (!confirm("반납을 확인 처리하시겠습니까?")) {
               e.preventDefault();
             }
+          });
+        });
+
+        // 업체명 클릭 시 해당 업체 소개 페이지로 이동
+        document.querySelectorAll(".partner_info .name").forEach(nameElem => {
+          nameElem.style.cursor = "pointer"; // UX: 손가락 커서
+          nameElem.addEventListener("click", function(e) {
+            // 부모 .partner_name에서 data-href 읽기
+            const partnerNameDiv = nameElem.closest(".partner_name");
+            const url = partnerNameDiv ? partnerNameDiv.getAttribute("data-href") : null;
+            if (url) {
+              window.location.href = url;
+            }
+            // 이벤트 버블링 방지(필요시)
+            e.stopPropagation();
           });
         });
       });

@@ -1,6 +1,6 @@
-/* 견적서 목록 영역 */
+/* 견적서 목록 전체 영역 */
 .estimate_list .estimate_box {
-  margin-bottom: 2em;
+  margin-bottom: 4rem auto;
 }
 body.dark .estimate_divider {border-color: #525252;}
 .estimate_divider {
@@ -8,15 +8,8 @@ body.dark .estimate_divider {border-color: #525252;}
   border-top: 1px solid #e0e0e0;
   margin: 1em 0;
 }
-.estimate_list table  tr {height: 36px; font-size: 18px;width: 100%;}
-.estimate_list table th {display: flex; justify-content: center;}
-.estimate_list table th {padding: 16px 0 4px 0;}
-.estimate_list table td {padding-left: 10px;padding-top: 10px;width: 100%;}
-.estimate_list table.partner_info td {padding-left: 0px;}
-.estimate_list table th p.badge{ background-color: #eeeded !important; padding: 8px 16px; border-radius: 30px; background-color: #fff;text-align: center;box-shadow: 0 1px 2px #0000001a;font-size: 16px;}
-body.dark .estimate_list, body.dark .estimate_list table {color: #d4d4d4;}
-body.dark .estimate_list table th p.badge{ background-color: #201f1f !important; padding: 8px 16px; border-radius: 30px;}
-body.dark .estimate_list .estimate_box .estimate_card {box-shadow: 0 6px 9px black;background-color: #313131;}
+
+/* 견적카드 */
 .estimate_list .estimate_box .estimate_card {
   border-radius: 1.5em;
   background-color: #fafafa;
@@ -25,22 +18,10 @@ body.dark .estimate_list .estimate_box .estimate_card {box-shadow: 0 6px 9px bla
   padding: 2rem;
   text-align: left;
 }
-/* .estimate_list .estimate_card table caption {
-  caption-side: top;
-  text-align: left;
-  color: inherit;
-  padding: 0;  
-} */
-.estimate_list .estimate_card table {margin: 1rem 0;font-size: 18px;}
-.estimate_list .estimate_card table.partner_info {font-size: 20px;}
-.estimate_list .estimate_card table.partner_info th{width: 100px;}
-.estimate_list .estimate_card table.partner_info .partner_name td {width: calc(100% - 60px);table-layout: fixed;}
-.estimate_list .estimate_card table.partner_info .partner_name td .name {font-size: 26px; font-weight: bold;padding-bottom: 14px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;line-height: 70px;width: 50vw;max-width: 900px;}
-
-.estimate_list .store_icon_box i {font-size: 24px; color: #3bb8d4;}
-.estimate_list .store_icon_box {width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
-body.dark .estimate_list .store_icon_box i {font-size: 24px; color: #e98f00;}
-body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
+body.dark .estimate_list .estimate_box .estimate_card {
+  box-shadow: 0 6px 9px black;
+  background-color: #313131;
+}
 
 /* 견적서 상태+제목+수정/삭제 버튼 표시 영역 */
 .estimate_list .estimate_header {
@@ -63,9 +44,7 @@ body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;display: fle
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .estimate_list .estimate_header span {
-  /* border: 2px solid; */
   border-radius: 2em;
   font-size: 16px;
   font-weight: bolder;
@@ -91,15 +70,161 @@ body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;display: fle
   background-color: #e8f5e9;
   box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
 }
-.estimate_list .estimate_info td {font-size: 20px;}
+
+/* 견적 정보 (div 기반) */
+.estimate_list .estimate_info > div {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  font-size: 18px;
+  width: 100%;
+  margin-bottom: 0.4em;
+}
+.estimate_list .estimate_info .badge {
+  background-color: #eeeded !important;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 1px 2px #0000001a;
+  font-size: 16px;
+  margin-right: 20px;
+  min-width: 80px;
+  display: inline-block;
+}
+.estimate_list .estimate_info .deal_method {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+}
+
+/* 배달/픽업 가능 불가 뱃지 */
+.estimate_list .estimate_info .deal_method .delivery,
+.estimate_list .estimate_info .deal_method .pickup {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 20px;
+  margin-right: 0.5em;
+  font-size: 16px;
+}
+.estimate_list .estimate_info .deal_method .yes { color: #2196f3; background: #e3f2fd; }
+.estimate_list .estimate_info .deal_method .no { color: #e53935; background: #ffefef; }
+
+/* 견적 내용 영역 */
+.estimate_list .estimate_card .estimate_content {
+  padding: 1rem;
+  margin: 2rem 1rem;
+  background-color: #f3f3f3;
+  border-radius: 8px;
+  font-size: 17px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+}
+.estimate_list .estimate_card .estimate_content pre {
+  font-family: inherit;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+body.dark .estimate_list .estimate_card .estimate_content {background-color: #272727;}
+
+/* 첨부 이미지 */
+.estimate_list .attached_image_area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin: 1em 0;
+}
+.estimate_list .attached_image {
+  display: inline-block;
+}
+.estimate_list .attached_image img.zoomable_image {
+  max-width: 220px;
+  max-height: 160px;
+  border-radius: 10px;
+  cursor: pointer;
+  object-fit: cover;
+  box-shadow: 0 2px 8px #0001;
+}
+
+/* 파트너 정보 (div 구조) */
+.estimate_list .partner_info {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+  font-size: 20px;
+}
+.estimate_list .partner_info > div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.6em;
+}
+.estimate_list .partner_info .badge {
+  margin-right: 16px;
+  font-size: 16px;
+  background-color: #eeeded !important;
+  padding: 6px 14px;
+  border-radius: 30px;
+  box-shadow: 0 1px 2px #0000001a;
+  min-width: 60px;
+  text-align: center;
+}
+.estimate_list .partner_info .partner_name {
+  font-size: 26px;
+  font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-bottom: 14px;
+  align-items: center;
+}
+.estimate_list .partner_info .partner_name .store_icon_box {
+  margin-right: 10px;
+}
+.estimate_list .partner_info .partner_name .name {
+  font-size: 26px;
+  font-weight: bold;
+  padding-bottom: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 70px;
+  width: 50vw;
+  max-width: 900px;
+}
+
+.estimate_list .store_icon_box i {font-size: 24px; color: #3bb8d4;}
+.estimate_list .store_icon_box {width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
+body.dark .estimate_list .store_icon_box i {font-size: 24px; color: #e98f00;}
+body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;}
+
+/* 날짜 */
+.estimate_list .estimate_card .estimate_date {
+  font-size: 14px;
+  text-align: right;
+  color: dimgrey;
+  margin-top: 0.5em;
+}
+body.dark .estimate_list .estimate_card .estimate_date {color: #b4b4b4;}
+
+/* 수정/삭제/낙찰 버튼 등 */
 .estimate_list .estimate_actions {
   width: 100%;
   display: flex;
   justify-content: end;
   margin: 0;
 }
-
-.estimate_list .estimate_actions form button {
+.estimate_list .estimate_actions form button,
+.estimate_list .estimate_actions button {
   background-color: rgba(255, 255, 255, 0);
   box-shadow: none;
   color: gray;
@@ -111,32 +236,12 @@ body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;display: fle
 }
 .estimate_list .estimate_actions form button:focus {outline: none !important;}
 .estimate_list .estimate_actions form button:active {outline: none !important;}
-
 .estimate_list .estimate_actions.select_form {
   padding-right: 2rem;
 }
 .estimate_list .estimate_actions.select_form button {border-radius: 30px !important;}
-.estimate_list .estimate_card p {
-  margin: 0;
-}
-
-.estimate_list .estimate_card .patner_tel th, .estimate_list .estimate_card .patner_tel td{padding-top: 22px;}
-.estimate_list .estimate_card .estimate_content {padding: 1rem;margin: 2rem 1rem;background-color: #f3f3f3;border-radius: 8px;}
-body.dark .estimate_list .estimate_card .estimate_content {background-color: #272727;}
-
-body.dark .estimate_list .estimate_card .estimate_date {color: #b4b4b4;}
-.estimate_list .estimate_card .estimate_date {
-  font-size: 14px;
-  text-align: right;
-  color: dimgrey;
-}
 
 /* 견적서 작성/수정 영역 */
-.estimate_list form {
-  text-align: left;
-}
-
-/* style */
 .estimate_container .request_el{
   display: flex;
   flex-direction: column;
@@ -164,11 +269,13 @@ body.dark .estimate_container .request_el .mode{background-color: #181818;box-sh
 .estimate_container .request_el .mode input {width: 24px;}
 .estimate_container .request_el .choose_deal {display: flex; align-items: center; justify-content: start; }
 
+/* 반응형 */
 @media (max-width: 480px){
   .estimate_list .store_icon_box {width: 50px; height: 50px;margin-top: 18px;}
   .estimate_list .estimate_header .estimate_title{font-size: 20px;height: 28px;}
-  .estimate_list .estimate_card table.partner_info .partner_name td {font-size: 22px;line-height: 60px;padding: 5px 0 0 0;}
-  .estimate_list .estimate_card table.partner_info th{width:auto;}
+  .estimate_list .partner_info .partner_name .name {font-size: 22px;line-height: 60px;padding: 5px 0 0 0;}
+  .estimate_list .partner_info .partner_name {padding-bottom: 0;}
+  .estimate_list .partner_info .store_icon_box {width:auto;}
   .estimate_list .estimate_box .estimate_card{padding: 1rem;}
-  .estimate_content{margin: 2rem 0;}
+  .estimate_list .estimate_card .estimate_content{margin: 2rem 0;}
 }

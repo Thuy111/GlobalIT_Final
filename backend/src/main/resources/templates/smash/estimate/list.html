@@ -44,7 +44,9 @@
                 </td>
               </tr>
             </table>
-            <p class="estimate_content">[[${estimate.content}]]</p>
+            <div class="estimate_content">
+              <pre>[[${estimate.content}]]</pre>
+            </div>
             <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
               <div class="attached_image" th:each="image : ${estimate.images}">
                 <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
@@ -53,7 +55,7 @@
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
               <img id="lightbox_img" src="" alt="zoom" />
             </div>
-            <table>
+            <table class="partnerInfo" th:attr="data-href=@{/smash/store/detail/{idx}(idx=${estimate.requestIdx})}">
               <caption>업체 정보</caption>
               <tr>
                 <td>이름</td>
