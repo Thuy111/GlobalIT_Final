@@ -2,19 +2,45 @@
 .estimate_list .estimate_box {
   margin-bottom: 2em;
 }
+body.dark .estimate_divider {border-color: #525252;}
+.estimate_divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1em 0;
+}
+.estimate_list table  tr {height: 36px; font-size: 18px;width: 100%;}
+.estimate_list table th {display: flex; justify-content: center;}
+.estimate_list table th {padding: 16px 0 4px 0;}
+.estimate_list table td {padding-left: 10px;padding-top: 10px;width: 100%;}
+.estimate_list table.partner_info td {padding-left: 0px;}
+.estimate_list table th p.badge{ background-color: #eeeded !important; padding: 8px 16px; border-radius: 30px; background-color: #fff;text-align: center;box-shadow: 0 1px 2px #0000001a;font-size: 16px;}
+body.dark .estimate_list, body.dark .estimate_list table {color: #d4d4d4;}
+body.dark .estimate_list table th p.badge{ background-color: #201f1f !important; padding: 8px 16px; border-radius: 30px;}
+body.dark .estimate_list .estimate_box .estimate_card {box-shadow: 0 6px 9px black;background-color: #313131;}
 .estimate_list .estimate_box .estimate_card {
   border-radius: 1.5em;
-  box-shadow: 2px 2px 5px;
+  background-color: #fafafa;
+  box-shadow: 0 6px 9px rgba(134, 134, 134, 0.2);
   margin: 1em;
-  padding: 1em;
+  padding: 2rem;
   text-align: left;
 }
-.estimate_list .estimate_card table caption {
+/* .estimate_list .estimate_card table caption {
   caption-side: top;
   text-align: left;
   color: inherit;
   padding: 0;  
-}
+} */
+.estimate_list .estimate_card table {margin: 1rem 0;font-size: 18px;}
+.estimate_list .estimate_card table.partner_info {font-size: 20px;}
+.estimate_list .estimate_card table.partner_info th{width: 100px;}
+.estimate_list .estimate_card table.partner_info .partner_name td {width: calc(100% - 60px);table-layout: fixed;}
+.estimate_list .estimate_card table.partner_info .partner_name td .name {font-size: 26px; font-weight: bold;padding-bottom: 14px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;line-height: 70px;width: 50vw;max-width: 900px;}
+
+.estimate_list .store_icon_box i {font-size: 24px; color: #3bb8d4;}
+.estimate_list .store_icon_box {width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
+body.dark .estimate_list .store_icon_box i {font-size: 24px; color: #e98f00;}
+body.dark .estimate_list .store_icon_box {background-color: #FFFA8D;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
 
 /* 견적서 상태+제목+수정/삭제 버튼 표시 영역 */
 .estimate_list .estimate_header {
@@ -25,57 +51,86 @@
 }
 .estimate_list .estimate_header .estimate_meta {
   display: flex;
-  align-items: end;
+  align-items: center;
+  width: 100%;
 }
 .estimate_list .estimate_header .estimate_title {
-  font-size: 1.5em;
+  font-size: 28px;
   font-weight: bold;
+  height: 40px;
+  width: calc(100% - 60px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .estimate_list .estimate_header span {
-  border: 2px solid;
+  /* border: 2px solid; */
   border-radius: 2em;
-  font-size: 0.8em;
+  font-size: 16px;
   font-weight: bolder;
   text-align: center;
   display: inline-block;
   width: 6em;
   margin-right: 0.6em;
-  padding: 0.3em;
+  padding: 4px 8px;
+  border-radius: 30px;
 }
 .estimate_list .estimate_header span.standby {
-  color: darkgrey;
-  border-color: darkgrey;
+  color: #ff9800;
+  background-color: #fff3e0;
+  box-shadow: 1px 1px 1px rgba(225, 152, 0, 0.3);
 }
 .estimate_list .estimate_header span.unselected {
-  color: red;
-  border-color: red;
+  color: rgb(229, 57, 53);
+  background-color: #ffefef;
+  box-shadow: 1px 1px 1px rgba(229, 57, 53, 0.3);
 }
 .estimate_list .estimate_header span.selected {
-  color: green;
-  border-color: green;
+  color: rgb(68, 162, 72);
+  background-color: #e8f5e9;
+  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
 }
-.estimate_list .estimate_header .estimate_actions {
+.estimate_list .estimate_info td {font-size: 20px;}
+.estimate_list .estimate_actions {
+  width: 100%;
   display: flex;
-}
-.estimate_list .estimate_header .estimate_actions form {
+  justify-content: end;
   margin: 0;
-  padding: 0;
-  margin-right: 0.5em;
 }
+
+.estimate_list .estimate_actions form button {
+  background-color: rgba(255, 255, 255, 0);
+  box-shadow: none;
+  color: gray;
+  font-size: 16px;
+  border-radius: 0px !important;
+  border-bottom: 1px solid gray;
+  padding: 0px 4px !important;
+  margin: 0 4px;
+}
+.estimate_list .estimate_actions form button:focus {outline: none !important;}
+.estimate_list .estimate_actions form button:active {outline: none !important;}
+
+.estimate_list .estimate_actions.select_form {
+  padding-right: 2rem;
+}
+.estimate_list .estimate_actions.select_form button {border-radius: 30px !important;}
 .estimate_list .estimate_card p {
   margin: 0;
 }
+
+.estimate_list .estimate_card .patner_tel th, .estimate_list .estimate_card .patner_tel td{padding-top: 22px;}
+.estimate_list .estimate_card .estimate_content {padding: 1rem;margin: 2rem 1rem;background-color: #f3f3f3;border-radius: 8px;}
+body.dark .estimate_list .estimate_card .estimate_content {background-color: #272727;}
+
+body.dark .estimate_list .estimate_card .estimate_date {color: #b4b4b4;}
 .estimate_list .estimate_card .estimate_date {
-  font-size: 0.8em;
+  font-size: 14px;
   text-align: right;
   color: dimgrey;
 }
-/* 통합 버튼 */
-.estimate_list .estimate_box form {
-  display: flex;
-  justify-content: end;
-  margin-right: 2.5em;
-}
+
 /* 견적서 작성/수정 영역 */
 .estimate_list form {
   text-align: left;
@@ -95,7 +150,7 @@
   justify-content: start;
   white-space: nowrap;
 }
-body.dark .estimate_container .request_el .mode{background-color: #181818;box-shadow: 0 2px 4px black;}
+body.dark .estimate_container .request_el .mode{background-color: #181818;box-shadow: 0 2px 4px 0 6px 16px black;}
 .estimate_container .request_el .mode{
   white-space: nowrap;
   margin: 0.5rem;
@@ -103,8 +158,17 @@ body.dark .estimate_container .request_el .mode{background-color: #181818;box-sh
   width: 100px;
   padding: 12px 18px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px #44444457;
+  box-shadow: 0 2px 4px 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 .estimate_container .request_el .mode:has(input:checked){background-color: #daf2ff;box-shadow: 0 2px 4px #003e9a57;color: #007cff;}
 .estimate_container .request_el .mode input {width: 24px;}
 .estimate_container .request_el .choose_deal {display: flex; align-items: center; justify-content: start; }
+
+@media (max-width: 480px){
+  .estimate_list .store_icon_box {width: 50px; height: 50px;margin-top: 18px;}
+  .estimate_list .estimate_header .estimate_title{font-size: 20px;height: 28px;}
+  .estimate_list .estimate_card table.partner_info .partner_name td {font-size: 22px;line-height: 60px;padding: 5px 0 0 0;}
+  .estimate_list .estimate_card table.partner_info th{width:auto;}
+  .estimate_list .estimate_box .estimate_card{padding: 1rem;}
+  .estimate_content{margin: 2rem 0;}
+}
