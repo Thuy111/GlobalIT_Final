@@ -50,12 +50,12 @@
   gap: 12px;
 }
 
+body.dark .review_container .review_title {color: #dddddd;}
 .review_container .review_title {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
   color: #222;
 }
-
 .review_container .review_star {
   font-weight: 600;
   color: #ff9900;
@@ -99,7 +99,9 @@
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: #8484840f;
 }
+body.dark .review_container .review_images img {background: #78787833;}
 
 /* 텍스트 영역 */
 .review_container .review_text {
@@ -110,6 +112,7 @@
 }
 
 /* 리뷰 내용 */
+body.dark .review_container .review_text p {color: #bebebe;}
 .review_container .review_text p {
   line-height: 1.6;
   color: #444;
