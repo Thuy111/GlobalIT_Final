@@ -15,34 +15,37 @@
             <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
 
             <div id="image_preview_wrapper" class="image_preview_wrapper">
-                <div class="camera_wrapper">
-                    <label for="image_Files" class="image_upload_box">
-                        <i class="fas fa-camera fa-2x"></i>
-                        <span><span id="image_count">0</span>/10</span>
-                    </label>
-                    <button type="button" id="image_reset_btn">이미지 초기화</button>
+                <div class="camera_wrapper_box">
+                    <div class="camera_wrapper">
+                        <label for="image_Files" class="image_upload_box">
+                            <i class="fas fa-camera fa-2x"></i>
+                            <span><span id="image_count">0</span>/10</span>
+                        </label>
+                        <button type="button" id="image_reset_btn">이미지 초기화</button>
+                    </div>
                 </div>
-                <div id="new_image_previews">
-                    <input type="file" id="image_Files" name="imageFiles" multiple hidden accept="image/*" />
+
+                <input type="file" id="image_Files" name="imageFiles" multiple hidden accept="image/*" />
+                
+            </div>
+
+            <div class="stars_box">
+                <h3>업체에 만족하시나요?</h3>
+                <div class="star-rating" id="star-rating">
+                    <input type="radio" id="star5" name="star" value="5" required/>
+                    <label for="star5" title="5 stars">★</label>
+                    <input type="radio" id="star4" name="star" value="4" />
+                    <label for="star4" title="4 stars">★</label>
+                    <input type="radio" id="star3" name="star" value="3" />
+                    <label for="star3" title="3 stars">★</label>
+                    <input type="radio" id="star2" name="star" value="2" />
+                    <label for="star2" title="2 stars">★</label>
+                    <input type="radio" id="star1" name="star" value="1" />
+                    <label for="star1" title="1 star">★</label>
                 </div>
             </div>
 
-           <label for="star">별점 (1~5):</label>
-            <div class="star-rating" id="star-rating">
-                <input type="radio" id="star5" name="star" value="5" required/>
-                <label for="star5" title="5 stars">★</label>
-                <input type="radio" id="star4" name="star" value="4" />
-                <label for="star4" title="4 stars">★</label>
-                <input type="radio" id="star3" name="star" value="3" />
-                <label for="star3" title="3 stars">★</label>
-                <input type="radio" id="star2" name="star" value="2" />
-                <label for="star2" title="2 stars">★</label>
-                <input type="radio" id="star1" name="star" value="1" />
-                <label for="star1" title="1 star">★</label>
-            </div>
-
-            <label for="comment">내용:</label>
-            <textarea id="comment" name="comment" rows="5" cols="50" required></textarea>
+            <textarea id="comment" name="comment" rows="5" cols="50" required placeholder="후기 내용을 작성해주세요."></textarea>
 
             <button type="submit">등록</button>
         </form>
@@ -96,7 +99,7 @@
             thumb.appendChild(img);
             thumb.appendChild(removeBtn);
 
-            const label = wrapper.querySelector('.camera_wrapper');
+            const label = wrapper.querySelector('.camera_wrapper_box');
             if (label && label.nextSibling) {
                 wrapper.insertBefore(thumb, label.nextSibling);
             } else {

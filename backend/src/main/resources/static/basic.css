@@ -377,6 +377,13 @@ body.dark .attached_image img {background: #78787833}
   margin: 2rem auto;
   padding: 0 1rem;
 }
+.estimate_container .camera_wrapper,
+.request_container .camera_wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .request_container input, 
 .estimate_container input,
 .request_container textarea,
@@ -433,8 +440,15 @@ button.submit_style {width: 100%; max-width: 320px; border-radius: 30px !importa
   transition: background-color 0.2s;
   align-self: center;
 }
+#image_reset_btn:hover {background-color: #e0e0e0;}
+body.dark #image_reset_btn {background-color: #3a3a3a;color: #c3c3c3; border: 1px solid #191919}
+body.dark #image_reset_btn:hover{background-color: rgb(49, 49, 49);}
 
-#image_reset_btn:hover {
-  background-color: #e0e0e0;
+
+/* detail의 리뷰 */
+.estimate_list .review_container .review_card {
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0);
+  
 }
-
+.estimate_list .review_container .review_card:hover {box-shadow: none;}

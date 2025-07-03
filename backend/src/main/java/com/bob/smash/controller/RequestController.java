@@ -35,7 +35,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final ReviewService reviewService;
-    
+  
 
     @GetMapping("/")
     public String request() {
@@ -51,7 +51,7 @@ public class RequestController {
     @GetMapping("/mylist")
     public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
         CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        if(currentUser == null || currentUser.getRole() != 0) {
+        if(currentUser == null || currentUser.getRole() == 1) {
             // 일반 회원이 아닌 경우, 홈으로
             return "redirect:/smash";
         } else {
@@ -109,7 +109,6 @@ public class RequestController {
     public String detail(@PathVariable("idx") Integer idx, Model model, OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
         model.addAttribute("dto", dto);
-        model.addAttribute("title", dto.getTitle());
 
         String currentUserEmail = (authentication != null) ? authentication.getPrincipal().getAttribute("email") : null;
         model.addAttribute("currentUserEmail", currentUserEmail);
@@ -125,11 +124,6 @@ public class RequestController {
                 .orElse(null);
         model.addAttribute("estimates", estimates);  //견적서 가져오기
         model.addAttribute("selectedEstimate", selectedEstimate);
-    
-
-
-        // List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
-        // model.addAttribute("estimates", estimates);
 
         // 견적서 ID별 리뷰 리스트 Map 추가
         Map<Integer, List<ReviewDTO>> estimateReviewMap = new HashMap<>();

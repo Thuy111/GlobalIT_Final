@@ -28,9 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -382,21 +380,6 @@ public class RequestServiceImpl implements RequestService {
         // 의뢰서 낙찰 이벤트 발행(알림 생성용)
         eventPublisher.publishEvent(new RequestEvent(this, requestidx, RequestEvent.Action.BID));
         return savedPayment.getIdx();
-    }
-    // 사용 일시가 지난 견적서 자동 미낙찰
-    @Override
-    @Transactional
-    @Scheduled(cron = "0 0/10 * * * ?") // 10분마다, 필요시 조정
-    public void autoBid() {
-        List<Request> expiredRequests = requestRepository.findByUseDateBeforeAndIsDone(LocalDateTime.now(), (byte)0);
-        List<Integer> requestIdxList = expiredRequests.stream()
-                                                      .map(Request::getIdx)
-                                                      .collect(Collectors.toList());
-        if (requestIdxList.isEmpty()) {
-            log.info("자동 미낙찰 대상 의뢰서가 없습니다.");
-        } else {
-            estimateService.autoSelect(requestIdxList); // 의뢰서에 해당하는 견적서들 미낙찰 처리
-        }
     }
 
     // 물품 수령 확인(isGet) 변경
