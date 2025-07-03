@@ -210,26 +210,30 @@ public class ImageServiceImpl implements ImageService {
   }
   // 미사용/임시 이미지 삭제
   @Override
-  @Scheduled(cron = "0 0 * * * *") // 매 정시마다 실행
-  // @Scheduled(cron = "0 0 3 * * *") // 새벽 3시마다 실행
+  @Scheduled(cron = "0 0 * * * ?") // 매시간 정각에 실행
+  //@Sheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
   public void deleteUnusedImages() {
-    // uploads 폴더 내 전체 파일 목록 가져오기
-    File uploadsDir = new File(System.getProperty("user.dir") + "/uploads");
+    // uploads/attachment 폴더 내 전체 파일 목록 가져오기
+    File uploadsDir = new File(System.getProperty("user.dir") + "/uploads/attachment");
     if (!uploadsDir.exists() || !uploadsDir.isDirectory()) return;
-    File[] dateDirs = uploadsDir.listFiles(File::isDirectory);
-    if (dateDirs == null) return;
-    for (File dateDir : dateDirs) {
-      File[] files = dateDir.listFiles();
-      if (files == null) continue;
-      for (File file : files) {
-        // DB에 등록되어 있는 이미지인지 확인
-        String relativePath = "/" + dateDir.getName() + "/" + file.getName();
-        boolean used = imageRepository.existsByPath(relativePath);
-        // DB에 없으면(미사용) 삭제
-        if (!used) {
-          boolean deleted = file.delete();
-          if (deleted) System.out.println("미사용 이미지 삭제: " + file.getAbsolutePath());
-          else         System.out.println("이미지 삭제 실패: " + file.getAbsolutePath());
+    File[] typeDirs = uploadsDir.listFiles(File::isDirectory); // targetType별 하위 폴더
+    if (typeDirs == null) return;
+    for (File typeDir : typeDirs) {
+      File[] dateDirs = typeDir.listFiles(File::isDirectory); // 날짜별 폴더
+      if (dateDirs == null) continue;
+      for (File dateDir : dateDirs) {
+        File[] files = dateDir.listFiles();
+        if (files == null) continue;
+        for (File file : files) {
+          // DB에 등록되어 있는 이미지인지 확인
+          String relativePath = "/attachment/" + typeDir.getName() + "/" + dateDir.getName() + "/" + file.getName();
+          boolean used = imageRepository.existsByPath(relativePath);
+          // DB에 없으면(미사용) 삭제
+          if (!used) {
+            boolean deleted = file.delete();
+            if (deleted) System.out.println("미사용 이미지 삭제: " + file.getAbsolutePath());
+            else         System.out.println("이미지 삭제 실패: " + file.getAbsolutePath());
+          }
         }
       }
     }
