@@ -17,7 +17,7 @@ public class NotificationDTO {
   private String notice;
   private LocalDateTime createdAt;
   // Target 정보(의뢰서/견적서/리뷰 등)
-  private String targetType; // request, estimate, review
+  private String targetType;
   private Integer targetIdx;
   // 알림을 받는 회원 목록
   private List<String> memberIdList;
