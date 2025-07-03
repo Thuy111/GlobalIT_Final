@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import { UnreadAlarmProvider } from '../contexts/UnreadAlarmContext';
 import Nav from '../components/Navigation.jsx';
+import ScrollUp from '../components/ScrollUp.jsx';
 import axios from 'axios';
 
 const Layout = () => {
@@ -63,9 +64,10 @@ const Layout = () => {
     <UserContext.Provider value={user}>
       <UnreadAlarmProvider>
       {!isLoggedIn===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
-      <div className="main_container">
-        <Outlet />
-      </div>
+        <div className="main_container">
+          <Outlet />
+          <ScrollUp />
+        </div>
         <Nav />
       </UnreadAlarmProvider>
     </UserContext.Provider>

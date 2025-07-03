@@ -318,7 +318,7 @@ body.dark .request-container .request-content {color: #ececec;}
   flex-wrap: wrap;
   gap: 8px;
 }
-
+body.dark .request-container .request-tags .hashtag-badge {background-color: #232323;box-shadow: 0 1px 3px black;color: #a0a0a0;}
 .request-container .request-tags .hashtag-badge {
   background-color: #f4f4f4;
   border-radius: 16px;

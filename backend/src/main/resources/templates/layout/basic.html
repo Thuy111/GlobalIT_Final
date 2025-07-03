@@ -63,7 +63,30 @@
             </ul>
           </nav>
         </div>
+        <div class="scroll_box">
+          <div class="up_scroll"><i class="fa-solid fa-angle-up"></i></div>
+        </div>
     </body>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // 스크롤 시 상단으로 이동하는 버튼
+        const scrollBox = document.querySelector('.scroll_box');
+        const upScrollButton = document.querySelector('.up_scroll');
+        upScrollButton.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 스크롤 이벤트 리스너
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 400) {
+            scrollBox.style.display = 'flex';
+          } else {
+            scrollBox.style.display = 'none';
+          }
+        });
+      });
+    </script>
 
     <script th:inline="javascript">
       $(document).ready(function(){

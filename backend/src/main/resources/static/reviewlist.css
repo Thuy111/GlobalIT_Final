@@ -89,8 +89,10 @@ body.dark .review_container .review_title {color: #dddddd;}
 /* 이미지 섹션 */
 .review_container .review_images {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
   gap: 10px;
+  overflow-x: auto;
 }
 
 .review_container .review_images img {
@@ -125,6 +127,5 @@ body.dark .review_container .review_text p {color: #bebebe;}
   font-size: 0.8em;
   color: #888;
   text-align: right;
-  font-style: italic;
   margin-top: auto;
 }

@@ -140,6 +140,36 @@ textarea::-webkit-scrollbar {opacity: 0;}
   color: rgb(236, 236, 236);
   animation: loading-spin 2s linear infinite;
 }
+
+/* up scroll */
+.scroll_box {
+  width: 100%;
+  position: fixed;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  bottom: 100px;
+  left: 0;
+  /* transition: 0.3s; */
+}
+.up_scroll {
+  background-color: #75757573;
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px #84848470;
+}
+.up_scroll:hover {
+  background-color: #00000083;
+  box-shadow: 0 2px 4px #00000070;
+}
+
 @keyframes loading-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
