@@ -21,10 +21,10 @@ public interface ReviewService {
   ReviewDTO getReviewById(Integer reviewIdx);
 
   // 리뷰 수정
-  void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles,boolean isImageReset);
+  void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles, boolean isImageReset, String currentUserEmail, int currentUserRole);
 
   // 리뷰 삭제
-  void deleteReview(Integer reviewIdx, String currentUserEmail);
+  void deleteReview(Integer reviewIdx, String currentUserEmail, int currentUserRole);
 
   // 리뷰 작성자 조회
   List<ReviewDTO> getReviewsByMemberId(String memberId);

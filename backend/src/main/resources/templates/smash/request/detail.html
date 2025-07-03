@@ -44,7 +44,7 @@
               <div class="badge_area"><span class="badge">사용 지역</span><span>[[${dto.useRegion}]]</span></div>
             </div>
 
-            <!-- 조소: 작성자 또는 낙찰된 업체(배송 가능)만 상세 주소 -->             
+            <!-- 조소: 작성자,낙찰된 업체(배송 가능)만 상세 주소 -->             
             <div th:if="${(dto.isDone == 1 
                         and currentUser != null 
                         and winnerBno != null 
@@ -169,8 +169,9 @@
             [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.modifiedAt)}]]
             <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">(수정 됨)</small>
           </p>
+
         </div>
-        <!-- 테스트중 리뷰 -->
+        <!-- 리뷰 -->
         <th:block th:if="${estimateReviewMap != null and estimateReviewMap[estimate.idx] != null and !#lists.isEmpty(estimateReviewMap[estimate.idx])}">
           <div class="review_box">
             <div class="review_badge">후기</div>
@@ -179,7 +180,6 @@
             </div>
           </div>  
         </th:block>
-        <!-- 리뷰 테스트 -->
           
         </div>
         <!-- 의뢰서 작성자가 처리하는 버튼 모음--------------------------------------------------------->
