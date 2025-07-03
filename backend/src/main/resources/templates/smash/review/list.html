@@ -55,12 +55,13 @@
                                 </div>
                                 <!-- 삭제 버튼 (본인 글만) -->
                                 <div th:if="${review.memberId == currentUser.emailId and currentUser.emailId != null}">
-                                    <form th:action="@{/smash/review/delete}" method="get" onsubmit="return confirmDelete();">
+                                        <form th:action="@{/smash/review/delete}" method="get" onsubmit="return confirmDelete();">
                                         <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
-                                        <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
+                                        <input type="hidden" name="estimateIdx" th:value="${review.estimateIdx}" />
+                                        <input type="hidden" name="requestIdx" th:value="${review.requestIdx}" />
                                         <input type="hidden" name="from" th:value="${(isMyList != null and isMyList) ? 'mylist' : 'list'}" />
                                         <button type="submit">삭제</button>
-                                    </form>
+                                        </form>
                                 </div>
                             </div>
                         </div>
