@@ -14,9 +14,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +27,57 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ImageService imageService;
     private final EstimateService estimateService;
+
+    @GetMapping("/")
+    public String review() {
+        return "redirect:/smash/review/list";
+    }
+    
+    // 리뷰 목록
+    @GetMapping("/list")
+    public void List(Model model) {
+        model.addAttribute("title", "리뷰 목록");
+    }
+    // 업체가 쓴 리뷰 목록
+    @GetMapping("/partnerlist")
+    public String partnerList(@RequestParam("bno") String partnerBno, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByPartnerBno(partnerBno));
+        return "redirect:/smash/review/list";
+    }
+    // 내가 쓴 리뷰 목록
+    @GetMapping("/mylist")
+    public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
+        // 세션에서 로그인 유저 정보 가져오기
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return "redirect:/smash/"; // 로그인 안 되어 있으면 로그인 페이지로 리디렉트
+        } else {
+            if(currentUser.getRole() == 1) {
+                // 업체인 경우, 사업자 번호로 자신에게 작성된 리뷰 목록을 조회
+                return "redirect:/smash/review/partnerlist?bno=" + currentUser.getBno();
+            } else {
+                // 업체가 아닌 경우, 자신이 작성한 리뷰 목록을 조회
+                redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByMemberId(currentUser.getEmailId()));
+            }
+        }
+        return "redirect:/smash/review/list";
+    }
+    // 전체 리뷰 목록
+    @GetMapping("/all")
+    public String allList(HttpSession session, RedirectAttributes redirectAttributes) {
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            // currentUser가 null이면 홈으로 리다이렉트
+            return "redirect:/smash";
+        } else {
+            if(currentUser.getRole() == 2) {
+                redirectAttributes.addFlashAttribute("reviewList", reviewService.getAllReviews());
+            } else {
+                return "redirect:/smash/review/mylist";
+            }
+        }
+        return "redirect:/smash/review/list";
+    }
 
     // 리뷰 등록 폼
     @GetMapping("/register")
@@ -53,13 +106,6 @@ public class ReviewController {
         EstimateDTO estimateDTO = estimateService.get(estimateIdx);
         Integer requestIdx = estimateDTO.getRequestIdx();
         return "redirect:/smash/request/detail/" + requestIdx;             
-    }
-
-    // 리뷰 목록
-    @GetMapping("/list")
-    public String showReviewList(Model model) {
-        model.addAttribute("title", "리뷰 목록");
-        return "smash/review/list";
     }
 
     // 리뷰 수정 폼
@@ -123,22 +169,5 @@ public class ReviewController {
             return "redirect:/smash/review/mylist";
         }
         return "redirect:/smash/request/detail/" + requestIdx;
-    }
-
-    // 내가 쓴 리뷰 목록
-    @GetMapping("/mylist")
-    public String showMyReviewList(HttpSession session, Model model) {
-        // 세션에서 로그인 유저 정보 가져오기
-        CurrentUserDTO currentUserDTO = (CurrentUserDTO) session.getAttribute("currentUser");
-        if (currentUserDTO == null) {
-            return "redirect:/smash/"; // 로그인 안 되어 있으면 로그인 페이지로 리디렉트
-        }
-        String currentUserId = currentUserDTO.getEmailId();
-        // 내 리뷰만 조회
-        List<ReviewDTO> myReviewList = reviewService.getReviewsByMemberId(currentUserId);
-        model.addAttribute("reviewList", myReviewList);
-        model.addAttribute("isMyList", true); // 내 리뷰 전용 표시
-        model.addAttribute("title", "내가 쓴 리뷰 목록");
-        return "smash/review/list";
     }
 }

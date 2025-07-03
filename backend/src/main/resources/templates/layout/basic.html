@@ -23,7 +23,9 @@
       <script src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
       <!-- Bootstrap 4 CSS -->
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-      
+      <!-- Websoket(SockJS, STOMP.js) -->
+      <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     </head>
 
     <!-- body -->
@@ -49,7 +51,7 @@
                 </a>
               </li>
               <li th:if="${currentUser}" class="chat">
-                <a th:href="@{'/smash/chat/roomList?myUser=' + ${currentUser.emailId}}">
+                <a th:href="@{'/smash/chat/roomList?createUser=' + ${currentUser.emailId}}">
                   <i class="fa-solid fa-comment"></i>채팅
                 </a>
               </li>

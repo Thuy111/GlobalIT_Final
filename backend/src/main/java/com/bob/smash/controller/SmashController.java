@@ -18,33 +18,30 @@ import lombok.extern.log4j.Log4j2;
 @RequestMapping("/smash")
 // @RequiredArgsConstructor // 자동주입
 @Log4j2
-public class SmashController {  
-  // service 주입
-
+public class SmashController {
   // application.properties에서 Frontend URL 설정
   @Value("${front.server.url}")
   private String frontendUrl;
 
-  @GetMapping("")
-  public String index1() {
+  @GetMapping({"","/"})
+  public String index() {
     log.info(frontendUrl + "로 리다이렉트합니다.");
     return "redirect:" + frontendUrl;
-  }
-  @GetMapping("/")
-  public String index2() {
-    log.info(frontendUrl + "로 리다이렉트합니다.");
-    return "redirect:" + frontendUrl;
-  }
-
-  @GetMapping("/estimate")
-  public String estimate() {
-    return "redirect:/smash/estimate/list";
   }
 
   @GetMapping("/request")
   public String request() {
-    log.info("Smash request page requested");
-    return "redirect:/smash/request/list";
+    return "redirect:/smash/request/";
+  }
+
+  @GetMapping("/estimate")
+  public String estimate() {
+    return "redirect:/smash/estimate/";
+  }
+
+  @GetMapping("/review")
+  public String review() {
+    return "redirect:/smash/review/";
   }
 
   @GetMapping("/profile/update")

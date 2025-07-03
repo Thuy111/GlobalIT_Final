@@ -83,7 +83,7 @@ const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
 
   const logoutHandler = async () => {
     try {
-      await axios.post(`${baseUrl}/logout`, {}, { withCredentials: true });
+      await axios.post(`${baseUrl}/logout`, {}, { headers: {"X-Frontend-Auth-Check": "true"}, withCredentials: true });
       setIsLoggedIn(false);
       alert('로그아웃 되었습니다.');
       // 로그아웃 후 홈으로 새로고침

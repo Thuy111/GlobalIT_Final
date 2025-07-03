@@ -36,7 +36,7 @@
           <label class="request_el">
             <h2>가격</h2>
             <div class="price_box">
-              <input type="text" name="price" required placeholder="숫자를 입력하세요.">원
+              <input type="number" min="0" step="100" name="price" required placeholder="숫자를 입력하세요.">원
             </div>
           </label>
           
@@ -50,7 +50,7 @@
     
           <div class="request_el">
             <h3>반납 날짜</h3>
-            <input type="datetime-local" name="returnDate" required>
+            <input type="datetime-local" name="returnDate" th:attr="min=${useDate}" required>
             <div class="calendar_box">
               <i class="fa-regular fa-calendar custom-datetime"></i>
             </div>
@@ -151,6 +151,24 @@
         const datetimeValue = now.toISOString().slice(0, 16);
         for (let i = 0; i < datetimeInputs.length; i++) {
           datetimeInputs[i].value = datetimeValue;
+        }
+
+        // 사용일 이후로 반납 날짜 설정
+        const useDate = "[[${useDate}]]";
+        document.addEventListener("DOMContentLoaded", function () {
+          const returnDate = document.querySelector('input[name="returnDate"]');
+          if (returnDate) {
+            returnDate.min = useDate;
+          }
+        });
+
+        // 가격 숫자 검증(추가)
+        const priceInput = form.querySelector('input[name="price"]');
+        if (priceInput && !/^\d+$/.test(priceInput.value)) {
+          e.preventDefault();
+          alert("가격은 숫자만 입력할 수 있습니다.");
+          priceInput.focus();
+          return;
         }
 
         // 입력값 검증

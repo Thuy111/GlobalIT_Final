@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,29 +36,59 @@ public class EstimateController {
     return "redirect:/smash/estimate/list";
   }
 
-  // 업체가 쓴 견적서 목록(이미지 포함)
+  // 견적서 목록 페이지로 이동
   @GetMapping("/list")
-  public void list(@RequestParam("partnerBno") String partnerBno, Model model) {
-    model.addAttribute("result", service.getListByPartnerBno(partnerBno));
+  public void list(Model model) {
     model.addAttribute("title", "견적서 목록");
   }
-  // 내가 쓴 견적서 목록(이미지 포함)
+  // 업체가 쓴 견적서 목록
+  @GetMapping("/partnerlist")
+  public String partnerList(@RequestParam("bno") String partnerBno, RedirectAttributes redirectAttributes) {
+    redirectAttributes.addFlashAttribute("result", service.getListByPartnerBno(partnerBno));
+    return "redirect:/smash/estimate/list";
+  }
+  // 내가 받은/쓴 견적서 목록
   @GetMapping("/mylist")
-  public String myList(HttpSession session, Model model) {
+  public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-    // currentUser 또는 bno가 null이면 홈으로 리다이렉트
-    if (currentUser == null || currentUser.getBno() == null) {
+    // currentUser가 null이면 홈으로 리다이렉트
+    if (currentUser == null) {
       return "redirect:/smash";
+    } else {
+      if(currentUser.getRole() == 1) {
+        // 업체인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
+        return "redirect:/smash/estimate/partnerlist?bno=" + currentUser.getBno();
+      } else {
+        // 업체가 아닌 경우, 자신이 받은 견적서 목록을 조회
+        redirectAttributes.addFlashAttribute("result", service.getListByMemberId(currentUser.getEmailId()));
+      }
     }
-    model.addAttribute("result", service.getListByPartnerBno(currentUser.getBno()));
-    model.addAttribute("title", "견적서 목록");
-    return "redirect:/smash/estimate/list?partnerBno=" + currentUser.getBno();
+    return "redirect:/smash/estimate/list";
+  }
+  // 전체 견적서 목록
+  @GetMapping("/all")
+  public String allList(HttpSession session, RedirectAttributes redirectAttributes) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    // currentUser가 null이면 홈으로 리다이렉트
+    if (currentUser == null) {
+      return "redirect:/smash";
+    } else {
+      if(currentUser.getRole() == 2) {
+        redirectAttributes.addFlashAttribute("result", service.getListWithImage());
+      } else {
+        return "redirect:/smash/estimate/mylist";
+      }
+    }
+    return "redirect:/smash/estimate/list";
   }
 
-  // 등록(이미지 포함)
+  // 등록
   @GetMapping("/register")
   public void register(@RequestParam("requestIdx") Integer requestIdx, Model model) {
     model.addAttribute("requestIdx", requestIdx);
+    // 의뢰서 사용 날짜를 가져와서 모델에 추가
+    LocalDateTime useDate = service.getUseDateByRequestIdx(requestIdx);
+    model.addAttribute("useDate", useDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
     model.addAttribute("title", "견적서 등록");
   }
   @PostMapping("/register")

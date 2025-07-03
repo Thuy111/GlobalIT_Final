@@ -1,10 +1,14 @@
 package com.bob.smash.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.bob.smash.dto.ChatMessageDTO;
@@ -21,13 +25,15 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ChatServiceImpl implements ChatService {
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate; // Spring WebSocket (STOMP) 메시징 템플릿
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회 (한 명의 유저가 참여한 모든 채팅방)
     public List<ChatRoom> findRoomsByUser(String username) {
-        return chatRoomRepository.findByMyUserOrTargetUser(username, username);
+        return chatRoomRepository.findByCreateUserOrInviteUser(username, username);
     }
 
     // 방을 roomId로 찾는 메서드 추가
@@ -39,27 +45,28 @@ public class ChatServiceImpl implements ChatService {
     }
 
     // 1:1 채팅방 찾거나 없으면 생성
-    public ChatRoomDTO getOrCreateOneToOneRoom(String myUser, String targetUser) {
+    public ChatRoomDTO getOrCreateOneToOneRoom(String createUser, String inviteUser) {
         // 상대방 이메일 아이디 유효성 검사
-        memberRepository.findByEmailId(targetUser)
+        memberRepository.findByEmailId(inviteUser)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
         // DB에서 1:1 채팅방 먼저 찾기
-        ChatRoom found = chatRoomRepository.findByMyUserAndTargetUser(myUser, targetUser)
-            .orElseGet(() -> chatRoomRepository.findByMyUserAndTargetUser(targetUser, myUser).orElse(null));
+        ChatRoom found = chatRoomRepository.findByCreateUserAndInviteUser(createUser, inviteUser)
+            .orElseGet(() -> chatRoomRepository.findByCreateUserAndInviteUser(inviteUser, createUser).orElse(null));
         if (found != null) return entityToDto(found);
 
-        String targetUserName = memberRepository.findNicknameByEmailId(targetUser); // 상대방의 닉네임 조회
+        String inviteUserName = memberRepository.findNicknameByEmailId(inviteUser); // 상대방의 닉네임 조회
 
-        if (targetUserName==null) {
-            targetUserName = targetUser; // 닉네임이 없으면 이메일 ID 사용
+        if (inviteUserName==null) {
+            inviteUserName = inviteUser; // 닉네임이 없으면 이메일 ID 사용
         }
 
         ChatRoom chatRoom = ChatRoom.builder()
             .roomId(UUID.randomUUID().toString())
-            .myUser(myUser)
-            .targetUser(targetUser)
-            .name(targetUserName + "님과의 채팅방")
+            .createUser(createUser)
+            .myNickname(memberRepository.findNicknameByEmailId(createUser)) // 나의 닉네임 조회
+            .inviteUser(inviteUser)
+            .targetNickname(inviteUserName) // 상대방의 닉네임
             .createdAt(LocalDateTime.now()) 
             .build();
         chatRoomRepository.save(chatRoom);
@@ -68,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
 
     // chat 메세지 저장
     @Override
-    public void saveMessage(ChatMessageDTO dto) {
+    public ChatMessageDTO saveMessage(ChatMessageDTO dto) {
         String Nickname = memberRepository.findNicknameByEmailId(dto.getSender());
         if (Nickname == null) {
             Nickname = dto.getSender(); // 닉네임이 없으면 이메일 ID 사용
@@ -82,6 +89,7 @@ public class ChatServiceImpl implements ChatService {
                 .time(LocalDateTime.now())
                 .build();
         chatMessageRepository.save(entity);
+        return entityToDto(entity); // 저장된 메시지의 DTO 반환
     }
 
     // 새로고침 후에도 (무조건 세션이 끊김)을 해도 채팅방에 들어갈 수 있도록 메시지 조회
@@ -98,7 +106,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     // 읽음 처리
-    public void markAsRead(String roomId, String userEmail) {
+    public List<Long> markAsRead(String roomId, String userEmail) {
         // 아직 읽지 않은 메시지 리스트 조회 (예: 자신이 보낸 메시지 X, 방의 모든 메시지 중 읽지 않은 것들)
         List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessagesByRoomIdAndUser(roomId, userEmail);
 
@@ -109,5 +117,18 @@ public class ChatServiceImpl implements ChatService {
 
         // 일괄 저장
         chatMessageRepository.saveAll(unreadMessages);
+
+        return unreadMessages.stream()
+            .map(ChatMessage::getId) // 읽음 처리된 메시지 ID 리스트 반환
+            .collect(Collectors.toList());
+    }
+
+    // 읽음 이벤트를 WebSocket으로 전송 (STOMP 메시지로 전송)
+    public void sendReadEvent(String roomId, List<Long> readMessageIds, String sender) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("messageType", "READ");
+        payload.put("messageIds", readMessageIds);
+        payload.put("sender", sender);
+        messagingTemplate.convertAndSend("/topic/chat/" + roomId, payload);
     }
 }

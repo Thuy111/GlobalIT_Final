@@ -18,7 +18,7 @@ function RequestList() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await apiClient.get(`/request/list`);
+        const res = await apiClient.get(`/request/main`);
         setAllRequests(res.data.request ?? []);
         setFilteredRequests(res.data.request ?? []);
         const fetchedTags = res.data.hashtags ?? [];
@@ -189,21 +189,23 @@ function RequestList() {
 
           <div className="request-header">
             <h3 className="request-title">{item.title}</h3>
-            <p
-              className={`request-status ${
-                item.isDone === 0
-                  ? "pending"
+              <p
+                className={`request-status ${
+                  item.isDone === 0
+                    ? item.dday === "종료" ? "failed" : "pending"
+                    : item.isDone === 1
+                    ? "completed"
+                    : "failed"
+                }`}
+              >
+                {item.isDone === 0
+                  ? item.dday === "종료"
+                    ? "미낙찰"
+                    : "낙찰대기"
                   : item.isDone === 1
-                  ? "completed"
-                  : "failed"
-              }`}
-            >
-              {item.isDone === 0
-                ? "낙찰대기"
-                : item.isDone === 1
-                ? "낙찰완료"
-                : "미낙찰"}
-            </p>
+                  ? "낙찰완료"
+                  : "미낙찰"}
+              </p>
           </div>
 
           <p className="request-content">{item.content}</p>

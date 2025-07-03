@@ -1,8 +1,9 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <div class="estimate_list">
-        <div class="estimate_box" th:each="estimate : ${result}">
+      <div class="estimate_list" th:if="${not #lists.isEmpty(result)}">
+        <div class="estimate_box" th:each="estimate : ${result}"
+                                  th:attr="data-href=@{/smash/request/detail/{idx}(idx=${estimate.requestIdx})}">
           <div class="estimate_card">
             <div class="estimate_header">
               <div class="estimate_meta">
@@ -25,15 +26,15 @@
             </div>
             <table>
               <tr>
-                <th>제시 가격</th>
+                <td>제시 가격</td>
                 <td>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</td>
               </tr>
               <tr>
-                <th>반납 기한</th>
+                <td>반납 기한</td>
                 <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yy년 MM월 dd일 HH:mm').format(estimate.returnDate)}"></td>
               </tr>
               <tr>
-                <th>대여 방법</th>
+                <td>대여 방법</td>
                 <td>
                   <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
                   <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
@@ -55,15 +56,15 @@
             <table>
               <caption>업체 정보</caption>
               <tr>
-                <th>이름</th>
+                <td>이름</td>
                 <td th:text="${estimate.partnerName}"></td>
               </tr>
               <tr>
-                <th>연락처</th>
+                <td>연락처</td>
                 <td th:text="${estimate.partnerTel}"></td>
               </tr>
               <tr>
-                <th>주소</th>
+                <td>주소</td>
                 <td th:text="${estimate.partnerRegion}"></td>
               </tr>
             </table>
@@ -116,6 +117,25 @@
             form.addEventListener("submit", function (e) {
               if (!confirm("반납을 확인 처리하시겠습니까?")) {
                 e.preventDefault();
+              }
+            });
+          });
+
+          // estimate_box 클릭 시 이동
+          const boxes = document.querySelectorAll(".estimate_box");
+          boxes.forEach(box => {
+            box.addEventListener("click", function(e) {
+              // 내부 폼/버튼 클릭 시엔 무시 (form, button 등)
+              if (
+                e.target.tagName === "BUTTON" ||
+                e.target.closest("form") ||
+                e.target.classList.contains("zoomable_image")
+              ) {
+                return;
+              }
+              const url = box.getAttribute("data-href");
+              if (url) {
+                window.location.href = url;
               }
             });
           });
