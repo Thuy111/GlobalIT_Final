@@ -7,6 +7,9 @@
         <h3 class="request_title"> [[${dto.title}]]</h3>
         <span class="status_tag" th:if="${dto.isDone == 1}">낙찰 완료</span>
       </div>
+      <hr class="estimate_divider" />
+      <div class="created_at"> [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.createdAt)}]]</div>
+
       <div class="small_box">
         <!-- 이미지 -->
         <div class="attached_image_area" th:if="${not #lists.isEmpty(dto.images)}">
@@ -36,8 +39,9 @@
                         or (!#strings.equals(currentUser.bno, winnerBno) 
                               and (dto.writerEmail == null 
                               or dto.writerEmail != currentUser.emailId))
-                        or (selectedEstimate != null and selectedEstimate.isDelivery == false) }">
-              <p>사용 지역: [[${dto.useRegion}]]</p>
+                        or (selectedEstimate != null and selectedEstimate.isDelivery == false) }"
+                  >
+              <div class="badge_area"><span class="badge">사용 지역</span><span>[[${dto.useRegion}]]</span></div>
             </div>
 
             <!-- 조소: 작성자,낙찰된 업체(배송 가능)만 상세 주소 -->             
@@ -47,14 +51,14 @@
                         and #strings.equals(currentUser.bno, winnerBno)
                         and selectedEstimate != null
                         and selectedEstimate.isDelivery == true)
-                        or(dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) }">
-              <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
+                        or(dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) }"
+                        class="badge_area">
+              <div class="badge_area"><span class="badge">사용 지역</span><span>[[${dto.useRegion}]] [[${dto.detailAddress}]]</span></div>
             </div>
 
-            <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
+            <div class="badge_area"><span class="badge">사용 예정 날짜</span><span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.useDate)}]]</span></div>      
             </div>                    
           </div>    
-          <div class="created_at"> [[${#temporals.format(dto.createdAt, 'yyyy-MM-dd HH:mm')}]]</div>
         </div>
       </div>
     </div>
@@ -86,9 +90,9 @@
       </a>
     </div>
 
-    <hr>
-
     <!-- 견적서 목록------------------------------------------------------------------------------>
+     <hr class="estimate_divider" />
+    <h2 class="estimates_title">받은 견적서 목록 (<span th:text="${estimates.size()}"></span>)</h2>
     <div class="estimate_list">
       <div class="estimate_box" th:each="estimate : ${estimates}" th:with="requestDto=${dto}">
         <div class="estimate_card">
@@ -101,8 +105,9 @@
             </div>
             
           </div>
-          <hr class="estimate_divider" />
-          <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+          
+          <div class="estimate_body">
+            <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
                                                  (currentUser != null and currentUser.role == 2)}">
             <form th:action="@{/smash/estimate/update}" method="get">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
@@ -116,11 +121,11 @@
           <div class="estimate_info">
             <div>
               <span class="badge">제시 가격</span>
-              <span>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</span>
+              <div style="font-size: 18px;"><span class="price">[[${#numbers.formatInteger(estimate.price, 3, 'COMMA')}]]</span> 원</div>
             </div>
             <div>
               <span class="badge">반납 기한</span>
-              <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}]]</span>
+              <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.returnDate)}]]</span>
             </div>
             <div>
               <span class="badge">대여 방법</span>
@@ -161,19 +166,21 @@
             </div>
           </div>
           <p class="estimate_date">
-            [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
-            <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
+            [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.modifiedAt)}]]
+            <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">(수정 됨)</small>
           </p>
-                  <!-- 테스트중 리뷰 -->
-              <div th:replace="~{smash/request/review :: reviewCards(
-            ${estimateReviewMap[estimate.idx]}, 
-            ${currentUser}, 
-            ${estimate.idx}, 
-            ${false}
-        )}"
-        th:with="requestDto=${dto}"></div>
 
-          <!-- 리뷰 테스트 -->
+        </div>
+        <!-- 리뷰 -->
+        <th:block th:if="${estimateReviewMap != null and estimateReviewMap[estimate.idx] != null and !#lists.isEmpty(estimateReviewMap[estimate.idx])}">
+          <div class="review_box">
+            <div class="review_badge">후기</div>
+            <hr>
+            <div th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUserEmail}, ${estimate.idx}, ${false})}">
+            </div>
+          </div>  
+        </th:block>
+          
         </div>
         <!-- 의뢰서 작성자가 처리하는 버튼 모음--------------------------------------------------------->
         <div th:if="${(dto.writerEmail != null and 
@@ -236,6 +243,17 @@
 
     <div class="bottom_space"></div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
+
+    <!-- <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const isDarkMode = document.body.classList.contains("dark");
+        if(isDarkMode){
+          document.querySelector("body.dark div.root").style.backgroundColor = '#ffffff00';
+        }else{
+          document.querySelector("body div.root").style.backgroundColor = '#f4f4f4';
+        }
+      });
+    </script> -->
 
     <script th:inline="javascript">
       // 낙찰 상태 변경 및 결제서 생성
