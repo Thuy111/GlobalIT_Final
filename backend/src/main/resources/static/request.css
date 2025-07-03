@@ -68,24 +68,34 @@
   gap: 0.5rem;
 }
 
+body.dark .request_button_group .btn {
+  background-color: #524b4b;
+  color: #f8f8f8;
+  /* border: 1px solid #575757; */
+}
+body.dark .request_button_group .btn:hover {background-color: #525252;}
 .request_button_group .btn {
-  padding: 0.7rem 1.2rem;
-  background: #ddd;
+  padding: 0.7rem 1.2rem !important;
+  background: #eeeeee;
   border: none;
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
+  height: 48px;
 }
 .request_button_group .btn:hover{
-   background-color: #73ecf7;
+   background-color: #dedede;
    opacity: 0.85;
    transition: all 0.3s ease;
 }
 
  .request_button_group .btn.delete {
-  background-color: #fdd;
-  color: #d00;
-}
+   background-color: #fdd !important;
+   color: #a60000 !important;
+  }
+  .request_button_group .btn.delete:hover {
+    background-color: #ffa9a9 !important;
+  }
 
 .request_wrapper .small_box{
   margin: 0px 20px 20px 20px;

@@ -86,6 +86,12 @@ button:disabled:hover, [class*="btn"]:disabled:hover {
   cursor: default;
 }
 
+.bottom_space {
+  height: 84px; /* 네비게이션 바 높이 */
+  width: 100%;
+  background-color: none;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"],
@@ -295,13 +301,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: center;
 }
+body.dark .attached_image img {background: #78787833}
 .attached_image img {
   max-height: 100%;
   max-width: 20em;
   border-radius: 0.5em;
   object-fit: contain;
   box-shadow: 0 0.1em 0.5em #0002;
-  background: #fafafa;
+  background: #8484840f;
 }
 /* 의뢰서.견적서 등록 사진 */
 .image_preview_wrapper {
@@ -346,10 +353,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   background: rgba(0,0,0,0.7);
   color: white;
   border: none;
-  border-radius: 50%;
+  border-radius: 50% !important;
   width: 20px;
   height: 20px;
   cursor: pointer;
+  padding: 12px !important;
 }
 .image_thumb .label {
   position: absolute;
@@ -384,7 +392,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .submit_box {width: 100%; display: flex; justify-content: center; align-items: center;}
-.submit_style {width: 100%; max-width: 320px; border-radius: 30px;margin-top: 1rem;}
+button.submit_style {width: 100%; max-width: 320px; border-radius: 30px !important;margin-top: 1rem;}
 
 
 /* input css와 맞추기 */
