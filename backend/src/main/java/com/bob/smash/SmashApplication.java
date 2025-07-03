@@ -10,4 +10,4 @@ public class SmashApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SmashApplication.class, args);
 	}
-}
+} 

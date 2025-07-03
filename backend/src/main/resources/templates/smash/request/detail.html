@@ -164,10 +164,15 @@
             [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
             <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
           </p>
-          <!-- 테스트중 리뷰 -->
-          <div th:if="${estimateReviewMap != null and estimateReviewMap[estimate.idx] != null}"
-              th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUserEmail}, ${estimate.idx}, ${false})}">
-          </div>
+                  <!-- 테스트중 리뷰 -->
+              <div th:replace="~{smash/request/review :: reviewCards(
+            ${estimateReviewMap[estimate.idx]}, 
+            ${currentUser}, 
+            ${estimate.idx}, 
+            ${false}
+        )}"
+        th:with="requestDto=${dto}"></div>
+
           <!-- 리뷰 테스트 -->
         </div>
         <!-- 의뢰서 작성자가 처리하는 버튼 모음--------------------------------------------------------->
