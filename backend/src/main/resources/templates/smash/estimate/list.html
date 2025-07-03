@@ -7,46 +7,50 @@
           <div class="estimate_card">
             <div class="estimate_header">
               <div class="estimate_meta">
+                <b class="estimate_title">[[${estimate.title}]]</b>
                 <span class="standby" th:if="${estimate.isSelected == 0}">낙찰 대기</span>
                 <span class="unselected" th:if="${estimate.isSelected == 1}">미 낙찰</span>
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
-                <b class="estimate_title">[[${estimate.title}]]</b>
-              </div>
-              <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
-                                                     (currentUser != null and currentUser.role == 2)}">
-                <form th:action="@{/smash/estimate/update}" method="get" th:id="'update'+ ${estimate.idx}">
-                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                  <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
-                </form>
-                <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
-                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                  <button type="submit">삭제</button>
-                </form>
               </div>
             </div>
-            <table>
-              <tr>
-                <td>제시 가격</td>
-                <td>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</td>
-              </tr>
-              <tr>
-                <td>반납 기한</td>
-                <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yy년 MM월 dd일 HH:mm').format(estimate.returnDate)}"></td>
-              </tr>
-              <tr>
-                <td>대여 방법</td>
-                <td>
-                  <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
-                  <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
-                  /
-                  <span class="pickup" th:if="${estimate.isPickup == true}">픽업 가능</span>
-                  <span class="pickup" th:if="${estimate.isPickup == false}">픽업 불가</span>
-                </td>
-              </tr>
-            </table>
-            <div class="estimate_content">
-              <pre>[[${estimate.content}]]</pre>
+            
+            <hr class="estimate_divider" />
+
+            <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                                                  (currentUser != null and currentUser.role == 2)}">
+              <form th:action="@{/smash/estimate/update}" method="get">
+                <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
+              </form>
+              <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
+                <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                <button type="submit">삭제</button>
+              </form>
             </div>
+
+            <div class="estimate_info">
+              <div>
+                <span class="badge">제시 가격</span>
+                <span>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</span>
+              </div>
+              <div>
+                <span class="badge">반납 기한</span>
+                <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}]]</span>
+              </div>
+              <div>
+                <span class="badge">대여 방법</span>
+                <p class="deal_method">
+                  <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                  <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
+                  <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                  <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
+                </p>
+              </div>
+              <div class="estimate_content">
+                <pre>[[${estimate.content}]]</pre>
+              </div>
+            </div>
+
             <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
               <div class="attached_image" th:each="image : ${estimate.images}">
                 <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
@@ -55,37 +59,47 @@
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
               <img id="lightbox_img" src="" alt="zoom" />
             </div>
-            <table class="partnerInfo" th:attr="data-href=@{/smash/store/detail/{idx}(idx=${estimate.requestIdx})}">
-              <caption>업체 정보</caption>
-              <tr>
-                <td>이름</td>
-                <td th:text="${estimate.partnerName}"></td>
-              </tr>
-              <tr>
-                <td>연락처</td>
-                <td th:text="${estimate.partnerTel}"></td>
-              </tr>
-              <tr>
-                <td>주소</td>
-                <td th:text="${estimate.partnerRegion}"></td>
-              </tr>
-            </table>
+
+            <div class="partner_info">
+              <div class="partner_name"
+                  th:attr="data-href=@{/smash/store/{code}(code=${estimate.partnerCode}, memberId=${currentUser != null && currentUser.emailId != null ? currentUser.emailId : ''})}">
+                <div class="store_icon_box">
+                  <i class="fa-solid fa-store"></i>
+                </div>
+                <p class="name" th:text="${estimate.partnerName}"></p>
+              </div>
+              <div class="patner_tel">
+                <span class="badge">연락처</span>
+                <span th:text="${estimate.partnerTel}"></span>
+              </div>
+              <div>
+                <span class="badge">주소</span>
+                <span th:text="${estimate.partnerRegion}"></span>
+              </div>
+            </div>
+
             <p class="estimate_date">
-              [[${T(java.time.format.DateTimeFormatter).ofPattern('yy.MM.dd HH:mm').format(estimate.modifiedAt)}]]
+              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
               <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
             </p>
           </div>
+
+          <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
           <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
                         (currentUser != null and currentUser.role == 2)}">
-            <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
+            <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}" class="estimate_actions select_form">
               <input type="hidden" name="idx" th:value="${estimate.idx}" />
               <input type="hidden" name="isReturn" th:value="true" />
-              <button type="submit" th:if="${estimate.isReturn == false and estimate.isSelected == 2}">반납 확인</button>
+              <button type="submit" 
+                th:if="${estimate.isReturn == false and 
+                         estimate.isSelected == 2}">
+                반납 확인
+              </button>
             </form>
-          </div>
+          </div><!-- 견적서 작성자가 처리하는 (반납확인) 버튼 끝 -->
         </div>
       </div>
-
+      
       <script>
         document.addEventListener("DOMContentLoaded", function () {
           // 이미지 lightbox. Js code((이미지 크게 보기)
@@ -123,7 +137,7 @@
             });
           });
 
-          // estimate_box 클릭 시 이동
+          // estimate_box 클릭 시 의뢰서 상세보기 페이지로 이동
           const boxes = document.querySelectorAll(".estimate_box");
           boxes.forEach(box => {
             box.addEventListener("click", function(e) {
@@ -139,6 +153,21 @@
               if (url) {
                 window.location.href = url;
               }
+            });
+          });
+
+          // 업체명 클릭 시 해당 업체 소개 페이지로 이동
+          document.querySelectorAll(".partner_info .name").forEach(nameElem => {
+            nameElem.style.cursor = "pointer"; // UX: 손가락 커서
+            nameElem.addEventListener("click", function(e) {
+              // 부모 .partner_name에서 data-href 읽기
+              const partnerNameDiv = nameElem.closest(".partner_name");
+              const url = partnerNameDiv ? partnerNameDiv.getAttribute("data-href") : null;
+              if (url) {
+                window.location.href = url;
+              }
+              // 이벤트 버블링 방지(필요시)
+              e.stopPropagation();
             });
           });
         });
