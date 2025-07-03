@@ -39,7 +39,7 @@ public interface EstimateService {
   // 낙찰 현황 수정
   Integer changeSelectStatus(EstimateDTO dto);
   // 마감기한이 지난의뢰서에 해당하는 견적서 전체 자동 미낙찰
-  void autoSelect(List<Integer> requestIdxList);
+  void autoSelect();
 
   // 반납 현황 수정
   Integer changeReturnStatus(EstimateDTO dto);
