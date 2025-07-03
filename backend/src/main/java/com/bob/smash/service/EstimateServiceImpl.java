@@ -222,7 +222,7 @@ public class EstimateServiceImpl implements EstimateService {
   @Override
   @Transactional
   @Scheduled(cron = "0 0/10 * * * ?") // 10분마다, 필요시 조정
-  public void autoSelect(List<Integer> requestIdxList) {
+  public void autoSelect() {
     LocalDateTime now = LocalDateTime.now();
     List<Estimate> targets = repository.findByIsSelectedAndRequest_UseDateBefore((byte)0, now);
     for (Estimate estimate : targets) {
