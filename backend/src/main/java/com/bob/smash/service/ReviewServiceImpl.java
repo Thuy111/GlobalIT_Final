@@ -107,13 +107,25 @@ public class ReviewServiceImpl implements ReviewService {
 
     // 리뷰 수정
     @Override
-    public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles, boolean isImageReset) {
+    public void updateReview(ReviewDTO reviewDTO, List<MultipartFile> imageFiles, boolean isImageReset, String currentUserEmail, int currentUserRole) {
         Review review = reviewRepository.findById(reviewDTO.getIdx())
-                                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
-        // 리뷰 내용 수정 (change 메서드 호출)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
+
+        // 본인 또는 관리자 확인
+        boolean isOwner = review.getMember().getEmailId().equals(currentUserEmail);
+        boolean isAdmin = currentUserRole == 2;
+        if (!isOwner && !isAdmin) {
+            throw new IllegalArgumentException("본인 또는 관리자만 수정할 수 있습니다.");
+        }
+
+        // 관리자일 경우 isModify 갱신하지 않음
+        if (isOwner) {
+            review.changeIsModify((byte) 1);
+        }
+
         review.changeStar(reviewDTO.getStar());
         review.changeComment(reviewDTO.getComment());
-        review.changeIsModify((byte) 1);  // 수정 완료 표시
+
         reviewRepository.save(review);
             if (isImageReset) {
             // ✅ 이미지 초기화 요청이면 삭제만 수행
@@ -129,17 +141,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // 삭제
-    @Override
-    public void deleteReview(Integer reviewIdx, String currentUserEmail) {
-        Review review = reviewRepository.findById(reviewIdx)
-                                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
-        // 작성자 이메일과 로그인한 이메일 일치 여부 확인
-        String reviewWriterEmail = review.getMember().getEmailId();
-        if (!reviewWriterEmail.equals(currentUserEmail)) {
-            throw new IllegalArgumentException("본인 리뷰만 삭제할 수 있습니다.");
-        }
-        reviewRepository.delete(review);
-    }
+            @Override
+            public void deleteReview(Integer reviewIdx, String currentUserEmail, int currentUserRole) {
+                Review review = reviewRepository.findById(reviewIdx)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
+                if (currentUserRole != 2) { // 관리자가 아니면 본인 리뷰만 삭제 가능
+                    if (!review.getMember().getEmailId().equals(currentUserEmail)) {
+                        throw new IllegalArgumentException("본인 리뷰만 삭제할 수 있습니다.");
+                    }
+                }
+                reviewRepository.delete(review);
+            }
+
+
 
     // 리뷰 작성자 조회
     @Override
