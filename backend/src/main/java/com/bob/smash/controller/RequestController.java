@@ -35,6 +35,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final ReviewService reviewService;
+  
 
     @GetMapping("/")
     public String request() {
@@ -121,7 +122,7 @@ public class RequestController {
                 .filter(e -> e.getIsSelected() == 2)
                 .findFirst()
                 .orElse(null);
-        model.addAttribute("estimates", estimates);
+        model.addAttribute("estimates", estimates);  //견적서 가져오기
         model.addAttribute("selectedEstimate", selectedEstimate);
 
         // 견적서 ID별 리뷰 리스트 Map 추가
