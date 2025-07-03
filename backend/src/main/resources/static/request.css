@@ -1,4 +1,4 @@
-/* 등록 페이지 **************/
+/* 등록 페이지 **************************/
 .request_container .request_title{
   letter-spacing: 4px;
 }
@@ -179,3 +179,5 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
   content:"🖋";
   margin-right: 0.5rem;
 }
+
+/* 의뢰서 목록(list) 페이지 **************************/

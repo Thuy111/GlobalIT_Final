@@ -88,9 +88,15 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
         <section className="profile_account_setting">
           <h2>SMaSh 이용 내역</h2>
           <ul>
-             <li onClick={() => navigate(`/store/${profile.code}`)}>회사 소개</li>
-            <li>보낸 견적서</li>
-            <li>작성된 리뷰</li>
+            <li onClick={() => navigate(`/store/${profile.code}`)}>
+              회사 소개
+            </li>
+            <li onClick={() => window.location.href = `${baseUrl}/smash/estimate/mylist`}>
+              보낸 견적서
+            </li>
+            <li onClick={() => window.location.href = `${baseUrl}/smash/review/mylist`}>
+              작성 받은 리뷰
+            </li>
           </ul>
         </section>
 

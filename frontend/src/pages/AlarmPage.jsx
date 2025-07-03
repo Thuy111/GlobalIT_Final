@@ -30,7 +30,7 @@ const Alarm = () => {
 
   // 미읽음 알림 개수 fetch
   const fetchUnreadCount = () => {
-  apiClient.get(`/alarm/unread`, { withCredentials: true })
+    apiClient.get(`/alarm/unread`, { withCredentials: true })
     .then(res => setUnreadCount(res.data))
     .catch(() => setUnreadCount(0));
   };

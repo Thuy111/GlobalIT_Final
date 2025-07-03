@@ -77,11 +77,15 @@ const UserProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange  }) => 
         <section className="profile_account_setting">
           <h2>SMaSh 이용 내역</h2>
           <ul>
-            <li>작성 글</li>
-            <li>받은 견적서</li>
-              <li onClick={() => window.location.href = 'http://localhost:8080/smash/review/mylist'}>
-                작성한 리뷰
-              </li>
+            <li onClick={() => window.location.href = `${baseUrl}/smash/request/mylist`}>
+              작성 글
+            </li>
+            <li onClick={() => window.location.href = `${baseUrl}/smash/estimate/mylist`}>
+              받은 견적서
+            </li>
+            <li onClick={() => window.location.href = `${baseUrl}/smash/review/mylist`}>
+              작성한 리뷰
+            </li>
           </ul>
         </section>
 
