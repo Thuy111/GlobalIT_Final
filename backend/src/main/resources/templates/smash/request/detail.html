@@ -28,8 +28,29 @@
             <div class="description">
               <pre th:text="${dto.content}"></pre>
             </div>     
-            <div class="info">      
-            <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
+            <div class="info">
+                   
+             <!-- 조소: 낙찰 전, 낙찰된 업체 아님, 작성자 아님 -->
+            <div th:if="${dto.isDone != 1 
+                        or currentUser == null  
+                        or (!#strings.equals(currentUser.bno, winnerBno) 
+                              and (dto.writerEmail == null 
+                              or dto.writerEmail != currentUser.emailId))
+                        or (selectedEstimate != null and selectedEstimate.isDelivery == false) }">
+              <p>사용 지역: [[${dto.useRegion}]]</p>
+            </div>
+
+            <!-- 조소: 작성자 또는 낙찰된 업체(배송 가능)만 상세 주소 -->             
+            <div th:if="${(dto.isDone == 1 
+                        and currentUser != null 
+                        and winnerBno != null 
+                        and #strings.equals(currentUser.bno, winnerBno)
+                        and selectedEstimate != null
+                        and selectedEstimate.isDelivery == true)
+                        or(dto.writerEmail != null and currentUser != null and dto.writerEmail == currentUser.emailId) }">
+              <p>사용 지역: [[${dto.useRegion}]] [[${dto.detailAddress}]]</p>
+            </div>
+
             <p>사용 예정 날짜: [[${#temporals.format(dto.useDate, 'yyyy-MM-dd HH:mm')}]]</p>      
             </div>                    
           </div>    
@@ -73,44 +94,46 @@
         <div class="estimate_card">
           <div class="estimate_header">
             <div class="estimate_meta">
+              <b class="estimate_title">[[${estimate.title}]]</b>
               <span class="standby" th:if="${estimate.isSelected == 0}">낙찰 대기</span>
               <span class="unselected" th:if="${estimate.isSelected == 1}">미 낙찰</span>
               <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
-              <b class="estimate_title">[[${estimate.title}]]</b>
             </div>
-            <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
-                                                   (currentUser != null and currentUser.role == 2)}">
-              <form th:action="@{/smash/estimate/update}" method="get">
-                <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
-              </form>
-              <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
-                <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit">삭제</button>
-              </form>
-            </div>
+            
           </div>
-          <table>
+          <hr class="estimate_divider" />
+          <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                                                 (currentUser != null and currentUser.role == 2)}">
+            <form th:action="@{/smash/estimate/update}" method="get">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
+            </form>
+            <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <button type="submit">삭제</button>
+            </form>
+          </div>
+          <table class="estimate_info">
             <tr>
-              <th>제시 가격</th>
+              <th><p class="badge">제시 가격</p></th>
               <td>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</td>
             </tr>
             <tr>
-              <th>반납 기한</th>
+              <th><p class="badge">반납 기한</p></th>
               <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}"></td>
             </tr>
             <tr>
-              <th>대여 방법</th>
-              <td>
-                <span class="delivery" th:if="${estimate.isDelivery == true}">배달 가능</span>
-                <span class="delivery" th:if="${estimate.isDelivery == false}">배달 불가</span>
-                /
-                <span class="pickup" th:if="${estimate.isPickup == true}">픽업 가능</span>
-                <span class="pickup" th:if="${estimate.isPickup == false}">픽업 불가</span>
+              <th><p class="badge">대여 방법</p></th>
+              <td class="deal_method">
+                <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
+                
+                <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
               </td>
             </tr>
           </table>
-          <p class="estimate_content">[[${estimate.content}]]</p>
+          <div class="estimate_content">[[${estimate.content}]]</div>
           <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
             <div class="attached_image" th:each="image : ${estimate.images}">
               <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
@@ -119,18 +142,23 @@
           <div id="lightbox" class="lightbox" onclick="closeLightbox()">
             <img id="lightbox_img" src="" alt="zoom" />
           </div>
-          <table>
-            <caption>업체 정보</caption>
-            <tr>
-              <th>이름</th>
-              <td th:text="${estimate.partnerName}"></td>
+          <table class="partner_info">
+            <tr class="partner_name">
+              <th>
+                <div class="store_icon_box">
+                  <i class="fa-solid fa-store"></i>
+                </div>
+              </th>
+              <td>
+                <div class="name" th:text="${estimate.partnerName}"></div>
+              </td>
             </tr>
-            <tr>
-              <th>연락처</th>
+            <tr class="patner_tel">
+              <th><p class="badge">연락처</p></th>
               <td th:text="${estimate.partnerTel}"></td>
             </tr>
             <tr>
-              <th>주소</th>
+              <th><p class="badge">주소</p></th>
               <td th:text="${estimate.partnerRegion}"></td>
             </tr>
           </table>
@@ -150,7 +178,7 @@
                         dto.writerEmail == currentUser.emailId) or 
                       (currentUser != null and currentUser.role == 2)}">
           <!-- 낙찰 버튼(+ 결제) -->
-          <form>
+          <form class="estimate_actions select_form">
             <div th:id="|select-${estimate.idx}|"
                   th:data-request-idx="${dto.idx}"                                                                                                                                                        
                   th:data-estimate-idx="${estimate.idx}"
@@ -169,7 +197,7 @@
             </div>    
           </form>
           <!--대여확인 버튼  --> 
-          <form th:action="@{/smash/request/changeIsGet}" method="post"
+          <form th:action="@{/smash/request/changeIsGet}" method="post" class="estimate_actions select_form"
                 th:if="${dto.isDone == 1 and 
                           dto.isGet == 0 and 
                           estimate.isSelected == 2}">
@@ -177,7 +205,7 @@
             <button type="submit" onclick="return confirm('대여를 확인하시겠습니까?');">대여확인</button>
           </form>
           <!-- 리뷰 버튼(한번만 리뷰 가능) -->        
-          <form th:action="@{/smash/review/register}" method="get"
+          <form th:action="@{/smash/review/register}" method="get" class="estimate_actions select_form"
                 th:if="${estimate.isSelected == 2 and 
                           dto.isGet == 1 and 
                           reviewStatusMap != null and 
@@ -189,7 +217,7 @@
         <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
         <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
                       (currentUser != null and currentUser.role == 2)}">
-          <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}">
+          <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}" class="estimate_actions select_form">
             <input type="hidden" name="idx" th:value="${estimate.idx}" />
             <input type="hidden" name="isReturn" th:value="true" />
             <button type="submit" 
@@ -202,6 +230,8 @@
         </div><!-- 견적서 작성자가 처리하는 (반납확인) 버튼 끝 -->
       </div>
     </div>
+
+    <div class="bottom_space"></div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
 
     <script th:inline="javascript">

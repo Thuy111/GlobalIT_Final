@@ -156,6 +156,12 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewDTO.builder()
                         .idx(review.getIdx())
                         .estimateIdx(review.getEstimate().getIdx())
+                                .requestIdx(                      // ⭐ 반드시 추가
+            review.getEstimate() != null &&
+            review.getEstimate().getRequest() != null
+                ? review.getEstimate().getRequest().getIdx()
+                : null
+        )
                         .memberId(review.getMember().getEmailId())
                         .nickname(review.getMember().getNickname())
                         .star(review.getStar())

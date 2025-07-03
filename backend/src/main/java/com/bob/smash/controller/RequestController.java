@@ -6,6 +6,7 @@ import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.service.EstimateService;
+import com.bob.smash.service.MemberService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/smash/request")
@@ -34,6 +36,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final ReviewService reviewService;
+    private final MemberService memberService;
 
     @GetMapping("/")
     public String request() {
@@ -112,8 +115,22 @@ public class RequestController {
         String currentUserEmail = (authentication != null) ? authentication.getPrincipal().getAttribute("email") : null;
         model.addAttribute("currentUserEmail", currentUserEmail);
 
+        //🤚 낙찰된 업체 BNO 조회
+        Optional<Long> winnerBnoOpt = requestService.findWinnerBnoByRequestIdx(idx);
+        winnerBnoOpt.ifPresent(winnerBno -> model.addAttribute("winnerBno", winnerBno)); 
+        // 낙찰된 견적서 찾아서 전달
         List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
+        EstimateDTO selectedEstimate = estimates.stream()
+                .filter(e -> e.getIsSelected() == 2)
+                .findFirst()
+                .orElse(null);
         model.addAttribute("estimates", estimates);
+        model.addAttribute("selectedEstimate", selectedEstimate);
+    
+
+
+        // List<EstimateDTO> estimates = estimateService.getListByRequestIdx(idx);
+        // model.addAttribute("estimates", estimates);
 
         // 견적서 ID별 리뷰 리스트 Map 추가
         Map<Integer, List<ReviewDTO>> estimateReviewMap = new HashMap<>();

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -40,4 +41,7 @@ public interface RequestService {
 
     // 의뢰서 관련 전체 삭제 : 이메일 (회원탈퇴용)
     void allDeleteByEmail(String email);
+
+     // ✋ 낙찰된 업체 조회
+    Optional<Long> findWinnerBnoByRequestIdx(Integer requestIdx);
 }

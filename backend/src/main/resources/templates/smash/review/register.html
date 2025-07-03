@@ -10,7 +10,7 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
 <th:block th:fragment="content">
     <div class="review_container">
-        <h2 style="text-align:center;">리뷰 등록</h2>
+        <h2 class="hide">리뷰 등록</h2>
         <form th:action="@{/smash/review/register}" th:object="${reviewDTO}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="estimateIdx" th:value="${estimateIdx}" />
 
@@ -20,9 +20,11 @@
                         <i class="fas fa-camera fa-2x"></i>
                         <span><span id="image_count">0</span>/10</span>
                     </label>
-                    <button type="button" id="image_reset_btn">IMG 초기화</button>
+                    <button type="button" id="image_reset_btn">이미지 초기화</button>
                 </div>
-                <input type="file" id="image_Files" name="imageFiles" multiple hidden accept="image/*" />
+                <div id="new_image_previews">
+                    <input type="file" id="image_Files" name="imageFiles" multiple hidden accept="image/*" />
+                </div>
             </div>
 
            <label for="star">별점 (1~5):</label>
