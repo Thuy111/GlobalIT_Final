@@ -5,7 +5,7 @@
         <h2 th:if="${#lists.isEmpty(roomList)}">채팅방이 없습니다.</h2>
         <table class="table">
           
-          <tr th:each="room : ${roomList}">
+          <tr th:each="room : ${roomList}" th:if="${room.roomId != null}">
             <td>
               <a th:href="@{chatRoom(roomId=${room.roomId})}"
                  th:class="|${room.roomId} chat_room|"

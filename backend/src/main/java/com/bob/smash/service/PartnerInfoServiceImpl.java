@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -210,9 +211,11 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   private void updateSecurityContextRole(Member member) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-    if (auth == null || !(auth.getPrincipal() instanceof OAuth2User)) return;
+    // if (auth == null || !(auth.getPrincipal() instanceof OAuth2User)) return;
+    if (auth == null || !(auth instanceof OAuth2AuthenticationToken oauthToken)) return;
 
-    OAuth2User currentOAuth2User = (OAuth2User) auth.getPrincipal();
+    // OAuth2User currentOAuth2User = (OAuth2User) auth.getPrincipal();
+    OAuth2User currentOAuth2User = oauthToken.getPrincipal();
     Map<String, Object> attributes = new HashMap<>(currentOAuth2User.getAttributes());
 
     // ✅ Kakao 사용자라면 "kakao_account" 내부에서 email 추출
@@ -233,12 +236,22 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
         "email" // 🔥 email이 attributes에 꼭 있어야 함!
     );
 
-    // ✅ Authentication 새로 설정
-    Authentication newAuth = new UsernamePasswordAuthenticationToken(
+    // 기존 registrationId 재사용
+    String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+
+    // 새로운 OAuth2AuthenticationToken으로 wrapping!
+    OAuth2AuthenticationToken newAuth = new OAuth2AuthenticationToken(
         updatedUser,
-        auth.getCredentials(),
-        updatedUser.getAuthorities()
+        updatedUser.getAuthorities(),
+        registrationId
     );
+
+    // ✅ Authentication 새로 설정
+    // Authentication newAuth = new UsernamePasswordAuthenticationToken(
+    //     updatedUser,
+    //     auth.getCredentials(),
+    //     updatedUser.getAuthorities()
+    // );
 
     SecurityContextHolder.getContext().setAuthentication(newAuth);
 }

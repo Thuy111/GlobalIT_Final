@@ -35,8 +35,9 @@ const Profile = () => {
         setIsChecked(res.data?.partner ?? false);
         setIsLoggedIn(true);
       } catch (err) {
-        setError('프로필 정보를 불러오지 못했습니다.');
         console.error(err);
+        alert('프로필 정보를 불러오지 못했습니다.');
+        window.location.href = '/profile';
       } finally {
         setLoading(false);
       }
@@ -70,8 +71,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <div>로딩 중...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
 
   if (!user) return <Login />;
 

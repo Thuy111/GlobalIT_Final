@@ -66,10 +66,15 @@
         <div class="scroll_box">
           <div class="up_scroll"><i class="fa-solid fa-angle-up"></i></div>
         </div>
+        <!-- <div class='loading hide'><i class="fa-solid fa-circle-notch"></i></div> -->
     </body>
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // 로딩 애니메이션
+        const loadingElement = document.querySelector('.loading');
+        loadingElement.classList.remove('hide');
+
         // 스크롤 시 상단으로 이동하는 버튼
         const scrollBox = document.querySelector('.scroll_box');
         const upScrollButton = document.querySelector('.up_scroll');

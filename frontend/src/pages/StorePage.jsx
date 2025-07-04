@@ -27,6 +27,8 @@ const StorePage = () => {
   const [estimatesCount, setEstimatesCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
 
+  const [loading, setLoading] = useState(true); // 로딩 상태
+
   const { code } = useParams();
   const user = useUser();
   const loggedInMemberId = user?.emailId;
@@ -35,7 +37,7 @@ const StorePage = () => {
 
 
   // 이찬영이 추가
-    // ReviewList에서 전달받을 함수 추가
+  // ReviewList에서 전달받을 함수 추가
   const handleReviewStatsUpdate = ({ count, avgStar }) => {
     setReviewsCount(count);
     setAvgStar(avgStar);
@@ -46,7 +48,7 @@ const StorePage = () => {
 
   useEffect(() => {
     if (!code || !loggedInMemberId) return;
-
+    setLoading(true); // 데이터 로딩 시작
     apiClient
       .get(`/store/${code}`, { params: { memberId: loggedInMemberId } })
       .then((res) => {
@@ -65,7 +67,7 @@ const StorePage = () => {
       .catch((err) => {
         console.error('업체 정보 불러오기 실패:', err);
       });
-
+    setLoading(false); // 데이터 로딩 완료
     if (isEditing && nameRef.current) {
       nameRef.current.focus();
     }
@@ -152,6 +154,7 @@ const StorePage = () => {
     setDeleteImageIds(imageURLs.map((img, idx) => idx));  // 모든 이미지 삭제 
   };
 
+  if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>; // 로딩 중 표시
 
   return (
     <>

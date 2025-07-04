@@ -63,7 +63,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                                         HttpServletResponse response,
                                         Authentication authentication
                                         ) throws IOException, ServletException {
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+        if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
+            // OAuth2 로그인 이외의 경우, 기본 동작(혹은 에러, 혹은 다른 핸들러로 위임)
+            response.sendRedirect(frontServerUrl + "/profile?error=NotOAuth2User");
+            return;
+        }
         OAuth2User oauthUser = oauthToken.getPrincipal(); // OAuth2User 객체를 통해 사용자 정보에 접근
 
         System.out.println("@@@ OAuth2 로그인 성공: " + oauthUser.getAttributes());

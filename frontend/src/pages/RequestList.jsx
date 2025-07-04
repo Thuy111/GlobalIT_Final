@@ -12,11 +12,13 @@ function RequestList() {
   const [search, setSearch] = useState("");
   const [hashtags, setHashtags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
+  const [loading, setLoading] = useState(true); // 로딩 상태
 
   const baseUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // 로딩 시작
       try {
         const res = await apiClient.get(`/request/main`);
         setAllRequests(res.data.request ?? []);
@@ -26,6 +28,7 @@ function RequestList() {
       } catch (error) {
         console.error("요청 실패:", error);
       }
+      setLoading(false); // 로딩 끝
     };
     fetchData();
   }, []);
@@ -42,6 +45,7 @@ function RequestList() {
   };
 
   const handleSearch = () => {
+    if (loading) return; // 로딩 중에는 검색하지 않음
     const keyword = search.trim().toLowerCase();
     const filtered = allRequests.filter((item) => {
       const inTitle = item.title?.toLowerCase().includes(keyword);
@@ -84,6 +88,8 @@ function RequestList() {
     autoplaySpeed: 3000,
     arrows: false,
   };
+
+  if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
 
   return (
     <div className="request-container">
