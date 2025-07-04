@@ -44,18 +44,18 @@ public class ChatController {
 
     //  채팅방 목록 조회
     @GetMapping("/roomList")
-    public String roomList(@RequestParam String createUser, Model model, HttpSession session) {
+    public String roomList(@RequestParam String memberUser, Model model, HttpSession session) {
         try{
             CurrentUserDTO currntUser = (CurrentUserDTO) session.getAttribute("currentUser");
             if(currntUser == null) {
                 return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
-            }else if(!currntUser.getEmailId().equals(createUser)) {
+            }else if(!currntUser.getEmailId().equals(memberUser)) {
                 return "redirect:" + frontServerUrl + "/profile?error=invalidUser";
             }
     
-            List<ChatRoom> roomList = chatService.findRoomsByUser(createUser);
+            List<ChatRoom> roomList = chatService.findRoomsByUser(memberUser);
             model.addAttribute("roomList", roomList == null ? new ArrayList<>() : roomList);
-            model.addAttribute("createUser", createUser == null ? "" : createUser);
+            model.addAttribute("memberUser", memberUser == null ? "" : memberUser);
             model.addAttribute("title", "채팅방 목록");
             return "smash/chat/roomList";
         }catch (Exception e) {
@@ -69,8 +69,8 @@ public class ChatController {
     public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
         try{
             String username = params.get("username");
-            String inviteUsername = params.get("inviteUsername");
-            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, inviteUsername);
+            String partnerUsername = params.get("partnerUsername");
+            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, partnerUsername);
             return room;
         }catch (Exception e) {
             throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());
@@ -95,24 +95,24 @@ public class ChatController {
             String myEmail = myAccount.getEmailId();
 
             // room DTO에서 상대방 정보 추출
-            String inviteUser;
-            if (room.getCreateUser().equals(myEmail)) {
-                inviteUser = room.getInviteUser();
-            } else if (room.getInviteUser().equals(myEmail)) {
-                inviteUser = room.getCreateUser();
+            String partnerUser;
+            if (room.getMemberUser().equals(myEmail)) {
+                partnerUser = room.getPartnerUser();
+            } else if (room.getPartnerUser().equals(myEmail)) {
+                partnerUser = room.getMemberUser();
             } else {
                 throw new RuntimeException("이 채팅방에 접근 권한이 없습니다.");
             }
 
             // 상대방 닉네임 조회
-            String yourNickname = memberService.findNicknameByEmail(inviteUser);
+            String yourNickname = memberService.findNicknameByEmail(partnerUser);
             if (yourNickname == null || yourNickname.isEmpty()) {
                 yourNickname = "탈퇴한 사용자";
             }
             
             model.addAttribute("room", room);
-            model.addAttribute("createUser", myEmail);
-            model.addAttribute("inviteUser", inviteUser);
+            model.addAttribute("memberUser", myEmail);
+            model.addAttribute("partnerUser", partnerUser);
             model.addAttribute("messages", chatService.getMessages(roomId));
             model.addAttribute("title", yourNickname);
             return "smash/chat/chatRoom";

@@ -9,7 +9,7 @@
             <td>
               <a th:href="@{chatRoom(roomId=${room.roomId})}"
                  th:class="|${room.roomId} chat_room|"
-                 th:text="${currentUser == room.createUser ? room.targetNickname : room.myNickname}">님과의 채팅방 입장</a>
+                 th:text="${currentUser == room.memberUser ? room.targetNickname : room.myNickname}">님과의 채팅방 입장</a>
             </td>
           </tr>
 

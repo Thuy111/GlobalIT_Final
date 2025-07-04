@@ -19,10 +19,10 @@ public class ChatRoom {
     private String roomId;
 
     @Column(nullable = false)
-    private String createUser;
+    private String memberUser;
 
     @Column(nullable = false)
-    private String inviteUser;
+    private String partnerUser;
 
     private String name; // 방 이름
 
