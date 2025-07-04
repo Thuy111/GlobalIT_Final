@@ -163,7 +163,7 @@
 
       // Thymeleaf 변수 JS로 전달
       const roomId = /*[[${room.roomId}]]*/ "";
-      const sender = /*[[${createUser}]]*/ "";
+      const sender = /*[[${memberUser}]]*/ "";
 
       // 1. 메시지 불러오기 (axios)
       document.addEventListener('DOMContentLoaded', function() {
@@ -234,7 +234,7 @@
           "sender": sender,
           "message": "",
           "messageType": "ENTER",
-          "senderNickname": sender // createUser
+          "senderNickname": sender // memberUser
         };
         socket.send(JSON.stringify(entermessage));
 
@@ -254,7 +254,7 @@
         function sendmessage() {
             let content = document.querySelector('.content').value;
             if (!content) return;
-            const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${createUser}]]*/ ""};
+            const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
             window.socket.send(JSON.stringify(talkmessage));
             document.querySelector('.content').value = '';
 
@@ -269,7 +269,7 @@
 
         // 방 나가기 버튼 (필요X)
         function quit(){
-            const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${createUser}]]*/ ""};
+            const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${memberUser}]]*/ ""};
             window.socket.send(JSON.stringify(quitmessage));
             window.socket.close();
         }

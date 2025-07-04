@@ -33,7 +33,7 @@ public class ChatServiceImpl implements ChatService {
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회 (한 명의 유저가 참여한 모든 채팅방)
     public List<ChatRoom> findRoomsByUser(String username) {
-        return chatRoomRepository.findByCreateUserOrInviteUser(username, username);
+        return chatRoomRepository.findByMemberUserOrPartnerUser(username, username);
     }
 
     // 방을 roomId로 찾는 메서드 추가
@@ -45,21 +45,21 @@ public class ChatServiceImpl implements ChatService {
     }
 
     // 1:1 채팅방 찾거나 없으면 생성
-    public ChatRoomDTO getOrCreateOneToOneRoom(String createUser, String inviteUser) {
+    public ChatRoomDTO getOrCreateOneToOneRoom(String memberUser, String partnerUser) {
         // 상대방 이메일 아이디 유효성 검사
-        memberRepository.findByEmailId(inviteUser)
+        memberRepository.findByEmailId(partnerUser)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
         // DB에서 1:1 채팅방 먼저 찾기
-        ChatRoom found = chatRoomRepository.findByCreateUserAndInviteUser(createUser, inviteUser)
-            .orElseGet(() -> chatRoomRepository.findByCreateUserAndInviteUser(inviteUser, createUser).orElse(null));
+        ChatRoom found = chatRoomRepository.findByMemberUserAndPartnerUser(memberUser, partnerUser)
+            .orElseGet(() -> chatRoomRepository.findByMemberUserAndPartnerUser(partnerUser, memberUser).orElse(null));
         if (found != null) return entityToDto(found);
 
         // 채팅방이 없으면 새로 생성
         ChatRoom chatRoom = ChatRoom.builder()
             .roomId(UUID.randomUUID().toString())
-            .createUser(createUser)
-            .inviteUser(inviteUser)
+            .memberUser(memberUser)
+            .partnerUser(partnerUser)
             .createdAt(LocalDateTime.now()) 
             .build();
         chatRoomRepository.save(chatRoom);
@@ -76,7 +76,6 @@ public class ChatServiceImpl implements ChatService {
         ChatMessage entity = ChatMessage.builder()
                 .roomId(dto.getRoomId())
                 .sender(dto.getSender())
-                .senderNickname(Nickname)
                 .message(dto.getMessage())
                 .type(dto.getType())
                 .time(LocalDateTime.now())
@@ -130,10 +129,10 @@ public class ChatServiceImpl implements ChatService {
         if (entity == null) return null;
         return ChatRoomDTO.builder()
                 .roomId(entity.getRoomId())
-                .createUser(entity.getCreateUser())
-                .myNickname(memberRepository.findNicknameByEmailId(entity.getCreateUser())) // 나의 닉네임 조회
-                .inviteUser(entity.getInviteUser())
-                .targetNickname(memberRepository.findNicknameByEmailId(entity.getInviteUser())) // 상대방의 닉네임 조회
+                .memberUser(entity.getMemberUser())
+                .myNickname(memberRepository.findNicknameByEmailId(entity.getMemberUser())) // 나의 닉네임 조회
+                .partnerUser(entity.getPartnerUser())
+                .targetNickname(memberRepository.findNicknameByEmailId(entity.getPartnerUser())) // 상대방의 닉네임 조회
                 .name(entity.getName())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -144,8 +143,8 @@ public class ChatServiceImpl implements ChatService {
         if (dto == null) return null;
         return ChatRoom.builder()
                 .roomId(dto.getRoomId())
-                .createUser(dto.getCreateUser())
-                .inviteUser(dto.getInviteUser())
+                .memberUser(dto.getMemberUser())
+                .partnerUser(dto.getPartnerUser())
                 .name(dto.getName())
                 .createdAt(dto.getCreatedAt())
                 .build();
@@ -158,7 +157,6 @@ public class ChatServiceImpl implements ChatService {
                 .id(chatMessage.getId())
                 .roomId(chatMessage.getRoomId())
                 .sender(chatMessage.getSender())
-                .senderNickname(chatMessage.getSenderNickname())
                 .message(chatMessage.getMessage())
                 .type(chatMessage.getType())
                 .time(chatMessage.getTime())
@@ -173,7 +171,6 @@ public class ChatServiceImpl implements ChatService {
                 .id(chatMessageDTO.getId())
                 .roomId(chatMessageDTO.getRoomId())
                 .sender(chatMessageDTO.getSender())
-                .senderNickname(chatMessageDTO.getSenderNickname())
                 .message(chatMessageDTO.getMessage())
                 .type(chatMessageDTO.getType())
                 .time(chatMessageDTO.getTime())

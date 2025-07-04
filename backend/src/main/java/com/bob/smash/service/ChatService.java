@@ -23,7 +23,7 @@ public interface ChatService {
     ChatMessageDTO saveMessage(ChatMessageDTO dto);
 
     // 1:1 채팅방 찾거나 없으면 생성
-    ChatRoomDTO getOrCreateOneToOneRoom(String createUser, String inviteUser);
+    ChatRoomDTO getOrCreateOneToOneRoom(String memberUser, String partnerUser);
 
     // 채팅방 메시지 읽음 처리
     List<Long> markAsRead(String roomId, String userEmail);

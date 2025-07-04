@@ -42,7 +42,7 @@ const Nav = () => {
         </li>
         <li className={active === 'home' ? 'active' : ''}><Link to="/"><i className="fa-solid fa-house"></i>홈</Link></li>
         { user &&
-          <li className={active === 'chat' ? 'active' : ''}><Link to={`${baseUrl}/smash/chat/roomList?createUser=${user.emailId}`}><i className="fa-solid fa-comment"></i>채팅</Link></li>
+          <li className={active === 'chat' ? 'active' : ''}><Link to={`${baseUrl}/smash/chat/roomList?memberUser=${user.emailId}`}><i className="fa-solid fa-comment"></i>채팅</Link></li>
         }
         <li className={active === 'profile' ? 'active' : ''}><Link to="/profile"><i className="fa-solid fa-user"></i>프로필</Link></li>
       </ul>

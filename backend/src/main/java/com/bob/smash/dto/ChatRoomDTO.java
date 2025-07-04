@@ -14,10 +14,10 @@ public class ChatRoomDTO {
 
     private String roomId;
 
-    private String createUser; // 나
+    private String memberUser; // 나
     private String myNickname; // 나의 닉네임
 
-    private String inviteUser; // 상대방
+    private String partnerUser; // 상대방
     private String targetNickname; // 상대방의 닉네임
 
     private String name; // 채팅방 이름

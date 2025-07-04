@@ -175,7 +175,7 @@
 
       // Thymeleaf 변수 JS로 전달
       const roomId = /*[[${room.roomId}]]*/ "";
-      const sender = /*[[${createUser}]]*/ "";
+      const sender = /*[[${memberUser}]]*/ "";
 
       // 1. 메시지 불러오기 (axios)
       let stompClient = null;
@@ -255,7 +255,7 @@
       function sendmessage() {
           let content = document.querySelector('.content').value;
           if (!content) return;
-          const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${createUser}]]*/ ""};
+          const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
           stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
           document.querySelector('.content').value = '';
 
@@ -270,7 +270,7 @@
 
       // 방 나가기 버튼 (필요X)
       function quit(){
-          const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${createUser}]]*/ ""};
+          const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${memberUser}]]*/ ""};
           stompClient.send("/app/chat.quit", {}, JSON.stringify(quitmessage));
           stompClient.disconnect();
       }

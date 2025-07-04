@@ -51,7 +51,7 @@
                 </a>
               </li>
               <li th:if="${currentUser}" class="chat">
-                <a th:href="@{'/smash/chat/roomList?createUser=' + ${currentUser.emailId}}">
+                <a th:href="@{'/smash/chat/roomList?memberUser=' + ${currentUser.emailId}}">
                   <i class="fa-solid fa-comment"></i>채팅
                 </a>
               </li>
