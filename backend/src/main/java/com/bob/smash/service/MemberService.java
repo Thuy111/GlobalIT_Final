@@ -34,6 +34,9 @@ public interface MemberService {
   // 소셜 로그인 연동 해제
   void unlinkSocial();
 
+  // 이메일로 닉네임 조회
+  String findNicknameByEmail(String emailId);
+
   // Dto → Entity 변환
   default Member dtoToEntity(MemberDTO dto) {
     Member member = Member.builder()

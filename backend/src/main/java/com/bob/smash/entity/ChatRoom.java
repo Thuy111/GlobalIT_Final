@@ -20,13 +20,9 @@ public class ChatRoom {
 
     @Column(nullable = false)
     private String createUser;
-    @Column(nullable = false) // 나의 닉네임
-    private String myNickname;
 
     @Column(nullable = false)
     private String inviteUser;
-    @Column(nullable = false) // 상대방의 닉네임
-    private String targetNickname;
 
     private String name; // 방 이름
 

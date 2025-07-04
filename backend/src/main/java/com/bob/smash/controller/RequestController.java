@@ -6,6 +6,7 @@ import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.dto.RequestDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.service.EstimateService;
+import com.bob.smash.service.MemberService;
 import com.bob.smash.service.RequestService;
 import com.bob.smash.service.ReviewService;
 
@@ -35,6 +36,7 @@ public class RequestController {
     private final RequestService requestService;
     private final EstimateService estimateService;
     private final ReviewService reviewService;
+    private final MemberService memberService;
   
 
     @GetMapping("/")
@@ -108,7 +110,13 @@ public class RequestController {
     @GetMapping("/detail/{idx}")
     public String detail(@PathVariable("idx") Integer idx, Model model, OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
+        String writerNickname = memberService.findNicknameByEmail(dto.getWriterEmail());
+        if(writerNickname == null) {
+            writerNickname = "탈퇴한 사용자";
+        }
         model.addAttribute("dto", dto);
+        model.addAttribute("writerNickname", writerNickname);
+        model.addAttribute("title", dto.getTitle());
 
         String currentUserEmail = (authentication != null) ? authentication.getPrincipal().getAttribute("email") : null;
         model.addAttribute("currentUserEmail", currentUserEmail);

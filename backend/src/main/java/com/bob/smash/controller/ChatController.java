@@ -26,6 +26,7 @@ import com.bob.smash.dto.ReadEventDTO;
 import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.ChatService;
+import com.bob.smash.service.MemberService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/smash/chat")
 public class ChatController {
     private final ChatService chatService;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final HttpSession session;
 
     @Value("${front.server.url}")
@@ -104,7 +105,7 @@ public class ChatController {
             }
 
             // 상대방 닉네임 조회
-            String yourNickname = memberRepository.findNicknameByEmailId(inviteUser);
+            String yourNickname = memberService.findNicknameByEmail(inviteUser);
             if (yourNickname == null || yourNickname.isEmpty()) {
                 yourNickname = "탈퇴한 사용자";
             }

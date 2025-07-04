@@ -8,7 +8,23 @@
         <span class="status_tag" th:if="${dto.isDone == 1}">낙찰 완료</span>
       </div>
       <hr class="estimate_divider" />
-      <div class="created_at"> [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.createdAt)}]]</div>
+      <div class="name_created_box">
+        <div class="writer_info">
+          <i class="fa-solid fa-user"></i>
+          <span th:text="${writerNickname}"></span>
+          <!-- <span class="email" th:text="${dto.writerEmail}"></span> -->
+          <span class="icon_box"
+          th:if="${currentUser != null and 
+            currentUser.emailId != null and 
+            dto.writerEmail != null and 
+            currentUser.emailId != dto.writerEmail and
+            currentUser.role != 0
+          }"
+          th:attr="data-username=${currentUser.emailId}, data-invite-username=${dto.writerEmail}"
+          onclick="handleCreateRoom(this)"><i class="fa-regular fa-comments"></i> 1:1 채팅하기</span>
+        </div>
+        <div class="created_at"> [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.createdAt)}]]</div>
+      </div>
 
       <div class="small_box">
         <!-- 이미지 -->
@@ -244,16 +260,22 @@
     <div class="bottom_space"></div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
 
-    <!-- <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const isDarkMode = document.body.classList.contains("dark");
-        if(isDarkMode){
-          document.querySelector("body.dark div.root").style.backgroundColor = '#ffffff00';
-        }else{
-          document.querySelector("body div.root").style.backgroundColor = '#f4f4f4';
+    <script>
+      // 채팅방 함수
+      const handleCreateRoom = async (username, inviteUsername) => {
+        try {
+          const response = await axios.post('/smash/chat/createRoom', {
+            username,
+            inviteUsername
+          });
+          console.log('채팅방 생성 성공:', response.data);
+          const roomId = response.data.roomId;
+          window.location.herf = `/smash/chat/room/${roomId}`;
+        } catch (error) {
+          alert('채팅방 생성 실패: ' + error.response?.data?.message || error.message);
         }
-      });
-    </script> -->
+      };
+    </script>
 
     <script th:inline="javascript">
       // 낙찰 상태 변경 및 결제서 생성
