@@ -19,6 +19,7 @@ public class EstimateEvent extends ApplicationEvent {
   public enum Action {
     CREATED("작성"), 
     UPDATED("수정"),
+    SELECTED("낙찰"),
     RETURNED ("반납");
 
     private final String displayName;

@@ -33,6 +33,8 @@ public class EstimateDTO {
   private String partnerTel;
   private String partnerRegion;
   private String partnerCode;
+  private String partnerEmail;
+  private String partnerNickname;
   // 첨부 이미지 정보
   private List<ImageDTO> images;
 }
