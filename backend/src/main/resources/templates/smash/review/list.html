@@ -50,11 +50,12 @@
                         <div class="review_card" style="cursor:pointer;">
                             <div class="review_header">
                                 <div class="review_meta">
-                                        <img th:if="${review.profileImageUrl != null}"
-                                                th:src="@{${review.profileImageUrl}}"
-                                                alt="프로필 이미지"
-                                                class="review_profile_img" />
-                                                
+                                <img th:src="${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/')} 
+                                            ? @{${review.profileImageUrl}} 
+                                            : @{/images/profile.png}"
+                                alt="프로필 이미지"
+                                class="review_profile_img" />
+
                                     <span class="review_title" th:text="${review.nickname}">작성자</span>
                                     <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
                                 </div>

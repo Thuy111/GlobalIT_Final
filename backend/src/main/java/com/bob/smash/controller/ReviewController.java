@@ -87,12 +87,20 @@ public class ReviewController {
     }
 
     // 리뷰 등록 폼
-    @GetMapping("/register")
-    public String showReviewRegisterForm(@RequestParam("estimateIdx") Integer estimateIdx, Model model) {
-        model.addAttribute("estimateIdx", estimateIdx);
-        model.addAttribute("title", "리뷰 등록");
-        return "smash/review/register";
-    }
+        @GetMapping("/register")
+        public String showReviewRegisterForm(@RequestParam("estimateIdx") Integer estimateIdx,
+                                            HttpSession session,
+                                            Model model) {
+            CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+            if (currentUser == null) {
+                return "redirect:/smash/"; // 또는 로그인 페이지 경로로 리다이렉트
+            }
+
+            model.addAttribute("estimateIdx", estimateIdx);
+            model.addAttribute("title", "리뷰 등록");
+            return "smash/review/register";
+        }
+
 
     // 리뷰 등록 처리
     @PostMapping("/register")
