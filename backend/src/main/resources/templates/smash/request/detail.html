@@ -20,8 +20,10 @@
             currentUser.role != 0
           }"
           th:attr="data-member-user=${currentUser.emailId}, data-partner-user=${dto.writerEmail}"
-          onclick="handleCreateRoom(this)"><i class="fa-regular fa-comments"></i> 1:1 채팅하기</span>
+          onclick="handleCreateRoomPartnerToMember(this)"><i class="fa-regular fa-comments"></i> 1:1 채팅하기</span>
         </div>
+        [[${dto.writerEmail}]] 
+        [[${currentUser.emailId}]]
         <div class="created_at"> [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.createdAt)}]]</div>
       </div>
 
@@ -248,12 +250,12 @@
 
     <script>
       // 채팅방 함수
-      const handleCreateRoom = async (memberUser, partnerUser) => {
+      const handleCreateRoomPartnerToMember = async (memberUser, partnerUser) => {
+        console.log('채팅방 생성 요청:', memberUser, partnerUser);
         try {
-          console.log('채팅방 생성 요청:', memberUser, partnerUser);
           const response = await axios.post('/smash/chat/createRoom', {
-            username,
-            partnerUsername
+            memberUser,
+            partnerUser
           });
           console.log('채팅방 생성 성공:', response.data);
           const roomId = response.data.roomId;

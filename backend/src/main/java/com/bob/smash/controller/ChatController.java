@@ -67,10 +67,11 @@ public class ChatController {
     @PostMapping("/createRoom")
     @ResponseBody
     public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
+        // 순서 : MemberUser, PartnerUser
         try{
-            String username = params.get("username");
-            String partnerUsername = params.get("partnerUsername");
-            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(username, partnerUsername);
+            String memberUser = params.get("memberUser");
+            String partnerUser = params.get("partnerUser");
+            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(memberUser, partnerUser);
             return room;
         }catch (Exception e) {
             throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());

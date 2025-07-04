@@ -19,6 +19,7 @@ body.dark .request_wrapper {background-color: #1b1b1b00;}
   align-items: center;
 }
 .request_wrapper .name_created_box .writer_info {padding-left: 1rem;}
+.request_wrapper .name_created_box .writer_info i {font-size: 16px;}
 .request_wrapper .name_created_box .writer_info * {font-weight: bold;}
 .request_wrapper .name_created_box .writer_info *:not(.icon_box) {font-size: 20px;}
 .request_wrapper .name_created_box .writer_info .icon_box {padding: 4px 8px;border-radius: 30px;box-shadow: 0 1px 2px rgb(91 38 8 / 16%);background-color: #fff3e0;color: #ff9800;cursor: pointer;}
