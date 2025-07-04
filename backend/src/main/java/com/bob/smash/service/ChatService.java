@@ -2,8 +2,6 @@ package com.bob.smash.service;
 
 import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
-import com.bob.smash.entity.ChatRoom;
-import com.bob.smash.entity.ChatMessage;
 
 import java.util.List;
 
@@ -14,7 +12,7 @@ public interface ChatService {
     List<ChatMessageDTO> getMessages(String roomId);
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회
-    List<ChatRoom> findRoomsByUser(String username);
+    List<ChatRoomDTO> findRoomsByUser(String username);
 
     // 방을 roomId로 찾는 메서드
     ChatRoomDTO findRoomById(String roomId);

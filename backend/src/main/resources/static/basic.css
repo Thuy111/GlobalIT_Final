@@ -454,7 +454,14 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   margin: 0;
 }
 .estimate_list .review_container .review_card:hover {box-shadow: none;}
-.review_box .review_badge {margin: 1rem 2rem;font-size: 24px;font-weight: bold;display: inline-block;}
+.review_box .review_badge {margin: 1rem 2rem 0 2rem;font-size: 24px;font-weight: bold;display: inline-block;}
+.review_box .review_actions_top button {
+  box-shadow: none;
+  border-radius: 0px !important;
+  color: gray !important;
+  border-bottom: 1px solid gray !important;
+  padding: 0px 4px !important;
+}
 
 /* up scroll */
 .scroll_box {
@@ -491,6 +498,7 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   left: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -508,4 +516,9 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   font-size: 2rem;
   color: rgb(236, 236, 236);
   animation: loading-spin 2s linear infinite;
+}
+
+@keyframes loading-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

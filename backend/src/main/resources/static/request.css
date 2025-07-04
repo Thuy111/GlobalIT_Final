@@ -18,9 +18,11 @@ body.dark .request_wrapper {background-color: #1b1b1b00;}
   justify-content: space-between;
   align-items: center;
 }
-.request_wrapper .name_created_box .writer_info {padding-left: 1rem;}
+.request_wrapper .name_created_box .writer_info {padding-left: 1rem;display: flex;align-items: center;width: calc(100% - 178px);}
+.request_wrapper .name_created_box .writer_info .nickname {width: calc(100% - 160px);}
+.request_wrapper .name_created_box .writer_info i {font-size: 16px !important;margin-right: 0.5rem;}
 .request_wrapper .name_created_box .writer_info * {font-weight: bold;}
-.request_wrapper .name_created_box .writer_info *:not(.icon_box) {font-size: 20px;}
+.request_wrapper .name_created_box .writer_info *:not(.icon_box) {font-size: 20px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;text-align: start;}
 .request_wrapper .name_created_box .writer_info .icon_box {padding: 4px 8px;border-radius: 30px;box-shadow: 0 1px 2px rgb(91 38 8 / 16%);background-color: #fff3e0;color: #ff9800;cursor: pointer;}
 
 .request_wrapper pre{color: black; padding: 1rem;}
@@ -32,7 +34,7 @@ body.dark .request_wrapper pre{color: white;}
   align-items: start; 
   border-radius: 10px 10px 0 0;
   font-weight: bold; 
-  padding: 2rem;
+  padding: 2rem 1rem 1rem 1rem;
   /* background-color: #fafafa; */
 }
 
@@ -69,7 +71,6 @@ body.dark .request_wrapper pre{color: white;}
   text-align: right;
   font-size: 14px;
   color: #929292;
-  margin-top: 1rem;
   margin-right: 1rem;
 }
 
@@ -155,7 +156,7 @@ body.dark .request_wrapper .badge {background-color: #454444 !important;color: #
   text-align: center;
   box-shadow: 0 1px 2px #0000001a;
   font-size: 16px;
-  margin: 8px 1rem 8px 0;
+  margin: 8px 4px 8px 0;
   min-width: 80px;
   display: inline-block;
 }
@@ -221,7 +222,7 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
 /* 반응형 */
 @media (max-width: 480px){
   .request_header {padding: 1rem;}
-  .request_wrapper .request_title{padding: 0;}
+  .request_wrapper .request_title{padding: 0;font-size: 24px;}
   .badge_area {flex-direction: column; align-items: start; gap: 0.2rem;margin-bottom: 1rem;}
   .badge_area span:not(.badge){padding-left: 1rem;}
   .request_wrapper .badge {font-size: 14px;}

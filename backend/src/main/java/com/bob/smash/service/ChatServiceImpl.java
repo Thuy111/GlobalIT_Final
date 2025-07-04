@@ -32,8 +32,11 @@ public class ChatServiceImpl implements ChatService {
     private final MemberRepository memberRepository;
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회 (한 명의 유저가 참여한 모든 채팅방)
-    public List<ChatRoom> findRoomsByUser(String username) {
-        return chatRoomRepository.findByMemberUserOrPartnerUser(username, username);
+    public List<ChatRoomDTO> findRoomsByUser(String username) {
+        List<ChatRoom> rooms = chatRoomRepository.findByMemberUserOrPartnerUser(username, username);
+        return rooms.stream()
+            .map(this::entityToDto) // Entity -> DTO 변환
+            .collect(Collectors.toList());
     }
 
     // 방을 roomId로 찾는 메서드 추가

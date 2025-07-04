@@ -11,8 +11,7 @@
       <div class="name_created_box">
         <div class="writer_info">
           <i class="fa-solid fa-user"></i>
-          <span th:text="${writerNickname}"></span>
-          <!-- <span class="email" th:text="${dto.writerEmail}"></span> -->
+          <span class="nickname" th:text="${writerNickname}"></span>
           <span class="icon_box"
           th:if="${currentUser != null and 
             currentUser.emailId != null and 
@@ -21,7 +20,7 @@
             currentUser.role != 0
           }"
           th:attr="data-member-user=${currentUser.emailId}, data-partner-user=${dto.writerEmail}"
-          onclick="handleCreateRoom(this)"><i class="fa-regular fa-comments"></i> 1:1 채팅하기</span>
+          onclick="handleCreateRoomPartnerToMember(this)"><i class="fa-regular fa-comments"></i> 1:1 채팅하기</span>
         </div>
         <div class="created_at"> [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(dto.createdAt)}]]</div>
       </div>
@@ -95,7 +94,8 @@
 
     <!-- 견적서 목록------------------------------------------------------------------------------>
     <hr class="estimate_divider" />
-    <h2 class="estimates_title">받은 견적서 목록 (<span th:text="${estimates.size()}"></span>)</h2>
+    <h2 class="estimates_title" th:if="${estimates.size()==0}">받은 견적서 목록이 없습니다.</h2>
+    <h2 class="estimates_title" th:if="${estimates.size()>0}">받은 견적서 목록 (<span th:text="${estimates.size()}"></span>)</h2>
     <div class="estimate_list">
       <div class="estimate_box" th:each="estimate : ${estimates}" th:with="requestDto=${dto}">
         <div class="estimate_card">
@@ -114,11 +114,11 @@
                                                  (currentUser != null and currentUser.role == 2)}">
               <form th:action="@{/smash/estimate/update}" method="get">
                 <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
+                <button type="submit" th:if="${estimate.isSelected == 0}" class="update">수정</button>
               </form>
               <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
                 <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit">삭제</button>
+                <button type="submit" class="delete">삭제</button>
               </form>
             </div>
             <div class="estimate_info">
@@ -153,7 +153,7 @@
             </div>
             <div class="partner_info">
               <div class="partner_name"
-                  th:attr="data-href=@{/smash/store/{code}(code=${estimate.partnerCode}, memberId=${currentUser != null && currentUser.emailId != null ? currentUser.emailId : ''})}">
+                  th:attr="data-href=@{/store/{code}(code=${estimate.partnerCode})}">
                 <div class="store_icon_box">
                   <i class="fa-solid fa-store"></i>
                 </div>
@@ -250,12 +250,17 @@
 
     <script>
       // 채팅방 함수
-      const handleCreateRoom = async (memberUser, partnerUser) => {
+      const handleCreateRoomPartnerToMember = async (el) => {
+        const memberUser = el.getAttribute('data-member-user');
+        const partnerUser = el.getAttribute('data-partner-user');
+        console.log('채팅방 생성 요청:', memberUser, partnerUser);
+        if(confirm(`채팅방을 생성하시겠습니까?\n\n상대방: ${partnerUser}\n\n본인: ${memberUser}`) === false) {
+          return;
+        }
         try {
-          console.log('채팅방 생성 요청:', memberUser, partnerUser);
           const response = await axios.post('/smash/chat/createRoom', {
-            username,
-            partnerUsername
+            memberUser,
+            partnerUser
           });
           console.log('채팅방 생성 성공:', response.data);
           const roomId = response.data.roomId;

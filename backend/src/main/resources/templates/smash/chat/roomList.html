@@ -3,13 +3,13 @@
 
       <div class="chat_container">
         <h2 th:if="${#lists.isEmpty(roomList)}">채팅방이 없습니다.</h2>
-        <table class="table">
-          
+        
+        <table class="table" th:if="${!#lists.isEmpty(roomList)}">
           <tr th:each="room : ${roomList}" th:if="${room.roomId != null}">
             <td>
               <a th:href="@{chatRoom(roomId=${room.roomId})}"
                  th:class="|${room.roomId} chat_room|"
-                 th:text="${currentUser == room.memberUser ? room.targetNickname : room.myNickname}">님과의 채팅방 입장</a>
+                 th:text="${currentUser == room.memberUser ? room. : room.myNickname}">님과의 채팅방 입장</a>
             </td>
           </tr>
 
