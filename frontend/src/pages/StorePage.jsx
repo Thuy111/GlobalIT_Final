@@ -47,10 +47,11 @@ const StorePage = () => {
   //여기까지
 
   useEffect(() => {
-    if (!code || !loggedInMemberId) return;
+    if (!code) return;
     setLoading(true); // 데이터 로딩 시작
+    const params = loggedInMemberId ? { memberId: loggedInMemberId } : {};
     apiClient
-      .get(`/store/${code}`, { params: { memberId: loggedInMemberId } })
+      .get(`/store/${code}`, { params })
       .then((res) => {
         console.log("서버 응답 데이터:", res.data); // 서버 응답 확인
         const data = res.data;
