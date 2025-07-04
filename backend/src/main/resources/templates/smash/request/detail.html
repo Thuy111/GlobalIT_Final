@@ -179,7 +179,8 @@
             <div class="review_box">
               <div class="review_badge">후기</div>
               <hr>
-              <div th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUserEmail}, ${estimate.idx}, ${false})}">
+      <div th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUser}, ${estimate.idx}, ${false})}">
+
               </div>
             </div>  
           </th:block>
