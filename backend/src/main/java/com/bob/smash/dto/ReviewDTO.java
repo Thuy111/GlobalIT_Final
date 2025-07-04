@@ -29,4 +29,6 @@ public class ReviewDTO {
     private String nickname;
 
     private Integer requestIdx;
+
+    private String profileImageUrl; // 리뷰작성자의 프로필 이미지
 }

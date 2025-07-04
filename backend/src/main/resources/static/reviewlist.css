@@ -129,3 +129,13 @@ body.dark .review_container .review_text p {color: #bebebe;}
   text-align: right;
   margin-top: auto;
 }
+
+/* 프로필이미지 */
+.review_container .review_profile_img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}

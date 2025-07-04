@@ -16,72 +16,57 @@
             
             <hr class="estimate_divider" />
 
-            <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
-                                                  (currentUser != null and currentUser.role == 2)}">
-              <form th:action="@{/smash/estimate/update}" method="get">
-                <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
-              </form>
-              <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
-                <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                <button type="submit">삭제</button>
-              </form>
-            </div>
-
-            <div class="estimate_info">
-              <div>
-                <span class="badge">제시 가격</span>
-                <span>[[${#numbers.formatInteger(estimate.price, 3, 'COMMA') + '원'}]]</span>
+            <div class="estimate_body">
+              <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                                                    (currentUser != null and currentUser.role == 2)}">
+                <form th:action="@{/smash/estimate/update}" method="get">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
+                </form>
+                <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit">삭제</button>
+                </form>
               </div>
-              <div>
-                <span class="badge">반납 기한</span>
-                <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.returnDate)}]]</span>
-              </div>
-              <div>
-                <span class="badge">대여 방법</span>
-                <p class="deal_method">
-                  <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
-                  <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
-                  <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
-                  <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
-                </p>
-              </div>
-              <div class="estimate_content">
-                <pre>[[${estimate.content}]]</pre>
-              </div>
-            </div>
-
-            <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
-              <div class="attached_image" th:each="image : ${estimate.images}">
-                <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
-              </div>
-            </div>
-            <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-              <img id="lightbox_img" src="" alt="zoom" />
-            </div>
-
-            <div class="partner_info">
-              <div class="partner_name"
-                  th:attr="data-href=@{/smash/store/{code}(code=${estimate.partnerCode}, memberId=${currentUser != null && currentUser.emailId != null ? currentUser.emailId : ''})}">
-                <div class="store_icon_box">
-                  <i class="fa-solid fa-store"></i>
+              <div class="estimate_info">
+                <div>
+                  <span class="badge">제시 가격</span>
+                  <div style="font-size: 18px;">
+                    <span class="price">[[${#numbers.formatInteger(estimate.price, 3, 'COMMA')}]]</span> 원
+                  </div>
                 </div>
-                <p class="name" th:text="${estimate.partnerName}"></p>
+                <div>
+                  <span class="badge">반납 기한</span>
+                  <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.returnDate)}]]</span>
+                </div>
+                <div>
+                  <span class="badge">대여 방법</span>
+                  <p class="deal_method">
+                    <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                    <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
+                    <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                    <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
+                  </p>
+                </div>
+                <div class="estimate_content">
+                  <pre>[[${estimate.content}]]</pre>
+                </div>
               </div>
-              <div class="patner_tel">
-                <span class="badge">연락처</span>
-                <span th:text="${estimate.partnerTel}"></span>
+  
+              <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
+                <div class="attached_image" th:each="image : ${estimate.images}">
+                  <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
+                </div>
               </div>
-              <div>
-                <span class="badge">주소</span>
-                <span th:text="${estimate.partnerRegion}"></span>
+              <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+                <img id="lightbox_img" src="" alt="zoom" />
               </div>
+  
+              <p class="estimate_date">
+                [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.modifiedAt)}]]
+                <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">(수정 됨)</small>
+              </p>
             </div>
-
-            <p class="estimate_date">
-              [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm').format(estimate.modifiedAt)}]]
-              <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">수정 됨</small>
-            </p>
           </div>
 
           <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
@@ -100,6 +85,8 @@
         </div>
       </div>
       
+      <div class="bottom_space"></div>
+
       <script>
         document.addEventListener("DOMContentLoaded", function () {
           // 이미지 lightbox. Js code((이미지 크게 보기)
