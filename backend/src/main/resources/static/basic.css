@@ -217,6 +217,7 @@ nav ul.nav-list li a {
   align-items: center;
   border: none;
   text-decoration: none;
+  width: 44px;
 }
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
@@ -226,12 +227,12 @@ nav ul.nav-list li a span, .unread_alarm {
   color: rgb(255, 255, 255);
   font-weight: bold;
   position: absolute;
-  top: -7px;
-  right: -16px;
+  top: -2px;
+  right: -8px;
   border-radius: 30px;
   font-size: 12px;
   margin-left: 6px;
-  padding: 2px 6px;
+  padding: 1px 6px;
 }
 
 /* TitleBar */
@@ -461,7 +462,9 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   color: gray !important;
   border-bottom: 1px solid gray !important;
   padding: 0px 4px !important;
+  font-weight: normal;
 }
+.review_box .review_actions_top button:hover {background: #ffffff00;}
 
 /* up scroll */
 .scroll_box {

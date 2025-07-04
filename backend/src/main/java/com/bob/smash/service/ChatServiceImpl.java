@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
+import com.bob.smash.dto.FirstChatMessafeDTO;
 import com.bob.smash.entity.ChatMessage;
 import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.repository.ChatMessageRepository;
@@ -73,6 +74,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatMessageDTO saveMessage(ChatMessageDTO dto) {
         String Nickname = memberRepository.findNicknameByEmailId(dto.getSender());
+
         if (Nickname == null) {
             Nickname = dto.getSender(); // 닉네임이 없으면 이메일 ID 사용
         }
@@ -130,13 +132,16 @@ public class ChatServiceImpl implements ChatService {
     // (ChatRoom) Entity -> DTO
     public ChatRoomDTO entityToDto(ChatRoom entity) {
         if (entity == null) return null;
+        ChatMessage lastMessage = chatMessageRepository.findFirstByRoomIdOrderByTimeDesc(entity.getRoomId());
+        ChatMessageDTO lastMessageDTO = lastMessage != null ? entityToDto(lastMessage) : null;
         return ChatRoomDTO.builder()
                 .roomId(entity.getRoomId())
                 .memberUser(entity.getMemberUser())
-                .myNickname(memberRepository.findNicknameByEmailId(entity.getMemberUser())) // 나의 닉네임 조회
+                .memberNickname(memberRepository.findNicknameByEmailId(entity.getMemberUser())) // 나의 닉네임 조회
                 .partnerUser(entity.getPartnerUser())
-                .targetNickname(memberRepository.findNicknameByEmailId(entity.getPartnerUser())) // 상대방의 닉네임 조회
+                .partnerNickname(memberRepository.findNicknameByEmailId(entity.getPartnerUser())) // 상대방의 닉네임 조회
                 .name(entity.getName())
+                .lsatMessage(lastMessageDTO) // 마지막 메시지 내용 조회
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

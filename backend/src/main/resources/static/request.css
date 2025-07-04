@@ -18,12 +18,13 @@ body.dark .request_wrapper {background-color: #1b1b1b00;}
   justify-content: space-between;
   align-items: center;
 }
-.request_wrapper .name_created_box .writer_info {padding-left: 1rem;display: flex;align-items: center;width: calc(100% - 178px);}
-.request_wrapper .name_created_box .writer_info .nickname {width: calc(100% - 160px);}
-.request_wrapper .name_created_box .writer_info i {font-size: 16px !important;margin-right: 0.5rem;}
+.request_wrapper .name_created_box .writer_info {padding-left: 1rem;display: flex; align-items: center; justify-content: start; width: calc(100% - 178px);}
+.request_wrapper .name_created_box .writer_info .nickname_box {display: flex;align-items: center;}
+/* .request_wrapper .name_created_box .writer_info .nickname {max-width: calc(100% - 160px);} */
+.request_wrapper .name_created_box .writer_info i.fa-comments {font-size: 16px !important;margin-right: 0.5rem;}
 .request_wrapper .name_created_box .writer_info * {font-weight: bold;}
 .request_wrapper .name_created_box .writer_info *:not(.icon_box) {font-size: 20px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;text-align: start;}
-.request_wrapper .name_created_box .writer_info .icon_box {padding: 4px 8px;border-radius: 30px;box-shadow: 0 1px 2px rgb(91 38 8 / 16%);background-color: #fff3e0;color: #ff9800;cursor: pointer;}
+.request_wrapper .name_created_box .writer_info .icon_box {padding: 4px 8px;border-radius: 30px;box-shadow: 0 1px 2px rgb(91 38 8 / 16%);background-color: #fff3e0;color: #ff9800;cursor: pointer;white-space: nowrap;margin-left: 0.5rem;display: flex;align-items: center;}
 
 .request_wrapper pre{color: black; padding: 1rem;}
 body.dark .request_wrapper pre{color: white;}
@@ -68,11 +69,11 @@ body.dark .request_wrapper pre{color: white;}
 }
 
 .request_wrapper .created_at {
-  text-align: right;
   font-size: 14px;
   color: #929292;
-  margin-right: 1rem;
+  margin-left: 4px;
 }
+.request_wrapper .created_at_box {text-align: right;display: flex;justify-content: end;align-items: center;margin-right: 1rem;}
 
 .request_button_group {
   display: flex;
@@ -220,10 +221,18 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
 }
 
 /* 반응형 */
+@media (max-width: 600px){
+  .request_wrapper .name_created_box .writer_info{flex-direction: column; align-items: start; justify-content: center;padding: 0;width: calc(100% - 128px);}
+  .request_wrapper .name_created_box .writer_info .icon_box {margin: 6px 0;font-size: 14px;}
+  .request_wrapper .name_created_box .writer_info .nickname_box {width: 100%;}
+  .request_wrapper .name_created_box .writer_info .nickname {font-size: 20px;width: 100%;}
+  .request_wrapper .created_at_box {flex-direction: column;align-items: end;}
+}
 @media (max-width: 480px){
   .request_header {padding: 1rem;}
   .request_wrapper .request_title{padding: 0;font-size: 24px;}
-  .badge_area {flex-direction: column; align-items: start; gap: 0.2rem;margin-bottom: 1rem;}
+  .request_wrapper .name_created_box {align-items: start;}
+  .badge_area {flex-direction: column; align-items: center; gap: 0.2rem;margin-bottom: 1rem;}
   .badge_area span:not(.badge){padding-left: 1rem;}
   .request_wrapper .badge {font-size: 14px;}
   .request_button_group .btn {padding: 0 10px !important;align-items: center;display: flex;}

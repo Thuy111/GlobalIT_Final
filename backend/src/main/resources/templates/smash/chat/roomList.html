@@ -4,17 +4,21 @@
       <div class="chat_container">
         <h2 th:if="${#lists.isEmpty(roomList)}">채팅방이 없습니다.</h2>
         
-        <table class="table" th:if="${!#lists.isEmpty(roomList)}">
-          <tr th:each="room : ${roomList}" th:if="${room.roomId != null}">
-            <td>
-              <a th:href="@{chatRoom(roomId=${room.roomId})}"
-                 th:class="|${room.roomId} chat_room|"
-                 th:text="${currentUser == room.memberUser ? room. : room.myNickname}">님과의 채팅방 입장</a>
-            </td>
-          </tr>
+        <div class="chat_list" th:if="${!#lists.isEmpty(roomList)}">
+          <table class="table">
+            <tr th:each="room : ${roomList}" th:if="${room.roomId != null}">
+              <td>
+                <div th:class="|${room.roomId} chat_room|"
+                  th:text="${currentUser.role == 0 ? room.partnerNickname + '님과의 채팅방' :
+                            (currentUser.role == 1 ? room.memberNickname + '님과의 채팅방' :
+                            room.memberNickname + '-' + room.partnerNickname + ' 채팅방')}">
+                </div>
+                <a th:href="@{chatRoom(roomId=${room.roomId})}" class="btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>
+              </td>
+            </tr>
+          </table>
+        </div>
 
-        </table>
-      </div>
     </div>
 
     <script>

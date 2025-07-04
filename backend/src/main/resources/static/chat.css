@@ -1,6 +1,7 @@
 /* 채팅목록 css */
 .chat_container{justify-content: center;height: calc(100vh - 300px);display: flex;align-items: center;}
 .chat_container h2{font-size: 20px;color: gray;}
+.chat_list {height: 100%;width:100%;}
 
 /* 채팅방 css */
 .chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;padding-bottom: 2rem;}
