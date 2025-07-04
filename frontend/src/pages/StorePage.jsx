@@ -283,11 +283,11 @@ const StorePage = () => {
 
           <div className="view_content">
             {view === 'estimate' ? (
-              <div className="estimate_list">
+              <div className="estimate_area">
                 <EstimateList bno={bno} />
               </div>
             ) : (
-              <div className="review_list">
+              <div className="review_area">
                 <ReviewList bno={bno} onUpdateStats={handleReviewStatsUpdate} />
               </div>
             )}

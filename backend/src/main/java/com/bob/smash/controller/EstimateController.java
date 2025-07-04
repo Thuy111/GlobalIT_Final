@@ -38,8 +38,13 @@ public class EstimateController {
 
   // 견적서 목록 페이지로 이동
   @GetMapping("/list")
-  public void list(Model model) {
-    model.addAttribute("title", "견적서 목록");
+  public String list(Model model) {
+    if(model.containsAttribute("result")) {
+        model.addAttribute("title", "견적서 목록");
+        return "/smash/estimate/list";
+    } else {
+      return "redirect:/smash/estimate/mylist";
+    }
   }
   // 업체가 쓴 견적서 목록
   @GetMapping("/partnerlist")

@@ -37,14 +37,14 @@ const EstimateList = ({ bno }) => {
     <div className="estimate_list">
       {estimates.map((estimate) => (
         <div key={estimate.idx} className="estimate_card">
-          <h3>{estimate.title}</h3>
+          <p className='estimate_title'>{estimate.title}</p>
           <div className="estimate_info">
-            <div>
-              <span class="badge">제시 가격</span>
+            <div className='estimate_row'>
+              <span className="badge">제시 가격</span>
               <p>{estimate.price} 원</p>
             </div>
-            <div>
-              <span class="badge">대여 방법</span>
+            <div className='estimate_row'>
+              <span className="badge">대여 방법</span>
               <p className="deal_method">
                 {estimate.isDelivery === true && (
                   <span className="delivery yes">배달 가능</span>
@@ -60,11 +60,16 @@ const EstimateList = ({ bno }) => {
                 )}
               </p>
             </div>
-            <p class="estimate_date">
-              {formatDate(estimate.createdAt)}
-              {estimate.isModified && <small>(수정 됨)</small>}
-            </p>
-            <p onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${estimate.requestIdx}`}>자세히</p>
+            <div className='estimate_footer'>
+              <p className="estimate_date">
+                {formatDate(estimate.createdAt)}
+                {estimate.isModified && <small>(수정 됨)</small>}
+              </p>
+              <button className='detail'
+                      onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${estimate.requestIdx}`}>
+                자세히
+              </button>
+            </div>
           </div>
         </div>
       ))}

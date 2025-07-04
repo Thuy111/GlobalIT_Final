@@ -1,7 +1,69 @@
-.estimate_card {
+.estimate_list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.estimate_list .estimate_card {
+  flex: 0 0 calc(33.333% - 13.33px);
+  box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
   margin: 16px 0;
-  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.estimate_list .estimate_title {
+  font-size: 1.3em !important;
+  font-weight: bolder;
+  margin-bottom: 0.6em;
+}
+
+.estimate_list .estimate_row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.estimate_list .estimate_row .badge {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+/* 대여방법 스타일 */
+.estimate_list .deal_method span {
+  margin-right: 0.1em;
+  font-size: 0.85em;
+}
+.estimate_list .deal_method .delivery,
+.estimate_list .deal_method .pickup {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 8px;
+  margin-right: 0.5em;
+  font-size: 16px;
+}
+.estimate_list .deal_method .yes {background: #e3f2fd;}
+.estimate_list .deal_method .no {background: #ffefef;}
+body.dark .estimate_list .deal_method .yes {background: #c3e6ff;}
+body.dark .estimate_list .deal_method .no {background: #ffdada;}
+.estimate_list .estimate_footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.estimate_list .estimate_footer .estimate_date {
+  text-align: start;
+  color: gray;
+}
+
+@media screen and (max-width: 1024px) {
+  .estimate_list .estimate_card { flex: 0 0 calc(50% - 10px);}
+}
+@media screen and (max-width: 768px) {
+  .estimate_list .estimate_card {flex: 0 0 100%;}
 }
