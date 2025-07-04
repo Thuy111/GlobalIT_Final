@@ -169,7 +169,7 @@ public List<ReviewDTO> getReviewsByEstimateIdx(Integer estimateIdx) {
         return ReviewDTO.builder()
                         .idx(review.getIdx())
                         .estimateIdx(review.getEstimate().getIdx())
-                                .requestIdx(                      // ⭐ 반드시 추가
+                        .requestIdx(                      // ⭐ 반드시 추가
             review.getEstimate() != null &&
             review.getEstimate().getRequest() != null
                 ? review.getEstimate().getRequest().getIdx()
