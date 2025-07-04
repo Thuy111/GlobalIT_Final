@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -226,9 +225,10 @@ public class EstimateServiceImpl implements EstimateService {
     LocalDateTime now = LocalDateTime.now();
     List<Estimate> targets = repository.findByIsSelectedAndRequest_UseDateBefore((byte)0, now);
     for (Estimate estimate : targets) {
-        estimate.changeIsSelected((byte)1); // 1 = 미낙찰
-        estimate.changeModifiedAt(now);
-        // 필요시 알림, 로그 등 추가
+      estimate.changeIsSelected((byte)1); // 1 = 미낙찰
+      estimate.changeModifiedAt(now);
+      // 견적서 작성 이벤트 발행(알림 생성용)
+      eventPublisher.publishEvent(new EstimateEvent(this, estimate.getIdx(), estimate.getRequest().getIdx(), EstimateEvent.Action.SELECTED));
     }
     repository.saveAll(targets);
   }
@@ -319,6 +319,8 @@ public class EstimateServiceImpl implements EstimateService {
                                  .partnerTel(estimate.getPartnerInfo().getTel())
                                  .partnerRegion(estimate.getPartnerInfo().getRegion())
                                  .partnerCode(estimate.getPartnerInfo().getCode())
+                                 .partnerEmail(estimate.getPartnerInfo().getMember().getEmailId())
+                                 .partnerNickname(estimate.getPartnerInfo().getMember().getNickname())
                                  .build();
     return dto;
   }
