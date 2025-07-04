@@ -491,6 +491,7 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   left: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -508,4 +509,9 @@ body.dark .review_box hr {border-color: #404040;margin: 1rem 0 0 0;}
   font-size: 2rem;
   color: rgb(236, 236, 236);
   animation: loading-spin 2s linear infinite;
+}
+
+@keyframes loading-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
