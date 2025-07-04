@@ -55,18 +55,11 @@ public class ChatServiceImpl implements ChatService {
             .orElseGet(() -> chatRoomRepository.findByCreateUserAndInviteUser(inviteUser, createUser).orElse(null));
         if (found != null) return entityToDto(found);
 
-        String inviteUserName = memberRepository.findNicknameByEmailId(inviteUser); // 상대방의 닉네임 조회
-
-        if (inviteUserName==null) {
-            inviteUserName = inviteUser; // 닉네임이 없으면 이메일 ID 사용
-        }
-
+        // 채팅방이 없으면 새로 생성
         ChatRoom chatRoom = ChatRoom.builder()
             .roomId(UUID.randomUUID().toString())
             .createUser(createUser)
-            .myNickname(memberRepository.findNicknameByEmailId(createUser)) // 나의 닉네임 조회
             .inviteUser(inviteUser)
-            .targetNickname(inviteUserName) // 상대방의 닉네임
             .createdAt(LocalDateTime.now()) 
             .build();
         chatRoomRepository.save(chatRoom);
@@ -131,4 +124,60 @@ public class ChatServiceImpl implements ChatService {
         payload.put("sender", sender);
         messagingTemplate.convertAndSend("/topic/chat/" + roomId, payload);
     }
+
+    // (ChatRoom) Entity -> DTO
+    public ChatRoomDTO entityToDto(ChatRoom entity) {
+        if (entity == null) return null;
+        return ChatRoomDTO.builder()
+                .roomId(entity.getRoomId())
+                .createUser(entity.getCreateUser())
+                .myNickname(memberRepository.findNicknameByEmailId(entity.getCreateUser())) // 나의 닉네임 조회
+                .inviteUser(entity.getInviteUser())
+                .targetNickname(memberRepository.findNicknameByEmailId(entity.getInviteUser())) // 상대방의 닉네임 조회
+                .name(entity.getName())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    // (ChatRoom) DTO -> Entity
+    public ChatRoom dtoToEntity(ChatRoomDTO dto) {
+        if (dto == null) return null;
+        return ChatRoom.builder()
+                .roomId(dto.getRoomId())
+                .createUser(dto.getCreateUser())
+                .inviteUser(dto.getInviteUser())
+                .name(dto.getName())
+                .createdAt(dto.getCreatedAt())
+                .build();
+    }
+
+    // (ChatMessage) Entity -> DTO
+    public ChatMessageDTO entityToDto(ChatMessage chatMessage) {
+        if (chatMessage == null) return null;
+        return ChatMessageDTO.builder()
+                .id(chatMessage.getId())
+                .roomId(chatMessage.getRoomId())
+                .sender(chatMessage.getSender())
+                .senderNickname(chatMessage.getSenderNickname())
+                .message(chatMessage.getMessage())
+                .type(chatMessage.getType())
+                .time(chatMessage.getTime())
+                .isRead(chatMessage.isRead())
+                .build();
+    }
+
+    // (ChatMessageDTO) DTO -> Entity
+    public ChatMessage dtoToEntity(ChatMessageDTO chatMessageDTO) {
+        if (chatMessageDTO == null) return null;
+        return ChatMessage.builder()
+                .id(chatMessageDTO.getId())
+                .roomId(chatMessageDTO.getRoomId())
+                .sender(chatMessageDTO.getSender())
+                .senderNickname(chatMessageDTO.getSenderNickname())
+                .message(chatMessageDTO.getMessage())
+                .type(chatMessageDTO.getType())
+                .time(chatMessageDTO.getTime())
+                .isRead(chatMessageDTO.isRead())
+                .build();
+    } 
 }

@@ -397,4 +397,17 @@ public class MemberServiceImpl implements MemberService {
             // System.out.println(">>>소셜 로그인 연동 해제 요청 실패: 인증 정보가 없습니다.");
         }
     }
+
+    // 이메일로 닉네임 찾는 메서드
+    @Override
+    public String findNicknameByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("이메일이 누락되었습니다.");
+        }
+        String nickname = memberRepository.findNicknameByEmailId(email);
+        if (nickname == null) {
+            throw new IllegalArgumentException("해당 이메일로 가입된 회원이 없습니다.");
+        }
+        return nickname;
+    }
 }

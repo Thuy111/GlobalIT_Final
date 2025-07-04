@@ -109,7 +109,12 @@ public class RequestController {
     @GetMapping("/detail/{idx}")
     public String detail(@PathVariable("idx") Integer idx, Model model, OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
+        String writerNickname = memberService.findNicknameByEmail(dto.getWriterEmail());
+        if(writerNickname == null) {
+            writerNickname = "탈퇴한 사용자";
+        }
         model.addAttribute("dto", dto);
+        model.addAttribute("writerNickname", writerNickname);
         model.addAttribute("title", dto.getTitle());
 
         String currentUserEmail = (authentication != null) ? authentication.getPrincipal().getAttribute("email") : null;
