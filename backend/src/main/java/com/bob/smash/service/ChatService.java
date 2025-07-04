@@ -2,6 +2,7 @@ package com.bob.smash.service;
 
 import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
+import com.bob.smash.dto.FirstChatMessafeDTO;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface ChatService {
 
     // 방을 roomId로 찾는 메서드
     ChatRoomDTO findRoomById(String roomId);
-
+    
     // 채팅 메시지 저장
     ChatMessageDTO saveMessage(ChatMessageDTO dto);
 

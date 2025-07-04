@@ -25,7 +25,7 @@ const ScrollUp = () => {
       style={{ display: visible ? "flex" : "none" }}
     >
       <div className="up_scroll" onClick={scrollToTop}>
-        <i class="fa-solid fa-angle-up"></i>
+        <i className="fa-solid fa-angle-up"></i>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 package com.bob.smash.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bob.smash.dto.ChatMessageDTO;
 import com.bob.smash.dto.ChatRoomDTO;
 import com.bob.smash.dto.CurrentUserDTO;
+import com.bob.smash.dto.FirstChatMessafeDTO;
 import com.bob.smash.dto.ReadEventDTO;
+import com.bob.smash.entity.ChatMessage;
 import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.ChatService;
@@ -64,18 +67,73 @@ public class ChatController {
     }
 
     // 1:1 채팅방 생성
-    @PostMapping("/createRoom")
+    // @PostMapping("/createRoom")
+    // @ResponseBody
+    // public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
+    //     // 순서 : MemberUser, PartnerUser
+    //     try{
+    //         String memberUser = params.get("memberUser");
+    //         String partnerUser = params.get("partnerUser");
+    //         ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(memberUser, partnerUser);
+    //         return room;
+    //     }catch (Exception e) {
+    //         throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());
+    //     }
+    // }
+    // 첫 대화 후 채팅방 생성
+    @PostMapping("/firstMessage")
     @ResponseBody
-    public ChatRoomDTO createRoom(@RequestBody Map<String, String> params) {
-        // 순서 : MemberUser, PartnerUser
-        try{
-            String memberUser = params.get("memberUser");
-            String partnerUser = params.get("partnerUser");
-            ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(memberUser, partnerUser);
-            return room;
-        }catch (Exception e) {
-            throw new RuntimeException("채팅방 생성 실패: " + e.getMessage());
+    public ChatRoomDTO firstMessage(@RequestBody FirstChatMessafeDTO req) {
+        // 1:1 방이 있으면 찾고, 없으면 생성
+        ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(req.getMemberUser(), req.getPartnerUser());
+        // 메시지 저장
+        ChatMessageDTO message = ChatMessageDTO.builder()
+                .message(req.getMessage())
+                .type(req.getType())
+                .sender(req.getMemberUser())
+                .time(LocalDateTime.now()) // 현재 시간으로 설정
+                .isRead(false) // 처음 메시지는 읽지 않은 상태
+                .roomId(room.getRoomId()) // 방 ID 설정
+                .build();
+        chatService.saveMessage(message);
+
+        // roomId와 메시지 정보 반환
+        return room;
+    }
+
+    // 첫 대화방 UI (RoomId 없이)
+    @GetMapping("/chatRoomInit")
+    public String chatRoomInit(@RequestParam String user, Model model) {
+        // 세션에서 로그인 정보 확인
+        CurrentUserDTO myAccount = (CurrentUserDTO) session.getAttribute("currentUser");
+        if (myAccount == null) {
+            return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
         }
+        String myEmail = myAccount.getEmailId();
+
+        String memberUser;
+        String partnerUser; 
+
+        if(myAccount.getRole() == 0){ // 일반 사용자
+            memberUser = myEmail;
+            partnerUser = user;
+        }else { // 관리자 또는 업체
+            partnerUser = myEmail;
+            memberUser = user;
+        }
+
+        // 상대방 닉네임 조회
+        String yourNickname = memberService.findNicknameByEmail(user);
+        if (yourNickname == null || yourNickname.isEmpty()) {
+            yourNickname = "탈퇴한 사용자";
+        }
+
+        model.addAttribute("room", null); // room은 없음
+        model.addAttribute("memberUser", memberUser);
+        model.addAttribute("partnerUser", partnerUser);
+        model.addAttribute("messages", new ArrayList<>()); // 메시지 없음
+        model.addAttribute("title", yourNickname);
+        return "smash/chat/chatRoom";
     }
 
     // 1:1 채팅방 조회
@@ -148,7 +206,7 @@ public class ChatController {
         return saved;
     }
     // 채팅방 입장 (STOMP)
-    @MessageMapping("/chat.enter")
+    @MessageMapping("/chat/{roomId}/enter")
     @SendTo("/topic/chat/{roomId}")
     public ChatMessageDTO enter(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
         
