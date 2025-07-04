@@ -44,6 +44,11 @@ public class StorePageServiceImpl implements StorePageService {
                                           .map(img -> "/uploads/" + img.getPath() + "/" + img.getSName())
                                           .collect(Collectors.toList());
 
+        List<IntroductionImage> introImages = introRepo.findByPartnerInfo_Bno(partner.getBno());
+        List<Integer> imageIdxs = introImages.stream()
+                                             .map(IntroductionImage::getIdx)
+                                             .collect(Collectors.toList());
+
         List<Estimate> estimates = estimateRepo.findByPartnerInfo_Bno(partner.getBno());
 
         List<EstimateDTO> estimateDTOs = estimates.stream()
@@ -77,6 +82,7 @@ public class StorePageServiceImpl implements StorePageService {
                            .description(partner.getDescription())
                            .isOwner(isOwner)
                            .imageURLs(imageURLs)
+                           .imageIdxs(imageIdxs)
                            .estimates(estimateDTOs)
                            .build();
     }

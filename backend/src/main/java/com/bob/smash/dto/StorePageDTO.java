@@ -21,6 +21,7 @@ public class StorePageDTO {
     private boolean isOwner; // 업체의 오너인지 여부
 
     private List<String> imageURLs; // 이미지  URL 리스트
+    private List<Integer> imageIdxs; // 이미지 PK 리스트 (이미지 인덱스)
     private List<EstimateDTO> estimates; // 견적서 리스트
     private List<ReviewDTO> reviews; // 리뷰 리스트
     private double averageRating; // 별점 평균
