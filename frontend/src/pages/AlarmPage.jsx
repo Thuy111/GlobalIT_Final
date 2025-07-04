@@ -76,7 +76,7 @@ const Alarm = () => {
         </div>
         <div>
           {loading ? (
-            <div style={{padding:"2rem 0"}}>불러오는 중...</div>
+            <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>
           ) : alarms.length === 0 ? (
             <div style={{padding:"2rem 0"}}>알림이 없습니다.</div>
           ) : (

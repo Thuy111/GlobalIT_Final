@@ -8,7 +8,7 @@ import axios from 'axios';
 
 const Layout = () => {
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(null); // null: 로딩 중
+  const [loading, setLoading] = useState(true); // 로딩 상태
   const [user, setUser] = useState(null);
   const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
 
@@ -36,10 +36,10 @@ const Layout = () => {
     const regUser = async () => {
       await axios.get(`${baseUrl}/smash/member/check`, { withCredentials: true }) // headers를 보내지 않기 위해 appClient 사용하지 않음
         .then(res => {
-          if(res) setIsLoggedIn(true);
+          if(res) setLoading(true);
         })
         .catch((err) => {
-          setIsLoggedIn(false);
+          setLoading(false);
           const msg = err.response?.data; // 백엔드에서 body로 보낸 메시지
           // console.warn("유저 인증 실패:", msg); // 예: "번호가 등록되지 않은 계정입니다."
           if (msg) {
@@ -63,7 +63,7 @@ const Layout = () => {
   return (
     <UserContext.Provider value={user}>
       <UnreadAlarmProvider>
-      {!isLoggedIn===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
+      {!loading===null && (<div className='loading'><i className="fa-solid fa-circle-notch"></i></div>)}
         <div className="main_container">
           <Outlet />
           <ScrollUp />
