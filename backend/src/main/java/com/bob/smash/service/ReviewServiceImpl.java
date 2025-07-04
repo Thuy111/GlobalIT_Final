@@ -59,27 +59,14 @@ public class ReviewServiceImpl implements ReviewService {
                          .collect(Collectors.toList());
     }
     // 리뷰 목록(견적서별)
-    @Override
-    public List<ReviewDTO> getReviewsByEstimateIdx(Integer estimateIdx) {
-        List<Review> reviewList = reviewRepository.findByEstimate_Idx(estimateIdx);
-        return reviewList.stream()
-                         .map(review -> {
-                            // ✅ imageService 주입 받아서 사용
-                            List<ImageDTO> imageDTOs = imageService.getImagesByTarget("review", review.getIdx());
-                            return ReviewDTO.builder()
-                                            .idx(review.getIdx())
-                                            .estimateIdx(review.getEstimate().getIdx())
-                                            .memberId(review.getMember().getEmailId())
-                                            .nickname(review.getMember().getNickname())
-                                            .star(review.getStar())
-                                            .comment(review.getComment())
-                                            .createdAt(review.getCreatedAt())
-                                            .isModify(review.getIsModify())
-                                            .images(imageDTOs)
-                                            .build();
-                         })
-                         .collect(Collectors.toList());
-    }
+@Override
+public List<ReviewDTO> getReviewsByEstimateIdx(Integer estimateIdx) {
+    List<Review> reviewList = reviewRepository.findByEstimate_Idx(estimateIdx);
+    return reviewList.stream()
+                     .map(this::convertToDTO) // 💡 profileImageUrl도 자동 포함됨
+                     .collect(Collectors.toList());
+}
+
     // 리뷰 목록(업체별)
     @Override
     public List<ReviewDTO> getReviewsByPartnerBno(String bno) {
