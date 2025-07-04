@@ -38,8 +38,15 @@ function ReviewList({ bno, onUpdateStats }) {  // onUpdateStats 콜백 추가
           <div className="review-card" key={review.idx}>
             <div className="review-header">
               <span className="nickname">{review.nickname}</span>
-              <span className="star">⭐ {review.star}</span>
               <span className="created">{review.createdAt?.slice(0, 10)}</span>
+            </div>
+            <div className="star_area">
+              <p className="star">
+                {Array.from({ length: review.star }).map((_, i) => (
+                  <i key={i} className="fa-solid fa-star"></i>
+                ))}
+                </p>
+              <p>{review.star}.0점</p>
             </div>
             <div className="comment">{review.comment}</div>
             <div className="images">
