@@ -1,5 +1,6 @@
 package com.bob.smash.controller;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.EstimateDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.dto.StorePageDTO;
@@ -7,7 +8,10 @@ import com.bob.smash.dto.StoreUpdateRequestDTO;
 import com.bob.smash.service.EstimateService;
 import com.bob.smash.service.ReviewService;
 import com.bob.smash.service.StorePageService;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +30,12 @@ public class StorePageController {
     // 상점 페이지 조회 (상점 코드 및 로그인한 사용자 ID로 조회)
     @GetMapping("/{code}")
     public StorePageDTO getStore(@PathVariable String code,
-                                 @RequestParam String memberId) {
-        return storeService.getStorePage(code, memberId);
+                                 HttpSession session) {
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return storeService.getStorePage(code, null);
+        }
+        return storeService.getStorePage(code, currentUser.getEmailId());
     }
 
     // 상점 정보 업데이트 (이미지 업로드와 함께 정보 수정)

@@ -41,43 +41,45 @@ public class StorePageServiceImpl implements StorePageService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 업체입니다."));
 
         List<String> imageURLs = introRepo.findByPartnerInfo_Bno(partner.getBno()).stream()
-                .map(img -> "/uploads/" + img.getPath() + "/" + img.getSName())
-                .collect(Collectors.toList());
+                                          .map(img -> "/uploads/" + img.getPath() + "/" + img.getSName())
+                                          .collect(Collectors.toList());
 
         List<Estimate> estimates = estimateRepo.findByPartnerInfo_Bno(partner.getBno());
 
         List<EstimateDTO> estimateDTOs = estimates.stream()
-                .map(e -> EstimateDTO.builder()
-                        .idx(e.getIdx())
-                        .title(e.getTitle())
-                        .content(e.getContent())
-                        .price(e.getPrice())
-                        .isDelivery(e.getIsDelivery() != null && e.getIsDelivery() == 1)
-                        .isPickup(e.getIsPickup() != null && e.getIsPickup() == 1)
-                        .returnDate(e.getReturnDate())
-                        .isSelected(e.getIsSelected())
-                        .isReturn(e.getIsReturn() != null && e.getIsReturn() == 1)
-                        .createdAt(e.getCreatedAt())
-                        .modifiedAt(e.getModifiedAt())
-                        .build())
-                .collect(Collectors.toList());
+                                                  .map(e -> EstimateDTO.builder()
+                                                                       .idx(e.getIdx())
+                                                                       .title(e.getTitle())
+                                                                       .content(e.getContent())
+                                                                       .price(e.getPrice())
+                                                                       .isDelivery(e.getIsDelivery() != null && e.getIsDelivery() == 1)
+                                                                       .isPickup(e.getIsPickup() != null && e.getIsPickup() == 1)
+                                                                       .returnDate(e.getReturnDate())
+                                                                       .isSelected(e.getIsSelected())
+                                                                       .isReturn(e.getIsReturn() != null && e.getIsReturn() == 1)
+                                                                       .createdAt(e.getCreatedAt())
+                                                                       .modifiedAt(e.getModifiedAt())
+                                                                       .build())
+                                                .collect(Collectors.toList());
 
-        boolean isOwner = partner.getMember() != null
-                && partner.getMember().getEmailId().equals(loggedInMemberId);
+        boolean isOwner = false;
+        if(loggedInMemberId != null) {
+            isOwner = partner.getMember() != null && 
+                      partner.getMember().getEmailId().equals(loggedInMemberId);
+        }
 
         return StorePageDTO.builder()
-                .bno(partner.getBno())
-                .code(partner.getCode())
-                .name(partner.getName())
-                .tel(partner.getTel())
-                .region(partner.getRegion())
-                .description(partner.getDescription())
-                .isOwner(isOwner)
-                .imageURLs(imageURLs)
-                .estimates(estimateDTOs)
-                .build();
+                           .bno(partner.getBno())
+                           .code(partner.getCode())
+                           .name(partner.getName())
+                           .tel(partner.getTel())
+                           .region(partner.getRegion())
+                           .description(partner.getDescription())
+                           .isOwner(isOwner)
+                           .imageURLs(imageURLs)
+                           .estimates(estimateDTOs)
+                           .build();
     }
-
     
     @Override
     @Transactional

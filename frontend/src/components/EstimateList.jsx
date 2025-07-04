@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import apiClient from '../config/apiClient';
+import apiClient, { baseUrl } from '../config/apiClient';
+import '../styles/EstimateList.css';
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const yy = String(date.getFullYear()).slice(2);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yy}년 ${mm}월 ${dd}일`;
+}
 
 const EstimateList = ({ bno }) => {
   const [estimates, setEstimates] = useState([]);
@@ -26,14 +36,36 @@ const EstimateList = ({ bno }) => {
   return (
     <div className="estimate_list">
       {estimates.map((estimate) => (
-        <div key={estimate.idx} className="estimate_item">
+        <div key={estimate.idx} className="estimate_card">
           <h3>{estimate.title}</h3>
-          <p>{estimate.content}</p>
-          <p>가격: {estimate.price} 원</p>
-          <p>배송: {estimate.isDelivery ? '가능' : '불가능'}</p>
-          <p>픽업: {estimate.isPickup ? '가능' : '불가능'}</p>
-          <p>반품: {estimate.isReturn ? '가능' : '불가능'}</p>
-          <p>작성일: {estimate.createdAt}</p>
+          <div className="estimate_info">
+            <div>
+              <span class="badge">제시 가격</span>
+              <p>{estimate.price} 원</p>
+            </div>
+            <div>
+              <span class="badge">대여 방법</span>
+              <p className="deal_method">
+                {estimate.isDelivery === true && (
+                  <span className="delivery yes">배달 가능</span>
+                )}
+                {estimate.isDelivery === false && (
+                  <span className="delivery no">배달 불가</span>
+                )}
+                {estimate.isPickup === true && (
+                  <span className="pickup yes">픽업 가능</span>
+                )}
+                {estimate.isPickup === false && (
+                  <span className="pickup no">픽업 불가</span>
+                )}
+              </p>
+            </div>
+            <p class="estimate_date">
+              {formatDate(estimate.createdAt)}
+              {estimate.isModified && <small>(수정 됨)</small>}
+            </p>
+            <p onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${estimate.requestIdx}`}>자세히</p>
+          </div>
         </div>
       ))}
     </div>
