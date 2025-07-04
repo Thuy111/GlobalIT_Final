@@ -228,3 +228,39 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
   .request_wrapper .badge {font-size: 14px;}
   .request_button_group .btn {padding: 0 10px !important;align-items: center;display: flex;}
 }
+
+/* Request list page***********************/
+.requestlist_container .unselected {
+  background-color: #f7de95;
+  color: #cb7315;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+}
+.requestlist_container .rent {
+  background-color: #cbdff3;
+  color: #4e5d8b;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+}
+.requestlist_container .selected {
+   background-color: #b3f7b8;
+  color: #43a047;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+}
+
+.table td, .table th{
+      padding: 25px !important;
+}
+
+
+

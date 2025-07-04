@@ -47,6 +47,8 @@ public class RequestController {
     // 의뢰서 목록
     @GetMapping("/list")
     public void list(Model model) {
+        List<RequestDTO> list = requestService.getList();
+        model.addAttribute("result", list);
         model.addAttribute("title", "의뢰서 목록");
     }
     // 내가 쓴 의뢰서 목록
