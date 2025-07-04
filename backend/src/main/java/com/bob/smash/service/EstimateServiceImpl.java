@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -216,15 +217,20 @@ public class EstimateServiceImpl implements EstimateService {
     }
     return estimate.getIdx();
   }
-  // 의뢰서에 해당하는 견적서 전체 자동 미낙찰
+  // 마감기한이 지난 의뢰서에 해당하는 견적서 전체 자동 미낙찰
   @Override
   @Transactional
-  public void autoSelect(List<Integer> requestIdxList) {
-    List<Estimate> estimates = repository.findByRequest_IdxInAndIsSelected(requestIdxList, (byte)0);
-    for (Estimate e : estimates) {
-        e.changeIsSelected((byte)1); // 미낙찰 처리
-        repository.save(e);
+  @Scheduled(cron = "0 0/10 * * * ?") // 10분마다, 필요시 조정
+  public void autoSelect() {
+    LocalDateTime now = LocalDateTime.now();
+    List<Estimate> targets = repository.findByIsSelectedAndRequest_UseDateBefore((byte)0, now);
+    for (Estimate estimate : targets) {
+      estimate.changeIsSelected((byte)1); // 1 = 미낙찰
+      estimate.changeModifiedAt(now);
+      // 견적서 작성 이벤트 발행(알림 생성용)
+      eventPublisher.publishEvent(new EstimateEvent(this, estimate.getIdx(), estimate.getRequest().getIdx(), EstimateEvent.Action.SELECTED));
     }
+    repository.saveAll(targets);
   }
 
   // 반납 현황 수정
@@ -313,6 +319,8 @@ public class EstimateServiceImpl implements EstimateService {
                                  .partnerTel(estimate.getPartnerInfo().getTel())
                                  .partnerRegion(estimate.getPartnerInfo().getRegion())
                                  .partnerCode(estimate.getPartnerInfo().getCode())
+                                 .partnerEmail(estimate.getPartnerInfo().getMember().getEmailId())
+                                 .partnerNickname(estimate.getPartnerInfo().getMember().getNickname())
                                  .build();
     return dto;
   }

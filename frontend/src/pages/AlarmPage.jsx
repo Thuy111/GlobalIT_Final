@@ -3,6 +3,7 @@ import { useUser } from '../contexts/UserContext';
 import { useUnreadAlarm } from '../contexts/UnreadAlarmContext';
 import TitleBar from "../components/TitleBar";
 import apiClient from '../config/apiClient';
+import '../styles/Alarm.css';
 
 const Alarm = () => {
   apiClient.defaults.withCredentials = true;
@@ -30,7 +31,7 @@ const Alarm = () => {
 
   // 미읽음 알림 개수 fetch
   const fetchUnreadCount = () => {
-  apiClient.get(`/alarm/unread`, { withCredentials: true })
+    apiClient.get(`/alarm/unread`, { withCredentials: true })
     .then(res => setUnreadCount(res.data))
     .catch(() => setUnreadCount(0));
   };
@@ -63,21 +64,13 @@ const Alarm = () => {
   return (
     <>
       <TitleBar title="알림" />
-      <div className="alarm" style={{maxWidth:400,margin:"0 auto",padding:16}}>
-        <div className="alarm-tabs" style={{display:'flex', gap:8, marginBottom:16}}>
+      <div className="alarm">
+        <div className="alarm-tabs">
           {['all', 'estimate', 'request', 'review'].map(type => (
             <button
               key={type}
               onClick={() => setSelectedType(type)}
-              style={{
-                padding: '6px 16px',
-                borderRadius: 16,
-                border: 'none',
-                background: selectedType === type ? '#ff9900' : '#eee',
-                color: selectedType === type ? '#fff' : '#888',
-                fontWeight: selectedType === type ? 'bold' : 'normal',
-                cursor: 'pointer'
-              }}
+              className={selectedType === type ? "active" : ""}
             >{type === 'all' ? '전체' : type === 'estimate' ? '견적서' : type === 'request' ? '의뢰서' : '리뷰'}</button>
           ))}
         </div>
@@ -90,36 +83,17 @@ const Alarm = () => {
             alarms.map(alarm => (
               <div
                 key={alarm.notification.idx}
-                className={`alarm-item${alarm.isRead ? "" : " unread"}`}
                 onClick={() => !alarm.isRead && handleRead(alarm.notification.idx)}
-                style={{
-                  background: alarm.isRead ? "#fff" : "#f6f6f6",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                  padding: "16px",
-                  position: "relative",
-                  marginBottom:8
-                }}
+                className={`alarm-item${alarm.isRead ? "" : " unread"}`}
               >
-                <div style={{ fontWeight: "bold", marginBottom: 4, fontSize:15 }}>
+                <div className="alarm-notice">
                   {alarm.notification.notice}
                 </div>
-                <div style={{ color: "#888", fontSize: 13 }}>
+                <div className="alarm-time">
                   {formatTime(alarm.notification.createdAt)}
                 </div>
                 {!alarm.isRead && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 4,
-                      right: 4,
-                      width: 10,
-                      height: 10,
-                      background: "#ff9900",
-                      borderRadius: "50%",
-                      display: "inline-block",
-                    }}
-                  ></span>
+                  <span className="unread-dot"></span>
                 )}
               </div>
             ))
