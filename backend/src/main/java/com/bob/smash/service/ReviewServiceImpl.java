@@ -1,6 +1,7 @@
 package com.bob.smash.service;
 
 import com.bob.smash.dto.ImageDTO;
+import com.bob.smash.dto.ProfileDTO;
 import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.entity.Estimate;
 import com.bob.smash.entity.Member;
@@ -10,6 +11,7 @@ import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final MemberRepository memberRepository;
     private final ImageService imageService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProfileService profileService;
 
     // 리뷰 등록
     @Override
@@ -167,6 +170,15 @@ public class ReviewServiceImpl implements ReviewService {
     // 리뷰 DTO 변환 메서드
     private ReviewDTO convertToDTO(Review review) {
         List<ImageDTO> imageDTOs = imageService.getImagesByTarget("review", review.getIdx());
+
+            // 프로필 이미지 URL 불러오기
+            String profileImageUrl = null;
+            try {
+                ProfileDTO profileDTO = profileService.getProfileByEmail(review.getMember().getEmailId());
+                profileImageUrl = profileDTO.getProfileImageUrl();
+            } catch (Exception e) {
+                // 혹시 오류나면 무시 (null 유지)
+            }
         return ReviewDTO.builder()
                         .idx(review.getIdx())
                         .estimateIdx(review.getEstimate().getIdx())
@@ -183,6 +195,7 @@ public class ReviewServiceImpl implements ReviewService {
                         .createdAt(review.getCreatedAt())
                         .isModify(review.getIsModify())
                         .images(imageDTOs)
+                        .profileImageUrl(profileImageUrl)
                         .build();
     }
 
