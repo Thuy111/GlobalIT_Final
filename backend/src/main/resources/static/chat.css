@@ -1,3 +1,8 @@
+/* 채팅목록 css */
+.chat_container{justify-content: center;height: calc(100vh - 300px);display: flex;align-items: center;}
+.chat_container h2{font-size: 20px;color: gray;}
+
+/* 채팅방 css */
 .chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;padding-bottom: 2rem;}
 .chatRoom_container .chat_start {width: 100%; text-align: center;}
 .chatRoom_container .chat_start span{padding: 8px 20px;border-radius: 30px;box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);background-color: #fff3e0;color: #ff9800;font-weight: bold;}

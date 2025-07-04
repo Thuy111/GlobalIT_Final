@@ -53,7 +53,7 @@ public class ChatController {
                 return "redirect:" + frontServerUrl + "/profile?error=invalidUser";
             }
     
-            List<ChatRoom> roomList = chatService.findRoomsByUser(memberUser);
+            List<ChatRoomDTO> roomList = chatService.findRoomsByUser(memberUser);
             model.addAttribute("roomList", roomList == null ? new ArrayList<>() : roomList);
             model.addAttribute("memberUser", memberUser == null ? "" : memberUser);
             model.addAttribute("title", "채팅방 목록");

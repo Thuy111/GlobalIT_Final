@@ -1,4 +1,4 @@
-.estimates_title {text-align: left;margin-top: 3rem;padding-left: 2rem;}
+.estimates_title {text-align: left;padding-left: 1rem;color: gray;margin-bottom: 2rem;}
 .estimates_title, .estimates_title * {font-size: 18px;}
 body.dark .estimates_title, body.dark .estimates_title * {color: #bbbbbb;}
 
@@ -23,7 +23,7 @@ body.dark .estimate_divider {border-color: #525252;}
   border-radius: 2px;
   background-color: #fafafa;
   /* box-shadow: 0 6px 9px rgba(134, 134, 134, 0.2); */
-  margin: 1rem auto 6rem auto;
+  margin: 1rem auto 2rem auto;
   text-align: left;
   border: 1px solid #e9e9e9;
 }
@@ -82,7 +82,7 @@ body.dark .estimate_list .estimate_box .estimate_card {
   box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
 }
 
-.estimate_body {padding: 2rem;background-color: white;}
+.estimate_body {padding: 2rem 2rem 1px 2rem;background-color: white;}
 body.dark .estimate_body {background-color: #313131;}
 
 /* 견적 정보 (div 기반) */
@@ -246,8 +246,8 @@ body.dark .estimate_list .estimate_card .estimate_date {color: #b4b4b4;}
   justify-content: end;
   margin: 0;
 }
-.estimate_list .estimate_actions form button,
-.estimate_list .estimate_actions button {
+.estimate_list .estimate_actions form button.delete,
+.estimate_list .estimate_actions form button.update{
   background-color: rgba(255, 255, 255, 0);
   box-shadow: none;
   color: gray;
