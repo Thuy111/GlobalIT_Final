@@ -62,24 +62,6 @@
                 <img id="lightbox_img" src="" alt="zoom" />
               </div>
   
-              <div class="partner_info">
-                <div class="partner_name"
-                    th:attr="data-href=@{/smash/store/{code}(code=${estimate.partnerCode}, memberId=${currentUser != null && currentUser.emailId != null ? currentUser.emailId : ''})}">
-                  <div class="store_icon_box">
-                    <i class="fa-solid fa-store"></i>
-                  </div>
-                  <p class="name" th:text="${estimate.partnerName}"></p>
-                </div>
-                <div class="patner_tel">
-                  <span class="badge">연락처</span>
-                  <span th:text="${estimate.partnerTel}"></span>
-                </div>
-                <div>
-                  <span class="badge">주소</span>
-                  <span th:text="${estimate.partnerRegion}"></span>
-                </div>
-              </div>
-  
               <p class="estimate_date">
                 [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.modifiedAt)}]]
                 <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">(수정 됨)</small>
