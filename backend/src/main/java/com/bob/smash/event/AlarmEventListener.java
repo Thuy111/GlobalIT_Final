@@ -42,33 +42,39 @@ public class AlarmEventListener {
       List<Estimate> loseEstimates = estimateRepository.findByRequest_IdxAndIsSelected(request.getIdx(), (byte)1);
       // 3. 낙찰 성공 알림 발송
       for (Estimate win : winEstimates) {
+        receiverId = List.of(win.getPartnerInfo().getMember().getEmailId());
         message = String.format(
           "[%s] 의뢰에 올린 견적서가 **낙찰되었습니다!** (금액: %,d원)",
           request.getTitle(), win.getPrice()
         );
-        NotificationDTO dto = NotificationDTO.builder()
-          .notice(message)
-          .createdAt(LocalDateTime.now())
-          .targetType("estimate")
-          .targetIdx(win.getIdx())
-          .memberIdList(List.of(win.getPartnerInfo().getMember().getEmailId()))
-          .build();
-        service.createNotification(dto);
+        if(!receiverId.isEmpty()) {
+          NotificationDTO dto = NotificationDTO.builder()
+                                               .notice(message)
+                                               .createdAt(LocalDateTime.now())
+                                               .targetType("estimate")
+                                               .targetIdx(win.getIdx())
+                                               .memberIdList(List.of(win.getPartnerInfo().getMember().getEmailId()))
+                                               .build();
+          service.createNotification(dto);
+        }
       }
       // 4. 낙찰 실패 알림 발송
       for (Estimate lose : loseEstimates) {
+        receiverId = List.of(lose.getPartnerInfo().getMember().getEmailId());
         message = String.format(
             "[%s] 의뢰에 올린 견적서가 미선정(낙찰 실패)되었습니다.",
             request.getTitle()
         );
-        NotificationDTO dto = NotificationDTO.builder()
-            .notice(message)
-            .createdAt(LocalDateTime.now())
-            .targetType("request")
-            .targetIdx(lose.getIdx())
-            .memberIdList(List.of(lose.getPartnerInfo().getMember().getEmailId()))
-            .build();
-        service.createNotification(dto);
+        if(!receiverId.isEmpty()) {
+          NotificationDTO dto = NotificationDTO.builder()
+                                               .notice(message)
+                                               .createdAt(LocalDateTime.now())
+                                               .targetType("request")
+                                               .targetIdx(lose.getIdx())
+                                               .memberIdList(List.of(lose.getPartnerInfo().getMember().getEmailId()))
+                                               .build();
+          service.createNotification(dto);
+        }
       }
     } else {
       if(event.getAction() == RequestEvent.Action.UPDATED) {
@@ -134,6 +140,13 @@ public class AlarmEventListener {
         "%s에서 대여 물품 반납을 확인했습니다.",
         estimate.getPartnerInfo().getName() // 업체명
       );
+    } else if(event.getAction() == EstimateEvent.Action.SELECTED) {
+      // 견적서 자동 미낙찰의 경우
+      receiverId.add(estimate.getPartnerInfo().getMember().getEmailId()); // 견적서 작성자 ID를 수신자로 설정
+      message = String.format(
+        "[%s] 의뢰에 올린 견적서가 미선정(낙찰 실패)되었습니다.", 
+        request.getTitle() // 의뢰서 제목
+      );
     } else {
       // 해당 의뢰서의 모든 견적서 작성자 ID를 검색
       List<Estimate> estimates = estimateRepository.findByRequest_Idx(event.getRequestIdx());
@@ -175,14 +188,16 @@ public class AlarmEventListener {
       }
     }
     // 신규 알림 생성
-    NotificationDTO dto = NotificationDTO.builder()
-                                         .notice(message)
-                                         .createdAt(LocalDateTime.now())
-                                         .targetType("estimate")
-                                         .targetIdx(event.getEstimateIdx())
-                                         .memberIdList(receiverId)
-                                         .build();
-    service.createNotification(dto);
+    if(!receiverId.isEmpty()) {
+      NotificationDTO dto = NotificationDTO.builder()
+                                           .notice(message)
+                                           .createdAt(LocalDateTime.now())
+                                           .targetType("estimate")
+                                           .targetIdx(event.getEstimateIdx())
+                                           .memberIdList(receiverId)
+                                           .build();
+      service.createNotification(dto);
+    }
   }
 
   @EventListener
@@ -202,13 +217,15 @@ public class AlarmEventListener {
           review.getStar() // 리뷰 별점
     );
     // 신규 알림 생성
-    NotificationDTO dto = NotificationDTO.builder()
-                                         .notice(message)
-                                         .createdAt(LocalDateTime.now())
-                                         .targetType("review")
-                                         .targetIdx(event.getReviewIdx())
-                                         .memberIdList(receiverId)         
-                                         .build();
-    service.createNotification(dto);
+    if(!receiverId.isEmpty()) {
+      NotificationDTO dto = NotificationDTO.builder()
+                                           .notice(message)
+                                           .createdAt(LocalDateTime.now())
+                                           .targetType("review")
+                                           .targetIdx(event.getReviewIdx())
+                                           .memberIdList(receiverId)         
+                                           .build();
+      service.createNotification(dto);
+    }
   }
 }
