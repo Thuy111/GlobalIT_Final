@@ -34,17 +34,16 @@ public class ReviewController {
     }
     
     // 리뷰 목록
-            @GetMapping("/list")
-            public String list(Model model, HttpSession session) {
-                if (!model.containsAttribute("reviewList")) {
-                    model.addAttribute("reviewList", List.of()); // 빈 리스트라도 넣기
-                }
-                CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-                model.addAttribute("currentUser", currentUser);  // 템플릿에서 쓰려면 필수
-                model.addAttribute("title", "리뷰 목록");
-                return "smash/review/list";  // 명확한 뷰명 리턴 권장
-            }
-
+    @GetMapping("/list")
+    public String list(Model model, HttpSession session) {
+        if (!model.containsAttribute("reviewList")) {
+            model.addAttribute("reviewList", List.of()); // 빈 리스트라도 넣기
+        }
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+        model.addAttribute("currentUser", currentUser);  // 템플릿에서 쓰려면 필수
+        model.addAttribute("title", "리뷰 목록");
+        return "smash/review/list";  // 명확한 뷰명 리턴 권장
+    }
 
     // 업체가 쓴 리뷰 목록
     @GetMapping("/partnerlist")
