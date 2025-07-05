@@ -34,11 +34,15 @@ const Nav = () => {
     <nav className="navigation">
       <ul className="nav-list">
         <li className={active === 'alarm' ? 'active' : ''}>
-          <Link to="/alarm">
-            <i className="fa-solid fa-bell"></i>
-            알림
-            {unreadCount > 0 && (<span className='unread_alarm'>{unreadCount}</span>)}
-          </Link>
+          { user &&
+            <Link to="/alarm">
+              <i className="fa-solid fa-bell"></i>
+              알림
+              {unreadCount > 0 && (<span className='unread_alarm'>{unreadCount}</span>)}
+            </Link>
+          }
+          <Link to="/contact">
+          <i className="fa-regular fa-circle-question"></i>문의</Link>
         </li>
         <li className={active === 'home' ? 'active' : ''}><Link to="/"><i className="fa-solid fa-house"></i>홈</Link></li>
         { user &&

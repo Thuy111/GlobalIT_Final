@@ -63,11 +63,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                                         HttpServletResponse response,
                                         Authentication authentication
                                         ) throws IOException, ServletException {
-        if (!(authentication instanceof OAuth2AuthenticationToken oauthToken)) {
+        if (!(authentication instanceof OAuth2AuthenticationToken)) {
             // OAuth2 로그인 이외의 경우, 기본 동작(혹은 에러, 혹은 다른 핸들러로 위임)
             response.sendRedirect(frontServerUrl + "/profile?error=NotOAuth2User");
             return;
         }
+        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oauthUser = oauthToken.getPrincipal(); // OAuth2User 객체를 통해 사용자 정보에 접근
 
         System.out.println("@@@ OAuth2 로그인 성공: " + oauthUser.getAttributes());
@@ -168,8 +169,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             Member.LoginType loginType;
             // 로그인 타입 설정
             switch (registrationId) {
-                case "kakao" -> loginType = Member.LoginType.kakao;
-                default -> loginType = Member.LoginType.google; // 기본값 설정
+                case "kakao":
+                    loginType = Member.LoginType.kakao;
+                    break;
+                default:
+                    loginType = Member.LoginType.google; // 기본값 설정
+                    break;
             }
             System.out.println("===로그인 타입: " + loginType + "===");
 
