@@ -21,10 +21,12 @@ const Nav = () => {
     const pathname = location.pathname;
     if (pathname.includes('alarm')) {
       setActive('alarm');
-    } else if (pathname.includes('profile') || pathname.includes('contact')) {
+    } else if (pathname.includes('profile')) {
       setActive('profile');
     } else if (pathname.includes('chat') || pathname.includes('roomList')) {
       setActive('chat');
+    } else if(pathname.includes('contact')){
+      setActive('contact');
     } else {
       setActive('home');
     }
@@ -33,16 +35,19 @@ const Nav = () => {
   return (
     <nav className="navigation">
       <ul className="nav-list">
-        <li className={active === 'alarm' ? 'active' : ''}>
-          { user &&
-            <Link to="/alarm">
-              <i className="fa-solid fa-bell"></i>
-              알림
-              {unreadCount > 0 && (<span className='unread_alarm'>{unreadCount}</span>)}
-            </Link>
-          }
+        { user &&
+          <li className={active === 'alarm' ? 'active' : ''}>
+              <Link to="/alarm">
+                <i className="fa-solid fa-bell"></i>
+                알림
+                {unreadCount > 0 && (<span className='unread_alarm'>{unreadCount}</span>)}
+              </Link>
+          </li>
+        }
+        <li className={active === 'contact' ? 'active' : ''}>
           <Link to="/contact">
-          <i className="fa-regular fa-circle-question"></i>문의</Link>
+            <i className="fa-regular fa-circle-question"></i>문의
+          </Link>
         </li>
         <li className={active === 'home' ? 'active' : ''}><Link to="/"><i className="fa-solid fa-house"></i>홈</Link></li>
         { user &&
