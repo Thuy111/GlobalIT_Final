@@ -212,7 +212,8 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     // if (auth == null || !(auth.getPrincipal() instanceof OAuth2User)) return;
-    if (auth == null || !(auth instanceof OAuth2AuthenticationToken oauthToken)) return;
+    if (auth == null || !(auth instanceof OAuth2AuthenticationToken)) return;
+    OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) auth;
 
     // OAuth2User currentOAuth2User = (OAuth2User) auth.getPrincipal();
     OAuth2User currentOAuth2User = oauthToken.getPrincipal();
@@ -253,7 +254,24 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     //     updatedUser.getAuthorities()
     // );
 
+    ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attr == null) return;
+    HttpServletRequest request = attr.getRequest();
+    HttpSession session = request.getSession(false);
+    if (session == null) return;
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if (currentUser == null) return;
+
+    CurrentUserDTO updatedUserDTO = CurrentUserDTO.builder()
+        .emailId(currentUser.getEmailId())
+        .nickname(currentUser.getNickname())
+        .role(member.getRole())
+        .bno(currentUser.getBno())
+        .build();
+
+    session.setAttribute("currentUser", updatedUserDTO);
+
     SecurityContextHolder.getContext().setAuthentication(newAuth);
-}
+  }
 
 }

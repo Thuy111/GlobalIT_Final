@@ -25,6 +25,8 @@ public class FirstChatMessafeDTO {
     
     private String partnerUser;
 
+    private String sender;
+
     private LocalDateTime time;
 
     private boolean isRead;

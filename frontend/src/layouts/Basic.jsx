@@ -4,6 +4,7 @@ import { UserContext } from '../contexts/UserContext';
 import { UnreadAlarmProvider } from '../contexts/UnreadAlarmContext';
 import Nav from '../components/Navigation.jsx';
 import ScrollUp from '../components/ScrollUp.jsx';
+import apiClient from '../config/apiClient.jsx';
 import axios from 'axios';
 
 const Layout = () => {
@@ -21,7 +22,7 @@ const Layout = () => {
 
     // 현재 로그인된 유저의 DB 정보
     const checkUser = async () => {
-      await axios.get(`${baseUrl}/smash/member/current-user`, { withCredentials: true })
+      await apiClient.get(`/member/current-user`, { withCredentials: true })
         .then(res => {
           setUser(res.data); // Member 객체
           regUser(); // 유저 유효성 검사 (번호등록, 가입여부 등)

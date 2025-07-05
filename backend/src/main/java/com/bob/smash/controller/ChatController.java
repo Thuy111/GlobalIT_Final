@@ -84,13 +84,30 @@ public class ChatController {
     @PostMapping("/firstMessage")
     @ResponseBody
     public ChatRoomDTO firstMessage(@RequestBody FirstChatMessafeDTO req) {
+        System.out.println("메세지 :::::" + req.getMessage());
+        System.out.println("멤버 :::::" + req.getMemberUser());
+        System.out.println("파트너 :::::" + req.getPartnerUser());
+        System.out.println("타입 :::::" + req.getType());
+        System.out.println("보낸사람 :::::" + req.getSender());
+
+        String me;
+        String you;
+
+        if(req.getMemberUser().equals(req.getSender())){ // 내가 보낸 경우
+            me = req.getMemberUser();
+            you = req.getPartnerUser();
+        }else{ // 상대방이 보낸 경우
+            me = req.getPartnerUser();
+            you = req.getMemberUser();
+        }
+
         // 1:1 방이 있으면 찾고, 없으면 생성
         ChatRoomDTO room = chatService.getOrCreateOneToOneRoom(req.getMemberUser(), req.getPartnerUser());
         // 메시지 저장
         ChatMessageDTO message = ChatMessageDTO.builder()
                 .message(req.getMessage())
                 .type(req.getType())
-                .sender(req.getMemberUser())
+                .sender(me)
                 .time(LocalDateTime.now()) // 현재 시간으로 설정
                 .isRead(false) // 처음 메시지는 읽지 않은 상태
                 .roomId(room.getRoomId()) // 방 ID 설정
@@ -152,6 +169,7 @@ public class ChatController {
             }
 
             String myEmail = myAccount.getEmailId();
+            System.out.println("내 이메일 ::::::: " + myEmail);
 
             // room DTO에서 상대방 정보 추출
             String partnerUser;
@@ -172,6 +190,7 @@ public class ChatController {
             model.addAttribute("room", room);
             model.addAttribute("memberUser", myEmail);
             model.addAttribute("partnerUser", partnerUser);
+            model.addAttribute("sender", myEmail);
             model.addAttribute("messages", chatService.getMessages(roomId));
             model.addAttribute("title", yourNickname);
             return "smash/chat/chatRoom";
@@ -206,11 +225,10 @@ public class ChatController {
         return saved;
     }
     // 채팅방 입장 (STOMP)
-    @MessageMapping("/chat/{roomId}/enter")
-    @SendTo("/topic/chat/{roomId}")
-    public ChatMessageDTO enter(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
-        
-        return message;
-    }
+    // @MessageMapping("/chat/{roomId}/enter")
+    // @SendTo("/topic/chat/{roomId}")
+    // public ChatMessageDTO enter(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
+    //     return message;
+    // }
     
 }

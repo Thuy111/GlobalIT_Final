@@ -27,14 +27,6 @@ const Login = () => {
       console.error("로그인 중 오류 발생:", error);
     }
     window.location.href = '/profile'; // error 삭제
-
-
-    // 스크롤 없애기
-    document.html.style.overflow = 'hidden';
-    return () => {
-      // 원래대로 되돌리기
-      document.html.style.overflow = 'auto';
-    };
   }, []);
   
 

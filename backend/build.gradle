@@ -71,6 +71,9 @@ dependencies {
 
 	// 자동으로 탬플릿/정적 파일 변경을 감지하여 서버를 재시작하지 않고도 변경 사항을 반영할 수 있게 해주는 개발 도구
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 이메일 전송을 위한 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 repositories {

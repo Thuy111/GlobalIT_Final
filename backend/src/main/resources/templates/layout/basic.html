@@ -39,10 +39,15 @@
           </div>
           <nav class="navigation">
             <ul class="nav-list">
-              <li class="alarm">
+              <li th:if="${currentUser}" class="alarm">
                 <a th:href="${@environment.getProperty('front.server.url') + '/alarm'}">
                   <i class="fa-solid fa-bell"></i>알림
                   <span th:if="${currentUser != null and currentUser.unreadAlarm > 0}" class="unread_alarm" >[[${currentUser.unreadAlarm}]]</span>
+                </a>
+              </li>
+              <li class="contact">
+                <a th:href="${@environment.getProperty('front.server.url') + '/contact'}">
+                  <i class="fa-regular fa-circle-question"></i>문의
                 </a>
               </li>
               <li class="home active">
@@ -114,7 +119,10 @@
         } else if(currentUrl.includes('/chat')) {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .chat').addClass('active');
-        } else {
+        } else if(currentUrl.includes('/contact')){
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .contact').addClass('active');
+        }else {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .alarm').addClass('active');
         }

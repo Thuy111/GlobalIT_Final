@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.http.MediaType;
 
 import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.MemberDTO;
@@ -211,7 +213,7 @@ public class MemberServiceImpl implements MemberService {
                     .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
                     .bodyToMono(String.class)
-                    .block(); // 동기 처리 (필요 시 비동기로 바꿔도 됨)
+                    .block();// 동기 처리 (필요 시 비동기로 바꿔도 됨)
     
             // 2. 사용자 이메일 가져오기
             // System.out.println("탈퇴 대상 ID = " + currentUser.getEmailId());
@@ -235,12 +237,15 @@ public class MemberServiceImpl implements MemberService {
     public void unlinkAndDeleteGoogleMember(String accessToken, MemberDTO currentUser) {
         try{
             // 1. 토큰 폐기 요청 (revoke)
+            
             WebClient.create()
-                .post()
-                .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
+                    .post()
+                    .uri("https://oauth2.googleapis.com/revoke")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("token", accessToken))
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
     
             // 2. 사용자 이메일로 삭제
             String email = currentUser.getEmailId();
@@ -260,7 +265,8 @@ public class MemberServiceImpl implements MemberService {
     // 매번 `SecurityContextHolder`에서 직접 `OAuth2AuthenticationToken`을 꺼내는 메서드
     private OAuth2AuthenticationToken getOAuth2AuthenticationToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
             return oauthToken;
         }
         return null; // 인증 정보가 없을 경우 null 반환
@@ -344,7 +350,9 @@ public class MemberServiceImpl implements MemberService {
     
         System.out.println("googleToken = " + googleToken);
 
-        if (auth instanceof OAuth2AuthenticationToken oauthToken) {
+        if (auth instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) auth;
+
             System.out.println("OAuth2AuthenticationToken 인증 정보가 있습니다.");
 
             String registrationId = oauthToken.getAuthorizedClientRegistrationId(); // 예: "kakao", "google"
@@ -368,7 +376,9 @@ public class MemberServiceImpl implements MemberService {
             if (oauthUser.getAttributes().get("email") != null) { // 구글 로그인인 경우
                 WebClient.create()
                         .post()
-                        .uri("https://oauth2.googleapis.com/revoke?token=" + accessToken)
+                        .uri("https://oauth2.googleapis.com/revoke")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(BodyInserters.fromFormData("token", accessToken))
                         .retrieve()
                         .bodyToMono(Void.class)
                         .block();
@@ -383,10 +393,17 @@ public class MemberServiceImpl implements MemberService {
             }
 
         }else if(googleToken != null && !googleToken.isEmpty()) { // 구글 토큰이 있는 경우
+            // 중복 방지: 이미 revoke 시도한 토큰이면 요청 생략
+            if (!revokedTokens.add(googleToken)) {
+                System.out.println("이미 revoke 시도한 토큰입니다. 요청 생략.");
+                return;
+            }
             System.out.println("구글 토큰 인증 정보가 있습니다. 토큰 폐기 요청을 보냅니다.");
             WebClient.create()
                     .post()
-                    .uri("https://oauth2.googleapis.com/revoke?token=" + googleToken)
+                    .uri("https://oauth2.googleapis.com/revoke")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData("token", googleToken))
                     .retrieve()
                     .bodyToMono(Void.class)
                     .block();
