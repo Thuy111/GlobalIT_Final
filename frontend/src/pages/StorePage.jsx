@@ -48,10 +48,12 @@ function formatPhoneNumber(phone) {
 }
 
 const StorePage = () => {
+  const baseUrl = import.meta.env.VITE_API_URL;
   const [view, setView] = useState('estimate');
   const [isEditing, setIsEditing] = useState(false);
   const nameRef = useRef();
   const [isOwner, setIsOwner] = useState(false);
+  const [ownerEmail, setOwnerEmail] = useState('');
   const [storeName, setStoreName] = useState('');
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
@@ -108,6 +110,7 @@ const StorePage = () => {
         setEstimatesCount(data.estimates?.length || 0);
         setReviewsCount(data.reviews?.length || 0);
         setIsOwner(data.owner);
+        setOwnerEmail(data.ownerEmail || '');
       })
       .catch((err) => {
         console.error('업체 정보 불러오기 실패:', err);
@@ -246,6 +249,15 @@ const StorePage = () => {
     setPreviewImages([]);
   };
 
+  // 채팅방 생성 함수
+  const handleCreateRoom = (memberUser, partnerUser) => {
+    console.log('채팅방 생성 요청:', memberUser, partnerUser);
+    if(confirm(`${storeName}에 1:1 문의`) == false) {
+      return;
+    }
+    window.location.href = `${baseUrl}/smash/chat/chatRoomInit?user=${partnerUser}`;
+  }
+
   if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>; // 로딩 중 표시
 
   return (
@@ -352,12 +364,16 @@ const StorePage = () => {
                   placeholder="업체 이름을 입력하세요"
                 />
               )}
+              {loggedInMemberId&&!isOwner&&user?.role!=1&&
+                <span className="icon_box"
+                  onClick={()=> handleCreateRoom(loggedInMemberId, ownerEmail)}><i className="fa-solid fa-comment-dots"></i></span>
+              }
             </div>
             <div className="store_info_right">
               <p>
                 <span className="badge">사업자 번호</span> {bno ? formatBno(bno) : '-'}
               </p>
-              <EditableField label="사업자 위치" value={location} onChange={setLocation} isEditing={isEditing} />
+              <EditableField label="사업장 위치" value={location} onChange={setLocation} isEditing={isEditing} />
               <EditableField label="사업자 연락처" value={formatPhoneNumber(contact)} onChange={setContact} isEditing={isEditing} />
             </div>
           </div>

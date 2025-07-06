@@ -81,6 +81,7 @@ public class StorePageServiceImpl implements StorePageService {
                            .region(partner.getRegion())
                            .description(partner.getDescription())
                            .isOwner(isOwner)
+                           .ownerEmail(partner.getMember() != null ? partner.getMember().getEmailId() : null)
                            .imageURLs(imageURLs)
                            .imageIdxs(imageIdxs)
                            .estimates(estimateDTOs)

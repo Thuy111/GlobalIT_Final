@@ -5,10 +5,38 @@ import { FaLocationDot } from "react-icons/fa6";
 import { IoIosMail } from "react-icons/io";
 import { FaExclamationCircle } from "react-icons/fa";
 import { LuSend } from "react-icons/lu";
+import { useUser } from '../contexts/UserContext';
 import apiClient from '../config/apiClient';
+import axios from 'axios';
 import '../styles/Contact.css';
 
 const Contact= () => {
+  const user = useUser();
+  const [currentUser, setCurrentUser] = useState(user);
+  const [aboutTel, setAboutTel] = useState('');
+  const [aboutEmail, setAboutEmail] = useState('');
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        const response = await apiClient.get('/contact');
+        if (response.data) {
+          setAboutTel(response.data.tel || '');
+          setAboutEmail(response.data.email || '');
+        }
+      } catch (error) {
+        console.error('Error fetching about information:', error);
+      }
+    }
+    fetchAbout();
+  },[]);
+
+  useEffect(() => {
+    const handleUserChange = (newUser) => {
+      setCurrentUser(newUser);
+    };
+  }, [user]);
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -30,17 +58,17 @@ const Contact= () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     const alert = window.confirm(`
-    Your Tel : ${phone}
-    Your Email : ${email}
+    연락처 : ${phone}
+    이메일 : ${email ? email : currentUser.emailId}
 
-    Are you sure the input information is correct?
+    당신의 정보가 일치합니까?
     `);
     if (alert){
       setActiveLoading(true);
       const formData = new FormData();
       formData.append('name', name);
       formData.append('phone', phone);
-      formData.append('email', email);
+      formData.append('email', email || currentUser.emailId);
       formData.append('message', message);
 
       if (file) {
@@ -50,8 +78,8 @@ const Contact= () => {
       }
 
       try {
-        await apiClient.post('contact/', formData);
-        window.alert('Email sent successfully');
+        await apiClient.post('/contact', formData);
+        window.alert('성공적으로 문의가 접수되었습니다. 곧 연락드리겠습니다.');
         setName('');
         setPhone('');
         setEmail('');
@@ -59,8 +87,8 @@ const Contact= () => {
         if (file) setFile(null);
         setActiveLoading(false);
       }catch(err) {
-        if (apiClient.isAxiosError(err)) {
-          console.error('Error sending email:', err.response?.data);
+        if (axios.isAxiosError(err)) {
+          console.error('이메일 보내기 실패:', err.response?.data);
           setActiveLoading(false);
         } else {
           console.error('Network error:', err);
@@ -112,12 +140,22 @@ const Contact= () => {
   }, [email]);
 
   useEffect(() => {
-    if(name && phone && email && message && !checkFormTel() && !checkFormEmail()) {
-      setbuttonStatus(false);
-    } else {
-      setbuttonStatus(true);
+    if(user){
+      if(name && phone && !checkFormTel() && message) {
+        setbuttonStatus(false);
+      } else {
+        setbuttonStatus(true);
+      }
+    }else{
+      if(name && phone && email && message && !checkFormTel() && !checkFormEmail()) {
+        setbuttonStatus(false);
+      } else {
+        setbuttonStatus(true);
+      }
     }
   }, [phone, email, name, message]);
+
+  if(activeLoading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
 
   return (
     <>
@@ -127,7 +165,7 @@ const Contact= () => {
           <div className="contact_info_box">
             <div className="contact_info_icon"><IoCall size={30} /></div>
             <div className="contact_info_title">Call us</div>
-            <div className="contact_info_text">010-4553-8614</div>
+            <div className="contact_info_text">{aboutTel}</div>
           </div>
           <div className="contact_info_box">
             <div className="contact_info_icon"><FaLocationDot size={30} /></div>
@@ -136,14 +174,14 @@ const Contact= () => {
               서울 관악구 남부순환로 1820 에그옐로우 14층
               <span className="contact_info_sub">(서울 관악구 봉천동 862-1 | 087887)</span>
               <div className="contact_info_button_wrap">
-                <a href='/about/location' className='contact_info_btn'>Details</a>
+                <a href='/about/location' className='contact_info_btn'>자세히</a>
               </div>
             </div>
           </div>
           <div className="contact_info_box">
             <div className="contact_info_icon"><IoIosMail size={30} /></div>
             <div className="contact_info_title">Mail</div>
-            <div className="contact_info_text">seasign10@gmail.com</div>
+            <div className="contact_info_text">{aboutEmail}</div>
           </div>
         </div>
         <div className="contact_form_wrap">
@@ -178,7 +216,16 @@ const Contact= () => {
             </div>
             <div className="form_group">
               <label className="form_label">이메일 <span className="req_star">*</span></label>
-              <input
+              {currentUser?
+              (<input
+                type="email"
+                className="form_input"
+                value={currentUser.emailId}
+                readOnly
+                required
+              />)
+              :
+              (<input
                 type="email"
                 className="form_input"
                 placeholder="이메일을 입력하세요."
@@ -186,7 +233,8 @@ const Contact= () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 onBlur={emailHandleBlur}
-              />
+              />)
+            }
               {emailMsg} 
             </div>
             <div className="form_group">

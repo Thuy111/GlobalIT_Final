@@ -126,6 +126,15 @@ public class ChatController {
         if (myAccount == null) {
             return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
         }
+
+        // 이미 생성된 방이 있다면 해당 방으로 리다이렉트
+        List<ChatRoomDTO> existingRooms = chatService.findRoomsByUser(myAccount.getEmailId());
+        for (ChatRoomDTO room : existingRooms) {
+            if (room.getPartnerUser().equals(user) || room.getMemberUser().equals(user)) {
+                return "redirect: /smash/chat/chatRoom?roomId=" + room.getRoomId();
+            }
+        }
+
         String myEmail = myAccount.getEmailId();
 
         String memberUser;
@@ -148,6 +157,7 @@ public class ChatController {
         model.addAttribute("room", null); // room은 없음
         model.addAttribute("memberUser", memberUser);
         model.addAttribute("partnerUser", partnerUser);
+        model.addAttribute("sender", myEmail);
         model.addAttribute("messages", new ArrayList<>()); // 메시지 없음
         model.addAttribute("title", yourNickname);
         return "smash/chat/chatRoom";

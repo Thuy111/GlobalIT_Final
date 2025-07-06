@@ -1,0 +1,89 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Mail</title>
+  <style>
+    .contact_mail_container {
+      font-family: Arial, sans-serif;
+      color: #4a4a4a;
+      background-color: #fafafa;
+      border: 1px solid #eeeeee;
+      border-radius: 4px;
+      max-width: 600px;
+      margin: 2rem auto;
+      overflow: hidden;
+    }
+    .contact_mail_container h1{
+      text-align: start;
+      background-color: rgb(61, 61, 61);
+      color: white;
+      margin: 0;
+      padding: 1rem;
+    }
+    .site_name {
+      background: linear-gradient(145deg, #4ED7F1, #FFFA8D);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      /* -webkit-text-stroke: 1px #6ec7d9; */
+      /* text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1); */
+    }
+    .mail_body {padding: 1rem 2rem;}
+    .mail_body p:not(.content_body, .content) {margin: 2rem 0;}
+    .mail_body p:not(.content) strong {margin-right: 0.5rem; background-color: #4a4a4a; color: white; padding: 8px 16px;border-radius: 30px;box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);}
+    .mail_body .content_body {background-color: rgb(255, 255, 255);padding: 1rem 2rem;border-radius: 4px;}
+  </style>
+</head>
+<body>
+  <div class="contact_mail_container">
+    <h1><span class="site_name">SMaSh</span></h1>
+    <div class="mail_body">
+      <p><strong>이메일</strong><span th:text="${email}"></span></p>
+      <p><strong>이름</strong><span th:text="${name}"></span></p>
+      <p><strong>연락처</strong><span th:text="${phone}"></span></p>
+      <p class="content"><strong>문의 내용</strong></p>
+      <p class="content_body"><span th:text="${messageText}"></span></p>
+    </div>
+  </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Mail</title>
+</head>
+<body>
+  <div style="font-family: Arial, sans-serif; color: #4a4a4a; background-color: #fafafa; border: 1px solid #eeeeee; border-radius: 4px; max-width: 600px; margin: 2rem auto; overflow: hidden;">
+    <h1 style="text-align: start; background: linear-gradient(145deg, #4ed7f1, #fffa8d); color: white; margin: 0; padding: 1rem;">
+      <span>
+        SMaSh
+      </span>
+       문의
+    </h1>
+    <div style="padding: 1rem 2rem;">
+      <p style="margin: 2rem 0;">
+        <strong style="margin-right: 0.5rem; background-color: #4a4a4a; color: white; padding: 8px 16px; border-radius: 30px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);">이메일</strong>
+        <span th:text="${email}"></span>
+      </p>
+      <p style="margin: 2rem 0;">
+        <strong style="margin-right: 0.5rem; background-color: #4a4a4a; color: white; padding: 8px 16px; border-radius: 30px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);">이름</strong>
+        <span th:text="${name}"></span>
+      </p>
+      <p style="margin: 2rem 0;">
+        <strong style="margin-right: 0.5rem; background-color: #4a4a4a; color: white; padding: 8px 16px; border-radius: 30px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);">연락처</strong>
+        <span th:text="${phone}"></span>
+      </p>
+      <p style="margin: 2rem 0 0 0;">
+        <strong style="font-size: 16px;padding-left: 0.5rem;">문의 내용</strong>
+      </p>
+      <p style="background-color: rgb(255, 255, 255); padding: 1rem 2rem; border-radius: 4px;">
+        <span th:utext="${messageText}"></span>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

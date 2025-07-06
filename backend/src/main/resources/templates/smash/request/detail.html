@@ -265,6 +265,12 @@
         const memberUser = el.getAttribute('data-member-user');
         const partnerUser = el.getAttribute('data-partner-user');
         console.log('채팅방 생성 요청:', memberUser, partnerUser);
+
+        if(!memberUser || !partnerUser || memberUser === partnerUser) {
+          alert("채팅방 생성에 실패했습니다. 문제가 지속될 시, 문의해주세요.");
+          return;
+        }
+
         if(confirm(`${nickname}님과 1:1 채팅`) === false) {
           return;
         }
