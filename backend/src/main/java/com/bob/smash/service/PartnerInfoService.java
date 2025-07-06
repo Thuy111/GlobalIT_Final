@@ -18,6 +18,8 @@ public interface PartnerInfoService {
   void convertToUser(String emailId);
   // 유저 -> 파트너 전환 role 변경
   void updateRoleIfPartnerInfoExists(String emailId);
+  // 파트너 가게 이름 조회
+  public String getStoreNameByEmail(String emailId);
 
   // Dto → Entity 변환
   default PartnerInfo dtoToEntity(PartnerInfoDTO dto) {

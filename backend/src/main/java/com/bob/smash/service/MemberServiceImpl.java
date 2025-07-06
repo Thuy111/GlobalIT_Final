@@ -50,6 +50,27 @@ public class MemberServiceImpl implements MemberService {
     private final HttpSession session;
     // private final ReviewRepository reviewRepository;
 
+    // 회원 정보 DTO 변환 (이메일)
+    @Override
+    public MemberDTO findByEmailId(String emailId){
+        if (emailId == null || emailId.isEmpty()) {
+            throw new IllegalArgumentException("이메일이 누락되었습니다.");
+        }
+
+        Optional<Member> memberOpt = memberRepository.findByEmailId(emailId);
+        if (memberOpt.isEmpty()) {
+            throw new IllegalArgumentException("해당 이메일로 가입된 회원이 없습니다.");
+        }
+
+        Member member = memberOpt.get();
+        MemberDTO dto = entityToDto(member);
+        
+        // 문자열을 enum으로 안전하게 변환
+        dto.setLoginType(LoginType.valueOf(member.getLoginType().toString()));
+
+        return dto;
+    }
+
   // 소셜로그인 이메일을 통한 유저정보 DTO 반환
   @Override
   public MemberDTO getCurrentUser(OAuth2AuthenticationToken authentication) {

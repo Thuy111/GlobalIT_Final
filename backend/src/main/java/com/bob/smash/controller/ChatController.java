@@ -30,6 +30,7 @@ import com.bob.smash.entity.ChatRoom;
 import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.service.ChatService;
 import com.bob.smash.service.MemberService;
+import com.bob.smash.service.PartnerInfoService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
     private final ChatService chatService;
     private final MemberService memberService;
+    private final PartnerInfoService partnerInfoService;
     private final HttpSession session;
 
     @Value("${front.server.url}")
@@ -47,18 +49,25 @@ public class ChatController {
 
     //  채팅방 목록 조회
     @GetMapping("/roomList")
-    public String roomList(@RequestParam String memberUser, Model model, HttpSession session) {
+    public String roomList(@RequestParam String user, Model model, HttpSession session) {
         try{
-            CurrentUserDTO currntUser = (CurrentUserDTO) session.getAttribute("currentUser");
-            if(currntUser == null) {
+            CurrentUserDTO myAccount = (CurrentUserDTO) session.getAttribute("currentUser");
+            if(myAccount == null) {
                 return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
-            }else if(!currntUser.getEmailId().equals(memberUser)) {
+            }else if(!myAccount.getEmailId().equals(user)) {
                 return "redirect:" + frontServerUrl + "/profile?error=invalidUser";
             }
+
+            // 채팅방 목록 조회(멤버 또는 파트너 유저로 조회)
+            List<ChatRoomDTO> roomList;
+            if (myAccount.getRole() == 0) { // 일반회원
+                roomList = chatService.findRoomsByMemberUser(user);
+            } else { // 업체회원
+                roomList = chatService.findRoomsByPartnerUser(user);
+            }
     
-            List<ChatRoomDTO> roomList = chatService.findRoomsByUser(memberUser);
             model.addAttribute("roomList", roomList == null ? new ArrayList<>() : roomList);
-            model.addAttribute("memberUser", memberUser == null ? "" : memberUser);
+            model.addAttribute("memberUser", user == null ? "" : user);
             model.addAttribute("title", "채팅방 목록");
             return "smash/chat/roomList";
         }catch (Exception e) {
@@ -127,31 +136,32 @@ public class ChatController {
             return "redirect:" + frontServerUrl + "/profile?error=notLoggedIn";
         }
 
-        // 이미 생성된 방이 있다면 해당 방으로 리다이렉트
-        List<ChatRoomDTO> existingRooms = chatService.findRoomsByUser(myAccount.getEmailId());
-        for (ChatRoomDTO room : existingRooms) {
-            if (room.getPartnerUser().equals(user) || room.getMemberUser().equals(user)) {
-                return "redirect: /smash/chat/chatRoom?roomId=" + room.getRoomId();
-            }
-        }
-
         String myEmail = myAccount.getEmailId();
+        // 이미 생성된 방이 있다면 해당 방으로 리다이렉트
+        ChatRoomDTO room = chatService.findRoomByMembersAndRole(myEmail, user, myAccount.getRole());
+        if (room != null) {
+            return "redirect:/smash/chat/chatRoom?roomId=" + room.getRoomId();
+        }
 
         String memberUser;
         String partnerUser; 
 
+        String you;
+
         if(myAccount.getRole() == 0){ // 일반 사용자
             memberUser = myEmail;
             partnerUser = user;
+            // 상대방 업체이름 조회
+            you = partnerInfoService.getPartnerInfo(user).getName();
         }else { // 관리자 또는 업체
             partnerUser = myEmail;
             memberUser = user;
+            // 상대방 닉네임 조회
+            you = memberService.findNicknameByEmail(user);
         }
 
-        // 상대방 닉네임 조회
-        String yourNickname = memberService.findNicknameByEmail(user);
-        if (yourNickname == null || yourNickname.isEmpty()) {
-            yourNickname = "탈퇴한 사용자";
+        if (you == null || you.isEmpty()) {
+            you = "탈퇴한 사용자";
         }
 
         model.addAttribute("room", null); // room은 없음
@@ -159,7 +169,7 @@ public class ChatController {
         model.addAttribute("partnerUser", partnerUser);
         model.addAttribute("sender", myEmail);
         model.addAttribute("messages", new ArrayList<>()); // 메시지 없음
-        model.addAttribute("title", yourNickname);
+        model.addAttribute("title", you);
         return "smash/chat/chatRoom";
     }
 
@@ -181,28 +191,34 @@ public class ChatController {
             String myEmail = myAccount.getEmailId();
             System.out.println("내 이메일 ::::::: " + myEmail);
 
-            // room DTO에서 상대방 정보 추출
+            String memberUser;
             String partnerUser;
-            if (room.getMemberUser().equals(myEmail)) {
+            // room DTO에서 상대방 정보 추출
+            String you;
+            if (room.getMemberUser().equals(myEmail)) { // 내가 멤버인 경우
                 partnerUser = room.getPartnerUser();
-            } else if (room.getPartnerUser().equals(myEmail)) {
+                memberUser = room.getMemberUser();
+                // 상대방 업체이름 조회
+                you = partnerInfoService.getPartnerInfo(partnerUser).getName();
+            } else if (room.getPartnerUser().equals(myEmail)) { // 내가 파트너인 경우
                 partnerUser = room.getMemberUser();
+                memberUser = room.getPartnerUser();
+                // 상대방 닉네임 조회
+                you = memberService.findNicknameByEmail(memberUser);
             } else {
                 throw new RuntimeException("이 채팅방에 접근 권한이 없습니다.");
             }
 
-            // 상대방 닉네임 조회
-            String yourNickname = memberService.findNicknameByEmail(partnerUser);
-            if (yourNickname == null || yourNickname.isEmpty()) {
-                yourNickname = "탈퇴한 사용자";
+            if (you == null || you.isEmpty()) {
+                you = "탈퇴한 사용자";
             }
             
             model.addAttribute("room", room);
-            model.addAttribute("memberUser", myEmail);
+            model.addAttribute("memberUser", memberUser);
             model.addAttribute("partnerUser", partnerUser);
             model.addAttribute("sender", myEmail);
             model.addAttribute("messages", chatService.getMessages(roomId));
-            model.addAttribute("title", yourNickname);
+            model.addAttribute("title", you);
             return "smash/chat/chatRoom";
         }
         catch (Exception e) {

@@ -11,6 +11,9 @@ import com.bob.smash.entity.Member;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface MemberService {
+  // 이메일로 유저정보 조회
+  MemberDTO findByEmailId(String emailId);
+
   // 유저 정보 조회
   void checkUser(OAuth2AuthenticationToken user, HttpServletRequest request);
 

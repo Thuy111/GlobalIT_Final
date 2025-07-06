@@ -58,21 +58,20 @@ body.dark nav ul.nav-list li.active a, body.dark nav ul.nav-list li.active i{col
   z-index: -1;
 }
 
-button {
+button, [class*="btn"] {
   cursor: pointer;
-  background-color: #4ED7F1;
-  color: white;
+  background-color: #4ED7F1 !important;
+  color: white !important;
   padding: 0.5rem 0.8rem !important;
   border-radius: 4px !important;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   /* background-color: transparent; */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.8rem 1rem;
 }
-button:hover {
+button:hover, [class*="btn"]:hover {
   background-color: #3bb8d4;
 }
 button:disabled, [class*="btn"]:disabled {
@@ -159,7 +158,9 @@ textarea::-webkit-scrollbar-track { background: #f1f1f1; }
 }
 
 input:read-only {background-color: #f0f0f0;color: #666;cursor: default;}
+body.dark input:read-only {background-color: #454545 !important;}
 body input:read-only:focus {outline: none; border: 1px solid #ccc;box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);}
+body.dark input:read-only:focus {outline: none; border: 1px solid #3a3a3a;}
 
 /* TopBar */
 .top-bar {

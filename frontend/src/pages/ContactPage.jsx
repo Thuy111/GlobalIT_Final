@@ -15,6 +15,7 @@ const Contact= () => {
   const [currentUser, setCurrentUser] = useState(user);
   const [aboutTel, setAboutTel] = useState('');
   const [aboutEmail, setAboutEmail] = useState('');
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchAbout = async () => {
@@ -159,6 +160,7 @@ const Contact= () => {
 
   return (
     <>
+      <LocationModal isOpen={locationModalOpen} onClose={() => setLocationModalOpen(false)} />
       <TitleBar title="문의하기" />
       <div className="contact_container">
         <div className="contact_info_wrap">
@@ -174,7 +176,7 @@ const Contact= () => {
               서울 관악구 남부순환로 1820 에그옐로우 14층
               <span className="contact_info_sub">(서울 관악구 봉천동 862-1 | 087887)</span>
               <div className="contact_info_button_wrap">
-                <a href='/about/location' className='contact_info_btn'>자세히</a>
+                <a className='contact_info_btn' onClick={()=> setLocationModalOpen(true)}>자세히</a>
               </div>
             </div>
           </div>
@@ -278,3 +280,28 @@ const Contact= () => {
 }
 
 export default Contact;
+
+const LocationModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="location_modal">
+      <div className="location_modal_content">
+        <div className='close_box'>
+          <button onClick={onClose}><i className="fa-solid fa-xmark"></i></button>
+        </div>
+        <h2><i className="fa-solid fa-map-location-dot"></i>위치 안내</h2>
+        <p className='location_addr'>서울 관악구 남부순환로 1820 에그옐로우 14층</p>
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d791.5349592027756!2d126.95156224659736!3d37.481026362621655!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x357c9f89b200917b%3A0xf760cf9872a04916!2z7ISc7Jq47Yq567OE7IucIOq0gOyVheq1rCDrgqjrtoDsiJztmZjroZwgMTgyMA!5e0!3m2!1sko!2skr!4v1751816495624!5m2!1sko!2skr"
+          width="600"
+          height="450"
+          style={{ border: 0 }}
+          allowFullScreen=""
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </div>
+  );
+}
