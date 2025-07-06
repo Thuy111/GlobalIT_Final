@@ -78,7 +78,6 @@
               // stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
   
               roomId = res.data.roomId;
-              connectWebSocketAndSendMessage(content); // 소켓 연결 및 메시지 전송
               window.location.href = `/smash/chat/chatRoom?roomId=${roomId}`;
             }).catch(err => {
                 console.error('메시지 전송 실패:', err);

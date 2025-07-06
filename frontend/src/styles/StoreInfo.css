@@ -109,11 +109,13 @@ body.dark .storeInfo_container .ratingStars i {color: #FFFA8D;}
 body.dark .storeInfo_container .view_more {border-color: rgb(78, 78, 78);}
 .storeInfo_container .view_more .button {padding: 1rem 2rem; border-bottom: 1px solid;}
 .storeInfo_container .store_info {display: flex; justify-content: space-between; align-items: center;padding: 0 2rem;}
-.storeInfo_container .store_info_left {display: flex; align-items: center;}
-.storeInfo_container .store_info_left .store_name{font-size: 22px; font-weight: bold;}
+.storeInfo_container .store_info_left {display: flex; align-items: center;width: 50%;}
+.storeInfo_container .store_info_left .store_name{font-size: 22px; font-weight: bold;width: calc(100% - 140px);}
 .storeInfo_container .store_icon_box {margin-right: 1rem; width: 60px; height: 60px; background-color: #bff3ff;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
 .storeInfo_container .store_icon_box i {font-size: 24px; color: #3bb8d4;}
-.storeInfo_container .store_info_right p{margin: 1.5rem 4rem 1.5rem 0;}
+.storeInfo_container .store_info_right{width: 50%;}
+.storeInfo_container .store_info_right p{margin: 1.5rem 4rem 1.5rem 1rem;display: flex;align-items: center;}
+.storeInfo_container .store_info_right .badge{white-space: nowrap;margin-bottom: auto;}
 body.dark .storeInfo_container .store_icon_box {margin-right: 1rem; width: 60px; height: 60px; background-color: #FFFA8D;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
 body.dark .storeInfo_container .store_icon_box i {font-size: 24px; color: #e98f00;}
 
@@ -127,6 +129,10 @@ body.dark .storeInfo_container .view_more .button:hover {background-color: rgba(
 .storeInfo_container .view_more .button.active {border-bottom: 5px solid; font-weight: bold;}
 .storeInfo_container .view_content {padding: 2rem;}
 
+/* 채팅 뱃지 */
+.storeInfo_container .icon_box {padding: 0.6rem;border-radius: 30px;box-shadow: 0 1px 2px rgb(91 38 8 / 16%);background-color: #fff3e0;color: #ff9800;cursor: pointer;white-space: nowrap;margin-left: 0.5rem;display: flex;align-items: center;transition: all 0.2s;}
+.storeInfo_container .icon_box:hover {color: #fff3e0;background-color: #ff9800;}
+.storeInfo_container i.fa-comment-dots {font-size: 24px !important;}
 
 /* 반응형 */
 @media (max-width: 1200px) {
@@ -136,9 +142,11 @@ body.dark .storeInfo_container .view_more .button:hover {background-color: rgba(
 @media (max-width: 768px) {
   .storeInfo_container .carousel-card {height: 400px}
   .storeInfo_container .store_info {flex-direction: column; align-items: flex-start;}
-  .storeInfo_container .store_info_left {margin: 2rem 0;}
+  .storeInfo_container .store_info_left {margin: 2rem 0; width: 100%;}
   .storeInfo_container .view_more {justify-content: center;}
+  .storeInfo_container .store_info_right{width:100%;}
   .storeInfo_container .store_info_right p{margin: 1.5rem 0;}
+  .request_wrapper .name_created_box .writer_info .icon_box {margin: 6px 0;font-size: 14px;}
 }
 @media (max-width: 500px) {
   .storeInfo_container .carousel-card {height: 280px}
