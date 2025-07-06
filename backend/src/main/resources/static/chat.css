@@ -2,6 +2,18 @@
 .chat_container{justify-content: center;height: calc(100vh - 300px);display: flex;align-items: center;}
 .chat_container h2{font-size: 20px;color: gray;}
 .chat_list {height: 100%;width:100%;}
+body.dark .room_list {border-color: #393939;}
+body.dark .room_list:last-child {border-color: #393939;}
+.room_list {padding: 2rem; border-top: 1px solid #dee2e6;display: flex; justify-content: space-between;}
+.room_list:last-child {border-bottom: 1px solid #dee2e6;}
+.room_list:hover {background-color: #fafafa;}
+body.dark .room_list:hover {background-color: #1b1b1b;}
+.room_body{display: flex;flex-direction: column;text-align: start;width: 84%;}
+.room_body .room_name{display: flex;justify-content: start;margin-bottom: 0.5rem;}
+.room_body .room_name *{font-size: 24px;}
+.room_body .room_name .chat_room{font-weight: bold;margin-right: 0.5rem;}
+.room_body .last_msg{font-size: 18px;margin-left: 0.5rem;margin-bottom: 1rem;}
+.room_body .last_time{font-size: 14px;color: gray;text-align: end;}
 
 /* 채팅방 css */
 .chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;padding-bottom: 2rem;}
@@ -39,5 +51,3 @@ body.dark .chatRoom_container .messageArea .msg_box .created_at{color:#9d9a88;}
 .chatRoom_container .msg.me {background-color: #ccf7ff;color: #0c7a91}
 body.dark .chatRoom_container .msg.me {background-color: #784a67;color: #ffe581;}
 .chatRoom_container .msg.you {background-color: #f0f0f0; color: #161616;}
-
-.chatRoom_container .up_scroll {}

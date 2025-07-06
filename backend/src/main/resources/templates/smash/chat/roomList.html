@@ -5,18 +5,23 @@
         <h2 th:if="${#lists.isEmpty(roomList)}">채팅방이 없습니다.</h2>
         
         <div class="chat_list" th:if="${!#lists.isEmpty(roomList)}">
-          <table class="table">
-            <tr th:each="room : ${roomList}" th:if="${room.roomId != null}">
-              <td>
+          <div th:each="room : ${roomList}" th:if="${room.roomId != null}" class="room_list">
+            <div class="room_body">
+              <div class="room_name">
                 <div th:class="|${room.roomId} chat_room|"
-                  th:text="${currentUser.role == 0 ? room.partnerNickname + '님과의 채팅방' :
-                            (currentUser.role == 1 ? room.memberNickname + '님과의 채팅방' :
-                            room.memberNickname + '-' + room.partnerNickname + ' 채팅방')}">
+                  th:text="${currentUser.role == 0 ? room.partnerStoreName :
+                            (currentUser.role == 1 ? room.memberNickname :
+                            room.memberNickname + '-' + room.partnerStoreName)}">
                 </div>
-                <a th:href="@{chatRoom(roomId=${room.roomId})}" class="btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>
-              </td>
-            </tr>
-          </table>
+                <span> 채팅방</span>
+              </div>
+              <div class="last_msg" th:text="${room.lsatMessage.message}"></div>
+              <div class="last_time">[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(room.lsatMessage.time)}]]</div>
+            </div>
+            <div class="room_enter_box">
+              <a th:href="@{chatRoom(roomId=${room.roomId})}" class="btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>
+            </div>
+          </div>
         </div>
 
     </div>

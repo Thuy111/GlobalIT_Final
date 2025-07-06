@@ -366,7 +366,7 @@ const StorePage = () => {
               )}
               {loggedInMemberId&&!isOwner&&user?.role!=1&&
                 <span className="icon_box"
-                  onClick={()=> handleCreateRoom(loggedInMemberId, ownerEmail)}><i className="fa-solid fa-comment-dots"></i></span>
+                  onClick={()=> handleCreateRoom(loggedInMemberId, ownerEmail)}><i className="fa-solid fa-comment-dots"></i> 문의</span>
               }
             </div>
             <div className="store_info_right">

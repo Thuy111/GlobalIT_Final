@@ -12,6 +12,13 @@ public interface ChatService {
     // 새로고침 후에도 (무조건 세션이 끊김)을 해도 채팅방에 들어갈 수 있도록 메시지 조회
     List<ChatMessageDTO> getMessages(String roomId);
 
+    // 멤버유저 또는 파트너 유저가 포함된 채팅방 목록 조회
+    List<ChatRoomDTO> findRoomsByMemberUser(String memberUser);
+    List<ChatRoomDTO> findRoomsByPartnerUser(String partnerUser);
+
+    // role에 따른 채팅방 조회
+    ChatRoomDTO findRoomByMembersAndRole(String myEmail, String otherEmail, int myRole);
+
     // 유저 A 또는 B가 포함된 채팅방 목록 조회
     List<ChatRoomDTO> findRoomsByUser(String username);
 

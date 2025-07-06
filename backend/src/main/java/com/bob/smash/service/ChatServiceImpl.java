@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
+    private final PartnerInfoService partnerInfo;
 
     // 유저 A 또는 B가 포함된 채팅방 목록 조회 (한 명의 유저가 참여한 모든 채팅방)
     public List<ChatRoomDTO> findRoomsByUser(String username) {
@@ -38,6 +40,33 @@ public class ChatServiceImpl implements ChatService {
         return rooms.stream()
             .map(this::entityToDto) // Entity -> DTO 변환
             .collect(Collectors.toList());
+    }
+
+    // 멤버유저 또는 파트너 유저가 포함된 채팅방 목록 조회
+    @Override
+    public List<ChatRoomDTO> findRoomsByMemberUser(String memberUser) {
+        return chatRoomRepository.findByMemberUser(memberUser)
+            .stream().map(this::entityToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChatRoomDTO> findRoomsByPartnerUser(String partnerUser) {
+        return chatRoomRepository.findByPartnerUser(partnerUser)
+            .stream().map(this::entityToDto).collect(Collectors.toList());
+    }
+
+    // role에 따른 채팅방 조회
+    @Override
+    public ChatRoomDTO findRoomByMembersAndRole(String myEmail, String otherEmail, int myRole) {
+        ChatRoom room = null;
+        if (myRole == 0) {
+            // 일반유저: memberUser=나, partnerUser=상대
+            room = chatRoomRepository.findByMemberUserAndPartnerUser(myEmail, otherEmail).orElse(null);
+        } else {
+            // 업체/관리자: partnerUser=나, memberUser=상대
+            room = chatRoomRepository.findByMemberUserAndPartnerUser(otherEmail, myEmail).orElse(null);
+        }
+        return room != null ? entityToDto(room) : null;
     }
 
     // 방을 roomId로 찾는 메서드 추가
@@ -139,7 +168,7 @@ public class ChatServiceImpl implements ChatService {
                 .memberUser(entity.getMemberUser())
                 .memberNickname(memberRepository.findNicknameByEmailId(entity.getMemberUser())) // 나의 닉네임 조회
                 .partnerUser(entity.getPartnerUser())
-                .partnerNickname(memberRepository.findNicknameByEmailId(entity.getPartnerUser())) // 상대방의 닉네임 조회
+                .partnerStoreName(partnerInfo.getStoreNameByEmail(entity.getPartnerUser())) // 상대방의 가게이름 조회
                 .name(entity.getName())
                 .lsatMessage(lastMessageDTO) // 마지막 메시지 내용 조회
                 .createdAt(entity.getCreatedAt())

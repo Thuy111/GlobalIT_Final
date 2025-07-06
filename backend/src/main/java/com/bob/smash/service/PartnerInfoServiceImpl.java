@@ -274,4 +274,12 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     SecurityContextHolder.getContext().setAuthentication(newAuth);
   }
 
+  // 파트너 가게 이름 조회
+  @Override
+  public String getStoreNameByEmail(String emailId) {
+    PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(emailId)
+        .orElseThrow(() -> new IllegalArgumentException("파트너 정보가 없습니다."));
+    return partnerInfo.getName();
+  }
+
 }
