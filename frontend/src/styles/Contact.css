@@ -2,7 +2,7 @@
 
 body.dark .contact_container .form_input {background-color: rgb(19, 19, 19);border: 1px solid #3a3a3a;color: #e5e5e5;}
 body.dark .contact_container .form_input:read-only{background-color: #454545 !important;}
-body.dark .form_input:read-only:focus {outline: none; border: 1px solid #3a3a3a;}
+body.dark .form_input:read-only:focus {outline: none; border: 1px solid #3a3a3a;box-shadow: none;}
 .contact_container .form_input[type="file"]{height: 44px;padding-left: 0.8rem;}
 
 .contact_container {
