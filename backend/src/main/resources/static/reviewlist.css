@@ -138,4 +138,44 @@ body.dark .review_container .review_text p {color: #bebebe;}
     object-fit: cover;
     margin-right: 0.5rem;
     vertical-align: middle;
+    cursor: pointer;
+}
+/* 모달 기본 스타일 */
+.modal {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 9999;
+  inset: 0; /* top:0; bottom:0; left:0; right:0; */
+  background-color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-img {
+  max-width: 60vw;  /* 뷰포트 너비의 60%로 제한 */
+  max-height: 60vh; /* 뷰포트 높이의 60%로 제한 */
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  cursor: default; /* 이미지에 마우스 올렸을 때 손가락 커서 안 나오게 */
+}
+
+.modal-close {
+  position: fixed; /* fixed로 위치 고정 */
+  top: 20px;
+  right: 30px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+  z-index: 10000;
+}
+
+.modal-close:hover {
+  opacity: 0.7;
 }

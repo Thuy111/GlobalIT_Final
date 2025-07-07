@@ -255,7 +255,12 @@
 
     <div class="bottom_space"></div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
-
+      <!-- 모달 HTML: 프로필 이미지 클릭 시 뜨는 모달 -->
+  <div id="profileModal" class="modal" onclick="closeProfileModal()">
+    <span class="modal-close">&times;</span>
+    <img id="modalProfileImg" class="modal-img" />
+  </div>
+  
     <script th:inline="javascript">
       const nickname = /*[[${writerNickname}]]*/ '';
       const currentUser = /*[[${currentUser.emailId}]]*/ null;
@@ -372,6 +377,18 @@
         });
 
       });
+      // 리뷰 프로필이미지
+        function openProfileModal(imageUrl) {
+    const modal = document.getElementById('profileModal');
+    const modalImg = document.getElementById('modalProfileImg');
+    modalImg.src = imageUrl;
+    modal.style.display = 'flex';
+  }
+
+  function closeProfileModal() {
+    const modal = document.getElementById('profileModal');
+    modal.style.display = 'none';
+  }
     </script>
     <!-- 의뢰서 상세 페이지.End-->
   </th:block>
