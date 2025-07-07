@@ -138,18 +138,18 @@ body.dark .review_container .star-rating label:hover ~ label {
 
 /* 초기화 버튼 */
 .review_container #image_reset_btn {
-  color: #333;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 6px 14px;
-  border-radius: 6px;
+  color: #333 !important;
+  background-color: #f0f0f0 !important;
+  border: 1px solid #ccc !important;
+  padding: 6px 14px !important;
+  border-radius: 6px !important;
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.3s;
 }
-.review_container #image_reset_btn:hover{background-color: #d9d9d9;border: 1px solid #bdbdbd;}
-body.dark .review_container #image_reset_btn{background-color: #3a3a3a;color: #c3c3c3; border: 1px solid #191919}
-body.dark .review_container #image_reset_btn:hover{background-color: rgb(49, 49, 49);}
+.review_container #image_reset_btn:hover{background-color: #d9d9d9 !important;border: 1px solid #bdbdbd !important;}
+body.dark .review_container #image_reset_btn{background-color: #3a3a3a !important;color: #c3c3c3 !important; border: 1px solid #191919 !important;}
+body.dark .review_container #image_reset_btn:hover{background-color: rgb(49, 49, 49) !important;}
 
 
 /* 제출 버튼 */

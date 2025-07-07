@@ -93,7 +93,7 @@ body.dark .storeInfo_container hr.line {border-color:rgb(78, 78, 78);}
   align-items: center;
   justify-content: center;
 }
-#image_reset_btn {font-size: 0.9em; margin-top: 1em;}
+#image_reset_btn {font-size: 0.9em; margin-top: 1em !important;}
 
 /* 별점 */
 body.dark .storeInfo_container .ratingStars i {color: #FFFA8D;}

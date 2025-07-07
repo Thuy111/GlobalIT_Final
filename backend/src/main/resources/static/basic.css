@@ -35,8 +35,8 @@ body {
 
 /* theme-dark */
 body.dark {background-color: #242424;color: white;}
-body.dark button, body.dark [class*="btn"] {background-color: #FFFA8D; color: black;}
-body.dark button:hover, body.dark [class*="btn"]:hover {background-color: rgb(252, 215, 6);}
+body.dark button, body.dark [class*="btn"] {background-color: #FFFA8D !important; color: black !important;}
+body.dark button:hover, body.dark [class*="btn"]:hover {background-color: rgb(252, 215, 6) !important;}
 body.dark .top-bar {background: linear-gradient(to bottom, rgba(30, 30, 30, 0.7) 60%, rgba(30, 30, 30, 0));}
 body.dark button:disabled, body.dark [class*="btn"]:disabled {background-color: #ccc;color: #666;cursor: default;}
 body.dark button:disabled:hover, body.dark [class*="btn"]:disabled:hover {background-color: #ccc;color: #666;cursor: default;}
@@ -72,7 +72,7 @@ button, [class*="btn"] {
   align-items: center;
 }
 button:hover, [class*="btn"]:hover {
-  background-color: #3bb8d4;
+  background-color: #3bb8d4 !important;
 }
 button:disabled, [class*="btn"]:disabled {
   background-color: #ccc;
@@ -433,19 +433,19 @@ button.submit_style {width: 100%; max-width: 320px; border-radius: 30px !importa
 #image_reset_btn {
   margin-top: -3px;
   margin: 10px auto;
-  padding: 4px 10px;
+  padding: 4px 10px !important;
   font-size: 11px;
-  color: #333;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  color: #333 !important;
+  background-color: #f0f0f0 !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
   cursor: pointer;
   transition: background-color 0.2s;
   align-self: center;
 }
-#image_reset_btn:hover {background-color: #e0e0e0;}
-body.dark #image_reset_btn {background-color: #292929;color: #c3c3c3; border: 1px solid #191919}
-body.dark #image_reset_btn:hover{background-color: rgb(49, 49, 49);}
+#image_reset_btn:hover {background-color: #e0e0e0 !important;}
+body.dark #image_reset_btn {background-color: #292929 !important;color: #c3c3c3 !important; border: 1px solid #191919 !important;}
+body.dark #image_reset_btn:hover{background-color: rgb(49, 49, 49) !important;}
 
 
 /* detail의 리뷰 */
