@@ -142,21 +142,7 @@
               }
             });
           });
-
-          // 업체명 클릭 시 해당 업체 소개 페이지로 이동
-          document.querySelectorAll(".partner_info .name").forEach(nameElem => {
-            nameElem.style.cursor = "pointer"; // UX: 손가락 커서
-            nameElem.addEventListener("click", function(e) {
-              // 부모 .partner_name에서 data-href 읽기
-              const partnerNameDiv = nameElem.closest(".partner_name");
-              const url = partnerNameDiv ? partnerNameDiv.getAttribute("data-href") : null;
-              if (url) {
-                window.location.href = url;
-              }
-              // 이벤트 버블링 방지(필요시)
-              e.stopPropagation();
-            });
-          });
+          
         });
       </script>
     </div>

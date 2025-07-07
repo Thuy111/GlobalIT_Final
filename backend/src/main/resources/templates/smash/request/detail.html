@@ -170,7 +170,7 @@
               </div>
               <div class="patner_tel">
                 <span class="badge">연락처</span>
-                <span th:text="${estimate.partnerTel}"></span>
+                <span class="tel" th:text="${estimate.partnerTel}"></span>
               </div>
               <div>
                 <span class="badge">주소</span>
@@ -328,6 +328,28 @@
       };
 
       document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.tel').forEach(function(el){
+          let tel = el.textContent.trim();
+          tel = tel.replace(/[^\d]/g, '');
+          // 02로 시작, 9자리: 02-XXX-YYYY
+          if (tel.startsWith("02") && tel.length === 9) {
+            tel = tel.replace(/^(\d{2})(\d{3})(\d{4})$/, "$1-$2-$3");
+          }
+          // 02로 시작, 10자리: 02-XXXX-YYYY
+          else if (tel.startsWith("02") && tel.length === 10) {
+            tel = tel.replace(/^(\d{2})(\d{4})(\d{4})$/, "$1-$2-$3");
+          }
+          // 휴대폰 11자리: 010-XXXX-YYYY
+          else if (tel.length === 11) {
+            tel = tel.replace(/^(\d{3})(\d{4})(\d{4})$/, "$1-$2-$3");
+          }
+          // 0XX로 시작, 10자리: 0XX-XXX-YYYY or 0XX-XXXX-YYY
+          else if (tel.length === 10) {
+            tel = tel.replace(/^(\d{3})(\d{3,4})(\d{4})$/, "$1-$2-$3");
+          }
+          el.textContent = tel;
+        });
+
         // 이미지 lightbox. Js code((이미지 크게 보기)
         const images = document.querySelectorAll(".zoomable_image");
         const lightbox = document.getElementById("lightbox");
@@ -376,18 +398,20 @@
         });
 
       });
-      // 리뷰 프로필이미지
-        function openProfileModal(imageUrl) {
-    const modal = document.getElementById('profileModal');
-    const modalImg = document.getElementById('modalProfileImg');
-    modalImg.src = imageUrl;
-    modal.style.display = 'flex';
-  }
 
-  function closeProfileModal() {
-    const modal = document.getElementById('profileModal');
-    modal.style.display = 'none';
-  }
+      // 리뷰 프로필이미지 모달 열기
+      function openProfileModal(imageUrl) {
+        const modal = document.getElementById('profileModal');
+        const modalImg = document.getElementById('modalProfileImg');
+        modalImg.src = imageUrl;
+        modal.style.display = 'flex';
+      }
+
+      // 프로필 모달 닫기
+      function closeProfileModal() {
+        const modal = document.getElementById('profileModal');
+        modal.style.display = 'none';
+      }
     </script>
     <!-- 의뢰서 상세 페이지.End-->
   </th:block>
