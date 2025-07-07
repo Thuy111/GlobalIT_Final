@@ -30,4 +30,8 @@ public interface EstimateRepository extends JpaRepository<Estimate, Integer> {
   // 낙찰 업체 조회(의뢰서의 상세 주소 보임 처리용)
   @Query("SELECT e.partnerInfo.bno FROM Estimate e WHERE e.request.idx = :requestIdx AND e.isSelected = 2")
   Optional<Long> findWinnerBnoByRequestIdx(@Param("requestIdx") Integer requestIdx);
+
+  // 홈에 견적서 최저가 불러오기
+  @Query("SELECT MIN(e.price) FROM Estimate e WHERE e.request.idx = :requestIdx")
+  Integer findMinPriceByRequestIdx(@Param("requestIdx") Integer requestIdx);
 }

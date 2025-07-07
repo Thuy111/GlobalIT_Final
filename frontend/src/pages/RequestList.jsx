@@ -197,7 +197,7 @@ function RequestList() {
           종료된 의뢰 숨기기
         </label>
       </div>
-      
+
       {/* 📄 의뢰서 카드 리스트 */}
       {filteredRequests.map((item) => (
         <div
@@ -244,6 +244,10 @@ function RequestList() {
                 ) : null
               )}
           </div>
+          <div className="request-min-price" style={{ textAlign: "right", fontWeight: "bold", marginTop: "8px" }}>
+            현재 최저가: {item.minEstimatePrice != null ? item.minEstimatePrice.toLocaleString() + "원" : "없음"}
+          </div>
+
         </div>
       ))}
     </div>
