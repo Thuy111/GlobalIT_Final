@@ -6,21 +6,25 @@ import "slick-carousel/slick/slick-theme.css";
 import '../styles/RequestList.css';
 
 function RequestList() {
-
   const [allRequests, setAllRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [hashtags, setHashtags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
-  const [loading, setLoading] = useState(true); // 로딩 상태
+  const [loading, setLoading] = useState(true);
+  const [hideExpired, setHideExpired] = useState(false); // ✅ 종료된 의뢰 숨기기 체크박스 상태
 
   const baseUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // 로딩 시작
+      setLoading(true);
       try {
-        const res = await apiClient.get(`/request/main`);
+        const res = await apiClient.get(`/request/main`, {
+          params: {
+            hideExpired: hideExpired, // ✅ 종료 숨기기 파라미터
+          },
+        });
         setAllRequests(res.data.request ?? []);
         setFilteredRequests(res.data.request ?? []);
         const fetchedTags = res.data.hashtags ?? [];
@@ -28,10 +32,10 @@ function RequestList() {
       } catch (error) {
         console.error("요청 실패:", error);
       }
-      setLoading(false); // 로딩 끝
+      setLoading(false);
     };
     fetchData();
-  }, []);
+  }, [hideExpired]); // ✅ hideExpired 바뀔 때마다 새로 fetch
 
   useEffect(() => {
     if (selectedTag && selectedTag !== "전체") {
@@ -45,7 +49,7 @@ function RequestList() {
   };
 
   const handleSearch = () => {
-    if (loading) return; // 로딩 중에는 검색하지 않음
+    if (loading) return;
     const keyword = search.trim().toLowerCase();
     const filtered = allRequests.filter((item) => {
       const inTitle = item.title?.toLowerCase().includes(keyword);
@@ -163,6 +167,7 @@ function RequestList() {
         </div>
       </form>
 
+
       {/* 🏷 해시태그 필터 */}
       {hashtags && (
         <div className="hashtag-badge-container">
@@ -180,6 +185,19 @@ function RequestList() {
         </div>
       )}
 
+      {/* ✅ 종료 숨기기 토글 */}
+      <div className="hide-expired-toggle" style={{ textAlign: "right", margin: "10px" }}>
+        <label style={{ fontSize: "14px", cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={hideExpired}
+            onChange={(e) => setHideExpired(e.target.checked)}
+            style={{ marginRight: "5px" }}
+          />
+          종료된 의뢰 숨기기
+        </label>
+      </div>
+      
       {/* 📄 의뢰서 카드 리스트 */}
       {filteredRequests.map((item) => (
         <div
@@ -195,23 +213,23 @@ function RequestList() {
 
           <div className="request-header">
             <h3 className="request-title">{item.title}</h3>
-              <p
-                className={`request-status ${
-                  item.isDone === 0
-                    ? item.dday === "종료" ? "failed" : "pending"
-                    : item.isDone === 1
-                    ? "completed"
-                    : "failed"
-                }`}
-              >
-                {item.isDone === 0
-                  ? item.dday === "종료"
-                    ? "미낙찰"
-                    : "낙찰대기"
+            <p
+              className={`request-status ${
+                item.isDone === 0
+                  ? item.dday === "종료" ? "failed" : "pending"
                   : item.isDone === 1
-                  ? "낙찰완료"
-                  : "미낙찰"}
-              </p>
+                  ? "completed"
+                  : "failed"
+              }`}
+            >
+              {item.isDone === 0
+                ? item.dday === "종료"
+                  ? "미낙찰"
+                  : "낙찰대기"
+                : item.isDone === 1
+                ? "낙찰완료"
+                : "미낙찰"}
+            </p>
           </div>
 
           <p className="request-content">{item.content}</p>

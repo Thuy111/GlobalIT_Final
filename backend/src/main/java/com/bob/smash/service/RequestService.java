@@ -35,7 +35,7 @@ public interface RequestService {
     Integer changeIsGet(Integer Idx);
 
     // ⭐ 무한스크롤용 페이지네이션 메서드 추가
-    Map<String, Object> getPagedRequestList(int page, int size,String search);
+    Map<String, Object> getPagedRequestList(int page, int size,String search,boolean hideExpired);
 
     // 의뢰서 관련 전체 삭제 : 이메일 (회원탈퇴용)
     void allDeleteByEmail(String email);
