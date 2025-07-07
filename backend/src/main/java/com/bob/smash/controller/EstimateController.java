@@ -97,9 +97,9 @@ public class EstimateController {
       // 현재 사용자가 로그인하지 않은 경우 홈으로 리다이렉트
       model.addAttribute("message", "로그인이 필요합니다.");
       return;
-    } else if(currentUser.getRole() == 1) {
+    } else if(currentUser.getRole() == 0) {
       // 업체인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
-      model.addAttribute("message", "업체는 의뢰서에 대한 견적서를 작성할 수 없습니다.");
+      model.addAttribute("message", "일반 회원은 의뢰서에 대한 견적서를 작성할 수 없습니다.");
       return;
     } else {
       model.addAttribute("requestIdx", requestIdx);
@@ -134,9 +134,9 @@ public class EstimateController {
       // 현재 사용자가 로그인하지 않은 경우 홈으로 리다이렉트
       model.addAttribute("message", "로그인이 필요합니다.");
       return;
-    } else if(currentUser.getRole() == 1) {
-      // 업체인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
-      model.addAttribute("message", "업체는 의뢰서에 대한 견적서를 수정할 수 없습니다.");
+    } else if(currentUser.getRole() == 0) {
+      // 일반 회원인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
+      model.addAttribute("message", "일반 회원은 의뢰서에 대한 견적서를 수정할 수 없습니다.");
       return;
     } else {
       EstimateDTO dto = service.getWithImage(idx);
