@@ -90,33 +90,37 @@ body.dark .request_wrapper pre{color: white;}
 }
 
 body.dark .request_button_group .btn {
-  background-color: #524b4b;
-  color: #f8f8f8;
+  background-color: #505050 !important;
+  color: #f8f8f8 !important;
   /* border: 1px solid #575757; */
 }
-body.dark .request_button_group .btn:hover {background-color: #525252;}
+body.dark .request_button_group .btn:hover {background-color: #525252 !important;}
 .request_button_group .btn {
   padding: 0.7rem 1.2rem !important;
-  background: #eeeeee;
+  background-color: #eeeeee !important;
   border: none;
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
   height: 48px;
+  color: gray !important;
 }
 .request_button_group .btn:hover{
-   background-color: #dedede;
+   background-color: #e0e0e0 !important;
    opacity: 0.85;
    transition: all 0.3s ease;
 }
 
+body.dark .request_button_group .btn.delete {background-color: #fdd !important;color: #ce0000 !important;}
+body.dark .request_button_group .btn.delete:hover {background-color: #ffa9a9 !important;}
  .request_button_group .btn.delete {
    background-color: #fdd !important;
-   color: #a60000 !important;
+   color: #ce0000 !important;
    height: 46px;
   }
   .request_button_group .btn.delete:hover {
     background-color: #ffa9a9 !important;
+    color: #ce0000 !important;
   }
 
 .request_wrapper .small_box{
@@ -199,19 +203,19 @@ body.dark .request_wrapper .badge {background-color: #454444 !important;color: #
   /* gap: 0.5rem; */
 }
 .request_container .find_addr input{width: calc(100% - 120px);}
-body.dark .request_container .find_addr button{background-color: #3a3a3a;color: #c3c3c3; border: 1px solid #191919;padding: 18px !important;}
-body.dark .request_container .find_addr button:hover{background-color: rgb(49, 49, 49);}
+body.dark .request_container .find_addr button{background-color: #3a3a3a !important;color: #c3c3c3 !important; border: 1px solid #191919 !important;padding: 18px !important;}
+body.dark .request_container .find_addr button:hover{background-color: rgb(49, 49, 49) !important;}
 .request_container .find_addr button{
-  background-color: #e9e9e9;
-  color: #6a6a6a;
+  background-color: #e9e9e9 !important;
+  color: #6a6a6a !important;
   height: 34px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #d9d9d9 !important;
   border-radius: 10px !important;
 }
 .request_container .find_addr button:hover{
-  background-color: #d9d9d9;
-  border: 1px solid #bdbdbd;
-  color: #333;
+  background-color: #d9d9d9 !important;
+  border: 1px solid #bdbdbd !important;
+  color: #333 !important;
 }
 
 /* 의뢰서 수정 페이지 */
