@@ -1,0 +1,351 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+  <th:block th:fragment="content">
+
+    <div class="chatRoom_container">
+      <div class="chat_start"><span>대화가 시작 되었습니다.</span></div>
+      <div class="messageArea"></div>
+
+      <!-- <div class="messageArea" th:each="message, iterStat : ${messages}">
+        <div th:if="${iterStat.index == 0 or #temporals.format(messages[iterStat.index-1].time, 'yyyy/MM/dd') != #temporals.format(message.time, 'yyyy/MM/dd')}"
+            class="date_label"
+            th:text="${#temporals.format(message.time, 'yyyy/MM/dd')}"></div>
+
+        <div class="msg_box"
+        th:classappend="${currentUser.emailId} == ${message.sender} ? 'me' : 'you'">
+          <div class="info_box">
+            <div class="idRead">전송됨</div>
+            <div th:if="${currentUser.emailId} == ${message.sender}" class="created_at" th:text="${#temporals.format(message.time, 'HH:mm')}"></div>
+          </div>
+          <div
+          class="msg"
+          th:classappend="${currentUser.emailId} == ${message.sender} ? 'me' : 'you'"
+          th:text="${message.message}">
+          </div>
+          <div class="info_box">
+            <div th:if="${currentUser.emailId} != ${message.sender}" class="created_at" th:text="${#temporals.format(message.time, 'HH:mm')}"></div>
+          </div>
+        </div>
+      </div> -->
+
+      <div th:if="${title != '탈퇴한 사용자'}" class="inputArea">
+        <input type="text" placeholder="보낼 메세지를 입력하세요." class="content">
+        <button type="button" value="전송" class="sendBtn" onclick="sendmessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        <!-- <button type="button" value="방나가기" class="quit" onclick="quit()">방 나가기 </button> -->
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      // 전역으로 선언
+      let stompClient = null;
+      let lastReadMessageId = null;
+      let messageArea = document.querySelector('.messageArea');
+      const memberUser = /*[[${memberUser}]]*/ ""; // 현재 사용자
+      const partnerUser = /*[[${partnerUser}]]*/ ""; // 상대방 사용자
+      let sender = /*[[${sender}]]*/ ""; // 현재 사용자 
+      let roomId = /*[[${room != null ? room.roomId : ''}]]*/ ""; // null일 수 있음
+
+      //메세지 보내기 버튼
+      function sendmessage() {
+          let content = document.querySelector('.content').value;
+          if (!content) return;
+
+          if (!roomId) {
+          // roomId 없으면: 최초 메시지 (방 만들기 + 메시지 저장)
+          axios.post('/smash/chat/firstMessage', {
+              memberUser,
+              partnerUser,
+              sender,
+              message: content,
+              messageType: 'TALK'
+          }).then(res => {
+            // 소켓 메시지 전송(저장)
+            // const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
+            // stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+            // connectWebSocketAndSendMessage(content); // 소켓 연결 및 메시지 전송
+
+            roomId = res.data.roomId;
+            window.location.href = `/smash/chat/chatRoom?roomId=${roomId}`;
+          }).catch(err => {
+              console.error('메시지 전송 실패:', err);
+              alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
+          });
+        } else {
+          // 소켓 메시지 전송
+          // const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
+          // stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+          sendSocketMessage(content);
+          document.querySelector('.content').value = '';
+        }
+
+        // 새로 추가: 최초 생성 시 WebSocket 연결 후 메시지 전송
+        function connectWebSocketAndSendMessage(content) {
+          let socket = new SockJS("http://localhost:8080/ws/chat");
+          stompClient = Stomp.over(socket);
+
+          stompClient.connect({}, function(frame) {
+            // 연결되면 바로 메시지 전송
+            const talkmessage = {
+              "roomId": roomId,
+              "sender": sender,
+              "message": content,
+              "messageType": "TALK",
+              "senderNickname": sender
+            };
+            stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+            // 필요시 입력창 비우기
+            document.querySelector('.content').value = '';
+            // 채팅방 리다이렉트 등 추가 작업
+            // window.location.href = `/smash/chat/chatRoom?roomId=${roomId}`;
+          });
+        }
+
+        function sendSocketMessage(content) {
+          if (!stompClient) {
+            console.warn('채팅 서버와 연결이 되지 않았습니다. 잠시 후 새로고침 후 사용해주세요.');
+            return;
+          }
+          const talkmessage = {
+            "roomId": roomId,
+            "sender": sender,
+            "message": content,
+            "messageType": "TALK",
+            "senderNickname": sender
+          };
+          stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+        }
+
+        // 스크롤을 맨 아래로 내리기
+        window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+      }
+      
+      // 방 나가기 버튼 (필요X)
+      function quit(){
+          const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${memberUser}]]*/ ""};
+          stompClient.send("/app/chat.quit", {}, JSON.stringify(quitmessage));
+          stompClient.disconnect();
+      }
+
+      // document 객체가 완전히 로드된 후 실행
+      document.addEventListener('DOMContentLoaded', function() {
+        // 엔터키로 메세지 전송
+        document.querySelector('.content').addEventListener('keyup', function(e){
+          e.preventDefault(); // 기본 동작(폼 submit 등) 방지, 버블링 방지 
+          if(e.key === 'Enter') sendmessage();
+        });
+
+        if( !memberUser || !partnerUser) {
+          alert('채팅방에 참여할 수 없습니다. 다시 시도해주세요.');
+          window.location.href = '/smash'; // 홈으로 이동
+        }
+  
+        // (메세지) 단순 렌더링. 이전 메시지 불러오기용
+        function renderMessages(messages) {
+        let lastDateStr = '';
+        messages.forEach((msg, idx) => {
+          // console.log(msg);
+  
+          const dateObj = new Date(msg.time);
+          const dateStr = dateObj.getFullYear() + '/' +
+                          String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+                          String(dateObj.getDate()).padStart(2, '0');
+          if (lastDateStr !== dateStr) {
+            let dateLabel = document.createElement('div');
+            dateLabel.className = 'date_label';
+            dateLabel.innerText = dateStr;
+            messageArea.append(dateLabel);
+            lastDateStr = dateStr;
+          }
+  
+          let hours = dateObj.getHours();
+          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+          const ampm = hours < 12 ? '오전' : '오후';
+          hours = hours % 12;
+          if (hours === 0) hours = 12;
+          const timeStr = `${ampm} ${hours}:${minutes}`;
+  
+          let msgBox = document.createElement('div');
+          msgBox.className = 'msg_box ' + (msg.sender === sender ? 'me' : 'you');
+          msgBox.id = 'msg_' + msg.id; // 메시지 ID로 고유하게 식별 (읽음 처리를 위함)
+  
+          let infoBox1 = document.createElement('div');
+          infoBox1.className = 'info_box';
+  
+          console.log("메시지: " + msg);
+          console.dir(msg);
+          if (msg.sender === sender) {
+            let idRead = document.createElement('div');
+            idRead.className = 'idRead';
+            idRead.innerText = msg.read ? '읽음' : '전송됨';
+            infoBox1.appendChild(idRead);
+  
+            let createdAt = document.createElement('div');
+            createdAt.className = 'created_at';
+            createdAt.innerText = timeStr;
+            infoBox1.appendChild(createdAt);
+          }
+  
+            let msgDiv = document.createElement('div');
+            msgDiv.className = 'msg ' + (msg.sender === sender ? 'me' : 'you');
+            msgDiv.innerText = msg.message;
+  
+            let infoBox2 = document.createElement('div');
+            infoBox2.className = 'info_box';
+            if (msg.sender !== sender) {
+              let createdAt = document.createElement('div');
+              createdAt.className = 'created_at';
+              createdAt.innerText = timeStr;
+              infoBox2.appendChild(createdAt);
+            }
+  
+            msgBox.appendChild(infoBox1);
+            msgBox.appendChild(msgDiv);
+            msgBox.appendChild(infoBox2);
+  
+            messageArea.append(msgBox);
+            window.scrollTo(0, document.body.scrollHeight + 64);
+          });
+        }
+  
+        // (메세지) 단일 메시지 추가. 실시간 수신용
+        function appendMessage(msg) {
+          let lastDateStr = ''; // 같은 날에 여러 번 오면 날짜 라벨은 생략하도록 로직 보완 가능
+  
+          const dateObj = new Date(msg.time);
+          const dateStr = dateObj.getFullYear() + '/' +
+                          String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+                          String(dateObj.getDate()).padStart(2, '0');
+  
+          let hours = dateObj.getHours();
+          const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+          const ampm = hours < 12 ? '오전' : '오후';
+          hours = hours % 12;
+          if (hours === 0) hours = 12;
+          const timeStr = `${ampm} ${hours}:${minutes}`;
+          const isMe = msg.sender === sender;
+  
+          let msgBox = document.createElement('div');
+          msgBox.className = 'msg_box ' + (isMe ? 'me' : 'you');
+          msgBox.id = 'msg_' + msg.id; // id 부여
+  
+          let infoBox1 = document.createElement('div');
+          infoBox1.className = 'info_box';
+  
+          if (isMe) {
+            let idRead = document.createElement('div');
+            idRead.className = 'idRead';
+            idRead.innerText = msg.read ? '읽음' : '전송됨'; // 처음은 '전송됨'
+            infoBox1.appendChild(idRead);
+  
+            let createdAt = document.createElement('div');
+            createdAt.className = 'created_at';
+            createdAt.innerText = timeStr;
+            infoBox1.appendChild(createdAt);
+          }
+  
+          let msgDiv = document.createElement('div');
+          msgDiv.className = 'msg ' + (isMe ? 'me' : 'you');
+          msgDiv.innerText = msg.message;
+  
+          let infoBox2 = document.createElement('div');
+          infoBox2.className = 'info_box';
+          if (!isMe) {
+            let createdAt = document.createElement('div');
+            createdAt.className = 'created_at';
+            createdAt.innerText = timeStr;
+            infoBox2.appendChild(createdAt);
+          }
+  
+          msgBox.appendChild(infoBox1);
+          msgBox.appendChild(msgDiv);
+          msgBox.appendChild(infoBox2);
+  
+          messageArea.append(msgBox);
+          window.scrollTo(0, document.body.scrollHeight + 64);
+        }
+  
+        // 읽음 처리 메시지 STOMP로 전송
+        function sendReadEvent() {
+          const payload = {
+            roomId: roomId,
+            sender: sender
+            // 메시지ID목록은 서버에서 markAsRead가 반환
+          };
+          stompClient.send(`/app/chat/${roomId}/read`, {}, JSON.stringify(payload));
+        }
+        
+        if(roomId !== null && roomId !== '') {
+            // 페이지가 로드되면 메시지를 불러오면서 스크롤을 맨 아래로 내림.
+            window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+            
+            // 1. 메시지 불러오기 (axios)
+            axios.get(`/smash/chat/rooms/${roomId}/messages`)
+            .then(res => {
+              messageArea.innerHTML = '';
+              const messages = res.data;
+              renderMessages(messages); // 메시지 전체 렌더링
+              let messageInput = document.querySelector('.inputArea input'); // 메시지 영역 선택
+              messageInput.value = ''; // 입력창 비우기
+            })
+            .then(() => {
+              // 2. WebSocket 연결 및 이벤트 등록
+              connectWebSocket();
+            });
+          
+    
+          function connectWebSocket() {
+            let socket = new SockJS("http://localhost:8080/ws/chat");
+            stompClient = Stomp.over(socket);
+    
+            stompClient.connect({}, function(frame) {
+            console.log('Connected: ' + frame);
+    
+            // 구독: 서버에서 메시지가 오면 이 콜백 실행
+            stompClient.subscribe("/topic/chat/" + roomId, function(message) {
+              const payload = JSON.parse(message.body);
+    
+              // 읽음 처리 분기
+              if (payload.messageType === "READ" && Array.isArray(payload.messageIds)) {
+                payload.messageIds.forEach(id => {
+                  let msgBox = document.getElementById('msg_' + id);
+                  if (msgBox) {
+                    let idReadDiv = msgBox.querySelector('.idRead');
+                    if (idReadDiv) idReadDiv.innerText = '읽음';
+                  }
+                });
+                // 최신 읽음 id 기록 (여러개라면 가장 큰 id로)
+                if (payload.messageIds.length > 0) {
+                  lastReadMessageId = Math.max(...payload.messageIds);
+                }
+                return;
+              }
+    
+              // 메세지 추가
+              appendMessage(payload);
+    
+              // 자동 읽음 처리 (상대가 보낸 메시지면 즉시 읽음 이벤트 전송)
+              if (payload.sender !== sender && payload.messageType === "TALK") {
+                // 중복 호출 방지: 이미 읽은 메시지는 넘어감
+                if (payload.id && payload.id !== lastReadMessageId) {
+                  sendReadEvent();
+                  lastReadMessageId = payload.id;
+                }
+              }
+            });
+    
+            // 입장 메시지 전송 (ENTER)
+            // const entermessage = {
+            //   "roomId": roomId,
+            //   "sender": sender,
+            //   "message": "",
+            //   "messageType": "ENTER",
+            //   "senderNickname": sender
+            // };
+            // stompClient.send(`/app/chat/${roomId}/enter`, {}, JSON.stringify(entermessage));
+            sendReadEvent(); // 읽음 처리 이벤트 전송  
+          });
+          }
+        }
+      });
+    </script>
+  </th:block>
+</th:block>

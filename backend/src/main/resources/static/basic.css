@@ -255,11 +255,25 @@ nav ul.nav-list li a span, .unread_alarm {
   overflow: hidden;
   height: 34px;
   text-overflow: ellipsis;
-  width: 100%;
+  max-width: calc(100% - 160px);
   white-space: nowrap;
   text-align: start;
 }
 body.dark .titleBar_container {background: #1d1d1d;}
+
+/* TopBar(Modal) */
+.modal-backdrop {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5) !important; z-index: 999; display: flex; align-items: center; justify-content: center;
+}
+body.dark .modal-card {background: #2c2c2c;}
+.modal-card {
+  background: #fff; border-radius: 8px; min-width: 320px; min-height: 200px; padding: 1rem 2rem; box-shadow: 0 6px 24px #0002; position: relative;
+}
+.modal-close {
+  position: absolute !important; top:12px !important; right:16px !important; background:none; border:none; font-size:1.8rem; cursor:pointer;
+}
+
 
 /* 크롬에서 기본 캘린더 아이콘 제거 */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {

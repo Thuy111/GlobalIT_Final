@@ -17,4 +17,14 @@ public interface PartnerInfoRepository extends JpaRepository<PartnerInfo, String
     // code가 중복되는지 체크하는 메서드
     boolean existsByCode(String code);
     Optional<PartnerInfo> findByCode(String code);
+
+    // 이메일로 bno 조회
+    @Query("SELECT p.bno FROM PartnerInfo p WHERE p.member.emailId = :emailId")
+    String findBnoByEmailId(@Param("emailId") String emailId);
+    // bno로 code 조회
+    @Query("SELECT p.code FROM PartnerInfo p WHERE p.bno = :bno")
+    String findCodeByBno(@Param("bno") String bno);
+    // 이메일로 code 조회
+    @Query("SELECT p.code FROM PartnerInfo p WHERE p.member.emailId = :emailId")
+    String findCodeByEmailId(@Param("emailId") String emailId);
 }

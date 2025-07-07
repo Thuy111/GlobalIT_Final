@@ -191,18 +191,14 @@ public class ChatController {
             String myEmail = myAccount.getEmailId();
             System.out.println("내 이메일 ::::::: " + myEmail);
 
-            String memberUser;
-            String partnerUser;
+            String memberUser = room.getMemberUser();;
+            String partnerUser = room.getPartnerUser();;
             // room DTO에서 상대방 정보 추출
             String you;
             if (room.getMemberUser().equals(myEmail)) { // 내가 멤버인 경우
-                partnerUser = room.getPartnerUser();
-                memberUser = room.getMemberUser();
                 // 상대방 업체이름 조회
                 you = partnerInfoService.getPartnerInfo(partnerUser).getName();
             } else if (room.getPartnerUser().equals(myEmail)) { // 내가 파트너인 경우
-                partnerUser = room.getMemberUser();
-                memberUser = room.getPartnerUser();
                 // 상대방 닉네임 조회
                 you = memberService.findNicknameByEmail(memberUser);
             } else {

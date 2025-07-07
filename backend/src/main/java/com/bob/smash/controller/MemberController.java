@@ -52,21 +52,21 @@ public class MemberController {
   }
 
 
-    // 현재 로그인된 유저 정보 조회 + DB 조회
-    @GetMapping("/current-user")
-    public ResponseEntity<?> getCurrentUser(OAuth2AuthenticationToken authentication) {
-        if (authentication == null) {
-            return ResponseEntity.ok().build(); // 로그인하지 않은 상태도 OK로 처리
-            // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보가 없습니다.");
-        }
+  // 현재 로그인된 유저 정보 조회 + DB 조회
+  @GetMapping("/current-user")
+  public ResponseEntity<?> getCurrentUser(OAuth2AuthenticationToken authentication) {
+      if (authentication == null) {
+          return ResponseEntity.ok().build(); // 로그인하지 않은 상태도 OK로 처리
+          // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보가 없습니다.");
+      }
 
-        try {
-            MemberDTO memberDTO = memberService.getCurrentUser(authentication);
-            return ResponseEntity.ok(memberDTO); // 성공 시 DTO 반환
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
+      try {
+          MemberDTO memberDTO = memberService.getCurrentUser(authentication);
+          return ResponseEntity.ok(memberDTO); // 성공 시 DTO 반환
+      } catch (IllegalArgumentException e) {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+      }
+  }
 
   // 소셜로그인 번호만 등록
   @PostMapping("/auth/register-phone")
