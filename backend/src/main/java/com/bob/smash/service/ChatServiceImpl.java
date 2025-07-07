@@ -59,12 +59,15 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatRoomDTO findRoomByMembersAndRole(String myEmail, String otherEmail, int myRole) {
         ChatRoom room = null;
+        System.out.println(otherEmail + "의 채팅방을 찾습니다. 내 이메일: " + myEmail + ", 내 역할: " + myRole);
         if (myRole == 0) {
             // 일반유저: memberUser=나, partnerUser=상대
             room = chatRoomRepository.findByMemberUserAndPartnerUser(myEmail, otherEmail).orElse(null);
+            System.out.println("[일반유저] memberUser=" + myEmail + ", partnerUser=" + otherEmail + " → " + room);
         } else {
             // 업체/관리자: partnerUser=나, memberUser=상대
             room = chatRoomRepository.findByMemberUserAndPartnerUser(otherEmail, myEmail).orElse(null);
+            System.out.println("[업체/관리자] memberUser=" + otherEmail + ", partnerUser=" + myEmail + " → " + room);   
         }
         return room != null ? entityToDto(room) : null;
     }
@@ -83,9 +86,9 @@ public class ChatServiceImpl implements ChatService {
         memberRepository.findByEmailId(partnerUser)
             .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
-        // DB에서 1:1 채팅방 먼저 찾기
+        // DB에서 정확히 이 조합만 찾기
         ChatRoom found = chatRoomRepository.findByMemberUserAndPartnerUser(memberUser, partnerUser)
-            .orElseGet(() -> chatRoomRepository.findByMemberUserAndPartnerUser(partnerUser, memberUser).orElse(null));
+            .orElse(null); // 반대 조합은 절대 조회하지 않음
         if (found != null) return entityToDto(found);
 
         // 채팅방이 없으면 새로 생성

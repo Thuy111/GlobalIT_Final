@@ -279,5 +279,14 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     return partnerInfo.getName();
   }
 
+  // 이메일로 파트너 코드 조회
+  @Override
+  public String getCodeByEmail(String emailId) {
+    String code = partnerInfoRepository.findCodeByEmailId(emailId);
+    if (code == null) {
+      throw new IllegalArgumentException("파트너 코드가 없습니다.");
+    }
+    return code;
+  }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bob.smash.dto.PartnerInfoDTO;
@@ -33,7 +34,13 @@ public class PartnerInfoController {
         return email;
     }
 
-
+    // 이메일로 code 조회
+    @PostMapping("/code")
+    public ResponseEntity<String> getCodeByEmail(@RequestParam String email) {
+        if (email == null) return ResponseEntity.status(401).build();
+        String code = partnerConversionService.getCodeByEmail(email);
+        return ResponseEntity.ok(code);
+    }
 
     // 사업자로 전환
     @PostMapping("/convert")

@@ -20,6 +20,8 @@ public interface PartnerInfoService {
   void updateRoleIfPartnerInfoExists(String emailId);
   // 파트너 가게 이름 조회
   public String getStoreNameByEmail(String emailId);
+  // 이메일로 파트너 코드 조회
+  String getCodeByEmail(String emailId);
 
   // Dto → Entity 변환
   default PartnerInfo dtoToEntity(PartnerInfoDTO dto) {
