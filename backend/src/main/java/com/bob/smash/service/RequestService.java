@@ -42,4 +42,7 @@ public interface RequestService {
 
      // ✋ 낙찰된 업체 조회
     Optional<Long> findWinnerBnoByRequestIdx(Integer requestIdx);
+
+    // 견적서 최저가
+    Integer getMinEstimatePrice(Integer requestIdx);
 }

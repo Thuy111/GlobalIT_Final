@@ -212,6 +212,10 @@ public class RequestServiceImpl implements RequestService {
                 String hashtagsString = hashtagList.stream()
                     .map(Hashtag::getTag)
                     .collect(Collectors.joining(" "));
+
+                // 여기서 최저가 조회
+               Integer minPrice = getMinEstimatePrice(request.getIdx());
+
                 String dDay = calculateDDay(request.getUseDate());
                 return RequestDTO.builder()
                     .idx(request.getIdx())
@@ -222,6 +226,7 @@ public class RequestServiceImpl implements RequestService {
                     .isDone(request.getIsDone())
                     .hashtagList(hashtagList)
                     .hashtags(hashtagsString)
+                    .minEstimatePrice(minPrice)
                     .dDay(dDay)
                     .build();
             })
@@ -265,6 +270,12 @@ public class RequestServiceImpl implements RequestService {
             long minutes = totalMinutes % 60;
             return String.format("⏰ %02d:%02d 남음", hours, minutes);
         }
+    }
+
+    //견적서 최저가
+    @Override
+    public Integer getMinEstimatePrice(Integer requestIdx) {
+    return estimateRepository.findMinPriceByRequestIdx(requestIdx);
     }
 
 

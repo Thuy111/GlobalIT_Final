@@ -49,5 +49,5 @@ public class RequestDTO {
     // 작성자 ID 확인
     private String writerEmail;
 
-    
+    private Integer minEstimatePrice;  // 견적서 최저가
 }
