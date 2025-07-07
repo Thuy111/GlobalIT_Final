@@ -2,6 +2,10 @@ package com.bob.smash.controller;
 
 import com.bob.smash.dto.*;
 import com.bob.smash.service.ProfileService;
+
+import jakarta.servlet.http.HttpSession;
+
+import com.bob.smash.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +21,7 @@ import java.util.Map;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final MemberService memberService;
 
     private String extractEmail(OAuth2User user) {
         if (user == null) return null;
@@ -29,10 +34,21 @@ public class ProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<ProfileDTO> getMyPage(@AuthenticationPrincipal OAuth2User user) {
-        String email = extractEmail(user);
-        if (email == null) return ResponseEntity.status(401).build();
-        return ResponseEntity.ok(profileService.getProfileByEmail(email));
+    public ResponseEntity<ProfileDTO> getMyPage(HttpSession session) {
+        // 1. 세션에서 CurrentUserDTO 가져오기
+        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+
+        // 2. 세션에 없으면 저장 (로그인 직후이거나 세션 만료 시)
+        if (currentUser == null) {
+            memberService.saveCurrentUserToSession(); // 세션에 저장
+            currentUser = (CurrentUserDTO) session.getAttribute("currentUser"); // 다시 꺼내기
+            if (currentUser == null) {
+                return ResponseEntity.status(401).build(); // 저장 실패 시 응답
+            }
+        }
+
+        // 3. 세션의 currentUser로부터 email을 이용해 프로필 반환
+        return ResponseEntity.ok(profileService.getProfileByEmail(currentUser.getEmailId()));
     }
 
     @PutMapping("/member")
