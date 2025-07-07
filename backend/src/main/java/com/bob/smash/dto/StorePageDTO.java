@@ -25,5 +25,5 @@ public class StorePageDTO {
     private List<Integer> imageIdxs; // 이미지 PK 리스트 (이미지 인덱스)
     private List<EstimateDTO> estimates; // 견적서 리스트
     private List<ReviewDTO> reviews; // 리뷰 리스트
-    private double averageRating; // 별점 평균
+    private double avgStar; // 별점 평균
 }

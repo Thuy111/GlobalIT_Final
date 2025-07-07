@@ -67,21 +67,13 @@ const StorePage = () => {
   const [deleteImageIds, setDeleteImageIds] = useState([]); // 삭제할 기존 이미지 id
   const [estimatesCount, setEstimatesCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
-
+  const [avgStar, setAvgStar] = useState(0); // avgStar 상태 추가
   const [loading, setLoading] = useState(true); // 로딩 상태
 
   const { code } = useParams();
   const user = useUser();
   const loggedInMemberId = user?.emailId;
   
-  // ReviewList에서 전달받을 함수 추가
-  const handleReviewStatsUpdate = ({ count, avgStar }) => {
-    setReviewsCount(count);
-    setAvgStar(avgStar);
-  }; 
-  // avgStar 상태 추가
-  const [avgStar, setAvgStar] = useState(0);
-
   useEffect(() => {
     if (!code) return;
     setLoading(true); // 데이터 로딩 시작
@@ -109,6 +101,7 @@ const StorePage = () => {
         }
         setEstimatesCount(data.estimates?.length || 0);
         setReviewsCount(data.reviews?.length || 0);
+        setAvgStar(data.avgStar || 0);
         setIsOwner(data.owner);
         setOwnerEmail(data.ownerEmail || '');
       })
@@ -187,6 +180,7 @@ const StorePage = () => {
         setImageObjs(data.images || []);
         setEstimatesCount(data.estimates?.length || 0);
         setReviewsCount(data.reviews?.length || 0);
+        setAvgStar(data.avgStar || 0);
       } catch (error) {
         console.error('업체 정보 수정 실패:', error);
         alert('업체 정보 수정에 실패했습니다.');
@@ -258,6 +252,12 @@ const StorePage = () => {
     window.location.href = `${baseUrl}/smash/chat/chatRoomInit?user=${partnerUser}`;
   }
 
+  // ReviewList에서 전달받을 함수 추가
+  const handleReviewStatsUpdate = ({ count, avgStar }) => {
+    setReviewsCount(count);
+    setAvgStar(avgStar);
+  }; 
+  
   if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>; // 로딩 중 표시
 
   return (
