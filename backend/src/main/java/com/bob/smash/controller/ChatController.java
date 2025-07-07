@@ -2,6 +2,7 @@ package com.bob.smash.controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -252,5 +253,23 @@ public class ChatController {
     // public ChatMessageDTO enter(@Payload ChatMessageDTO message, @DestinationVariable String roomId) {
     //     return message;
     // }
+
+    // 읽지 않은 메시지 체크
+    @GetMapping("/has-unread")
+    @ResponseBody
+    public Map<String, Boolean> hasUnread(HttpSession session) {
+        try {
+            CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+            boolean hasUnread = false;
+            if (currentUser != null) {
+                hasUnread = chatService.hasUnreadMessages(currentUser.getEmailId(), currentUser.getRole());
+            }
+            System.out.println("hasUnread ::::: " + hasUnread);
+            return Collections.singletonMap("hasUnread", hasUnread);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.singletonMap("hasUnread", false);
+        }
+    }
     
 }

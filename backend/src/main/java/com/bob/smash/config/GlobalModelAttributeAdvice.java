@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.bob.smash.dto.CurrentUserDTO;
+import com.bob.smash.service.ChatService;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,8 @@ import org.springframework.ui.Model;
 public class GlobalModelAttributeAdvice {
     @Value("${front.server.url}")
     private String frontServerUrl;
+
+    private final ChatService chatService;
 
     // 테마
     @ModelAttribute
@@ -50,5 +53,14 @@ public class GlobalModelAttributeAdvice {
             session.removeAttribute("SPRING_SECURITY_CONTEXT"); // 스프링 시큐리티 세션 정보 제거 (세션에서 인증 정보 제거)
         }
         model.addAttribute("currentUser", currentUser);
+
+        // 안 읽은 메시지 정보도 같이 등록 (currentUser가 있을 때만)
+        if (currentUser != null) {
+            boolean hasUnread = chatService.hasUnreadMessages(currentUser.getEmailId(), currentUser.getRole());
+            // int unreadCount = chatMessageRepository.countUnreadMessages(currentUser.getEmailId());
+            model.addAttribute("hasUnread", hasUnread);
+            // model.addAttribute("unreadCount", unreadCount);
+            System.out.println("[ModelAttr] hasUnread: " + hasUnread);
+        }
     }
 }

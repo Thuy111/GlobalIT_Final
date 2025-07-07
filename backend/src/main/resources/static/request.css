@@ -72,6 +72,7 @@ body.dark .request_wrapper pre{color: white;}
   font-size: 14px;
   color: #929292;
   margin-left: 4px;
+  white-space: nowrap;
 }
 .request_wrapper .created_at_box {text-align: right;display: flex;justify-content: end;align-items: center;margin-right: 1rem;}
 
@@ -140,9 +141,10 @@ margin: 40px;
 .request_wrapper .xsmall_box *{font-size: 18px;}
 
 .request_wrapper .hashtags{
-  color: rgb(5, 141, 118);
+  color: #3bb8d4;
   margin: 10px 0px 20px 0px; 
 }
+body.dark .request_wrapper .hashtags{color: #FFFA8D;}
 
 .request_wrapper .info{
   margin-top: 30px;
@@ -236,7 +238,7 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
   .request_header {padding: 1rem;}
   .request_wrapper .request_title{padding: 0;font-size: 24px;}
   .request_wrapper .name_created_box {align-items: start;}
-  .badge_area {flex-direction: column; align-items: center; gap: 0.2rem;margin-bottom: 1rem;}
+  .badge_area {flex-direction: column; align-items: start; gap: 0.2rem;margin-bottom: 1rem;}
   .badge_area span:not(.badge){padding-left: 1rem;}
   .request_wrapper .badge {font-size: 14px;}
   .request_button_group .btn {padding: 0 10px !important;align-items: center;display: flex;}

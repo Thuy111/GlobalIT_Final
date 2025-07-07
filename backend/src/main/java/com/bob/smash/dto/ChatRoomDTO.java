@@ -22,7 +22,7 @@ public class ChatRoomDTO {
 
     private String name; // 채팅방 이름
 
-    private ChatMessageDTO lsatMessage; // 마지막 메시지
+    private ChatMessageDTO lastMessage; // 마지막 메시지
 
     private LocalDateTime createdAt; // 방 생성 시간
 }
