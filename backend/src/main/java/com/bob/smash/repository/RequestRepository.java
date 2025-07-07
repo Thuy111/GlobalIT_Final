@@ -34,4 +34,8 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     int updateIsDone(@Param("idx") Integer idx, @Param("isDone") Byte isDone);
     // (견적서 낙찰 자동 처리용)사용 일시가 지난 의뢰서 조회
     List<Request> findByUseDateBeforeAndIsDone(LocalDateTime now, Byte isDone);
+
+    // 종료된 의뢰서 감추기
+    Page<Request> findByUseDateGreaterThanEqual(LocalDateTime now, Pageable pageable);
+
 }

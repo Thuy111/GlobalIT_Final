@@ -227,7 +227,8 @@ public class RequestController {
     public ResponseEntity<Map<String, Object>> getPagedRequests(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search) {
-        return ResponseEntity.ok(requestService.getPagedRequestList(page, size, search));
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "false") boolean hideExpired) {
+        return ResponseEntity.ok(requestService.getPagedRequestList(page, size, search, hideExpired));
     }
 }
