@@ -12,19 +12,22 @@
            ">
         <div class="review_header">
           <div class="review_meta">
-<img th:src="${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/')} 
-                ? @{${review.profileImageUrl}} 
-                : @{/images/profile.png}"
-     alt="프로필 이미지"
-     class="review_profile_img" />
-
+            <!-- ✅ 프로필 이미지 (클릭 시 모달) -->
+            <img th:src="${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/')} 
+                         ? @{${review.profileImageUrl}} 
+                         : @{/images/profile.png}"
+                 alt="프로필 이미지"
+                 class="review_profile_img"
+                 th:onclick="${review.profileImageUrl != null} 
+                     ? 'openProfileModal(\'' + @{${review.profileImageUrl}} + '\')' 
+                     : 'openProfileModal(\'/images/profile.png\')'" />
 
             <span class="review_title" th:text="${review.nickname}">작성자</span> 
             <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
           </div>
 
           <div class="review_actions_top">
-            <!-- ✅ 수정 버튼 (관리자 or 본인 + isModify == 0) -->
+            <!-- ✅ 수정 버튼 -->
             <div th:if="${canModify}">
               <form th:action="@{/smash/review/update}" method="get">
                 <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
@@ -34,7 +37,7 @@
               </form>
             </div>
 
-            <!-- ✅ 삭제 버튼 (관리자 or 본인) -->
+            <!-- ✅ 삭제 버튼 -->
             <div th:if="${canDelete}">
               <form th:action="@{/smash/review/delete}" method="get" onsubmit="return confirm('정말 삭제하시겠습니까?');">
                 <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
