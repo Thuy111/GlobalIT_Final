@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import com.bob.smash.dto.EstimateDTO;
+import com.bob.smash.dto.ReviewDTO;
 import com.bob.smash.dto.StorePageDTO;
 import com.bob.smash.dto.StoreUpdateRequestDTO;
 import com.bob.smash.entity.Estimate;
@@ -21,6 +23,8 @@ import com.bob.smash.entity.PartnerInfo;
 import com.bob.smash.repository.EstimateRepository;
 import com.bob.smash.repository.IntroductionImageRepository;
 import com.bob.smash.repository.PartnerInfoRepository;
+import com.bob.smash.repository.ReviewRepository;
+
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +35,8 @@ public class StorePageServiceImpl implements StorePageService {
     private final PartnerInfoRepository partnerRepo;
     private final IntroductionImageRepository introRepo;
     private final EstimateRepository estimateRepo;
+    private final ReviewRepository reviewRepo;
+    private final ReviewService reviewService;
 
     @Value("${com.bob.upload.path}")
     private String uploadPath;
@@ -67,6 +73,11 @@ public class StorePageServiceImpl implements StorePageService {
                                                                        .build())
                                                 .collect(Collectors.toList());
 
+        // 리뷰
+        List<ReviewDTO> reviewDTOs = reviewService.getReviewsByPartnerBno(partner.getBno());
+        double avgStar = reviewService.getAverageStarByPartnerBno(partner.getBno());
+        
+
         boolean isOwner = false;
         if(loggedInMemberId != null) {
             isOwner = partner.getMember() != null && 
@@ -85,6 +96,8 @@ public class StorePageServiceImpl implements StorePageService {
                            .imageURLs(imageURLs)
                            .imageIdxs(imageIdxs)
                            .estimates(estimateDTOs)
+                           .reviews(reviewDTOs)
+                           .avgStar(avgStar)
                            .build();
     }
     
