@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 // Link : 상태, 레이아웃 유지. JS로 경로만 바꿈(SPA), 빠름
 import { Link, useLocation } from 'react-router-dom';
 import { useUnreadAlarm } from '../contexts/UnreadAlarmContext';
 import { useUser } from '../contexts/UserContext';
+import apiClient from '../config/apiClient';
 
 const Nav = () => {
   const user = useUser();
 
+  const [hasChatUnread, setHasChatUnread] = useState(false); // 채팅 알림 상태
   // active 상태: 현재 활성화된 메뉴를 나타냄
   const [active, setActive] = useState('home');
   // 알림 개수 상태: UnreadAlarmContext에서 관리
@@ -15,6 +17,21 @@ const Nav = () => {
   const location = useLocation();
 
   const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
+
+  useEffect(() => {
+    const chatUnread = async () => {
+      try {
+        const response = await apiClient.get(`/chat/has-unread`, {});
+        console.log('채팅 알림 조회:', response.data.hasUnread);
+        setHasChatUnread(response.data.hasUnread);
+      } catch (error) {
+        console.error('채팅 알림 조회 실패:', error);
+      }
+    }
+    if(user){
+      chatUnread();
+    }
+  }, [location.pathname, location.search, user]);
   
   useEffect(() => {
     // location.pathname: 현재 URL의 경로
@@ -51,7 +68,12 @@ const Nav = () => {
         </li>
         <li className={active === 'home' ? 'active' : ''}><Link to="/"><i className="fa-solid fa-house"></i>홈</Link></li>
         { user &&
-          <li className={active === 'chat' ? 'active' : ''}><Link to={`${baseUrl}/smash/chat/roomList?user=${user.emailId}`}><i className="fa-solid fa-comment"></i>채팅</Link></li>
+          <li className={active === 'chat' ? 'active' : ''}>
+            <Link to={`${baseUrl}/smash/chat/roomList?user=${user.emailId}`}>
+              {hasChatUnread && <div className='new_msg_point'></div>}
+              <i className="fa-solid fa-comment"></i>채팅
+            </Link>
+          </li>
         }
         <li className={active === 'profile' ? 'active' : ''}><Link to="/profile"><i className="fa-solid fa-user"></i>프로필</Link></li>
       </ul>

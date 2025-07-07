@@ -4,10 +4,12 @@
 .chat_list {height: 100%;width:100%;}
 body.dark .room_list {border-color: #393939;}
 body.dark .room_list:last-child {border-color: #393939;}
-.room_list {padding: 2rem; border-top: 1px solid #dee2e6;display: flex; justify-content: space-between;}
+.room_list {padding: 2rem; border-top: 1px solid #dee2e6;display: flex; justify-content: space-between;position: relative;}
 .room_list:last-child {border-bottom: 1px solid #dee2e6;}
 .room_list:hover {background-color: #fafafa;}
 body.dark .room_list:hover {background-color: #1b1b1b;}
+.new_msg_point {width: 12px; height: 12px; border-radius: 50%; background-color: #ff9900; position: absolute;top: 4px; right: 4px;}
+.room_list .new_msg_point {bottom: 20px;right: 20px;top: auto;}
 .room_body{display: flex;flex-direction: column;text-align: start;width: 84%;}
 .room_body .room_name{display: flex;justify-content: start;margin-bottom: 0.5rem;white-space: nowrap;}
 .room_body .room_name *{font-size: 24px;}
@@ -90,6 +92,6 @@ body.dark .chatRoom_container .msg.me {background-color: #784a67;color: #ffe581;
   .room_body .room_name .chat_room{margin: 0;}
   .room_body .last_msg {font-size: 16px;height: 51px;}
   /* .room_body .last_time{position: absolute;bottom: 4px;right: 1rem;} */
-  .titleBar_container h1 {font-size: 22px;margin: 0;}
-  .titleBar_container .chat_profile_badge i.chat_profile_badge i {font-size: 16px;margin-right: 3px;white-space: nowrap;}
+  .chat_cont .titleBar_container h1 {font-size: 22px;margin: 0;}
+  .chat_cont .titleBar_container .chat_profile_badge i.chat_profile_badge i {font-size: 16px;margin-right: 3px;white-space: nowrap;}
 }

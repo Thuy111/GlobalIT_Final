@@ -36,4 +36,7 @@ public interface ChatService {
 
     // 읽음 이벤트를 WebSocket으로 전송
     void sendReadEvent(String roomId, List<Long> readMessageIds, String sender);
+
+    // 읽지 않은 메시지 여부 조회
+    boolean hasUnreadMessages(String userEmail, int role);
 }

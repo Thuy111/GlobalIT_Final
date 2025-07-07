@@ -5,21 +5,26 @@
         <h2 th:if="${#lists.isEmpty(roomList)}">채팅방이 없습니다.</h2>
         
         <div class="chat_list" th:if="${!#lists.isEmpty(roomList)}">
-          <div th:each="rooms : ${roomList}" th:if="${rooms.roomId != null}" class="room_list">
+          <div th:each="room : ${roomList}" th:if="${room.roomId != null}" class="room_list">
+            <div class="new_msg_point" 
+            th:if="${room != null and 
+              !room.lastMessage.isRead and
+              room.lastMessage.sender != currentUser.emailId
+            }"></div>
             <div class="room_body">
               <div class="room_name">
-                <div th:class="|${rooms.roomId} chat_room|"
-                  th:text="${currentUser.role == 0 ? rooms.partnerStoreName :
-                            (currentUser.role == 1 ? rooms.memberNickname :
-                            rooms.memberNickname + '-' + rooms.partnerStoreName)}">
+                <div th:class="|${room.roomId} chat_room|"
+                  th:text="${currentUser.role == 0 ? room.partnerStoreName :
+                            (currentUser.role == 1 ? room.memberNickname :
+                            room.memberNickname + '-' + room.partnerStoreName)}">
                 </div>
                 <span> 채팅방</span>
               </div>
-              <div class="last_msg" th:text="${rooms.lsatMessage.message}"></div>
-              <div class="last_time">[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(rooms.lsatMessage.time)}]]</div>
+              <div class="last_msg" th:text="${room.lastMessage.message}"></div>
+              <div class="last_time">[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(room.lastMessage.time)}]]</div>
             </div>
             <div class="room_enter_box">
-              <a th:href="@{chatRoom(roomId=${rooms.roomId})}" class="btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>
+              <a th:href="@{chatRoom(roomId=${room.roomId})}" class="btn"><i class="fa-solid fa-arrow-right-to-bracket"></i></a>
             </div>
           </div>
         </div>

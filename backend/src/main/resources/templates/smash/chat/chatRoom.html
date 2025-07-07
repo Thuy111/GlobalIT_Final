@@ -30,7 +30,7 @@
 
   <body th:classappend="${theme} == 'dark' ? 'dark' : ''">
     <div class="root">
-      <div class="main_container">
+      <div class="main_container chat_cont">
         <!-- 타이틀 바 -->
         <div class="titleBar_container">
           <i class="fa-solid fa-chevron-left" onclick="window.history.back()"></i>
@@ -100,6 +100,7 @@
             </a>
           </li>
           <li th:if="${currentUser}" class="chat">
+            <div class="new_msg_point" th:if="${currentUser != null and hasUnread}"></div>
             <a th:href="@{'/smash/chat/roomList?user=' + ${currentUser.emailId}}">
               <i class="fa-solid fa-comment"></i>채팅
             </a>
@@ -130,7 +131,7 @@
       const loadingElement = document.querySelector('.loading');
       document.body.style.overflow = 'hidden'; // 페이지 로딩 중 스크롤 방지
       setTimeout(function() {
-        window.scrollTo(0, 0); // 페이지 로딩 후 상단으로 스크롤 이동
+        window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
         document.body.style.overflow = ''; // 로딩 후 스크롤 허용
         loadingElement.style.display = 'none'; // 1초 후에 로딩 애니메이션 숨김
       }, 1000); // 1초 후에 로딩 애니메이션 숨김
@@ -337,8 +338,8 @@
         let infoBox1 = document.createElement('div');
         infoBox1.className = 'info_box';
   
-        console.log("메시지: " + msg);
-        console.dir(msg);
+        // console.log("메시지: " + msg);
+        // console.dir(msg);
         if (msg.sender === sender) {
           let idRead = document.createElement('div');
           idRead.className = 'idRead';
@@ -496,6 +497,16 @@
                 sendReadEvent();
                 lastReadMessageId = payload.id;
               }
+            }
+          });
+
+          // 알림 구독 (여기서 1회만)
+          stompClient.subscribe("/user/queue/alarm", function(message) {
+            const data = JSON.parse(message.body);
+            if(data.hasUnread) {
+              document.querySelector('nav .new_msg_point').style.display = 'block';
+            } else {
+              document.querySelector('nav .new_msg_point').style.display = 'none';
             }
           });
   

@@ -161,6 +161,23 @@ public class ChatServiceImpl implements ChatService {
         messagingTemplate.convertAndSend("/topic/chat/" + roomId, payload);
     }
 
+    // 읽지않은 메세지 존재 여부
+    @Override
+    public boolean hasUnreadMessages(String email, int role) {
+        List<String> myRoomIds;
+        if (role == 0) {
+            myRoomIds = chatRoomRepository.findRoomIdsByMemberUser(email);
+        } else if (role == 1) {
+            myRoomIds = chatRoomRepository.findRoomIdsByPartnerUser(email);
+        } else {
+            return false;
+        }
+
+        if (myRoomIds.isEmpty()) return false;
+
+        return chatMessageRepository.existsUnreadByRoomIdsAndNotSender(myRoomIds, email);
+    }
+
     // (ChatRoom) Entity -> DTO
     public ChatRoomDTO entityToDto(ChatRoom entity) {
         if (entity == null) return null;
@@ -173,7 +190,7 @@ public class ChatServiceImpl implements ChatService {
                 .partnerUser(entity.getPartnerUser())
                 .partnerStoreName(partnerInfo.getStoreNameByEmail(entity.getPartnerUser())) // 상대방의 가게이름 조회
                 .name(entity.getName())
-                .lsatMessage(lastMessageDTO) // 마지막 메시지 내용 조회
+                .lastMessage(lastMessageDTO) // 마지막 메시지 내용 조회
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

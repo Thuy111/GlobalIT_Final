@@ -38,7 +38,7 @@ public class PartnerInfoController {
     @PostMapping("/code")
     public ResponseEntity<String> getCodeByEmail(@RequestParam String email) {
         if (email == null) return ResponseEntity.status(401).build();
-        String code = partnerConversionService.getCodeByEmail(email);
+        String code = partnerInfoService.getCodeByEmail(email);
         return ResponseEntity.ok(code);
     }
 

@@ -56,6 +56,7 @@
                 </a>
               </li>
               <li th:if="${currentUser}" class="chat">
+                <div class="new_msg_point" th:if="${currentUser != null and hasUnread}"></div>
                 <a th:href="@{'/smash/chat/roomList?user=' + ${currentUser.emailId}}">
                   <i class="fa-solid fa-comment"></i>채팅
                 </a>
