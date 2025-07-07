@@ -161,7 +161,8 @@
             <div class="partner_info">
               <div class="partner_name"
                   th:with="frontendUrl=${@environment.getProperty('front.server.url')}"
-                  th:attr="data-href=${frontendUrl + '/store/' + estimate.partnerCode}">
+                  th:attr="data-href=${frontendUrl + '/store/' + estimate.partnerCode}"
+                  onclick="window.location.href=this.getAttribute('data-href');">
                 <div class="store_icon_box">
                   <i class="fa-solid fa-store"></i>
                 </div>
@@ -187,10 +188,8 @@
             <div class="review_box">
               <div class="review_badge">후기</div>
               <hr>
-      <div th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUser}, ${estimate.idx}, ${false})}">
-
-              </div>
-            </div>  
+              <div th:replace="~{smash/request/review :: reviewCards(${estimateReviewMap[estimate.idx]}, ${currentUser}, ${estimate.idx}, ${false})}"></div>
+            </div>
           </th:block>
           
         </div>

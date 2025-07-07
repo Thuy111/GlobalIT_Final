@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -28,7 +26,6 @@ import com.bob.smash.entity.Member;
 import com.bob.smash.entity.Member.LoginType;
 import com.bob.smash.exception.DuplicateMemberException;
 import com.bob.smash.repository.MemberRepository;
-import com.bob.smash.service.ProfileService;
 // import com.bob.smash.repository.ReviewRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -341,10 +338,8 @@ public class MemberServiceImpl implements MemberService {
         String bno = currentUser != null ? currentUser.getBno() : null;
 
         try{
-            
-            // 1. profile Image
-            profileService.deleteProfileImage(email); // 프로필 이미지 삭제 메서드 호출
-            // 2. notification
+            profileService.deleteProfileImage(email); // 1. profile Image 삭제 메서드 호출
+            notificationService.deleteNotificationByMember(email); // 2. notification 매핑만 삭제(알림 메세지는 별도 삭제)
             // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
             estimateService.deleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)
             requestService.allDeleteByEmail(email); // 5. request (hashtag_mapping + image X)

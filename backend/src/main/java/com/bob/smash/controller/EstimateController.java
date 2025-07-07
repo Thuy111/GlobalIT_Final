@@ -89,12 +89,26 @@ public class EstimateController {
 
   // 등록
   @GetMapping("/register")
-  public void register(@RequestParam("requestIdx") Integer requestIdx, Model model) {
-    model.addAttribute("requestIdx", requestIdx);
-    // 의뢰서 사용 날짜를 가져와서 모델에 추가
-    LocalDateTime useDate = service.getUseDateByRequestIdx(requestIdx);
-    model.addAttribute("useDate", useDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
-    model.addAttribute("title", "견적서 등록");
+  public void register(@RequestParam("requestIdx") Integer requestIdx, 
+                       HttpSession session, 
+                       Model model) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if(currentUser == null) {
+      // 현재 사용자가 로그인하지 않은 경우 홈으로 리다이렉트
+      model.addAttribute("message", "로그인이 필요합니다.");
+      return;
+    } else if(currentUser.getRole() == 1) {
+      // 업체인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
+      model.addAttribute("message", "업체는 의뢰서에 대한 견적서를 작성할 수 없습니다.");
+      return;
+    } else {
+      model.addAttribute("requestIdx", requestIdx);
+      // 의뢰서 사용 날짜를 가져와서 모델에 추가
+      LocalDateTime useDate = service.getUseDateByRequestIdx(requestIdx);
+      model.addAttribute("useDate", useDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
+      model.addAttribute("title", "견적서 등록");
+      return;
+    }
   }
   @PostMapping("/register")
   public String estimateRegister(EstimateDTO dto,
@@ -112,10 +126,24 @@ public class EstimateController {
 
   // 수정
   @GetMapping("/update")
-  public void update(@RequestParam("idx") Integer idx, Model model) {
-    EstimateDTO dto = service.getWithImage(idx);
-    model.addAttribute("dto", dto);
-    model.addAttribute("title", "견적서 수정");
+  public void update(@RequestParam("idx") Integer idx, 
+                     HttpSession session, 
+                     Model model) {
+    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+    if(currentUser == null) {
+      // 현재 사용자가 로그인하지 않은 경우 홈으로 리다이렉트
+      model.addAttribute("message", "로그인이 필요합니다.");
+      return;
+    } else if(currentUser.getRole() == 1) {
+      // 업체인 경우, 사업자 번호로 자신이 작성한 견적서 목록을 조회
+      model.addAttribute("message", "업체는 의뢰서에 대한 견적서를 수정할 수 없습니다.");
+      return;
+    } else {
+      EstimateDTO dto = service.getWithImage(idx);
+      model.addAttribute("dto", dto);
+      model.addAttribute("title", "견적서 수정");
+      return;
+    }
   }
   @PostMapping("/modify")
   public String modify(EstimateDTO dto, 
