@@ -42,7 +42,7 @@ public class ProfileServiceImpl implements ProfileService {
         Optional<ProfileImage> profileOpt = profileImageRepository.findByMember(member);
 
         String profileImageUrl = profileOpt
-                        .map(img -> "/uploads/" + img.getSName())
+                        .map(img -> "/uploads/" + img.getPath() + img.getSName())
                         .orElse(null);
 
         Optional<PartnerInfo> partnerOpt = partnerInfoRepository.findByMember_EmailId(emailId);
@@ -124,6 +124,41 @@ public class ProfileServiceImpl implements ProfileService {
 
         // 기존 이미지 삭제
         profileImageRepository.findByMember(member).ifPresent(existing -> {
+
+            // 실제 파일 전체 경로
+                String fullPath = Paths.get(uploadPath, existing.getPath(), existing.getSName())
+                        .toAbsolutePath().normalize().toString();
+                log.info("삭제하려는 파일 경로: {}", fullPath);
+
+                File existingFile = new File(fullPath);
+                if (existingFile.exists()) {
+                    if (existingFile.delete()) {
+                        log.info("파일 삭제 성공: {}", fullPath);
+                    } else {
+                        log.warn("파일 삭제 실패: {}", fullPath);
+                    }
+                } else {
+                    log.warn("파일이 존재하지 않음: {}", fullPath);
+                }
+
+                // 디렉토리 정리: 이미지가 있던 폴더 경로
+                File parentDir = new File(Paths.get(uploadPath, existing.getPath()).toAbsolutePath().normalize().toString());
+                log.info("삭제하려는 디렉토리 경로: {}", parentDir.getAbsolutePath());
+
+                if (parentDir.exists() && parentDir.isDirectory()) {
+                    String[] remainingFiles = parentDir.list();
+                    if (remainingFiles != null && remainingFiles.length == 0) {
+                        if (parentDir.delete()) {
+                            log.info("빈 폴더 삭제 성공: {}", parentDir.getAbsolutePath());
+                        } else {
+                            log.warn("빈 폴더 삭제 실패: {}", parentDir.getAbsolutePath());
+                        }
+                    } else {
+                        log.info("디렉토리 내에 다른 파일이 존재하여 폴더를 삭제하지 않음: {}", parentDir.getAbsolutePath());
+                    }
+                } else {
+                    log.warn("디렉토리가 존재하지 않거나 폴더가 아님: {}", parentDir.getAbsolutePath());
+                }
             profileImageRepository.delete(existing);
         });
 
@@ -133,7 +168,15 @@ public class ProfileServiceImpl implements ProfileService {
         String ext = originalName.substring(originalName.lastIndexOf("."));
         String saveName = uuid + ext;
 
-        String absUploadPath = Paths.get(uploadPath).toAbsolutePath().toString();
+        // 날짜 + 시간 조합 (예: 20250706123045)
+        String timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
+
+        String envPath = "user/";
+        String relativePath = envPath + member.getEmailId() + "_" + timestamp;
+        String absUploadPath = Paths.get(uploadPath, "user", member.getEmailId() + "_" + timestamp).toAbsolutePath().toString();
+        
+
+    
         File dir = new File(absUploadPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -147,13 +190,13 @@ public class ProfileServiceImpl implements ProfileService {
             throw new RuntimeException("파일 저장 실패", e);
         }
 
-        String urlPath = "/uploads/" + saveName;
+        String urlPath = relativePath + "/" + saveName;
 
         ProfileImage profileImage = ProfileImage.builder()
                 .member(member)
                 .sName(saveName)
                 .oName(originalName)
-                .path("/uploads")
+                .path(relativePath + "/")
                 .type(file.getContentType())
                 .size(file.getSize())
                 .build();
@@ -167,7 +210,49 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     @Transactional
     public void deleteProfileImage(String emailId) {
-        profileImageRepository.deleteById(emailId);
-        // 실제 파일도 지울 수 있음 (선택)
+        Member member = memberRepository.findByEmailId(emailId)
+        .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+
+        Optional<ProfileImage> imageOpt = profileImageRepository.findByMember(member);
+
+        imageOpt.ifPresent(profileImage -> {
+            // 실제 파일 전체 경로
+            String fullPath = Paths.get(uploadPath, profileImage.getPath(), profileImage.getSName())
+                    .toAbsolutePath().normalize().toString();
+            log.info("삭제하려는 파일 경로: {}", fullPath);
+
+            File file = new File(fullPath);
+            if (file.exists()) {
+                if (file.delete()) {
+                    log.info("파일 삭제 성공: {}", fullPath);
+                } else {
+                    log.warn("파일 삭제 실패: {}", fullPath);
+                }
+            } else {
+                log.warn("파일이 존재하지 않음: {}", fullPath);
+            }
+
+            // 디렉토리 정리: 이미지가 있던 폴더 경로
+            File parentDir = new File(Paths.get(uploadPath, profileImage.getPath()).toAbsolutePath().normalize().toString());
+            log.info("삭제하려는 디렉토리 경로: {}", parentDir.getAbsolutePath());
+
+            if (parentDir.exists() && parentDir.isDirectory()) {
+                String[] remainingFiles = parentDir.list();
+                if (remainingFiles != null && remainingFiles.length == 0) {
+                    if (parentDir.delete()) {
+                        log.info("빈 폴더 삭제 성공: {}", parentDir.getAbsolutePath());
+                    } else {
+                        log.warn("빈 폴더 삭제 실패: {}", parentDir.getAbsolutePath());
+                    }
+                } else {
+                    log.info("디렉토리 내에 다른 파일이 존재하여 폴더를 삭제하지 않음: {}", parentDir.getAbsolutePath());
+                }
+            } else {
+                log.warn("디렉토리가 존재하지 않거나 폴더가 아님: {}", parentDir.getAbsolutePath());
+            }
+
+            // 프로필 이미지 데이터베이스에서 삭제
+            profileImageRepository.deleteById(emailId);
+        });
     }
 }
