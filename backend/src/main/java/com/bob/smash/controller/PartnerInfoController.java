@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/smash/partner")
 public class PartnerInfoController {
 
-    private final PartnerInfoService partnerConversionService;
+    private final PartnerInfoService partnerInfoService;
 
         private String extractEmail(OAuth2User user) {
         if (user == null) return null;
@@ -44,7 +44,7 @@ public class PartnerInfoController {
         String email = extractEmail(user);
         if (email == null) return ResponseEntity.status(401).build();
 
-        PartnerVerificationResponseDTO result = partnerConversionService.verifyAndRegister(email, dto);
+        PartnerVerificationResponseDTO result = partnerInfoService.verifyAndRegister(email, dto);
         return ResponseEntity.ok(result);
     }
 
@@ -54,7 +54,7 @@ public class PartnerInfoController {
         String email = extractEmail(user);
         if (email == null) return ResponseEntity.status(401).build();
 
-        partnerConversionService.convertToUser(email);
+        partnerInfoService.convertToUser(email);
         return ResponseEntity.ok().build();
     }
 
@@ -63,7 +63,7 @@ public class PartnerInfoController {
     String email = extractEmail(user);
     if (email == null) return ResponseEntity.status(401).build();
 
-    partnerConversionService.updateRoleIfPartnerInfoExists(email); // 이 서비스 메서드 만들기
+    partnerInfoService.updateRoleIfPartnerInfoExists(email); // 이 서비스 메서드 만들기
     return ResponseEntity.ok().build();
 }
 }

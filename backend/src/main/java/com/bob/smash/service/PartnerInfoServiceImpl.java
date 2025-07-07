@@ -247,12 +247,6 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
         registrationId
     );
 
-    // ✅ Authentication 새로 설정
-    // Authentication newAuth = new UsernamePasswordAuthenticationToken(
-    //     updatedUser,
-    //     auth.getCredentials(),
-    //     updatedUser.getAuthorities()
-    // );
 
     ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     if (attr == null) return;
@@ -262,11 +256,14 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
     if (currentUser == null) return;
 
+    PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(member.getEmailId()).orElse(null);
+    String bno = (partnerInfo != null) ? partnerInfo.getBno() : null;
+
     CurrentUserDTO updatedUserDTO = CurrentUserDTO.builder()
         .emailId(currentUser.getEmailId())
         .nickname(currentUser.getNickname())
         .role(member.getRole())
-        .bno(currentUser.getBno())
+        .bno(bno)
         .build();
 
     session.setAttribute("currentUser", updatedUserDTO);
@@ -283,3 +280,4 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
   }
 
 }
+
