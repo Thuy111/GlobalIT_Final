@@ -35,20 +35,24 @@ public class ReviewController {
     
     // 리뷰 목록
     @GetMapping("/list")
-    public String list(Model model, HttpSession session) {
-        if (!model.containsAttribute("reviewList")) {
-            model.addAttribute("reviewList", List.of()); // 빈 리스트라도 넣기
+    public String list(Model model) {
+        if (model.containsAttribute("reviewList")) {
+            model.addAttribute("title", "리뷰 목록");
+            return "smash/review/list";
+        } else {
+            return "redirect:/smash/review/mylist";
         }
-        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        model.addAttribute("currentUser", currentUser);  // 템플릿에서 쓰려면 필수
-        model.addAttribute("title", "리뷰 목록");
-        return "smash/review/list";  // 명확한 뷰명 리턴 권장
     }
-
     // 업체가 쓴 리뷰 목록
     @GetMapping("/partnerlist")
     public String partnerList(@RequestParam("bno") String partnerBno, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByPartnerBno(partnerBno));
+        return "redirect:/smash/review/list";
+    }
+    // 유저가 쓴 리뷰 목록
+    @GetMapping("userlist")
+    public String userList(@RequestParam("memberId") String memberId, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByMemberId(memberId));
         return "redirect:/smash/review/list";
     }
     // 내가 쓴 리뷰 목록
@@ -61,13 +65,10 @@ public class ReviewController {
             if (currentUser.getRole() == 1) {
                 return "redirect:/smash/review/partnerlist?bno=" + currentUser.getBno();
             } else {
-                redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByMemberId(currentUser.getEmailId()));
+                return "redirect:/smash/review/userlist?memberId=" + currentUser.getEmailId();
             }
         }
-        return "redirect:/smash/review/list";
     }
-
-
     // 전체 리뷰 목록
     @GetMapping("/all")
     public String allList(HttpSession session, RedirectAttributes redirectAttributes) {

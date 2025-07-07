@@ -54,6 +54,12 @@ public class RequestController {
             return "redirect:/smash/request/mylist";
         }
     }
+    // 유저가 쓴 의뢰서 목록
+    @GetMapping("/userlist")
+    public String userList(@RequestParam("memberId") String memberId, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("result", requestService.getListByMemberId(memberId));
+        return "redirect:/smash/request/list";
+    }
     // 내가 쓴 의뢰서 목록
     @GetMapping("/mylist")
     public String myList(HttpSession session, RedirectAttributes redirectAttributes) {
@@ -63,10 +69,8 @@ public class RequestController {
             return "redirect:/smash";
         } else {
             // 일반 회원인 경우, 자신이 작성한 의뢰서 목록을 조회
-            redirectAttributes.addFlashAttribute("result", requestService.getListByMemberId(currentUser.getEmailId()));
-            
+            return "redirect:/smash/request/userlist?memberId=" + currentUser.getEmailId();
         }
-        return "redirect:/smash/request/list";
     }
     // 전체 의뢰서 목록
     @GetMapping("/all")
