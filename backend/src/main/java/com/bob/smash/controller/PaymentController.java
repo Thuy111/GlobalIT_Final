@@ -107,8 +107,9 @@ public class PaymentController {
     }
     // 결제 목록 조회
     @GetMapping("/user")
-    public String paymentUserDetail(@RequestParam("email") String email,Model model) {
-        try {
+    public String paymentUserDetail(@RequestParam("email") String email, Model model) {
+
+       try {
             List<PaymentDTO> payments = paymentService.getAllPaymentsByMemberEmail(email); // 모든 결제 정보 조회 (이후, 사용자 기준으로 조회)
             if (payments != null) {
                 model.addAttribute("payments", payments);
@@ -126,6 +127,8 @@ public class PaymentController {
     // 결제 목록 조회
     @GetMapping("/partner")
     public String paymentPartnerDetail(@RequestParam("bno") String bno, Model model) {
+
+        
         try {
             List<PaymentDTO> payments = paymentService.getAllPaymentsByBno(bno); // 모든 결제 정보 조회 (이후, 사용자 기준으로 조회)
             if (payments != null) {

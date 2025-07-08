@@ -49,11 +49,11 @@
           <td class="status">
             <span th:text="${payment.status}"></span>
             <!-- enum일 경우 문자열로 비교 .name() -->
-             <div th:if="${payment.status.name() == 'ready'}" class="payment_buttons_box" th:inline="javascript">
+             <div th:if="${payment.status.name() == 'ready' and currentUser != null and currentUser.role == 0}" class="payment_buttons_box" th:inline="javascript">
                 <button th:onclick="|payPayment(${payment.idx})|">결제 하기</button>
-                <button th:onclick="|closePayment(${payment.idx})|">결제 삭제</button>
+                <button th:onclick="|closePayment(${payment.idx})|">결제 취소</button>
              </div>
-            <button th:if="${payment.status.name() == 'paid'}" th:onclick="|canceledPaid(${payment.idx})|" th:inline="javascript">결제 취소</button>
+            <button th:if="${payment.status.name() == 'paid' and currentUser != null and currentUser.role == 1}" th:onclick="|canceledPaid(${payment.idx})|" th:inline="javascript">결제 취소</button>
             <button th:if="${(payment.status.name() == 'canceled') and (payment.payType != null) and (payment.paidAt != null)}" disabled>환불 완료</button>
             <button th:if="${(payment.status.name() == 'canceled') and (payment.payType == null) and (payment.paidAt == null)}" disabled>취소 완료</button>
           </td>
