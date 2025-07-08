@@ -37,8 +37,8 @@ public class SecurityConfig {
         System.out.println("@@@ filterChain Bean 등록됨!");
         
         http
-            .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // JS에서도 읽을 수 있게
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 관리 정책 설정
+            // .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // JS에서도 읽을 수 있게
+            // .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 관리 정책 설정
             .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 서버에서는 보통 비활성화)
             .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
             .cors(Customizer.withDefaults()) // CORS 설정 적용

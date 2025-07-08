@@ -30,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 
   private final MemberService memberService;
+  private final HttpSession session;
 
   @Value("${front.server.url}")
   private String frontServerUrl;
@@ -87,6 +88,7 @@ public class MemberController {
   public ResponseEntity<?> unlinkSocial() {
       try {
           memberService.unlinkSocial(); // 소셜 로그인 연동 해제
+          session.invalidate(); // 세션 무효화
           return ResponseEntity.ok("소셜 로그인이 해제되었습니다.");
       } catch (IllegalArgumentException e) {
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());

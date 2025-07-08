@@ -13,7 +13,7 @@ const apiClient = axios.create({
 // 모든 요청에 동적으로 CSRF 토큰을 넣어줌
 apiClient.interceptors.request.use(config => {
   const xsrfToken = Cookies.get('XSRF-TOKEN');
-  console.log('XSRF-TOKEN:', xsrfToken); // 디버깅용 로그
+  // console.log('XSRF-TOKEN:', xsrfToken); // 디버깅용 로그
   
   if (xsrfToken) {
     config.headers['X-XSRF-TOKEN'] = xsrfToken;
