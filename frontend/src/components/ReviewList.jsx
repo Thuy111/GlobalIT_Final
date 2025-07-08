@@ -29,12 +29,12 @@ function ReviewList({ bno, onUpdateStats }) {  // onUpdateStats 콜백 추가
   }, [bno, onUpdateStats]);
 
   return (
-    <div className="review_list">
-
+    <>
       {(!reviewList || reviewList.length === 0) ?(
         <p>등록된 리뷰가 없습니다.</p>
       ) : (
         reviewList.map((review) => (
+        <div className="review_list">
           <div className="review-card" key={review.idx}>
             <div className="review-header">
               <span className="nickname">{review.nickname}</span>
@@ -46,7 +46,7 @@ function ReviewList({ bno, onUpdateStats }) {  // onUpdateStats 콜백 추가
                   <i key={i} className="fa-solid fa-star"></i>
                 ))}
                 </p>
-              <p>{review.star}.0점</p>
+              <p className='point'>{review.star}.0점</p>
             </div>
             <div className="comment">{review.comment}</div>
             <div className="images">
@@ -55,9 +55,10 @@ function ReviewList({ bno, onUpdateStats }) {  // onUpdateStats 콜백 추가
               ))}
             </div>
           </div>
+        </div>  
         ))
       )}
-    </div>
+    </>
   );
 }
 

@@ -28,6 +28,7 @@
         <div class="created_at_box">
           <div class="created_at">[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일').format(dto.createdAt)}]]</div>
           <div class="created_at">[[${T(java.time.format.DateTimeFormatter).ofPattern('HH:mm').format(dto.createdAt)}]]</div>
+          <small th:if="${dto.isModify == 1}">(수정 됨)</small>
         </div>
       </div>
 
