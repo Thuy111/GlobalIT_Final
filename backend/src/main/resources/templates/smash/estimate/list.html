@@ -19,11 +19,11 @@
                                                     (currentUser != null and currentUser.role == 2)}">
                 <form th:action="@{/smash/estimate/update}" method="get">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                  <button type="submit" th:if="${estimate.isSelected == 0}">수정</button>
+                  <button type="submit" th:if="${estimate.isSelected == 0}" class="update">수정</button>
                 </form>
                 <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
                   <input type="hidden" name="idx" th:value="${estimate.idx}" />
-                  <button type="submit">삭제</button>
+                  <button type="submit" class="delete">삭제</button>
                 </form>
               </div>
               <div class="estimate_info">
