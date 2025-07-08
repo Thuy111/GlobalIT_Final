@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.PaymentDTO;
 import com.bob.smash.entity.Payment;
 import com.bob.smash.service.PartnerInfoService;
@@ -25,6 +26,7 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse; // 사용중 > 바로 사용하고 있으므로 사용처리로 안보임
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -90,6 +92,42 @@ public class PaymentController {
     public String paymentDetail(Model model) {
         try {
             List<PaymentDTO> payments = paymentService.allFindPayments(); // 모든 결제 정보 조회 (이후, 사용자 기준으로 조회)
+            if (payments != null) {
+                model.addAttribute("payments", payments);
+                model.addAttribute("now", java.time.LocalDateTime.now());
+                model.addAttribute("title", "결제 목록");
+                return "smash/payment/list"; // 결제 목록 페이지로 이동
+            } else {
+                throw new Exception("결제 정보를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("결제 정보 조회 실패", e);
+        }
+    }
+    // 결제 목록 조회
+    @GetMapping("/user")
+    public String paymentUserDetail(@RequestParam("email") String email,Model model) {
+        try {
+            List<PaymentDTO> payments = paymentService.getAllPaymentsByMemberEmail(email); // 모든 결제 정보 조회 (이후, 사용자 기준으로 조회)
+            if (payments != null) {
+                model.addAttribute("payments", payments);
+                model.addAttribute("now", java.time.LocalDateTime.now());
+                model.addAttribute("title", "결제 목록");
+                return "smash/payment/list"; // 결제 목록 페이지로 이동
+            } else {
+                throw new Exception("결제 정보를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("결제 정보 조회 실패", e);
+        }
+    }
+    // 결제 목록 조회
+    @GetMapping("/partner")
+    public String paymentPartnerDetail(@RequestParam("bno") String bno, Model model) {
+        try {
+            List<PaymentDTO> payments = paymentService.getAllPaymentsByBno(bno); // 모든 결제 정보 조회 (이후, 사용자 기준으로 조회)
             if (payments != null) {
                 model.addAttribute("payments", payments);
                 model.addAttribute("now", java.time.LocalDateTime.now());

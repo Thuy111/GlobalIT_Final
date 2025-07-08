@@ -11,6 +11,7 @@ import com.bob.smash.entity.Payment;
 
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
   List<Payment> findByMember_EmailId(String memberEmail); // 회원별 결제 정보 조회
+  List<Payment> findByPartnerInfo_Bno(String partnerBno); // bno로 결제 정보 조회
   List<Payment> findByEstimate_Idx(Integer estimateIdx); // 견적서에 해당하는 모든 결제 정보 조회
 
   Optional<Payment> findByImpUid(String impUid); // 아이엠포트 결제 고유 ID : 결제 정보 조회
