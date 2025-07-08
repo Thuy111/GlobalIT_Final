@@ -39,6 +39,8 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
     console.log('소셜 로그아웃 시도');
     try {
       await apiClient.post('/member/auth/unlink', {}, { withCredentials: true })
+      setIsLoggedIn(false);
+      window.location.href = '/profile';
     }catch (error) {
       console.error('소셜 로그아웃 실패:', error);
     }
@@ -79,7 +81,7 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
             <p className="profile_inform_nickname">{profile.nickname}</p>
             <p>{profile.loginType}</p>
             <p>{profile.partner ? '파트너' : '일반 회원'}</p>
-            <div onClick={handleSocialLogout}>다른 계정으로 로그인</div>
+            <div onClick={handleSocialLogout} className='another_social'>다른 계정으로 로그인</div>
           </div>
         </div>
 

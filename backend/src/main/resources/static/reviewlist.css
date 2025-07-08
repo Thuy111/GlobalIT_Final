@@ -80,6 +80,7 @@ body.dark .review_container .review_title {color: #dddddd;}
   padding: 4px 8px;
   border-radius: 6px;
   transition: background-color 0.3s;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .review_container .review_actions_top button:hover {

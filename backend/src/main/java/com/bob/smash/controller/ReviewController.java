@@ -55,6 +55,13 @@ public class ReviewController {
         redirectAttributes.addFlashAttribute("reviewList", reviewService.getReviewsByMemberId(memberId));
         return "redirect:/smash/review/list";
     }
+    // 유저가 쓴 리뷰 목록 개수 전달
+    @GetMapping("/userlist/count")
+    @ResponseBody
+    public int getUserReviewCount(@RequestParam("memberId") String memberId) {
+        return reviewService.getUserReviewCount(memberId);
+    }
+
     // 내가 쓴 리뷰 목록
     @GetMapping("/mylist")
     public String myList(HttpSession session, RedirectAttributes redirectAttributes) {

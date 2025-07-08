@@ -38,4 +38,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     // 종료된 의뢰서 감추기
     Page<Request> findByUseDateGreaterThanEqual(LocalDateTime now, Pageable pageable);
 
+    // 유저가 쓴 의뢰서 개수
+    int countByMember_EmailId(String memberId);
+
 }

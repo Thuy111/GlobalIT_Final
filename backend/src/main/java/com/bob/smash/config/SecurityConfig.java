@@ -78,7 +78,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(frontServerUrl));  // 프론트 주소
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용 메서드
-        // configuration.setAllowedHeaders(List.of("X-XSRF-TOKEN", "Content-Type", "X-Frontend-Auth-Check"));  // 허용 헤더 
+        // configuration.setAllowedHeaders(List.of("X-XSRF-TOKEN", "Content-Type", "X-Frontend-Auth-Check", "Authorization"));  // 허용 헤더 
         configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키, 인증 정보 허용
 

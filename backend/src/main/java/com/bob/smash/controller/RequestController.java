@@ -60,6 +60,12 @@ public class RequestController {
         redirectAttributes.addFlashAttribute("result", requestService.getListByMemberId(memberId));
         return "redirect:/smash/request/list";
     }
+    // 유저가 쓴 의뢰서 목록 개수 전달
+    @GetMapping("/userlist/count")
+    @ResponseBody
+    public int getUserRequestCount(@RequestParam("memberId") String memberId) {
+        return requestService.getUserRequestCount(memberId);
+    }
     // 내가 쓴 의뢰서 목록
     @GetMapping("/mylist")
     public String myList(HttpSession session, RedirectAttributes redirectAttributes) {

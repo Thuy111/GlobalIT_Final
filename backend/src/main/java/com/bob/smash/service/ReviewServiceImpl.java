@@ -214,6 +214,12 @@ public List<ReviewDTO> getReviewsByEstimateIdx(Integer estimateIdx) {
     // 리뷰카운트
     @Override
     public int countReviewsByPartnerBno(String bno) {
-    return reviewRepository.countByPartnerBno(bno);
-}
+        return reviewRepository.countByPartnerBno(bno);
+    }
+
+    // 유저 리뷰 갯수
+    @Override
+    public int getUserReviewCount(String memberId) {
+        return reviewRepository.countByMember_EmailId(memberId);
+    }
 }

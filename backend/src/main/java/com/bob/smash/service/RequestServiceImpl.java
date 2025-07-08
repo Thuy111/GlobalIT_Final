@@ -278,7 +278,11 @@ public class RequestServiceImpl implements RequestService {
     return estimateRepository.findMinPriceByRequestIdx(requestIdx);
     }
 
-
+    // 유저가 쓴 의뢰서 개수
+    @Override
+    public int getUserRequestCount(String memberId) {
+        return requestRepository.countByMember_EmailId(memberId);
+    }
     
 
     // 임시 : 이메일에 해당하는 모든 견적 정보 삭제
