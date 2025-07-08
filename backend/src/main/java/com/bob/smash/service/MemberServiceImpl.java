@@ -338,10 +338,11 @@ public class MemberServiceImpl implements MemberService {
         String bno = currentUser != null ? currentUser.getBno() : null;
 
         try{
+            // 채팅 + 결제 + 리뷰 (삭제X)
             profileService.deleteProfileImage(email); // 1. profile Image 삭제 메서드 호출
             notificationService.deleteNotificationByMember(email); // 2. notification 매핑만 삭제(알림 메세지는 별도 삭제)
-            // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X) >>> 삭제 고려
-            estimateService.deleteByPartnerBno(bno); // 4. estimate 삭제 (payment + review X + image X)
+            // reviewRepository.deleteByMember_EmailId(email); // 3. reivew (image X)
+            estimateService.deleteByPartnerBno(bno); // 4. estimate 삭제 (payment X + review X + image O)
             requestService.allDeleteByEmail(email); // 5. request (hashtag_mapping + image X)
             partnerInfoService.deleteByMemberEmail(email); // 6. partnerInfo 삭제 (payment + image X)
             memberRepository.deleteByEmailId(email); // 7. 마지막에 회원 삭제

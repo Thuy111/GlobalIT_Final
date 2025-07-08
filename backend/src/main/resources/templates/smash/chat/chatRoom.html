@@ -289,6 +289,18 @@
         stompClient.send("/app/chat.quit", {}, JSON.stringify(quitmessage));
         stompClient.disconnect();
     }
+
+    // 읽음 점 체크
+    const checkUnreadDot = async () => {
+      try {
+        const res = await axios.get('/smash/chat/has-unread');
+        const data = res.data;
+        const dot = document.querySelector('nav .new_msg_point');
+        if(dot) dot.style.display = data.hasUnread ? 'block' : 'none';
+      } catch (e) {
+        console.error(e);
+      }
+    };
   
     // 채팅 =========================================
     document.addEventListener('DOMContentLoaded', function() {
@@ -484,6 +496,8 @@
               if (payload.messageIds.length > 0) {
                 lastReadMessageId = Math.max(...payload.messageIds);
               }
+
+              checkUnreadDot(); // 읽음 점 체크
               return;
             }
   
@@ -497,16 +511,6 @@
                 sendReadEvent();
                 lastReadMessageId = payload.id;
               }
-            }
-          });
-
-          // 알림 구독 (여기서 1회만)
-          stompClient.subscribe("/user/queue/alarm", function(message) {
-            const data = JSON.parse(message.body);
-            if(data.hasUnread) {
-              document.querySelector('nav .new_msg_point').style.display = 'block';
-            } else {
-              document.querySelector('nav .new_msg_point').style.display = 'none';
             }
           });
   

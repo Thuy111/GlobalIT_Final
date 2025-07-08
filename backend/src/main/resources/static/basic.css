@@ -75,13 +75,13 @@ button:hover, [class*="btn"]:hover {
   background-color: #3bb8d4 !important;
 }
 button:disabled, [class*="btn"]:disabled {
-  background-color: #ccc;
-  color: #666;
-  cursor: default;
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: default !important;
 }
 button:disabled:hover, [class*="btn"]:disabled:hover {
-  background-color: #ccc;
-  color: #666;
+  background-color: #ccc !important;
+  color: #666 !important;
   cursor: default;
 }
 

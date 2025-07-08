@@ -19,6 +19,7 @@ import com.bob.smash.service.ContactMailService;
 
 import com.bob.smash.dto.ThemeDTO;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2; 
@@ -99,7 +100,11 @@ public class SmashController {
   // theme
   @ResponseBody
   @PostMapping("/theme")
-  public void setTheme(@RequestBody ThemeDTO themeDTO, HttpSession session) {
+  public void setTheme(@RequestBody ThemeDTO themeDTO, HttpSession session, HttpServletRequest request) {
+    // System.out.println("세션ID: " + session.getId());
+    // System.out.println("XSRF-TOKEN 헤더: " + request.getHeader("x-xsrf-token"));
+    // System.out.println("쿠키: " + request.getHeader("cookie"));
+
     String theme = themeDTO.getTheme();
     session.setAttribute("theme", theme);
     System.out.println("테마는 ==========" + theme);

@@ -82,6 +82,17 @@ public class MemberController {
       }
   }
 
+  // 소셜 로그인 연동 해제
+  @PostMapping("/auth/unlink")
+  public ResponseEntity<?> unlinkSocial() {
+      try {
+          memberService.unlinkSocial(); // 소셜 로그인 연동 해제
+          return ResponseEntity.ok("소셜 로그인이 해제되었습니다.");
+      } catch (IllegalArgumentException e) {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+      }
+  }
+
   // 소셜 로그인 세션 정보 조회
   @GetMapping("/auth/session-info")
   public ResponseEntity<?> getSessionInfo(HttpServletRequest request) {

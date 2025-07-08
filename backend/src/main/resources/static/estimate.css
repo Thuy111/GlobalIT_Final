@@ -211,6 +211,7 @@ body.dark .estimate_list .partner_info .badge{background-color: #201f1f !importa
   text-overflow: ellipsis;
   padding-bottom: 14px;
   align-items: center;
+  cursor: pointer;
 }
 .estimate_list .partner_info .partner_name .name {
   font-size: 26px;
