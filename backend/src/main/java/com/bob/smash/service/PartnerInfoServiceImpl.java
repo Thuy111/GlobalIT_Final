@@ -6,25 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 
 import com.bob.smash.dto.CurrentUserDTO;
 import com.bob.smash.dto.PartnerInfoDTO;
@@ -35,12 +20,29 @@ import com.bob.smash.repository.MemberRepository;
 import com.bob.smash.repository.PartnerInfoRepository;
 import com.bob.smash.repository.PaymentRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import lombok.RequiredArgsConstructor;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -208,67 +210,85 @@ public class PartnerInfoServiceImpl implements PartnerInfoService {
     session.setAttribute("currentUser", updatedUser);
   }
 
+  @Autowired
+  private HttpServletRequest request;
+
+  @Autowired
+  private HttpServletResponse response;
+
+  @Autowired
+  private OAuth2AuthorizedClientService authorizedClientService;
+
+  @Autowired
+  private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
   private void updateSecurityContextRole(Member member) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-    // if (auth == null || !(auth.getPrincipal() instanceof OAuth2User)) return;
-    if (auth == null || !(auth instanceof OAuth2AuthenticationToken)) return;
-    OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) auth;
+      if (auth == null || !(auth instanceof OAuth2AuthenticationToken)) return;
+      OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) auth;
 
-    // OAuth2User currentOAuth2User = (OAuth2User) auth.getPrincipal();
-    OAuth2User currentOAuth2User = oauthToken.getPrincipal();
-    Map<String, Object> attributes = new HashMap<>(currentOAuth2User.getAttributes());
+      OAuth2User currentOAuth2User = oauthToken.getPrincipal();
+      Map<String, Object> attributes = new HashMap<>(currentOAuth2User.getAttributes());
 
-    // ✅ Kakao 사용자라면 "kakao_account" 내부에서 email 추출
-    if (!attributes.containsKey("email") && attributes.containsKey("kakao_account")) {
-        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        attributes.put("email", kakaoAccount.get("email"));
-    }
+      // ✅ Kakao 사용자라면 email 추출
+      if (!attributes.containsKey("email") && attributes.containsKey("kakao_account")) {
+          Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+          attributes.put("email", kakaoAccount.get("email"));
+      }
 
-    // ✅ 권한 목록 업데이트
-    List<GrantedAuthority> updatedAuthorities = List.of(
-        new SimpleGrantedAuthority(member.getRole() == 1 ? "ROLE_PARTNER" : "ROLE_USER")
-    );
+      // ✅ 권한 설정
+      List<GrantedAuthority> updatedAuthorities = List.of(
+          new SimpleGrantedAuthority(member.getRole() == 1 ? "ROLE_PARTNER" : "ROLE_USER")
+      );
 
-    // ✅ 새로운 OAuth2User 객체 생성 (email을 nameAttributeKey로 사용)
-    OAuth2User updatedUser = new DefaultOAuth2User(
-        updatedAuthorities,
-        attributes,
-        "email" // 🔥 email이 attributes에 꼭 있어야 함!
-    );
+      // ✅ 새로운 OAuth2User 생성
+      OAuth2User updatedUser = new DefaultOAuth2User(
+          updatedAuthorities,
+          attributes,
+          "email"
+      );
 
-    // 기존 registrationId 재사용
-    String registrationId = oauthToken.getAuthorizedClientRegistrationId();
+      // ✅ registrationId 유지
+      String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
-    // 새로운 OAuth2AuthenticationToken으로 wrapping!
-    OAuth2AuthenticationToken newAuth = new OAuth2AuthenticationToken(
-        updatedUser,
-        updatedUser.getAuthorities(),
-        registrationId
-    );
+      // ✅ 새로운 인증 객체 생성
+      OAuth2AuthenticationToken newAuth = new OAuth2AuthenticationToken(
+          updatedUser,
+          updatedUser.getAuthorities(),
+          registrationId
+      );
 
+      // ✅ 세션 및 currentUserDTO 업데이트
+      ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      if (attr == null) return;
+      HttpSession session = request.getSession(false);
+      if (session == null) return;
+      CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+      if (currentUser == null) return;
 
-    ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    if (attr == null) return;
-    HttpServletRequest request = attr.getRequest();
-    HttpSession session = request.getSession(false);
-    if (session == null) return;
-    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-    if (currentUser == null) return;
+      PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(member.getEmailId()).orElse(null);
+      String bno = (partnerInfo != null) ? partnerInfo.getBno() : null;
 
-    PartnerInfo partnerInfo = partnerInfoRepository.findByMember_EmailId(member.getEmailId()).orElse(null);
-    String bno = (partnerInfo != null) ? partnerInfo.getBno() : null;
+      CurrentUserDTO updatedUserDTO = CurrentUserDTO.builder()
+          .emailId(currentUser.getEmailId())
+          .nickname(currentUser.getNickname())
+          .role(member.getRole())
+          .bno(bno)
+          .build();
 
-    CurrentUserDTO updatedUserDTO = CurrentUserDTO.builder()
-        .emailId(currentUser.getEmailId())
-        .nickname(currentUser.getNickname())
-        .role(member.getRole())
-        .bno(bno)
-        .build();
+      session.setAttribute("currentUser", updatedUserDTO);
 
-    session.setAttribute("currentUser", updatedUserDTO);
+      // ✅ 인증 객체 교체
+      SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-    SecurityContextHolder.getContext().setAuthentication(newAuth);
+      // ✅ OAuth2AuthorizedClient 갱신 (중요!)
+      authorizedClientRepository.saveAuthorizedClient(
+          authorizedClientService.loadAuthorizedClient(registrationId, oauthToken.getName()),
+          newAuth,
+          request,
+          response
+      );
   }
 
   // 파트너 가게 이름 조회
