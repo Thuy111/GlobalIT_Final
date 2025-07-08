@@ -33,8 +33,10 @@ public class ReviewServiceImpl implements ReviewService {
     // 리뷰 등록
     @Override
     public Integer registerReview(ReviewDTO reviewDTO) {
+        // 견적서 ID로 견적 정보 조회
         Estimate estimate = estimateRepository.findById(reviewDTO.getEstimateIdx())
                                               .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 견적서"));
+        // 회원 ID로 작성자 조회
         Member member = memberRepository.findById(reviewDTO.getMemberId())
                                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원"));
         Review review = Review.builder()
@@ -45,6 +47,7 @@ public class ReviewServiceImpl implements ReviewService {
                               .isModify((byte) 0)
                               .createdAt(reviewDTO.getCreatedAt())
                               .build();
+        // Review 객체 생성 후 저장
         Review savedReview = reviewRepository.save(review);
         // 리뷰 작성 이벤트 발행(알림 생성용)
         eventPublisher.publishEvent(new ReviewEvent(this, savedReview.getIdx(), ReviewEvent.Action.CREATED));
