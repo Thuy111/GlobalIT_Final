@@ -2,29 +2,57 @@
   <th:block th:fragment="content">
 
     <div class="requestlist_container">      
-        <table class="table">
+        <!-- <table class="table table-hover table-striped"> -->
+        <table class="table table-hover">
 
         <div th:if="${#lists.isEmpty(result)}">의뢰서가 없습니다.</div>
         <thead class="header" th:if="${!#lists.isEmpty(result)}">
           <tr>
-            <th class="h5 font-weight-bold">의뢰서</th>
-            <th class="h5 font-weight-bold">사용 예정 날짜</th>            
+            <th class="font-weight-bold">제목</th>
+            <th class="font-weight-bold">사용 예정 날짜</th>            
+            <th class="font-weight-bold">상태</th>            
           </tr>
         </thead>             
           <tbody >                                
-           <tr th:each="request : ${result}">
+           <tr th:each="request : ${result}"
+            th:attr="data-href=@{/smash/request/detail/{idx}(idx = ${request.idx})}"
+            style="cursor:pointer;">
               <td>
-                <a th:href="@{/smash/request/detail/{idx}(idx = ${request.idx})}"><span class="title">[[${request.title}]]</span></a>
-                <span class="selected" th:if="${request.isDone == 1}">낙찰 완료</span>
-                <span class="unselected" th:if="${request.isDone == 0}"> 미낙찰</span>
-                <span class="rent" th:if="${request.isGet == 1}"> 대여완료</span>
+                <span class="title">[[${request.title}]]</span>
               </td>
-              <td>[[${#temporals.format(request.useDate, 'yyyy년 MM월 dd일 HH:mm')}]]</td>             
+              <td class="time">
+                <span>[[${#temporals.format(request.useDate, 'yyyy년 MM월 dd일')}]]</span>
+                <span>[[${#temporals.format(request.useDate, 'HH:mm')}]]</span>
+              </td>    
+              <td>
+                <span class="status_badge selected" th:if="${request.isDone == 1}">낙찰 완료</span>
+                <span class="status_badge unselected" th:if="${request.isDone == 0 and request.useDate<=now}">미낙찰</span>
+                <span class="status_badge wating" th:if="${request.isDone == 0 and request.useDate>now}">낙찰 대기</span>
+                <span class="status_badge rent" th:if="${request.isGet == 1}">대여완료</span>
+              </td>         
             </tr>    
          </tbody>
         
         </table>    
     </div>
   
+    <script th:inline="javascript">
+      let theme = /*[[${theme}]]*/ 'light';
+      if(theme === 'dark') {
+        $('table').addClass('table-dark');
+        // $('thead').removeClass('thead-light');
+        // $('thead').addClass('thead-dark');
+      } else {
+        $('table').removeClass('table-dark');
+        // $('thead').removeClass('thead-dark');
+        // $('thead').addClass('thead-light');
+      }
+
+      $(document).on('click', 'tr[data-href]', function(e) {
+        // 만약 tr 안에서 a, button 등을 클릭했을 때는 무시하려면 아래 코드 추가
+        if($(e.target).is('a, button, .badge')) return;
+        window.location = $(this).data('href');
+      });
+    </script>
   </th:block>
 </th:block>

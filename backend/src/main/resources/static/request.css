@@ -117,7 +117,7 @@ body.dark .request_button_group .btn.delete:hover {background-color: #ffa9a9 !im
  .request_button_group .btn.delete {
    background-color: #fdd !important;
    color: #ce0000 !important;
-   height: 50px;
+   height: 46px;
   }
   .request_button_group .btn.delete:hover {
     background-color: #ffa9a9 !important;
@@ -245,37 +245,64 @@ body.dark .request_container .find_addr button:hover{background-color: rgb(49, 4
 }
 
 /* Request list page***********************/
-.requestlist_container .unselected {
-  background-color: #f7de95;
-  color: #cb7315;
-  font-size: 12px;
-  padding: 4px 10px;
+.requestlist_container .status_badge {
+  box-shadow: 0px 1px 2px #6b6b6b3d;
+  font-size: 13px;
+  padding: 7px 12px;
   border-radius: 999px;
   font-weight: bold;
-  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+  margin: 0 4px;
+}
+.requestlist_container .header {background-color: #f7f7f7;}
+body.dark .requestlist_container .header {background-color: #2b2d2f;}
+.requestlist_container .font-weight-bold{font-size: 18px;}
+.requestlist_container .font-weight-bold:first-child {padding-left: 25px;}
+.requestlist_container .font-weight-bold:nth-child(2) {width: 173px;}
+  .requestlist_container .font-weight-bold:last-child {width: 212px;text-align: center;}
+.requestlist_container .time {color: gray;text-align: center;}
+.requestlist_container .time>span {font-size: 16px;white-space: nowrap;}
+.requestlist_container .wating {
+  background-color: #fff3e0;
+  color: #ff9800;
 }
 .requestlist_container .rent {
-  background-color: #cbdff3;
-  color: #4e5d8b;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: bold;
-  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+  background-color: #d0eaff;
+  color: #0077cc;
 }
 .requestlist_container .selected {
-   background-color: #b3f7b8;
+   background-color: #e8f5e9;
   color: #43a047;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: bold;
-  box-shadow: 1px 1px 1px rgba(68, 162, 72, 0.3);
+}
+.requestlist_container .unselected {
+   background-color: #ffefef;
+  color: #e53935;
 }
 
 .table td, .table th{
       padding: 25px !important;
 }
 
-
+@media (max-width: 600px){
+  .requestlist_container .font-weight-bold{font-size: 16px;}
+  .requestlist_container .table td, .requestlist_container .table th {padding: 20px 0 20px 20px !important;}
+  .requestlist_container .status_badge {font-size: 11px;text-align: end;}
+  .requestlist_container .time>span {font-size: 14px !important;}
+  .requestlist_container .font-weight-bold:nth-child(2) {width: 128px;}
+  .requestlist_container .font-weight-bold:last-child {width: 132px;}
+  .requestlist_container .status_badge {padding: 7px;margin: 0;}
+}
+@media (max-width: 480px){
+  .requestlist_container .font-weight-bold:nth-child(2) {width: 96px;}
+  .requestlist_container .font-weight-bold{font-size: 13px;}
+  .requestlist_container .title {
+    font-size: 12px;
+    width: 63px;
+    text-overflow: ellipsis;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .requestlist_container .time>span {font-size: 9px !important;}
+  .requestlist_container .status_badge{padding: 5px 7px;}
+}
 

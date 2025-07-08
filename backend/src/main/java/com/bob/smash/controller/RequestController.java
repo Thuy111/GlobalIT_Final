@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/smash/request")
@@ -52,14 +53,18 @@ public class RequestController {
                             Model model) {
 
                 if (all) {
+                    model.addAttribute("now", LocalDateTime.now());
                     model.addAttribute("result", requestService.getList()); // 전체 의뢰서 목록
                 } else if (memberId != null) {
+                    model.addAttribute("now", LocalDateTime.now());
                     model.addAttribute("result", requestService.getListByMemberId(memberId));
                 } else {
                     CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
                     if (currentUser != null) {
+                        model.addAttribute("now", LocalDateTime.now());
                         model.addAttribute("result", requestService.getListByMemberId(currentUser.getEmailId()));
                     } else {
+                        model.addAttribute("now", LocalDateTime.now());
                         model.addAttribute("result", List.of());
                     }
                 }
