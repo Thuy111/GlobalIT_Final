@@ -48,7 +48,7 @@ const UserProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange  }) => 
   }
 
 
-  if (!profile) return <div>로딩 중...</div>;
+  if (!profile) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
 
   const imageUrl = profile?.profileImageUrl ? `${baseUrl}${profile.profileImageUrl}` : DefaultImage;
 

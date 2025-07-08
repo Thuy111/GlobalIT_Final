@@ -36,7 +36,7 @@
                          ~{this::content})}">
     <th:block th:fragment="content">
         <div class="review_container">
-            <div th:if="${#lists.isEmpty(reviewList)}">작성한 리뷰가 없습니다.</div>
+            <div th:if="${#lists.isEmpty(reviewList)}">리뷰가 없습니다.</div>
             <!-- 평균 별점 -->
             <div class="review_avg_star">
                 <span th:if="${avgScore != null}">

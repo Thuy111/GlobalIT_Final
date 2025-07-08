@@ -1,7 +1,7 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
     <div class="estimate_container">
-      <div th:if="${#lists.isEmpty(result)}">작성한 견적서가 없습니다.</div>
+      <div th:if="${#lists.isEmpty(result)}">견적서가 없습니다.</div>
       <div class="estimate_list" th:if="${not #lists.isEmpty(result)}">
         <div class="estimate_box" th:each="estimate : ${result}"
                                   th:attr="data-href=@{/smash/request/detail/{idx}(idx=${estimate.requestIdx})}">
