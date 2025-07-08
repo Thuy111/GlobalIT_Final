@@ -14,9 +14,13 @@
   margin: 2rem auto;
 }
 
+body.dark .alarm-tabs button {background-color: #4a4a4a;color: rgb(186, 186, 186);}
+body.dark .alarm-tabs button:hover {background-color: #353535;}
+body.dark .alarm-tabs button.active,
+body.dark .alarm-tabs button.selected {color: white;background-color: #ff6347;}
 .alarm-tabs button {
   padding: 0px 12px;
-    height: 36px;
+  height: 36px;
   border-radius: 30px;
   border: none;
   background: #eee;
