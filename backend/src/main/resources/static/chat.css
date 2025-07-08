@@ -8,7 +8,7 @@ body.dark .room_list:last-child {border-color: #393939;}
 .room_list:last-child {border-bottom: 1px solid #dee2e6;}
 .room_list:hover {background-color: #fafafa;}
 body.dark .room_list:hover {background-color: #1b1b1b;}
-.new_msg_point {width: 12px; height: 12px; border-radius: 50%; background-color: #ff9900; position: absolute;top: 4px; right: 4px;}
+.new_msg_point {width: 12px; height: 12px; border-radius: 50%; background-color: #ff6347; position: absolute;top: 4px; right: 4px;}
 .room_list .new_msg_point {bottom: 20px;right: 20px;top: auto;}
 .room_body{display: flex;flex-direction: column;text-align: start;width: 84%;}
 .room_body .room_name{display: flex;justify-content: start;margin-bottom: 0.5rem;white-space: nowrap;}
@@ -29,9 +29,9 @@ body.dark .room_list:hover {background-color: #1b1b1b;}
 
 /* 모달 */
 body.dark .titleBar_container .chat_profile_badge {background-color: #FFFA8D;color: #e98f00;}
+body.dark .titleBar_container .chat_profile_badge:hover {background-color: #fff864; color: #c27803;}
 .titleBar_container .chat_profile_badge i {font-size: 24px; margin-right: 6px;}
 .titleBar_container .chat_profile_badge {background-color: #bff3ff;color: #3bb8d4;padding: 6px 8px;border-radius: 30px;display: flex;align-items: center;justify-content: center;cursor: pointer;margin-left: 0.5rem;}
-.titleBar_container .chat_profile_badge:hover {background-color: #fff864; color: #c27803;}
 body.dark .titleBar_container .chat_profile_badge:hover {background-color: #a4eeff; color:#2291aa;}
 #profileModal .user_card{text-align: start;display: flex;flex-direction: column;justify-content: space-between;}
 #profileModal .user_card strong {padding: 8px 16px;background-color: #efefef;border-radius: 30px;box-shadow: 0 1px 2px #00000045;margin-right: 0.5rem;}

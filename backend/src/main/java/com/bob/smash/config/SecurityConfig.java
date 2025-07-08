@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -36,8 +38,9 @@ public class SecurityConfig {
         
         http
             .csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // JS에서도 읽을 수 있게
-            .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 관리 정책 설정
             .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 서버에서는 보통 비활성화)
+            .formLogin(form -> form.disable()) // 기본 폼 로그인 비활성화
             .cors(Customizer.withDefaults()) // CORS 설정 적용
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/**").permitAll()
@@ -73,9 +76,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));  // 프론트 주소
+        configuration.setAllowedOriginPatterns(List.of(frontServerUrl));  // 프론트 주소
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용 메서드
-        configuration.setAllowedHeaders(List.of("*"));  // 허용 헤더 (필요시 구체적으로 설정 가능)
+        // configuration.setAllowedHeaders(List.of("X-XSRF-TOKEN", "Content-Type", "X-Frontend-Auth-Check"));  // 허용 헤더 
+        configuration.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 쿠키, 인증 정보 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
