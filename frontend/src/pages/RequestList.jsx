@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import apiClient from '../config/apiClient';
+import apiClient from "../config/apiClient";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import '../styles/RequestList.css';
+import "../styles/RequestList.css";
 
 function RequestList() {
   const [allRequests, setAllRequests] = useState([]);
@@ -12,30 +12,70 @@ function RequestList() {
   const [hashtags, setHashtags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [loading, setLoading] = useState(true);
-  const [hideExpired, setHideExpired] = useState(false); // ✅ 종료된 의뢰 숨기기 체크박스 상태
+  const [hideExpired, setHideExpired] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [hasNext, setHasNext] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
 
   const baseUrl = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await apiClient.get(`/request/main`, {
-          params: {
-            hideExpired: hideExpired, // ✅ 종료 숨기기 파라미터
-          },
-        });
-        setAllRequests(res.data.request ?? []);
-        setFilteredRequests(res.data.request ?? []);
-        const fetchedTags = res.data.hashtags ?? [];
-        setHashtags(["전체", ...fetchedTags]);
-      } catch (error) {
-        console.error("요청 실패:", error);
+  // 🔄 데이터 페이징으로 불러오기
+  const fetchPage = async (pageToLoad) => {
+    if (isFetching || !hasNext) return;
+
+    setIsFetching(true);
+    try {
+      const res = await apiClient.get(`/request/main`, {
+        params: {
+          page: pageToLoad,
+          size: 10,
+          hideExpired,
+        },
+      });
+
+      const newRequests = res.data.request ?? [];
+
+      if (pageToLoad === 0) {
+        setAllRequests(newRequests);
+        setFilteredRequests(newRequests);
+      } else {
+        setAllRequests((prev) => [...prev, ...newRequests]);
+        setFilteredRequests((prev) => [...prev, ...newRequests]);
       }
-      setLoading(false);
-    };
-    fetchData();
-  }, [hideExpired]); // ✅ hideExpired 바뀔 때마다 새로 fetch
+
+      const fetchedTags = res.data.hashtags ?? [];
+      setHashtags(["전체", ...fetchedTags]);
+
+      setHasNext(res.data.hasNext);
+      setPage(pageToLoad);
+    } catch (error) {
+      console.error("요청 실패:", error);
+    }
+    setIsFetching(false);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    setPage(0);
+    fetchPage(0); // 첫 페이지 초기화
+  }, [hideExpired]);
+
+  // 🔍 검색 필터
+  const handleSearch = () => {
+    const keyword = search.trim().toLowerCase();
+    const filtered = allRequests.filter((item) => {
+      const inTitle = item.title?.toLowerCase().includes(keyword);
+      const inContent = item.content?.toLowerCase().includes(keyword);
+      const inHashtag = item.hashtags?.toLowerCase().includes(keyword);
+      const tagMatch =
+        selectedTag && selectedTag !== "전체"
+          ? item.hashtags?.includes(selectedTag)
+          : true;
+      return (inTitle || inContent || inHashtag) && tagMatch;
+    });
+    setFilteredRequests(filtered);
+  };
 
   useEffect(() => {
     if (selectedTag && selectedTag !== "전체") {
@@ -46,21 +86,6 @@ function RequestList() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     handleSearch();
-  };
-
-  const handleSearch = () => {
-    if (loading) return;
-    const keyword = search.trim().toLowerCase();
-    const filtered = allRequests.filter((item) => {
-      const inTitle = item.title?.toLowerCase().includes(keyword);
-      const inContent = item.content?.toLowerCase().includes(keyword);
-      const inHashtag = item.hashtags?.toLowerCase().includes(keyword);
-      const tagMatch = selectedTag && selectedTag !== "전체"
-        ? item.hashtags?.includes(selectedTag)
-        : true;
-      return (inTitle || inContent || inHashtag) && tagMatch;
-    });
-    setFilteredRequests(filtered);
   };
 
   const handleTagClick = (tag) => {
@@ -74,10 +99,27 @@ function RequestList() {
     }
   };
 
+  // 무한스크롤: 스크롤 이벤트
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.documentElement.offsetHeight - 300 &&
+        hasNext &&
+        !isFetching
+      ) {
+        fetchPage(page + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, hasNext, isFetching]);
+
+  // D-4 이하 필터링 (캐러셀용)
   const ddayFilteredRequests = allRequests.filter((req) => {
     const ddayStr = req.dday;
     if (!ddayStr || !ddayStr.startsWith("D-")) return false;
-    if (ddayStr === "D-DAY") return true;
     const num = parseInt(ddayStr.replace("D-", ""));
     return !isNaN(num) && num <= 4;
   });
@@ -93,12 +135,12 @@ function RequestList() {
     arrows: false,
   };
 
-  if (loading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
+  if (loading) return <div className="loading"><i className="fa-solid fa-circle-notch fa-spin"></i></div>;
 
   return (
     <div className="request-container">
-      {/* 🔥 캐러셀 영역 */}
-      {ddayFilteredRequests.length > 1 ? (
+      {/* 🔥 캐러셀 */}
+      {ddayFilteredRequests.length > 0 && (
         <Slider {...sliderSettings} className="carousel-slider">
           {ddayFilteredRequests.map((req) => (
             <div
@@ -123,33 +165,6 @@ function RequestList() {
             </div>
           ))}
         </Slider>
-      ) : ddayFilteredRequests.length === 1 ? (
-        <div
-          className="carousel-wrapper"
-          onClick={() =>
-            window.location.href = `${baseUrl}/smash/request/detail/${ddayFilteredRequests[0].idx}`
-          }
-        >
-          <div className="carousel-card" style={{ cursor: "pointer" }}>
-            <div className="carousel-overlay" />
-            <div className="carousel-badge">🔥 마감임박</div>
-            <div className="carousel-icon">
-              <i className="fas fa-hourglass-half fa-beat"></i>
-            </div>
-            <img src="/images/main.jpg" alt="이미지" />
-            <div className="carousel-text">
-              <h4>{ddayFilteredRequests[0].title}</h4>
-              <p>{ddayFilteredRequests[0].dday}</p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div
-          className="hide-on-mobile"
-          style={{ padding: "1rem", textAlign: "center", margin: "2rem auto" }}
-        >
-          <span className="dday-badge">D-4 이하</span> 의뢰서가 없습니다.
-        </div>
       )}
 
       {/* 🔍 검색창 */}
@@ -166,7 +181,6 @@ function RequestList() {
           </button>
         </div>
       </form>
-
 
       {/* 🏷 해시태그 필터 */}
       {hashtags && (
@@ -244,10 +258,16 @@ function RequestList() {
                 ) : null
               )}
           </div>
-          <div className="request-min-price" style={{ textAlign: "right", fontWeight: "bold", marginTop: "8px" }}>
-            현재 최저가: {item.minEstimatePrice != null ? item.minEstimatePrice.toLocaleString() + "원" : "없음"}
-          </div>
 
+          <div
+            className="request-min-price"
+            style={{ textAlign: "right", fontWeight: "bold", marginTop: "8px" }}
+          >
+            현재 최저가:{" "}
+            {item.minEstimatePrice != null
+              ? item.minEstimatePrice.toLocaleString() + "원"
+              : "없음"}
+          </div>
         </div>
       ))}
     </div>
