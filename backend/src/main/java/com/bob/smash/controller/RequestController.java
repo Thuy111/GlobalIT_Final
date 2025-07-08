@@ -91,6 +91,7 @@ public class RequestController {
         return "redirect:/smash/request/list";
     }
 
+    //의뢰서 등록
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("title", "의뢰서 작성");
@@ -116,7 +117,7 @@ public class RequestController {
         return "redirect:/smash/request/detail/" + savedIdx;
     }
 
-    // 수정: 의뢰서 상세 보기
+    // 의뢰서 상세 보기
     @GetMapping("/detail/{idx}")
     public String detail(@PathVariable("idx") Integer idx, Model model, OAuth2AuthenticationToken authentication) {
         RequestDTO dto = requestService.get(idx);
@@ -164,12 +165,14 @@ public class RequestController {
         return "smash/request/detail";
     }
 
+    // 의뢰서 삭제
     @PostMapping("/delete")
     public String deleteRequest(@RequestParam("idx") Integer idx) {
         requestService.delete(idx);
         return "redirect:/smash/";
     }
 
+    // 의뢰서 수정
     @GetMapping("/update/{idx}")
     public String modifyForm(@PathVariable("idx") Integer idx, Model model) {
         RequestDTO dto = requestService.get(idx);
@@ -197,6 +200,7 @@ public class RequestController {
         return "redirect:/smash/request/detail/" + dto.getIdx();
     }
 
+    // 낙찰 상태 변경
     @PostMapping("/changeIsDone")
     public ResponseEntity<?> changeIsDone(@RequestParam("requestIdx") Integer idx,
                                           @RequestParam("estimateIdx") Integer eIdx,
@@ -218,6 +222,7 @@ public class RequestController {
         }
     }
 
+    //대여 확인 
     @PostMapping("/changeIsGet")
     public String confirmGet(@RequestParam("requestIdx") Integer requestIdx,
                              RedirectAttributes rttr) {

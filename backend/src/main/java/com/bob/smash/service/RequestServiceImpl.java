@@ -101,8 +101,7 @@ public class RequestServiceImpl implements RequestService {
     // 상세 페이지 보기///////////////////////////////////////////////////////////////////
     @Override
     public RequestDTO get(Integer idx) {
-        Optional<Request> result = requestRepository.findById(idx);
-        //** hashtag**********************/
+        Optional<Request> result = requestRepository.findById(idx);        
         if (result.isPresent()) {
             Request request = result.get();
             // hashtagrepository에서 꺼냄

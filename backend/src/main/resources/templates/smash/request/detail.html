@@ -301,22 +301,14 @@
         const bno = container.dataset.bno;
 
         const rIdx = Number(requestIdx);
-        const eIdx = Number(estimateIdx);  
-        
-        console.log("requestIdx:", rIdx);
-        console.log("estimateIdx:", eIdx);
-        console.log("memberEmail:", email);
-        console.log("partnerBno:", bno);
-        console.log("price:", price);
-
+        const eIdx = Number(estimateIdx);       
+       
         const paymentDTO = {
           memberEmail: email,
           partnerBno: bno,
           estimateIdx: eIdx,
           suggestedPrice: Number(price)
-        } 
-        
-        console.log("✅ paymentDTO to send:", paymentDTO);
+        }                
         
         const isConfirm = confirm("낙찰하시겠습니까?");
         if(isConfirm){
