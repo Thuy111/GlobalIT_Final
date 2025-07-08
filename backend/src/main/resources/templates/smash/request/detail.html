@@ -260,11 +260,11 @@
     <div class="bottom_space"></div>
     <!-- 견적서 목록 끝------------------------------------------------------------------------------>
       <!-- 모달 HTML: 프로필 이미지 클릭 시 뜨는 모달 -->
-  <div id="profileModal" class="modal" onclick="closeProfileModal()">
-    <span class="modal-close">&times;</span>
-    <img id="modalProfileImg" class="modal-img" />
-  </div>
-  
+<div id="requestImageModal" class="modal" onclick="closeRequestImageModal()">
+  <img id="requestImageModalImg" class="modal-img" src="" alt="확대 이미지" />
+  <span class="modal-close" onclick="closeRequestImageModal(event)">&times;</span>
+</div>
+
     <script th:inline="javascript">
       const nickname = /*[[${writerNickname}]]*/ '';
 
@@ -395,19 +395,27 @@
 
       });
 
-      // 리뷰 프로필이미지 모달 열기
-      function openProfileModal(imageUrl) {
-        const modal = document.getElementById('profileModal');
-        const modalImg = document.getElementById('modalProfileImg');
-        modalImg.src = imageUrl;
-        modal.style.display = 'flex';
-      }
+function openProfileModal(imgElement, event) {
+  if (event) event.preventDefault();
 
-      // 프로필 모달 닫기
-      function closeProfileModal() {
-        const modal = document.getElementById('profileModal');
-        modal.style.display = 'none';
-      }
+  const modal = document.getElementById("requestImageModal");
+  const modalImg = document.getElementById("requestImageModalImg");
+
+  modal.style.display = "flex";
+  modalImg.src = imgElement.src;
+}
+
+
+// 모달 닫기 함수
+function closeRequestImageModal(event) {
+  if(event) event.stopPropagation();
+  const modal = document.getElementById("requestImageModal");
+  const modalImg = document.getElementById("requestImageModalImg");
+  modal.style.display = "none";
+  modalImg.src = "";
+}
+
+
     </script>
     <!-- 의뢰서 상세 페이지.End-->
   </th:block>

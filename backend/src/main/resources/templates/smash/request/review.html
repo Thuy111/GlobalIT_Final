@@ -13,14 +13,11 @@
         <div class="review_header">
           <div class="review_meta">
             <!-- ✅ 프로필 이미지 (클릭 시 모달) -->
-            <img th:src="${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/')} 
-                         ? @{${review.profileImageUrl}} 
-                         : @{/images/profile.png}"
-                 alt="프로필 이미지"
-                 class="review_profile_img"
-                 th:onclick="${review.profileImageUrl != null} 
-                     ? 'openProfileModal(\'' + @{${review.profileImageUrl}} + '\')' 
-                     : 'openProfileModal(\'/images/profile.png\')'" />
+<img th:src="@{${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/') ? review.profileImageUrl : '/images/profile.png'}}"
+     alt="프로필 이미지"
+     class="review_profile_img"
+     th:attr="data-url=${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/') ? review.profileImageUrl : '/images/profile.png'}"
+     onclick="openProfileModal(this, event)" />
 
             <span class="review_title" th:text="${review.nickname}">작성자</span> 
             <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
