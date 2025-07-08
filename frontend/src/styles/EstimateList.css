@@ -1,3 +1,5 @@
+body.dark .estimate_list .estimate_card {background-color: #343333;border-color: #262626;box-shadow: 0 2px 2px #00000045;}
+
 .estimate_list {
   display: flex;
   flex-wrap: wrap;
@@ -5,10 +7,12 @@
 }
 .estimate_list .estimate_card {
   flex: 0 0 calc(33.333% - 13.33px);
+  /* background-color: #fcfcfc; */
+  box-shadow: 0 2px 2px #0000000a;
   box-sizing: border-box;
-  border: 1px solid #ccc;
+  border: 1px solid #efefef;
   border-radius: 8px;
-  padding: 16px;
+  padding: 2rem;
   margin: 16px 0;
   display: flex;
   flex-direction: column;
@@ -30,24 +34,38 @@
 
 .estimate_list .estimate_row .badge {
   font-size: 0.85em;
-  opacity: 0.7;
+  opacity: 1;
+  white-space: nowrap;
+  margin: 0;
+  background-color: #f1fcff;
+  color: #66d0e8;
+}
+body.dark .estimate_list .estimate_row .badge {
+  background-color: #fffbb0;
+  color: #f0b14a;
 }
 
+
 /* 대여방법 스타일 */
+.estimate_list .deal_method {display: flex; flex-wrap: nowrap;}
 .estimate_list .deal_method span {
   margin-right: 0.1em;
   font-size: 0.85em;
 }
 .estimate_list .deal_method .delivery,
 .estimate_list .deal_method .pickup {
-  display: inline-block;
   padding: 2px 12px;
   border-radius: 8px;
   margin-right: 0.5em;
   font-size: 16px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  white-space: nowrap;
 }
-.estimate_list .deal_method .yes {background: #e3f2fd;}
-.estimate_list .deal_method .no {background: #ffefef;}
+.estimate_list .deal_method i {margin-left: 4px;}
+.estimate_list .deal_method .yes {background: #e3f2fd;color: rgb(95, 149, 229);}
+.estimate_list .deal_method .no {background: #ffefef;color: rgb(204, 92, 92);}
 body.dark .estimate_list .deal_method .yes {background: #c3e6ff;}
 body.dark .estimate_list .deal_method .no {background: #ffdada;}
 .estimate_list .estimate_footer {
@@ -55,15 +73,22 @@ body.dark .estimate_list .deal_method .no {background: #ffdada;}
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 1rem;
 }
 .estimate_list .estimate_footer .estimate_date {
   text-align: start;
-  color: gray;
+  color: rgb(157, 157, 157);
+  padding-left: 1rem;
+  font-size: 15px;
 }
+.estimate_list .estimate_info button{border-radius: 30px;}
+.estimate_list .estimate_info button i{color: #ffffff;}
+body.dark .estimate_list .estimate_info button i{color: #ffb236;}
 
 @media screen and (max-width: 1024px) {
   .estimate_list .estimate_card { flex: 0 0 calc(50% - 10px);}
 }
 @media screen and (max-width: 768px) {
   .estimate_list .estimate_card {flex: 0 0 100%;}
+  .estimate_list .estimate_card  {padding: 1rem;}
 }

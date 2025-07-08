@@ -47,16 +47,16 @@ const EstimateList = ({ bno }) => {
               <span className="badge">대여 방법</span>
               <p className="deal_method">
                 {estimate.isDelivery === true && (
-                  <span className="delivery yes">배달 가능</span>
+                  <span className="delivery yes">배달<i className="fa-solid fa-check"></i></span>
                 )}
                 {estimate.isDelivery === false && (
-                  <span className="delivery no">배달 불가</span>
+                  <span className="delivery no">배달<i className="fa-solid fa-xmark"></i></span>
                 )}
                 {estimate.isPickup === true && (
-                  <span className="pickup yes">픽업 가능</span>
+                  <span className="pickup yes">픽업<i className="fa-solid fa-check"></i></span>
                 )}
                 {estimate.isPickup === false && (
-                  <span className="pickup no">픽업 불가</span>
+                  <span className="pickup no">픽업<i className="fa-solid fa-xmark"></i></span>
                 )}
               </p>
             </div>
@@ -67,7 +67,7 @@ const EstimateList = ({ bno }) => {
               </p>
               <button className='detail'
                       onClick={() => window.location.href = `${baseUrl}/smash/request/detail/${estimate.requestIdx}`}>
-                자세히
+                <i className="fa-solid fa-share"></i>
               </button>
             </div>
           </div>
