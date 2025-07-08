@@ -5,7 +5,6 @@ body.dark .estimates_title, body.dark .estimates_title * {color: #bbbbbb;}
 /* 견적서 목록 페이지 전용 */
 .estimate_container .estimate_list .estimate_divider {border-top: none;}
 .estimate_container .estimate_list .estimate_actions form {margin: 0; padding: 0; width: auto;}
-.estimate_container .estimate_list .estimate_card .estimate_date {margin: 0;}
 
 /* 견적서 목록 전체 영역 */
 .estimate_list .estimate_box {
