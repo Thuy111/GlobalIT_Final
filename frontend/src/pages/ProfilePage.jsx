@@ -30,7 +30,7 @@ const Profile = () => {
         const res = await apiClient.get(`/profile`, {
           withCredentials: true,
         });
-         console.log('프로필 응답:', res.data); // 👈 여기 추가
+         console.log('프로필 응답:', res.data); 
         setProfileData(res.data);
         setIsChecked(res.data?.partner ?? false);
         setIsLoggedIn(true);

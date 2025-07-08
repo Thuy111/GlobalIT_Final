@@ -46,3 +46,8 @@ body.dark .profile_update_text>.update_phone_box>button:hover{background-color: 
 .profile_update_form_buttons{display: flex;}
 .profile_update_form_buttons>button{margin: 0 10px 50px 0;}
 
+/* 반응형 웹 */
+@media screen and (max-width : 570px) {
+  .profile_update_main_container{margin: 0px;}
+  .profile_update_text input{width: 250px;}
+}
