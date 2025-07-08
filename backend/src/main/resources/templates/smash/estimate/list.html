@@ -13,8 +13,6 @@
                 <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
               </div>
             </div>
-            
-            <hr class="estimate_divider" />
 
             <div class="estimate_body">
               <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
