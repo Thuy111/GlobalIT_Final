@@ -221,7 +221,7 @@ const UpdateProfile = () => {
     navigate('/profile');
   };
 
-  if (!profile) return <div>로딩 중...</div>;
+  if (!profile) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
 
   return (
     <div className="profile_update_container">
