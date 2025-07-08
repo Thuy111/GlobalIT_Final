@@ -155,22 +155,12 @@
 
         // 사용일 이후로 반납 날짜 설정
         const useDate = "[[${useDate}]]";
-        document.addEventListener("DOMContentLoaded", function () {
-          const returnDate = document.querySelector('input[name="returnDate"]');
-          if (returnDate) {
-            returnDate.min = useDate;
-          }
-        });
-
-        // 가격 숫자 검증(추가)
-        const priceInput = form.querySelector('input[name="price"]');
-        if (priceInput && !/^\d+$/.test(priceInput.value)) {
-          e.preventDefault();
-          alert("가격은 숫자만 입력할 수 있습니다.");
-          priceInput.focus();
-          return;
+        const returnDate = document.querySelector('input[name="returnDate"]');
+        if (returnDate) {
+          returnDate.min = useDate;
         }
 
+        
         // 입력값 검증
         const form = document.querySelector("form");
         form.addEventListener("submit", function (e) {
@@ -180,6 +170,7 @@
           if (!isDelivery && !isPickup) {
             e.preventDefault(); // submit 막기
             alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+            return;
           }
           // 체크되지 않은 항목은 'false'로 전송
           ['isDelivery', 'isPickup'].forEach(name => {
@@ -192,6 +183,14 @@
               form.appendChild(hidden);
             }
           });
+          // 가격 숫자 검증(추가)
+          const priceInput = form.querySelector('input[name="price"]');
+          if (priceInput && !/^\d+$/.test(priceInput.value)) {
+            e.preventDefault();
+            alert("가격은 숫자만 입력할 수 있습니다.");
+            priceInput.focus();
+            return;
+          }
         });
       });
     </script>
