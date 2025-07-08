@@ -77,23 +77,21 @@
         const countSpan = document.getElementById('image_count');
 
         // [1] 기존 이미지 삭제 버튼
-        function bindOldRemoveBtns() {
-          wrapper.querySelectorAll('.image_thumb:not(.new) .remove_btn').forEach(btn => {
-            btn.onclick = function () {
-              const thumb = this.closest('.image_thumb');
-              thumb.remove();
+        wrapper.querySelectorAll('.image_thumb:not(.new) .remove_btn').forEach(btn => {
+          btn.onclick = function () {
+            const thumb = this.closest('.image_thumb');
+            thumb.remove();
 
-              // 삭제 대상 ID hidden input으로 추가
-              const deletedInput = document.createElement("input");
-              deletedInput.type = "hidden";
-              deletedInput.name = "deleteImageIds";  // 컨트롤러에서 처리
-              deletedInput.value = this.dataset.id;
-              document.querySelector("form").appendChild(deletedInput);
+            // 삭제 대상 ID hidden input으로 추가
+            const deletedInput = document.createElement("input");
+            deletedInput.type = "hidden";
+            deletedInput.name = "deleteImageIds";  // 컨트롤러에서 처리
+            deletedInput.value = this.dataset.id;
+            document.querySelector("form").appendChild(deletedInput);
 
-              updateCount();
-            };
-          });
-        }
+            updateCount();
+          };
+        });
 
         // [2] 새 이미지 추가
         imageInput.addEventListener('change', (e) => {
@@ -181,39 +179,48 @@
           updateCount();
         };
 
-        // [7] 최초 로딩 시 기존 이미지 삭제 이벤트 바인딩 및 카운트
-        window.addEventListener('DOMContentLoaded', () => {
-          updateCount();
-          bindOldRemoveBtns();
-          // 날짜 입력 자동 처리
-          const now = new Date();
-          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-          document.querySelectorAll('.datetime').forEach(input => input.value = now.toISOString().slice(0, 16));
-        });
+        // 날짜 입력 자동 처리
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.querySelectorAll('.datetime').forEach(input => input.value = now.toISOString().slice(0, 16));
 
-        // [8] 대여 방법 필수 체크
-        document.querySelector("form").addEventListener("submit", function (e) {
-          const isDelivery = this.querySelector('input[name="isDelivery"]').checked;
-          const isPickup = this.querySelector('input[name="isPickup"]').checked;
+        // 사용일 이후로 반납 날짜 설정
+        const useDate = "[[${dto.useDate}]]";
+        const returnDate = document.querySelector('input[name="returnDate"]');
+        if (returnDate) {
+          returnDate.min = useDate;
+        }
+
+        // [8] 대여 방법, 가격 필수 체크
+        form.addEventListener("submit", function (e) {
+          const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
+          const isPickup = form.querySelector('input[name="isPickup"]').checked;
           if (!isDelivery && !isPickup) {
             e.preventDefault();
             alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+            return;
           }
           ['isDelivery', 'isPickup'].forEach(name => {
-            const checkbox = this.querySelector(`input[name="${name}"]`);
-            if (!checkbox.checked && !this.querySelector(`input[type="hidden"][name="${name}"]`)) {
+            const checkbox = form.querySelector(`input[name="${name}"]`);
+            if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
               const hidden = document.createElement("input");
               hidden.type = "hidden";
               hidden.name = name;
               hidden.value = "false";
-              this.appendChild(hidden);
+              form.appendChild(hidden);
             }
           });
+          // 가격 숫자 검증(수정폼이 text라면)
+          const priceInput = form.querySelector('input[name="price"]');
+          if (priceInput && isNaN(Number(priceInput.value.replace(/,/g, '')))) {
+            e.preventDefault();
+            alert("가격은 숫자만 입력할 수 있습니다.");
+            priceInput.focus();
+            return;
+          }
         });
         // 초기 세팅
-        setupExistingImageDeleteUI();
-        updateImageCount();
-        updateDeleteImagesInput();
+        updateCount();
       });
     </script>
   </th:block>
