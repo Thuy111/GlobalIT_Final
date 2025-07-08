@@ -34,15 +34,22 @@ public class ReviewController {
     }
     
     // 리뷰 목록
-    @GetMapping("/list")
-    public String list(Model model) {
-        if (model.containsAttribute("reviewList")) {
-            model.addAttribute("title", "리뷰 목록");
-            return "smash/review/list";
-        } else {
-            return "redirect:/smash/review/mylist";
+        @GetMapping("/list")
+        public String list(@RequestParam(value = "memberId", required = false) String memberId, Model model) {
+            // 기존 플래시 속성 reviewList가 없고, memberId가 전달되면 새로 조회해서 모델에 넣음
+            if (!model.containsAttribute("reviewList") && memberId != null && !memberId.isEmpty()) {
+                model.addAttribute("reviewList", reviewService.getReviewsByMemberId(memberId));
+            }
+
+            if (model.containsAttribute("reviewList")) {
+                model.addAttribute("title", "리뷰 목록");
+                return "smash/review/list";
+            } else {
+                // reviewList가 없으면 기존처럼 mylist로 리다이렉트 유지
+                return "redirect:/smash/review/mylist";
+            }
         }
-    }
+
     // 업체가 쓴 리뷰 목록
     @GetMapping("/partnerlist")
     public String partnerList(@RequestParam("bno") String partnerBno, RedirectAttributes redirectAttributes) {

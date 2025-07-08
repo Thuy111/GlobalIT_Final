@@ -20,7 +20,6 @@ function RequestList() {
 
   const baseUrl = import.meta.env.VITE_API_URL;
 
-  // 🔄 데이터 페이징으로 불러오기
   const fetchPage = async (pageToLoad) => {
     if (isFetching || !hasNext) return;
 
@@ -58,10 +57,9 @@ function RequestList() {
 
   useEffect(() => {
     setPage(0);
-    fetchPage(0); // 첫 페이지 초기화
+    fetchPage(0);
   }, [hideExpired]);
 
-  // 🔍 검색 필터
   const handleSearch = () => {
     const keyword = search.trim().toLowerCase();
     const filtered = allRequests.filter((item) => {
@@ -99,7 +97,6 @@ function RequestList() {
     }
   };
 
-  // 무한스크롤: 스크롤 이벤트
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -116,7 +113,6 @@ function RequestList() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [page, hasNext, isFetching]);
 
-  // D-4 이하 필터링 (캐러셀용)
   const ddayFilteredRequests = allRequests.filter((req) => {
     const ddayStr = req.dday;
     if (!ddayStr || !ddayStr.startsWith("D-")) return false;
@@ -126,16 +122,21 @@ function RequestList() {
 
   const sliderSettings = {
     dots: false,
-    infinite: true,
+    infinite: ddayFilteredRequests.length > 1,
     speed: 500,
-    slidesToShow: 1,
+    slidesToShow: Math.min(ddayFilteredRequests.length, 1),
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
     arrows: false,
   };
 
-  if (loading) return <div className="loading"><i className="fa-solid fa-circle-notch fa-spin"></i></div>;
+  if (loading)
+    return (
+      <div className="loading">
+        <i className="fa-solid fa-circle-notch fa-spin"></i>
+      </div>
+    );
 
   return (
     <div className="request-container">
@@ -147,7 +148,7 @@ function RequestList() {
               key={req.idx}
               className="carousel-wrapper"
               onClick={() =>
-                window.location.href = `${baseUrl}/smash/request/detail/${req.idx}`
+                (window.location.href = `${baseUrl}/smash/request/detail/${req.idx}`)
               }
             >
               <div className="carousel-card" style={{ cursor: "pointer" }}>
@@ -189,7 +190,9 @@ function RequestList() {
             <button
               key={index}
               className={`hashtag-badge ${
-                selectedTag === tag || (tag === "전체" && selectedTag === "") ? "active" : ""
+                selectedTag === tag || (tag === "전체" && selectedTag === "")
+                  ? "active"
+                  : ""
               }`}
               onClick={() => handleTagClick(tag)}
             >
@@ -200,7 +203,10 @@ function RequestList() {
       )}
 
       {/* ✅ 종료 숨기기 토글 */}
-      <div className="hide-expired-toggle" style={{ textAlign: "right", margin: "10px" }}>
+      <div
+        className="hide-expired-toggle"
+        style={{ textAlign: "right", margin: "10px" }}
+      >
         <label style={{ fontSize: "14px", cursor: "pointer" }}>
           <input
             type="checkbox"
@@ -218,7 +224,7 @@ function RequestList() {
           key={item.idx}
           className="request-card"
           onClick={() =>
-            window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`
+            (window.location.href = `${baseUrl}/smash/request/detail/${item.idx}`)
           }
           style={{ cursor: "pointer" }}
         >
@@ -230,7 +236,9 @@ function RequestList() {
             <p
               className={`request-status ${
                 item.isDone === 0
-                  ? item.dday === "종료" ? "failed" : "pending"
+                  ? item.dday === "종료"
+                    ? "failed"
+                    : "pending"
                   : item.isDone === 1
                   ? "completed"
                   : "failed"
@@ -261,7 +269,11 @@ function RequestList() {
 
           <div
             className="request-min-price"
-            style={{ textAlign: "right", fontWeight: "bold", marginTop: "8px" }}
+            style={{
+              textAlign: "right",
+              fontWeight: "bold",
+              marginTop: "8px",
+            }}
           >
             현재 최저가:{" "}
             {item.minEstimatePrice != null

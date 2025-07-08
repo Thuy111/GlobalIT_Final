@@ -6,19 +6,19 @@
         
         <div class="chat_list" th:if="${!#lists.isEmpty(roomList)}">
           <div th:each="room : ${roomList}" th:if="${room.roomId != null}" class="room_list">
-            <div class="new_msg_point" 
-            th:if="${room != null and 
-              !room.lastMessage.isRead and
-              room.lastMessage.sender != currentUser.emailId
-            }"></div>
             <div class="room_body">
               <div class="room_name">
                 <div th:class="|${room.roomId} chat_room|"
-                  th:text="${currentUser.role == 0 ? room.partnerStoreName :
-                            (currentUser.role == 1 ? room.memberNickname :
-                            room.memberNickname + '-' + room.partnerStoreName)}">
+                th:text="${currentUser.role == 0 ? room.partnerStoreName :
+                  (currentUser.role == 1 ? room.memberNickname :
+                  room.memberNickname + '-' + room.partnerStoreName)}">
                 </div>
-                <span> 채팅방</span>
+                <div class="new_msg" 
+                th:if="${room != null and 
+                  !room.lastMessage.isRead and
+                  room.lastMessage.sender != currentUser.emailId
+                }">new</div>
+                <!-- <span> 채팅방</span> -->
               </div>
               <div class="last_msg" th:text="${room.lastMessage.message}"></div>
               <div class="last_time">[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(room.lastMessage.time)}]]</div>

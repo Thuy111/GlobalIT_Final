@@ -45,21 +45,36 @@ public class RequestController {
     }
 
     // 의뢰서 목록
-    @GetMapping("/list")
-    public String list(Model model) {
-        if(model.containsAttribute("result")) {
-            model.addAttribute("title", "의뢰서 목록");
-            return "/smash/request/list";            
-        } else {
-            return "redirect:/smash/request/mylist";
-        }
-    }
+            @GetMapping("/list")
+            public String list(@RequestParam(value = "memberId", required = false) String memberId,
+                            @RequestParam(value = "all", required = false, defaultValue = "false") boolean all,
+                            HttpSession session,
+                            Model model) {
+
+                if (all) {
+                    model.addAttribute("result", requestService.getList()); // 전체 의뢰서 목록
+                } else if (memberId != null) {
+                    model.addAttribute("result", requestService.getListByMemberId(memberId));
+                } else {
+                    CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+                    if (currentUser != null) {
+                        model.addAttribute("result", requestService.getListByMemberId(currentUser.getEmailId()));
+                    } else {
+                        model.addAttribute("result", List.of());
+                    }
+                }
+
+                model.addAttribute("title", "의뢰서 목록");
+                return "/smash/request/list";
+            }
+
+
     // 유저가 쓴 의뢰서 목록
-    @GetMapping("/userlist")
-    public String userList(@RequestParam("memberId") String memberId, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("result", requestService.getListByMemberId(memberId));
-        return "redirect:/smash/request/list";
-    }
+        @GetMapping("/userlist")
+        public String userList(@RequestParam("memberId") String memberId) {
+            return "redirect:/smash/request/list?memberId=" + memberId;
+        }
+
     // 유저가 쓴 의뢰서 목록 개수 전달
     @GetMapping("/userlist/count")
     @ResponseBody
@@ -79,23 +94,22 @@ public class RequestController {
         }
     }
     // 전체 의뢰서 목록
-    @GetMapping("/all")
-    public String allList(HttpSession session, RedirectAttributes redirectAttributes) {
-        CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
-        // currentUser가 null이면 홈으로 리다이렉트
-        if (currentUser == null) {
-            return "redirect:/smash";
-        } else {
-            if(currentUser.getRole() == 2) {
-                // 관리자인 경우, 전체 의뢰서 목록을 조회
-                redirectAttributes.addFlashAttribute("result", requestService.getList());
-            } else {
-                // 관리자가 아닌 경우, 자신이 작성한 의뢰서 목록을 조회
-                return "redirect:/smash/request/mylist";
+            @GetMapping("/all")
+            public String allList(HttpSession session) {
+                CurrentUserDTO currentUser = (CurrentUserDTO) session.getAttribute("currentUser");
+
+                if (currentUser == null) {
+                    return "redirect:/smash";
+                } else {
+                    if (currentUser.getRole() == 2) {
+                        // 관리자: 전체 의뢰서 목록 보기
+                        return "redirect:/smash/request/list?all=true";
+                    } else { // 자신의 의뢰서 목록으로
+                        return "redirect:/smash/request/list?memberId=" + currentUser.getEmailId();
+                    }
+                }
             }
-        }
-        return "redirect:/smash/request/list";
-    }
+
 
     //의뢰서 등록
     @GetMapping("/register")

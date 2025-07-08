@@ -42,7 +42,8 @@ body.dark .profile_inform_text .profile_inform_nickname{font-size: 18px; color: 
 /* profile menu */
 .profile_account_setting{width: 70%; text-align: start; margin: 0 auto 40px auto;}
 .profile_account_setting h2{font-size: 20px; font-weight: 500; padding-bottom: 15px;}
-.profile_account_setting ul li{padding: 10px; text-indent: 10px; cursor: pointer;}
+.profile_account_setting ul {display: flex;flex-direction: column;}
+.profile_account_setting ul li{padding: 10px; text-indent: 10px; cursor: pointer;display: inline-block;width: 122px;}
 
 /* partner Information */
 .profile_partner_inform{display: flex; flex-direction: column; width: 70%; margin: 0 auto 60px auto; text-align: left; gap: 14px;}
