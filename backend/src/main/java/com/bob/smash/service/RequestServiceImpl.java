@@ -178,16 +178,17 @@ public class RequestServiceImpl implements RequestService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("idx").descending());
         Page<Request> requestPage;
 
-    if (hideExpired) {
-        // 종료된 의뢰서 숨기기 → useDate가 지금 이후인 것만 조회
-        requestPage = requestRepository.findByUseDateGreaterThanEqual(LocalDateTime.now(), pageable);
-    } else if (search != null && !search.isBlank()) {
-        // 제목 검색
-        requestPage = requestRepository.findByTitleContaining(search, pageable);
-    } else {
-        // 전체 조회
-        requestPage = requestRepository.findAll(pageable);
-    }
+        if (hideExpired) {
+            // 종료된 의뢰서 숨기기 + 낙찰 완료된 의뢰서 숨기기
+            requestPage = requestRepository.findByUseDateGreaterThanEqualAndIsDone(LocalDateTime.now(), (byte)0, pageable);
+        } else if (search != null && !search.isBlank()) {
+            // 제목 검색
+            requestPage = requestRepository.findByTitleContaining(search, pageable);
+        } else {
+            // 전체 조회
+            requestPage = requestRepository.findAll(pageable);
+        }
+
 
         // 요청된 의뢰서 idx 리스트 수집
         List<Integer> requestIds = requestPage.getContent().stream()

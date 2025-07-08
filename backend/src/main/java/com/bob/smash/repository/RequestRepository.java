@@ -36,7 +36,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
     List<Request> findByUseDateBeforeAndIsDone(LocalDateTime now, Byte isDone);
 
     // 종료된 의뢰서 감추기
-    Page<Request> findByUseDateGreaterThanEqual(LocalDateTime now, Pageable pageable);
+    Page<Request> findByUseDateGreaterThanEqualAndIsDone(LocalDateTime now, Byte isDone, Pageable pageable);
 
     // 유저가 쓴 의뢰서 개수
     int countByMember_EmailId(String memberId);
