@@ -22,7 +22,7 @@ const Nav = () => {
     const chatUnread = async () => {
       try {
         const response = await apiClient.get(`/chat/has-unread`, {});
-        console.log('채팅 알림 조회:', response.data.hasUnread);
+        // console.log('채팅 알림 조회:', response.data.hasUnread);
         setHasChatUnread(response.data.hasUnread);
       } catch (error) {
         console.error('채팅 알림 조회 실패:', error);
