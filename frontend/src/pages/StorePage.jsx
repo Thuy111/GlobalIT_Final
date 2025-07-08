@@ -262,7 +262,7 @@ const StorePage = () => {
 
   return (
     <>
-      <TitleBar title="업체 이름" />
+      <TitleBar title={storeName} />
       <div className="storeInfo_container">
         {isOwner && (
           <div className="updateStore">
