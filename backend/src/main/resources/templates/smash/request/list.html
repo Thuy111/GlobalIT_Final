@@ -8,8 +8,7 @@
         <thead class="header" th:if="${!#lists.isEmpty(result)}">
           <tr>
             <th class="h5 font-weight-bold">의뢰서</th>
-            <th class="h5 font-weight-bold">사용 예정 날짜</th>
-            <!-- <th class="h5 font-weight-bold">상태</th> -->
+            <th class="h5 font-weight-bold">사용 예정 날짜</th>            
           </tr>
         </thead>             
           <tbody >                                
@@ -20,12 +19,7 @@
                 <span class="unselected" th:if="${request.isDone == 0}"> 미낙찰</span>
                 <span class="rent" th:if="${request.isGet == 1}"> 대여완료</span>
               </td>
-              <td>[[${#temporals.format(request.useDate, 'yyyy년 MM월 dd일 HH:mm')}]]</td>
-              <!-- <td>
-                <span class="selected" th:if="${request.isDone == 1}">낙찰 완료</span>
-                <span class="unselected" th:if="${request.isDone == 0}"> 미낙찰</span>
-                <span class="rent" th:if="${request.isGet == 1}"> 대여완료</span>
-              </td> -->
+              <td>[[${#temporals.format(request.useDate, 'yyyy년 MM월 dd일 HH:mm')}]]</td>             
             </tr>    
          </tbody>
         
