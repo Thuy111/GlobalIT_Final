@@ -109,8 +109,8 @@ const PartnerProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange }) =
             <li onClick={() => window.location.href = `${baseUrl}/smash/review/mylist`}>
               작성 받은 리뷰
             </li>
-            <li>
-             결제 내역              
+            <li onClick={() => window.location.href = `${baseUrl}/smash/payment/partner?bno=${profile.bno}`}>
+              결제 내역
             </li>
           </ul>
         </section>

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
@@ -240,6 +241,19 @@ public class PaymentServiceImpl implements PaymentService {
         return payments.stream()
                        .map(this::entityToDto)
                        .toList();
+    }
+
+    // bno 로 결제서 목록 조회
+    @Override
+    public List<PaymentDTO> getAllPaymentsByBno(String partnerBno) {
+        if (partnerBno == null || partnerBno.isEmpty()) {
+            throw new IllegalArgumentException("파트너 정보를 찾을 수 없습니다");
+        }
+
+        List<Payment> payments = paymentRepository.findByPartnerInfo_Bno(partnerBno);
+        return payments.stream()
+                    .map(this::entityToDto)
+                    .toList();
     }
 
     // 문자열로 받은 결제수단 → Payment.PayType enum 변환

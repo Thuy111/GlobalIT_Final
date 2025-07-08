@@ -98,8 +98,8 @@ const UserProfile = ({ profile, setIsLoggedIn, isChecked, onToggleChange  }) => 
             <li onClick={() => window.location.href = `${baseUrl}/smash/review/mylist`}>
               작성한 리뷰
             </li>
-            <li>
-             결제 내역              
+            <li onClick={() => window.location.href = `${baseUrl}/smash/payment/user?email=${profile.email}`}>
+              결제 내역
             </li>
           </ul>
         </section>

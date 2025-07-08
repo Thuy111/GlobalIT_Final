@@ -30,6 +30,7 @@ public interface PaymentService {
   // 결제서 목록 조회
   List<PaymentDTO> getAllPaymentsByMemberEmail(String memberEmail); // 회원별 결제서 목록 조회
   List<PaymentDTO> allFindPayments();
+  List<PaymentDTO> getAllPaymentsByBno(String partnerBno); // bno를 이용해 조회
 
   // Dto → Entity 변환
   default Payment dtoToEntity(PaymentDTO dto) {
