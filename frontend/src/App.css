@@ -81,8 +81,8 @@ nav ul.nav-list li a span, .unread_alarm {
   color: rgb(255, 255, 255);
   font-weight: bold;
   position: absolute;
-  top: 0px;
-  right: -8px;
+  top: -2px;
+  right: -6px;
   border-radius: 30px;
   font-size: 12px;
   margin-left: 6px;
@@ -113,6 +113,10 @@ body.dark .titleBar_container {background: #1d1d1d;}
 .home .register_btn{position: absolute; right: calc(24% - 16vw); bottom: 4rem; z-index: 1;height: auto; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4); border-radius: 30px;}
 .home .register_btn i {font-size: 26px;}
 
+@media (max-width: 768px) {
+  .titleBar_container i.fa-chevron-left {font-size: 22px !important;}
+  .titleBar_container h1 {font-size: 22px !important;
+}}
 @media (max-width: 500px) {
   .main_container {padding:none;}
 }

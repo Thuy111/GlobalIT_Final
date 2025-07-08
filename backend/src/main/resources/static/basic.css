@@ -11,6 +11,8 @@
   font-family: "Asta Sans", sans-serif;
 }
 
+h1, h2, h3 {margin: 0;}
+
 .estimate_container h1,
 .estimate_container h2,
 .estimate_container h3,
@@ -229,7 +231,7 @@ nav ul.nav-list li a span, .unread_alarm {
   font-weight: bold;
   position: absolute;
   top: -2px;
-  right: -8px;
+  right: -6px;
   border-radius: 30px;
   font-size: 12px;
   margin-left: 6px;
@@ -255,11 +257,12 @@ nav ul.nav-list li a span, .unread_alarm {
   overflow: hidden;
   height: 34px;
   text-overflow: ellipsis;
-  max-width: calc(100% - 160px);
+  max-width: 100%;
   white-space: nowrap;
   text-align: start;
 }
 body.dark .titleBar_container {background: #1d1d1d;}
+.chat_cont .titleBar_container h1 {max-width: calc(100% - 160px);}
 
 /* TopBar(Modal) */
 .modal-backdrop {
