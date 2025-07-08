@@ -45,4 +45,7 @@ public interface RequestService {
 
     // 견적서 최저가
     Integer getMinEstimatePrice(Integer requestIdx);
+
+    // 유저가 쓴 의뢰서 개수
+    int getUserRequestCount(String memberId);
 }

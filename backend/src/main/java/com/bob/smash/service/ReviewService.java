@@ -40,4 +40,7 @@ public interface ReviewService {
   
   // 업체 리뷰갯수
   int countReviewsByPartnerBno(String bno);
+
+  // 유저 리뷰 갯수
+  int getUserReviewCount(String memberId);
 }

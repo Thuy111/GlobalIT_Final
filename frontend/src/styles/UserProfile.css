@@ -52,6 +52,8 @@ body.dark .profile_inform_text .profile_inform_nickname{font-size: 18px; color: 
 
 .profile_blank{height: 100px; width: 100%;}
 
+/* 소셜 로그아웃 버튼 */
+.another_social{cursor: pointer; color: gray; font-size: 15px; border-bottom: 1px solid; display: inline-block; margin-left: 1rem;}
 
 /* 반응형 웹 */
 @media screen and (max-width : 725px) {

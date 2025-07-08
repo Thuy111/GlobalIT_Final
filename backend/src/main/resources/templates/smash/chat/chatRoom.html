@@ -564,21 +564,45 @@
             <button class="modal-close" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
             <h2><i class="fa-solid fa-user"></i>${memberNickname}</h2>
             <div><strong>이메일</strong> ${email}</div>
-            <h3 style="cursor:pointer;border-top: 1px solid #cdcdcd;margin-top: 1rem;" onclick="showUserRequest(${email})">작성한 의뢰서<i class="fa-solid fa-angle-right"></i></h3>
-            <h3 style="cursor:pointer;" onclick="showUserReview(${email})">작성한 리뷰<i class="fa-solid fa-angle-right"></i></h3>
+            <h3 style="cursor:pointer;border-top: 1px solid #cdcdcd;margin-top: 1rem;" onclick="showUserRequest('${email}')">작성한 의뢰서<i class="fa-solid fa-angle-right"></i></h3>
+            <h3 style="cursor:pointer;" onclick="showUserReview('${email}')">작성한 리뷰<i class="fa-solid fa-angle-right"></i></h3>
           </div>
         `;
       }
     }
   
-    // 유저 의뢰서/리뷰 함수는 전역 선언 필수!
+    // 유저 의뢰서/리뷰 함수
     async function showUserRequest(email) {
-      alert('의뢰서 목록: ' + email);
-      // 실제 구현 필요
+      let requestCount = 0;
+      await axios.get('/smash/request/userlist/count', { params: { memberId: email } })
+      .then(res => {
+        requestCount = res.data;
+        alert('유저가 작성한 의뢰서 갯수: ' + requestCount);
+        if (requestCount === 0) {
+          alert('유저가 작성한 의뢰서가 없습니다.');
+          return;
+        }
+        window.location.href = `/smash/request/list?memberId=${email}`;
+      })
+      .catch(err => {
+        console.error('의뢰서 갯수 조회 실패:', err);
+      });
     }
     async function showUserReview(email) {
-      alert('리뷰 목록: ' + email);
-      // 실제 구현 필요
+      let reviewCount = 0;
+      await axios.get('/smash/review/userlist/count', { params: { memberId: email } })
+      .then(res => {
+        reviewCount = res.data
+        alert('유저가 작성한 리뷰 갯수: ' + reviewCount);
+        if (reviewCount === 0) {
+          alert('유저가 작성한 리뷰가 없습니다.');
+          return;
+        }
+        window.location.href = `/smash/review/list?memberId=${email}`;
+      })
+      .catch(err => {
+        console.error('리뷰 갯수 조회 실패:', err);
+      });
     }
   
   </script>
