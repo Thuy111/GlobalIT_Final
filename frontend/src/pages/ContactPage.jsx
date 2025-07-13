@@ -10,12 +10,22 @@ import apiClient from '../config/apiClient';
 import axios from 'axios';
 import '../styles/Contact.css';
 
-const Contact= () => {
+const Contact = () => {
   const user = useUser();
-  const [currentUser, setCurrentUser] = useState(user);
   const [aboutTel, setAboutTel] = useState('');
   const [aboutEmail, setAboutEmail] = useState('');
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [file, setFile] = useState(null);
+  const [activeLoading, setActiveLoading] = useState(false);
+
+  const [phoneMsg, setPhoneMsg] = useState(null);
+  const [emailMsg, setEmailMsg] = useState(null);
+  const [buttonStatus, setButtonStatus] = useState(true);
 
   useEffect(() => {
     const fetchAbout = async () => {
@@ -30,24 +40,90 @@ const Contact= () => {
       }
     }
     fetchAbout();
-  },[]);
+  }, []);
 
+  // 로그인 사용자가 있으면 phone/email 세팅
   useEffect(() => {
-    const handleUserChange = (newUser) => {
-      setCurrentUser(newUser);
-    };
+    if (user && user.tel && user.emailId) {
+      setPhone(user.tel || '');
+      setEmail(user.emailId || '');
+    } else {
+      setPhone('');
+      setEmail('');
+    }
   }, [user]);
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [file, setFile] = useState(null);
-  const [activeLoading, setActiveLoading] = useState(false);
+  // 전화번호 유효성 체크
+  const checkFormTel = () => {
+    const regex = /^[0-9#*\-\s\+\(\)]+$/;
+    return !regex.test(phone);
+  };
 
-  const [phonMgs, setPhoneMsg] = useState(null);
-  const [emailMsg, setEmailMsg] = useState(null);
-  const [buttonStatus, setbuttonStatus] = useState(true);
+  // 이메일 유효성 체크
+  const checkFormEmail = () => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return !regex.test(email);
+  };
+
+  // 전화번호 경고
+  useEffect(() => {
+    if (user && user.tel && user.emailId) {
+      setPhoneMsg(null);
+      return;
+    }
+    if (checkFormTel()) {
+      setPhoneMsg(
+        <p className='form_warn_text'>
+          <FaExclamationCircle className='icon_warn' />
+          숫자와 해당 기호만 사용하세요. #, -, *, +, (, ).
+        </p>
+      );
+    } else {
+      setPhoneMsg(null);
+    }
+  }, [phone, user]);
+
+  // 이메일 경고
+  useEffect(() => {
+    if (user && user.tel && user.emailId) {
+      setEmailMsg(null);
+      return;
+    }
+    if (checkFormEmail()) {
+      setEmailMsg(
+        <p className='form_warn_text'>
+          <FaExclamationCircle className='icon_warn' />
+          유효한 이메일을 입력하세요.
+        </p>
+      );
+    } else {
+      setEmailMsg(null);
+    }
+  }, [email, user]);
+
+  // 버튼 활성화 여부
+  useEffect(() => {
+    if (user && user.tel && user.emailId) {
+      if (name && message) {
+        setButtonStatus(false);
+      } else {
+        setButtonStatus(true);
+      }
+    } else {
+      if (
+        name &&
+        phone &&
+        email &&
+        message &&
+        !checkFormTel() &&
+        !checkFormEmail()
+      ) {
+        setButtonStatus(false);
+      } else {
+        setButtonStatus(true);
+      }
+    }
+  }, [user, phone, email, name, message]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -56,107 +132,56 @@ const Contact= () => {
       setFile(null);
     }
   };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    const alert = window.confirm(`
-    연락처 : ${phone}
-    이메일 : ${email ? email : currentUser.emailId}
-
+    e.preventDefault();
+    const confirmMsg = `
+    연락처 : ${user && user.tel && user.emailId ? user.tel : phone}
+    이메일 : ${user && user.tel && user.emailId ? user.emailId : email}
+    
     당신의 정보가 일치합니까?
-    `);
-    if (alert){
-      setActiveLoading(true);
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('phone', phone);
-      formData.append('email', email || currentUser.emailId);
-      formData.append('message', message);
+    `;
+    const alert = window.confirm(confirmMsg);
+    if (!alert) return;
 
-      if (file) {
-        file.forEach((f) => {
-          formData.append('files', f);
-        });
-      }
+    setActiveLoading(true);
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('phone', user && user.tel && user.emailId ? user.tel : phone);
+    formData.append('email', user && user.tel && user.emailId ? user.emailId : email);
+    formData.append('message', message);
 
-      try {
-        await apiClient.post('/contact', formData);
-        window.alert('성공적으로 문의가 접수되었습니다. 곧 연락드리겠습니다.');
-        setName('');
-        setPhone('');
-        setEmail('');
-        setMessage('');
-        if (file) setFile(null);
-        setActiveLoading(false);
-      }catch(err) {
-        if (axios.isAxiosError(err)) {
-          console.error('이메일 보내기 실패:', err.response?.data);
-          setActiveLoading(false);
-        } else {
-          console.error('Network error:', err);
-          setActiveLoading(false);
-        }
-      }
-    }else return;
-  };
-
-  const checkFormTel = () => {
-    const regex = /^[0-9#*\-\s\+\(\)]+$/;
-    return !regex.test(phone);
-  }
-  const checkFormEmail = () => {
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return !regex.test(email);
-  }
-
-  useEffect(() => {
-    if(checkFormTel()===true){
-      setPhoneMsg(
-        <p className='form_warn_text'>
-          <FaExclamationCircle className='icon_warn' />
-          숫자와 해당 기호만 사용하세요. #, -, *, +, (, ).
-        </p>
-      );
-    }else{
-      setPhoneMsg(null);
+    if (file) {
+      file.forEach((f) => {
+        formData.append('files', f);
+      });
     }
-  }, [phone]);
 
-  const emailHandleBlur = () => {
-    if(checkFormEmail()===true){
-      setEmailMsg(
-        <p className='form_warn_text'>
-          <FaExclamationCircle className='icon_warn' />
-          유효한 이메일을 입력하세요.
-        </p>
-      );
-    }else{
-      setEmailMsg(null);
+    try {
+      await apiClient.post('/contact', formData);
+      window.alert('성공적으로 문의가 접수되었습니다. 곧 연락드리겠습니다.');
+      setName('');
+      setPhone(user && user.tel && user.emailId ? user.tel : '');
+      setEmail(user && user.tel && user.emailId ? user.emailId : '');
+      setMessage('');
+      setFile(null);
+      setActiveLoading(false);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('이메일 보내기 실패:', err.response?.data);
+      } else {
+        console.error('Network error:', err);
+      }
+      setActiveLoading(false);
     }
   };
 
-  useEffect(() => {
-    if(checkFormEmail()===false){
-      setEmailMsg(null);
-    }
-  }, [email]);
-
-  useEffect(() => {
-    if(user){
-      if(name && phone && !checkFormTel() && message) {
-        setbuttonStatus(false);
-      } else {
-        setbuttonStatus(true);
-      }
-    }else{
-      if(name && phone && email && message && !checkFormTel() && !checkFormEmail()) {
-        setbuttonStatus(false);
-      } else {
-        setbuttonStatus(true);
-      }
-    }
-  }, [phone, email, name, message]);
-
-  if(activeLoading) return <div className='loading'><i className="fa-solid fa-circle-notch"></i></div>;
+  if (activeLoading)
+    return (
+      <div className='loading'>
+        <i className="fa-solid fa-circle-notch"></i>
+      </div>
+    );
 
   return (
     <>
@@ -176,7 +201,7 @@ const Contact= () => {
               서울 관악구 남부순환로 1820 에그옐로우 14층
               <span className="contact_info_sub">(서울 관악구 봉천동 862-1 | 087887)</span>
               <div className="contact_info_button_wrap">
-                <a className='contact_info_btn' onClick={()=> setLocationModalOpen(true)}>자세히</a>
+                <button type="button" className='contact_info_btn' onClick={() => setLocationModalOpen(true)}>자세히</button>
               </div>
             </div>
           </div>
@@ -205,39 +230,56 @@ const Contact= () => {
               </div>
               <div className="form_group">
                 <label className="form_label">연락처 <span className="req_star">*</span></label>
-                <input
-                  type="tel"
-                  className="form_input"
-                  placeholder="연락 받을 전화번호를 입력하세요."
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
-                {phonMgs}
+                {user && user.tel && user.emailId ? (
+                  <input
+                    type="tel"
+                    className="form_input"
+                    value={user.tel}
+                    readOnly
+                    required
+                  />
+                ) : (
+                  <>
+                    <input
+                      type="tel"
+                      className="form_input"
+                      placeholder="연락 받을 전화번호를 입력하세요."
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                    />
+                    {phoneMsg}
+                  </>
+                )}
               </div>
             </div>
             <div className="form_group">
               <label className="form_label">이메일 <span className="req_star">*</span></label>
-              {currentUser?
-              (<input
-                type="email"
-                className="form_input"
-                value={currentUser.emailId}
-                readOnly
-                required
-              />)
-              :
-              (<input
-                type="email"
-                className="form_input"
-                placeholder="이메일을 입력하세요."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                onBlur={emailHandleBlur}
-              />)
-            }
-              {emailMsg} 
+              {user && user.tel && user.emailId ? (
+                <input
+                  type="email"
+                  className="form_input"
+                  value={user.emailId}
+                  readOnly
+                  required
+                />
+              ) : (
+                <input
+                  type="email"
+                  className="form_input"
+                  placeholder="이메일을 입력하세요."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  onBlur={() => setEmailMsg(checkFormEmail() ? (
+                    <p className='form_warn_text'>
+                      <FaExclamationCircle className='icon_warn' />
+                      유효한 이메일을 입력하세요.
+                    </p>
+                  ) : null)}
+                />
+              )}
+              {emailMsg}
             </div>
             <div className="form_group">
               <label className="form_label">문의 내용 <span className="req_star">*</span></label>
@@ -260,11 +302,11 @@ const Contact= () => {
                 multiple
               />
               <span className="form_file_label">
-                <span className='form_file_selected'>첨부된 파일</span> : {file ? 
+                <span className='form_file_selected'>첨부된 파일</span> : {file ?
                   file.map(f => (
                     <span key={f.name} className='form_file_badge'>{f.name}</span>
                   ))
-                : '파일이 없습니다.'}
+                  : '파일이 없습니다.'}
               </span>
             </div>
             <div className="contact_button_wrap">
