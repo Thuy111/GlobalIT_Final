@@ -1,26 +1,5 @@
 <th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
-    <style>
-      table.table-bordered {
-        border-collapse: collapse;
-        width: 100%;
-        text-align:center;
-        margin-top:3rem;
-      }
-      tbody .status {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        flex-direction: column;
-        height:100px;
-        border: none;
-      }
-      thead th{font-weight: bold;background-color: #f5f5f5;}
-      table, th, td {border: 1px solid #dee2e6;}
-      .payment_buttons_box {display: flex;gap:0.5rem;justify-content:space-around;
-      }
-    </style>
-
     <!-- 결제서 상세 페이지 -->
     <h1 style="font-size: 24px; font-weight: bold;">결제 상세 페이지</h1>
     <hr>
