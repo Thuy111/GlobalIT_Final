@@ -1,0 +1,100 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+  <th:block th:fragment="content">
+    <!-- 결제서 상세 페이지 -->
+    <h1 style="font-size: 24px; font-weight: bold;">결제 상세 페이지</h1>
+    <hr>
+    <div style="font-size: 14px;margin-top: 2rem;">* 테스트모드 토스페이는 결제만 되고 DB적용 및 리다이렉트 되지 않으므로 <span style="color: red;">카카오페이와 KG이니시스를 권장합니다.</span></div>
+    <table class="table table-bordered">
+      <thead style="height: 40px;">
+        <tr>
+          <th scope="col">결제서 번호</th>
+          <th scope="col">견적서 번호</th>
+          <th scope="col">결제 금액</th>
+          <th scope="col">결제 상태</th>
+          <th scope="col">결제 방법</th>
+          <th scope="col">결제 일시</th>
+          <th scope="col">결제 요청 일시</th>
+          <th scope="col">취소 일시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="payment : ${payments}" style="height:100px;">
+          <td th:text="${payment.idx}"></td>
+          <td th:text="${payment.estimateIdx}"></td>
+          <td>
+            <div th:if="${payment.actualPaidPrice == 0}"><span th:text="${payment.suggestedPrice} + ' 원'"></span></div>
+            <div th:if="${payment.actualPaidPrice > 0}"><span th:text="${payment.actualPaidPrice} + ' 원'"></span></div>
+          </td>
+          <td class="status">
+            <span th:text="${payment.status}"></span>
+            <!-- enum일 경우 문자열로 비교 .name() -->
+             <div th:if="${payment.status.name() == 'ready' and currentUser != null and currentUser.role == 0}" class="payment_buttons_box" th:inline="javascript">
+                <button th:onclick="|payPayment(${payment.idx})|">결제 하기</button>
+                <button th:onclick="|closePayment(${payment.idx})|">결제 취소</button>
+             </div>
+            <button th:if="${payment.status.name() == 'paid' and currentUser != null and currentUser.role == 1}" th:onclick="|canceledPaid(${payment.idx})|" th:inline="javascript">결제 취소</button>
+            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType != null) and (payment.paidAt != null)}" disabled>환불 완료</button>
+            <button th:if="${(payment.status.name() == 'canceled') and (payment.payType == null) and (payment.paidAt == null)}" disabled>취소 완료</button>
+          </td>
+          <td>
+            <span th:if="${payment.payType}" th:text="${payment.payType.name()}"></span>
+            <span th:if="${payment.payType == null}">결제 방법 없음</span>
+          </td>
+          <td>
+            <!-- <span th:text="${#temporals.format(payment.paidAt, 'yyyy-MM-dd HH:mm:ss')}"></span> -->
+            <span th:if="${payment.paidAt != null}" 
+              th:text="${payment.paidAt.isBefore(now.minusDays(1)) ? #temporals.format(payment.paidAt, 'yyyy-MM-dd') : #temporals.format(payment.paidAt, 'HH:mm:ss')}"></span>
+            <span th:if="${payment.paidAt == null}">결제 전</span>
+          </td>
+          <td>
+            <!-- <span th:text="${#temporals.format(payment.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span> -->
+            <span th:if="${payment.createdAt != null}" 
+              th:text="${payment.createdAt.isBefore(now.minusDays(1)) ? #temporals.format(payment.createdAt, 'yyyy-MM-dd') : #temporals.format(payment.createdAt, 'HH:mm:ss')}"></span>
+          </td>
+          <td>
+            <!-- <span th:text="${#temporals.format(payment.canceledAt, 'yyyy-MM-dd HH:mm:ss')}"></span> -->
+            <span th:if="${payment.canceledAt != null}" 
+              th:text="${payment.canceledAt.isBefore(now.minusDays(1)) ? #temporals.format(payment.canceledAt, 'yyyy-MM-dd') : #temporals.format(payment.canceledAt, 'HH:mm:ss')}"></span>
+            <span th:if="${payment.canceledAt == null}">없음</span>
+          </td>
+        </tr>
+      </tbody>
+
+      <script th:inline="javascript">
+        function canceledPaid(paymentIdx) {
+          console.log("결제서 번호:", paymentIdx);
+
+          if (confirm("정말로 결제를 취소하시겠습니까?")) {
+            axios.post(`/smash/payment/cancel/${paymentIdx}`, {})
+            .then(response => {
+              alert("결제가 취소되었습니다.");
+              location.reload(); // 페이지 새로고침
+            })
+            .catch(error => {
+              console.error("결제 취소 중 오류 발생:", error);
+              alert("결제 취소에 실패했습니다.");
+            });
+          }
+        }
+
+        function closePayment(paymentIdx) {
+          console.log("결제서 번호:", paymentIdx);
+          if (confirm("정말로 결제서를 취소하시겠습니까?")) {
+            axios.patch(`/smash/payment/close/${paymentIdx}`)
+            .then(response => {
+              alert("결제가 취소되었습니다.");
+              location.reload(); // 페이지 새로고침
+            })
+            .catch(error => {
+              console.error("결제 취소 중 오류 발생:", error);
+              alert("결제 취소에 실패했습니다.");
+            });
+          }
+        }
+
+        function payPayment(paymentIdx) {
+          location.href = `/smash/payment/pay/${paymentIdx}`;
+        }
+      </script>
+  </th:block>
+</th:block>

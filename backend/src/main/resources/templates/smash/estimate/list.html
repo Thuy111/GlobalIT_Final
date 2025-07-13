@@ -1,8 +1,149 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
-    <h1 style="margin: 6rem;">Estimate List PAGE</h1>
+    <div class="estimate_container">
+      <div th:if="${#lists.isEmpty(result)}">견적서가 없습니다.</div>
+      <div class="estimate_list" th:if="${not #lists.isEmpty(result)}">
+        <div class="estimate_box" th:each="estimate : ${result}"
+                                  th:attr="data-href=@{/smash/request/detail/{idx}(idx=${estimate.requestIdx})}">
+          <div class="estimate_card">
+            <div class="estimate_header">
+              <div class="estimate_meta">
+                <b class="estimate_title">[[${estimate.title}]]</b>
+                <span class="standby" th:if="${estimate.isSelected == 0}">낙찰 대기</span>
+                <span class="unselected" th:if="${estimate.isSelected == 1}">미 낙찰</span>
+                <span class="selected" th:if="${estimate.isSelected == 2}">낙찰 완료</span>
+              </div>
+            </div>
+
+            <div class="estimate_body">
+              <div class="estimate_actions" th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                                                    (currentUser != null and currentUser.role == 2)}">
+                <form th:action="@{/smash/estimate/update}" method="get">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit" th:if="${estimate.isSelected == 0}" class="update">수정</button>
+                </form>
+                <form th:action="@{/smash/estimate/delete}" method="post" th:id="'delete-'+ ${estimate.idx}">
+                  <input type="hidden" name="idx" th:value="${estimate.idx}" />
+                  <button type="submit" class="delete">삭제</button>
+                </form>
+              </div>
+              <div class="estimate_info">
+                <div>
+                  <span class="badge">제시 가격</span>
+                  <div style="font-size: 18px;">
+                    <span class="price">[[${#numbers.formatInteger(estimate.price, 3, 'COMMA')}]]</span> 원
+                  </div>
+                </div>
+                <div>
+                  <span class="badge">반납 기한</span>
+                  <span>[[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.returnDate)}]]</span>
+                </div>
+                <div>
+                  <span class="badge">대여 방법</span>
+                  <p class="deal_method">
+                    <span class="delivery yes" th:if="${estimate.isDelivery == true}">배달 가능</span>
+                    <span class="delivery no" th:if="${estimate.isDelivery == false}">배달 불가</span>
+                    <span class="pickup yes" th:if="${estimate.isPickup == true}">픽업 가능</span>
+                    <span class="pickup no" th:if="${estimate.isPickup == false}">픽업 불가</span>
+                  </p>
+                </div>
+                <div class="estimate_content">
+                  <pre>[[${estimate.content}]]</pre>
+                </div>
+              </div>
+  
+              <div class="attached_image_area" th:if="${not #lists.isEmpty(estimate.images)}">
+                <div class="attached_image" th:each="image : ${estimate.images}">
+                  <img class="zoomable_image" th:src="@{${image.path}}" alt="첨부 이미지"/>
+                </div>
+              </div>
+              <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+                <img id="lightbox_img" src="" alt="zoom" />
+              </div>
+  
+              <p class="estimate_date">
+                [[${T(java.time.format.DateTimeFormatter).ofPattern('yyyy년 MM월 dd일 HH:mm').format(estimate.modifiedAt)}]]
+                <small th:if="${!estimate.createdAt.equals(estimate.modifiedAt)}">(수정 됨)</small>
+              </p>
+            </div>
+          </div>
+
+          <!-- 견적서 작성자가 처리하는 (반납확인) 버튼 -->
+          <div th:if="${(currentUser != null and estimate.partnerBno == currentUser.bno) or 
+                        (currentUser != null and currentUser.role == 2)}">
+            <form th:action="@{/smash/estimate/return}" method="post" th:id="'return-' + ${estimate.idx}" class="estimate_actions select_form">
+              <input type="hidden" name="idx" th:value="${estimate.idx}" />
+              <input type="hidden" name="isReturn" th:value="true" />
+              <button type="submit" 
+                th:if="${estimate.isReturn == false and 
+                         estimate.isSelected == 2}">
+                반납 확인
+              </button>
+            </form>
+          </div><!-- 견적서 작성자가 처리하는 (반납확인) 버튼 끝 -->
+        </div>
+      </div>
+      
+      <div class="bottom_space"></div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // 이미지 lightbox. Js code((이미지 크게 보기)
+          const images = document.querySelectorAll(".zoomable_image");
+          const lightbox = document.getElementById("lightbox");
+          const lightboxImg = document.getElementById("lightbox_img");
+          images.forEach(img => {
+            img.addEventListener("click", () => {
+              lightbox.style.display = "flex";
+              lightboxImg.src = img.src;
+            });
+          });
+          window.closeLightbox = function () {
+            lightbox.style.display = "none";
+            lightboxImg.src = "";
+          };
+
+          // 삭제 confirm
+          const deleteForms = document.querySelectorAll("form[id^='delete-']");
+          deleteForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+              if (!confirm("정말로 이 견적서를 삭제하시겠습니까?")) {
+                e.preventDefault();
+              }
+            });
+          });
+
+          // 반납 confirm
+          const returnForms = document.querySelectorAll("form[id^='return-']");
+          returnForms.forEach(form => {
+            form.addEventListener("submit", function (e) {
+              if (!confirm("반납을 확인 처리하시겠습니까?")) {
+                e.preventDefault();
+              }
+            });
+          });
+
+          // estimate_box 클릭 시 의뢰서 상세보기 페이지로 이동
+          const boxes = document.querySelectorAll(".estimate_box");
+          boxes.forEach(box => {
+            box.addEventListener("click", function(e) {
+              // 내부 폼/버튼 클릭 시엔 무시 (form, button 등)
+              if (
+                e.target.tagName === "BUTTON" ||
+                e.target.closest("form") ||
+                e.target.classList.contains("zoomable_image")
+              ) {
+                return;
+              }
+              const url = box.getAttribute("data-href");
+              if (url) {
+                window.location.href = url;
+              }
+            });
+          });
+          
+        });
+      </script>
+    </div>
   </th:block>
 </th:block>

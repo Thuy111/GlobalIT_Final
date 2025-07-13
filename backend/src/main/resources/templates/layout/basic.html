@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <th:block th:fragment="setContent(content)">
+  <th:block th:fragment="setContent(topbar, content)">
     <!-- head -->
     <head>
       <meta charset="UTF-8" />
-      <link rel="icon" type="favicon" href="/frontend/public/icon.svg" />
+      <link rel="icon" href="/icon/favicon.ico" type="image/x-icon" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>SMaSh | Sports rentalMatching Service</title>
       <!-- CSS -->
       <link rel="stylesheet" href="/basic.css" />
+      <link rel="stylesheet" href="/estimate.css" />
+      <link rel="stylesheet" href="/request.css" />
+      <link rel="stylesheet" href="/chat.css" />
+      <link rel="stylesheet" href="/reviewlist.css" />
+      <link rel="stylesheet" href="/payment.css" />
       <!-- fontawsome -->
       <script src="https://kit.fontawesome.com/e7c9242ec2.js" crossorigin="anonymous"></script>
       <!-- jQuery -->
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
       <!-- axios -->
-      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>    
+      <!-- iamport : 결제시스템 -->
+      <script src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+      <!-- Bootstrap 4 CSS -->
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+      <!-- Websoket(SockJS, STOMP.js) -->
+      <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
     </head>
 
     <!-- body -->
     <body th:classappend="${theme} == 'dark' ? 'dark' : ''">
-        <div class="root">
-          <div class="container">
+      <div class="root">
+        <div class="main_container">
+            <!-- 타이틀 바 -->
+            <th:block th:replace="~{/layout/topbar :: title(title=${title})}"></th:block>
+            <!-- 컨텐츠 영역 -->
             <th:block th:replace = "${content}"></th:block>
           </div>
           <nav class="navigation">
             <ul class="nav-list">
-              <li class="alarm">
+              <li th:if="${currentUser}" class="alarm">
                 <a th:href="${@environment.getProperty('front.server.url') + '/alarm'}">
                   <i class="fa-solid fa-bell"></i>알림
+                  <span th:if="${currentUser != null and currentUser.unreadAlarm > 0}" class="unread_alarm" >[[${currentUser.unreadAlarm}]]</span>
+                </a>
+              </li>
+              <li class="contact">
+                <a th:href="${@environment.getProperty('front.server.url') + '/contact'}">
+                  <i class="fa-regular fa-circle-question"></i>문의
                 </a>
               </li>
               <li class="home active">
                 <a th:href="${@environment.getProperty('front.server.url') + '/'}">
                   <i class="fa-solid fa-house"></i>홈
+                </a>
+              </li>
+              <li th:if="${currentUser}" class="chat">
+                <div class="new_msg_point" th:if="${currentUser != null and hasUnread}"></div>
+                <a th:href="@{'/smash/chat/roomList?user=' + ${currentUser.emailId}}">
+                  <i class="fa-solid fa-comment"></i>채팅
                 </a>
               </li>
               <li class="profile">
@@ -43,9 +70,42 @@
             </ul>
           </nav>
         </div>
+        <div class="scroll_box">
+          <div class="up_scroll"><i class="fa-solid fa-angle-up"></i></div>
+        </div>
+        <div class='loading'><i class="fa-solid fa-circle-notch"></i></div>
     </body>
 
     <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // 로딩 애니메이션
+        const loadingElement = document.querySelector('.loading');
+        document.body.style.overflow = 'hidden'; // 페이지 로딩 중 스크롤 방지
+        setTimeout(function() {
+          window.scrollTo(0, 0); // 페이지 로딩 후 상단으로 스크롤 이동
+          document.body.style.overflow = ''; // 로딩 후 스크롤 허용
+          loadingElement.style.display = 'none'; // 1초 후에 로딩 애니메이션 숨김
+        }, 1000); // 1초 후에 로딩 애니메이션 숨김
+
+        // 스크롤 시 상단으로 이동하는 버튼
+        const scrollBox = document.querySelector('.scroll_box');
+        const upScrollButton = document.querySelector('.up_scroll');
+        upScrollButton.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 스크롤 이벤트 리스너
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 400) {
+            scrollBox.style.display = 'flex';
+          } else {
+            scrollBox.style.display = 'none';
+          }
+        });
+      });
+    </script>
+
+    <script th:inline="javascript">
       $(document).ready(function(){
         // 현재 페이지의 URL
         var currentUrl = window.location.href;
@@ -58,7 +118,13 @@
         } else if (currentUrl.includes('/profile')) {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .profile').addClass('active');
-        } else {
+        } else if(currentUrl.includes('/chat')) {
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .chat').addClass('active');
+        } else if(currentUrl.includes('/contact')){
+          $('.navigation .nav-list li').removeClass('active');
+          $('.nav-list .contact').addClass('active');
+        }else {
           $('.navigation .nav-list li').removeClass('active');
           $('.nav-list .alarm').addClass('active');
         }
@@ -66,7 +132,7 @@
         // controller에서 설정한 테마를 가져와서 적용
         // /**/ 를 사용하면 값이 있을때는 해당 값이 사용되고, 없을 때는 기본값이 사용됨
         let theme = /*[[${theme}]]*/ 'light';  // "dark" or "light"
-        console.log("Server-side theme:", theme);
+        // console.log("Server-side theme:", theme);
 
         // 로컬 스토리지에 저장된 다크 모드 설정을 확인하고, 서버에서 설정된 테마가 없을 경우 로컬 스토리지 값을 사용
         const hasServerTheme = /*[[${theme != null}]]*/ false;
@@ -82,8 +148,8 @@
           localStorage.setItem('darkMode', JSON.stringify(false));
           document.body.classList.remove('dark');
         }
-        
       });
+        
     </script>
 
   </th:block>

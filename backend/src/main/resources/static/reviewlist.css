@@ -1,0 +1,182 @@
+/* 컨테이너 제목 */
+.review_container h1 {
+  font-size: 2em;
+  margin-bottom: 1em;
+  text-align: left;
+  color: #333;
+  font-weight: bold;
+}
+
+/* 구분선 */
+.review_container hr {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  margin: 1em 0 2em 0;
+}
+
+/* 오른쪽 정렬 */
+.review_container .right_align {
+  text-align: right;
+}
+
+/* 카드 스타일 */
+.review_container .review_card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 1.5em 2em;
+  margin: 1em 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+  transition: box-shadow 0.3s ease;
+}
+
+.review_container .review_card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 헤더: 작성자 + 별점 */
+.review_container .review_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.review_container .review_meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body.dark .review_container .review_title {color: #dddddd;}
+.review_container .review_title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+.review_container .review_star {
+  font-weight: 600;
+  color: #ff9900;
+  font-size: 1.1em;
+}
+
+/* 수정/삭제 버튼 */
+.review_container .review_actions_top {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 3px;
+}
+
+.review_container .review_actions_top button {
+  background-color: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.review_container .review_actions_top button:hover {
+  background-color: #eee;
+}
+
+/* 이미지 섹션 */
+.review_container .review_images {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.review_container .review_images img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: #8484840f;
+}
+body.dark .review_container .review_images img {background: #78787833;}
+
+/* 텍스트 영역 */
+.review_container .review_text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left; 
+}
+
+/* 리뷰 내용 */
+body.dark .review_container .review_text p {color: #bebebe;}
+.review_container .review_text p {
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 1em;
+  white-space: pre-line;
+}
+
+/* 작성일 */
+.review_container .review_date {
+  font-size: 0.8em;
+  color: #888;
+  text-align: right;
+  margin-top: auto;
+}
+
+/* 프로필이미지 */
+.review_container .review_profile_img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    cursor: pointer;
+}
+/* 모달 기본 스타일 */
+.modal {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 9999;
+  inset: 0; /* top:0; bottom:0; left:0; right:0; */
+  background-color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-img {
+  max-width: 60vw;  /* 뷰포트 너비의 60%로 제한 */
+  max-height: 60vh; /* 뷰포트 높이의 60%로 제한 */
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  cursor: default; /* 이미지에 마우스 올렸을 때 손가락 커서 안 나오게 */
+}
+
+.modal-close {
+  position: fixed; /* fixed로 위치 고정 */
+  top: 20px;
+  right: 30px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+  z-index: 10000;
+}
+
+.modal-close:hover {
+  opacity: 0.7;
+}

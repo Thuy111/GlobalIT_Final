@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">리뷰 목록</title>
+    <link rel="stylesheet" href="/reviewlist.css" />
+    <script>
+        function confirmDelete() {
+            return confirm('정말 삭제하시겠습니까?');
+        }
+
+        function openProfileModal(event, imageUrl) {
+            event.stopPropagation();
+            event.preventDefault();
+            const modal = document.getElementById('profileModal');
+            const modalImg = document.getElementById('modalProfileImg');
+            modalImg.src = imageUrl;
+            modal.classList.add('show');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+    </script>
+</head>
+<body>
+
+<!-- 🔍 프로필 모달 -->
+<div id="profileModal" class="review_container modal" onclick="closeProfileModal()">
+    <span class="modal-close">&times;</span>
+    <img id="modalProfileImg" class="modal-img" />
+</div>
+
+<th:block th:replace="~{/layout/basic :: setContent(
+                         ~{/layout/topbar :: title(title=${title})},
+                         ~{this::content})}">
+    <th:block th:fragment="content">
+        <div class="review_container">
+            <div th:if="${#lists.isEmpty(reviewList)}">리뷰가 없습니다.</div>
+            <!-- 평균 별점 -->
+            <div class="review_avg_star">
+                <span th:if="${avgScore != null}">
+                    ⭐ 평균 별점:
+                    <strong th:text="${#numbers.formatDecimal(avgScore, 1, 1)}">0.0</strong> / 5.0
+                </span>
+            </div>
+
+            <!-- 리뷰 카드 반복 -->
+            <div class="review_box">
+                <div th:each="review : ${reviewList}"
+                     th:with="
+                         isOwner=${review.memberId != null and review.memberId.equals(currentUser.emailId)},
+                         isAdmin=${currentUser.role == 2},
+                         canModify=${(isOwner or isAdmin) and review.isModify == 0 and currentUser.emailId != null},
+                         canDelete=${(isOwner or isAdmin) and currentUser.emailId != null},
+                         imageUrl=${review.profileImageUrl != null and #strings.startsWith(review.profileImageUrl, '/') 
+                                   ? review.profileImageUrl : '/images/profile.png'}">
+
+                    <!-- 리뷰 카드 -->
+                    <a th:href="@{'/smash/request/detail/' + ${review.requestIdx}}"
+                       style="text-decoration:none; color:inherit;">
+                        <div class="review_card">
+                            <div class="review_header">
+                                <div class="review_meta">
+                                    <!-- 프로필 이미지 -->
+                                    <img th:src="@{${imageUrl}}"
+                                        alt="프로필 이미지"
+                                        class="review_profile_img"
+                                        th:attr="data-url=${imageUrl}"
+                                        onclick="openProfileModal(event, this.dataset.url)" />
+
+                                    <span class="review_title" th:text="${review.nickname}">작성자</span>
+                                    <span class="review_star" th:text="'★ ' + ${review.star}">별점</span>
+                                </div>
+
+                                <!-- 수정/삭제 버튼 -->
+                                <div class="review_actions_top">
+                                    <div th:if="${canModify}">
+                                        <form th:action="@{/smash/review/update}" method="get">
+                                            <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
+                                            <input type="hidden" name="from" th:value="${(isMyList != null and isMyList) ? 'mylist' : 'list'}" />
+                                            <button type="submit">수정</button>
+                                        </form>
+                                    </div>
+
+                                    <div th:if="${canDelete}">
+                                        <form th:action="@{/smash/review/delete}" method="get" onsubmit="return confirmDelete();">
+                                            <input type="hidden" name="reviewIdx" th:value="${review.idx}" />
+                                            <input type="hidden" name="estimateIdx" th:value="${review.estimateIdx}" />
+                                            <input type="hidden" name="requestIdx" th:value="${review.requestIdx}" />
+                                            <input type="hidden" name="from" th:value="${(isMyList != null and isMyList) ? 'mylist' : 'list'}" />
+                                            <button type="submit">삭제</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 리뷰 이미지 -->
+                            <div class="review_images" th:if="${review.images != null}">
+                                <img th:each="img : ${review.images}"
+                                     th:src="@{${img.path}}"
+                                     alt="리뷰 이미지" />
+                            </div>
+
+                            <!-- 리뷰 텍스트 -->
+                            <div class="review_text">
+                                <p th:text="${review.comment}">내용</p>
+                                <div class="review_date">
+                                    [[${#temporals.format(review.createdAt, 'yyyy년MM월dd일 HH:mm')}]]
+                                    <small th:if="${review.isModify == 1}">수정됨</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</th:block>
+</body>
+</html>

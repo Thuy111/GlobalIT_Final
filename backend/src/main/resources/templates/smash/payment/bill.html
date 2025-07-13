@@ -1,0 +1,119 @@
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
+  <th:block th:fragment="content">
+
+      <h1 style="font-size: 24px; font-weight: bold; margin: 2rem 0;">결제 페이지</h1>
+      <hr>
+
+      <th:block th:if="${#strings.isEmpty(impMerchantCode)}">
+        <p>아임포트 가맹점 식별코드가 설정되지 않았습니다.</p>
+      </th:block>
+      <th:block th:unless="${#strings.isEmpty(impMerchantCode)}">
+
+        <!-- 결제 버튼 -->
+        <div class="payment-container" style="margin: auto; display: flex; flex-direction: column; align-items: center;">
+          <h2><b style="font-weight: bold; margin: 1rem 0;">결제 금액</b> : <span class="price" th:text="${payment.suggestedPrice}"></span>원</h2>
+          <p>결제 방법을 선택해주세요.</p>
+          <div style="display: flex; gap: 0.5rem; margin: 2rem 0;">
+            <button onclick="onClickPay('kakao')">카카오페이</button>
+            <button onclick="onClickPay('toss')">토스</button>
+            <button onclick="onClickPay('KG')">KG이니시스</button>
+          </div>
+        </div>
+        <div style="font-size: 14px;margin-top: 2rem;">* 테스트모드 토스페이는 결제만 되고 DB적용 및 리다이렉트 되지 않으므로 <span style="color: red;">카카오페이와 KG이니시스를 권장합니다.</span></div>
+
+      </th:block>
+      <script th:inline="javascript">
+        const memberEmail = /*[[${payment.memberEmail}]]*/ '';
+        const partnerBno = /*[[${payment.partnerBno}]]*/ '';
+        const estimateIdx = /*[[${payment.estimateIdx}]]*/ 0;
+        const suggestedPrice = /*[[${payment.suggestedPrice}]]*/ 0;
+        const partnerId = /*[[${partner.memberId}]]*/ '';
+        const partnerName = /*[[${partner.name}]]*/ '';
+        const partnerTel = /*[[${partner.tel}]]*/ '';
+        const paymentStatus = /*[[${payment.status.name()}]]*/ '';
+
+        if(paymentStatus == 'paid'){
+          alert("이미 결제가 완료된 견적서입니다.");
+          location.href = '/smash/payment/list';
+        }else if(paymentStatus == 'canceled'){
+          alert("이미 취소된 견적서입니다.");
+          location.href = '/smash/payment/list';
+        }
+
+        function requestPay(payType) {
+          // 결제 정보 확인
+          if(!memberEmail || !partnerBno || !estimateIdx || !partnerId || !partnerName || !partnerTel) {
+            alert("결제 정보가 올바르지 않습니다.");
+            return;
+          }else if(suggestedPrice < 100) {
+            alert("유효한 결제금액이 아닙니다.");
+            return;
+          }
+
+          const IMP = window.IMP;
+          const impCode = /*[[${impMerchantCode}]]*/ '';
+          if(!impCode) {
+            alert("아임포트 가맹점 식별코드가 설정되지 않았습니다.");
+            return;
+          }
+
+          IMP.init(impCode); // 아임포트 가맹점 식별코드
+          return new Promise((resolve, reject) => {
+            // 주문번호 생성
+            const merchantUid = "order_" + new Date().getTime();
+
+            // 결제사 요청
+            let pgName = '';
+            switch(payType) {
+              case 'kakao': pgName = 'kakaopay'; break;
+              case 'toss': pgName = 'tosspay'; break;
+              case 'KG': pgName = 'html5_inicis'; break;   // KG이니시스
+              default: pgName = 'html5_inicis';
+            }
+            
+            IMP.request_pay({
+              pg: pgName, // 결제사
+              pay_method:"card", 
+              merchant_uid:merchantUid,
+              name:'[스매시] 견적서 결제', 
+              amount: suggestedPrice,
+              buyer_email: memberEmail,
+              buyer_name: partnerName,
+              buyer_tel: partnerTel,
+              // redirect_url:'/smash/payment/list' // 모바일 웹
+            }, function (rsp) {
+              if (rsp.success) resolve(rsp);
+              else reject(new Error(rsp.error_msg));
+            });
+          });
+        }
+
+        async function onClickPay(payType) {
+          try {
+            const rsp = await requestPay(payType);
+            const impUid = rsp.imp_uid;
+            const res   = await axios.get(`/smash/payment/verify/${impUid}`, { 
+              params: {
+                  payType: payType,
+                  memberEmail: memberEmail,
+                  partnerBno: partnerBno,
+                  estimateIdx: estimateIdx
+                } 
+              });
+            // 성공 처리
+            alert("결제가 완료되었습니다!");
+            const paymentIdx = res.data;
+            if(!paymentIdx) {
+              alert("결제서 상세 정보가 없습니다.");
+              return;
+            }
+            window.location.href = '/smash/payment/list';;
+          } catch (err) {
+            console.error("결제 중 오류 발생:", err);
+            alert("결제 중 오류: " + err.message || err.response?.data || /*[[${error}]]*/ "알 수 없는 오류");
+          }
+        }
+      </script>
+  </th:block>
+</th:block>
+

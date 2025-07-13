@@ -1,8 +1,198 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+<th:block th:replace="~{/layout/basic :: setContent(~{/layout/topbar :: title(title=${title})}, ~{this::content})}">
   <th:block th:fragment="content">
-    <h1 style="margin: 6rem;">Estimate Register PAGE</h1>
+    <div class="estimate_container">
+      <div class="estimate_form">
+        <form th:action="@{/smash/estimate/register}" enctype="multipart/form-data" method="post">
+          <input type="hidden" name="requestIdx" th:value="${requestIdx}" required>
+          <th:block th:if="${currentUser != null}">
+            <input type="hidden" name="partnerBno" th:value="${currentUser.bno}" required>
+          </th:block>
+          <input type="hidden" name="isSelected" value="0">
+          <input type="hidden" name="isReturn" value="false">
+          <input type="hidden" class="datetime" name="createdAt">
+          <input type="hidden" class="datetime" name="modifiedAt">
+
+          <div id="image_preview" class="image_preview_wrapper">
+            <div id="image_control" class="camera_wrapper">
+              <label id="upload_images" class="image_upload_box">
+                <i class="fa-solid fa-camera" style="font-size: 2em;"></i>
+                <span><span id="image_count">0</span>/10</span>
+                <input type="file" name="imageFiles" multiple hidden>
+              </label>
+              <button type="button" id="image_reset_btn">이미지 전체삭제</button>
+            </div>
+          </div>
+
+          <label class="request_el">
+            <h2>제목</h2>
+            <input type="text" name="title" required>
+          </label>
+          
+          <label class="request_el">
+            <h2>내용</h2>
+            <textarea name="content" required placeholder="견적 내용과 자세한 내용을 기재해주세요."></textarea>
+          </label>
+
+          <label class="request_el">
+            <h2>가격</h2>
+            <div class="price_box">
+              <input type="number" min="0" step="100" name="price" required placeholder="숫자를 입력하세요.">원
+            </div>
+          </label>
+          
+          <div class="request_el">
+            <h3>대여 방법</h3>
+            <div class="choose_deal">
+              <div class="mode"><input type="checkbox" name="isDelivery" value="true">배달</div>
+              <div class="mode"><input type="checkbox" name="isPickup" value="true">픽업</div>
+            </div>
+          </div>
+    
+          <div class="request_el">
+            <h3>반납 날짜</h3>
+            <input type="datetime-local" name="returnDate" th:attr="min=${useDate}" required>
+            <div class="calendar_box">
+              <i class="fa-regular fa-calendar custom-datetime"></i>
+            </div>
+          </div>
+          
+          <div class="submit_box">
+            <button type="submit" class="submit_style">작성 완료</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 첨부 이미지관련 기능
+        let selectedFiles = [];
+        const imageInput = document.querySelector('input[name="imageFiles"]');
+        const wrapper = document.getElementById('image_preview');
+        const countSpan = document.getElementById('image_count');
+        const MAX_IMAGES = 10;
+        
+        // 이미지 선택 시 미리보기 처리
+        imageInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files);
+          // 사진 10개까지
+          if (selectedFiles.length + files.length > MAX_IMAGES) {
+            alert("최대 10개의 이미지를 업로드할 수 있습니다.");
+            imageInput.value = '';
+            return;
+          }
+          files.forEach(file => {
+            selectedFiles.push(file);
+            renderThumbnail(file);
+          });
+          updateCount();
+          refreshFileInput();
+        });
+
+        function renderThumbnail(file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'image_thumb';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = '✕';
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove_btn';
+            removeBtn.onclick = () => {
+              wrapper.removeChild(thumb);
+              selectedFiles = selectedFiles.filter(f => f !== file);
+              updateCount();
+              refreshFileInput();
+            };
+
+            thumb.appendChild(img);
+            thumb.appendChild(removeBtn);
+
+            // camera_wrapper 다음에 삽입
+            const label = wrapper.querySelector('.camera_wrapper');
+            if (label && label.nextSibling) {
+              wrapper.insertBefore(thumb, label.nextSibling);
+            } else {
+              wrapper.appendChild(thumb);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+
+        function updateCount() {
+          countSpan.innerText = selectedFiles.length;
+        }
+
+        function refreshFileInput() {
+          const dataTransfer = new DataTransfer();
+          selectedFiles.forEach(f => dataTransfer.items.add(f));
+          imageInput.files = dataTransfer.files;
+        }
+
+        // IMG 전체 삭제 버튼 처리
+        const resetBtn = document.getElementById('image_reset_btn');
+        resetBtn.addEventListener('click', function () {
+          //  모든 thumnail 삭제
+          const thumbs = wrapper.querySelectorAll('.image_thumb');
+          thumbs.forEach(thumb => thumb.remove());      
+          selectedFiles = [];        
+          imageInput.value = '';
+          updateCount();       
+          refreshFileInput();
+        });
+
+        // 현재 시간을 모든 datetime input에 입력
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        now.setMinutes(now.getMinutes() - offset);
+        const datetimeInputs = document.getElementsByClassName('datetime');
+        const datetimeValue = now.toISOString().slice(0, 16);
+        for (let i = 0; i < datetimeInputs.length; i++) {
+          datetimeInputs[i].value = datetimeValue;
+        }
+
+        // 사용일 이후로 반납 날짜 설정
+        const useDate = "[[${useDate}]]";
+        const returnDate = document.querySelector('input[name="returnDate"]');
+        if (returnDate) {
+          returnDate.min = useDate;
+        }
+
+        
+        // 입력값 검증
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function (e) {
+          const isDelivery = form.querySelector('input[name="isDelivery"]').checked;
+          const isPickup = form.querySelector('input[name="isPickup"]').checked;
+          // 둘 다 체크되지 않았을 경우 전송 막기
+          if (!isDelivery && !isPickup) {
+            e.preventDefault(); // submit 막기
+            alert("배달 또는 픽업 중 하나는 반드시 선택해야 합니다.");
+            return;
+          }
+          // 체크되지 않은 항목은 'false'로 전송
+          ['isDelivery', 'isPickup'].forEach(name => {
+            const checkbox = form.querySelector(`input[name="${name}"]`);
+            if (!checkbox.checked && !form.querySelector(`input[type="hidden"][name="${name}"]`)) {
+              const hidden = document.createElement("input");
+              hidden.type = "hidden";
+              hidden.name = name;
+              hidden.value = "false";
+              form.appendChild(hidden);
+            }
+          });
+          // 가격 숫자 검증(추가)
+          const priceInput = form.querySelector('input[name="price"]');
+          if (priceInput && !/^\d+$/.test(priceInput.value)) {
+            e.preventDefault();
+            alert("가격은 숫자만 입력할 수 있습니다.");
+            priceInput.focus();
+            return;
+          }
+        });
+      });
+    </script>
   </th:block>
 </th:block>

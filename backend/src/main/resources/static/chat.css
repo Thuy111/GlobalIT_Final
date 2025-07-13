@@ -1,0 +1,98 @@
+/* 채팅목록 css */
+.chat_container{justify-content: center;height: calc(100vh - 300px);display: flex;align-items: center;}
+.chat_container h2{font-size: 20px;color: gray;}
+.chat_list {height: 100%;width:100%;}
+body.dark .room_list {border-color: #393939;}
+body.dark .room_list:last-child {border-color: #393939;}
+.room_list {padding: 2rem; border-top: 1px solid #dee2e6;display: flex; justify-content: space-between;position: relative;}
+.room_list:last-child {border-bottom: 1px solid #dee2e6;}
+.room_list:hover {background-color: #fafafa;}
+body.dark .room_list:hover {background-color: #1b1b1b;}
+.new_msg_point {width: 12px; height: 12px; border-radius: 50%; background-color: #ff6347; position: absolute;top: 4px; right: 4px;}
+.room_list .new_msg {background-color: #ff6347;white-space: nowrap;padding: 1px 5px;color: white;border-radius: 30px;font-size: 14px !important;margin-left: 4px;}
+.room_body{display: flex;flex-direction: column;text-align: start;width: 84%;}
+.room_body .room_name{display: flex;justify-content: start;margin-bottom: 0.5rem;white-space: nowrap;align-items: center;}
+.room_body .room_name *{font-size: 24px;}
+.room_body .room_name .chat_room{font-weight: bold;margin-right: 0.5rem;overflow: hidden;text-overflow: ellipsis;}
+.room_body .last_msg{
+  font-size: 18px;
+  margin-left: 0.5rem;
+  margin-bottom: 1rem;
+  color: gray;    
+  height: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;}
+.room_body .last_time{font-size: 14px;color: gray;text-align: end;}
+
+/* 모달 */
+body.dark .titleBar_container .chat_profile_badge {background-color: #FFFA8D;color: #e98f00;}
+body.dark .titleBar_container .chat_profile_badge:hover {background-color: #fff864; color: #c27803;}
+.titleBar_container .chat_profile_badge i {font-size: 24px; margin-right: 6px;}
+.titleBar_container .chat_profile_badge {background-color: #bff3ff;color: #3bb8d4;padding: 6px 8px;border-radius: 30px;display: flex;align-items: center;justify-content: center;cursor: pointer;margin-left: 0.5rem;}
+body.dark .titleBar_container .chat_profile_badge:hover {background-color: #a4eeff; color:#2291aa;}
+#profileModal .user_card{text-align: start;display: flex;flex-direction: column;justify-content: space-between;}
+#profileModal .user_card strong {padding: 8px 16px;background-color: #efefef;border-radius: 30px;box-shadow: 0 1px 2px #00000045;margin-right: 0.5rem;}
+body.dark #profileModal .user_card strong {background-color: #141414;}
+#profileModal .user_card>*{margin: 1rem 0 0.5rem;}
+#profileModal .user_card h2 {font-weight: bold;font-size: 24px; max-width: 500px;overflow: hidden;white-space: nowrap;display: inline-block;text-overflow: ellipsis;margin-right: 2rem;}
+#profileModal .user_card h2 i{margin-right: 0.5rem; font-size: 22px;}
+#profileModal .user_card h3 {display: flex;justify-content: space-between;align-items: center;font-size: 20px;margin: 0;padding: 1rem;border-bottom: 1px solid #cdcdcd;}
+#profileModal .user_card h3:hover {background-color: #fafafa;}
+body.dark #profileModal .user_card h3 {border-bottom: 1px solid gray;}
+body.dark #profileModal .user_card h3:hover {background-color: #1f1f1f;}
+#profileModal .user_card h3 i {font-size: 22px;}
+
+/* 채팅방 css */
+.chatRoom_container {width: 100%;display: flex;flex-direction: column;justify-content: center; align-items: center;padding-bottom: 2rem;}
+.chatRoom_container .chat_start {width: 100%; text-align: center;}
+.chatRoom_container .chat_start span{padding: 8px 20px;border-radius: 30px;box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);background-color: #fff3e0;color: #ff9800;font-weight: bold;}
+body.dark .chatRoom_container .chat_start span{background-color: #686868;color: #cdcdcd;}
+.chatRoom_container .info_box{display: flex;flex-direction: column;justify-content: center;align-items: right;}
+
+.chatRoom_container .idRead{font-size: 14px;text-align: right;}
+.chatRoom_container .date_label{margin: 3rem auto;color: gray;}
+body.dark .chatRoom_container .date_label{color: #a5a5a5;}
+
+.chatRoom_container .messageArea {width: 100%; max-width: 768px;display: flex;flex-direction: column;}
+.chatRoom_container .messageArea .msg_box {display: flex; align-items: self-end;width: auto;white-space: nowrap;margin-bottom: 16px;}
+.chatRoom_container .messageArea .msg_box.me {margin-left: auto;}
+.chatRoom_container .messageArea .msg_box.you {margin-right: auto;}
+.chatRoom_container .messageArea .msg_box .created_at{font-size: 15px;margin-bottom: 4px;}
+.chatRoom_container .messageArea .msg_box.you .created_at{font-size: 15px;margin-bottom: 18px;}
+body.dark .chatRoom_container .messageArea .msg_box .created_at{color:#9d9a88;}
+.chatRoom_container .inputArea {width: 100%; max-width: 768px; display: flex;justify-content: space-around;align-items: center;position: fixed; bottom: 90px;}
+.chatRoom_container .inputArea input {width: calc(100% - 80px);}
+.chatRoom_container .inputArea button {margin-bottom: 3px;}
+
+.chatRoom_container .msg {
+  width: auto;
+  max-width: 280px; 
+  display: inline-block; 
+  padding: 8px 20px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+  border-radius: 30px;
+  margin: 0.5rem;
+  white-space: normal;
+  text-align: start;
+}
+.chatRoom_container .msg.me {background-color: #ccf7ff;color: #0c7a91}
+body.dark .chatRoom_container .msg.me {background-color: #784a67;color: #ffe581;}
+.chatRoom_container .msg.you {background-color: #f0f0f0; color: #161616;}
+
+
+@media (max-width: 768px) {
+  .body.dark .room_list {position: relative;}
+  .room_list {padding: 8px;}
+  .room_body .room_name {margin-right: 6px;}
+  .room_body .room_name>span {display: none;}
+  .room_body .room_name *{font-size: 20px;}
+  .room_body .room_name .chat_room{margin: 0;}
+  .room_body .last_msg {font-size: 16px;height: 51px;}
+  /* .room_body .last_time{position: absolute;bottom: 4px;right: 1rem;} */
+  .chat_cont .titleBar_container .chat_profile_badge i.chat_profile_badge i {font-size: 16px;margin-right: 3px;white-space: nowrap;}
+  .titleBar_container h1 {font-size: 22px;padding-top: 8px;}
+  .titleBar_container i {font-size: 22px;}
+}

@@ -1,10 +1,52 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useDarkMode } from '../contexts/DarkModeContext';
+import { useUser } from '../contexts/UserContext';
+import apiClient from '../config/apiClient';
 import axios from 'axios';
+import RequestList from '../pages/RequestList';
 
-const TopBar = ({ isDarkMode, setIsDarkMode }) => {
+const Home = () => {
+  const { isDarkMode, setIsDarkMode } = useDarkMode();
+  const baseUrl = import.meta.env.VITE_API_URL; // 백엔드 API URL
+  console.log('baseUrl:', baseUrl);
+  const user = useUser();
+  
+  return (
+    <>
+      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} user={user} />
+      <div className="home">
+        {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
+        {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
+        <RequestList />
+
+        {user && user.role !== 1 && // 일반 사용자일 때만 요청 작성 버튼 표시
+        <div className="reg_button_box">
+          <a className="register_btn" href={`${baseUrl}/smash/request/register`}>
+            <i className="fa-solid fa-plus"></i>
+          </a>
+        </div>
+        }
+      </div>
+    </>
+  );
+}
+
+export default Home;
+
+// TopBar Component (1회만 사용하므로, 별도 파일로 분리하지 않음)
+const TopBar = ({ isDarkMode, setIsDarkMode, user }) => {
   const [btnText, setBtnText] = useState('☀️');
   const [isChecked, setIsChecked] = useState(isDarkMode); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const baseUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    // 로그인 상태 확인
+    if(user) {
+      setIsLoggedIn(true);
+    }else setIsLoggedIn(false);
+  }, [user]);
 
   // toggle 유지
   useEffect(() => {
@@ -20,28 +62,49 @@ const TopBar = ({ isDarkMode, setIsDarkMode }) => {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     if(!isDarkMode) {
-      document.body.classList.add('dark');
       localStorage.setItem('darkMode', JSON.stringify(true));
       setBtnText('🌙');
-
-      // spring boot로 전달 (axios 사용) + withCredentials 설정으로 세션 유지
-      axios.post(`${import.meta.env.VITE_API_URL}/smash/theme`, { theme: 'dark' }, { withCredentials: true })
+      // spring boot로 전달 (apiClient 사용) + withCredentials 설정으로 세션 유지 + "X-Frontend-Auth-Check": "true" : 세션무효화 전역 무시 구분
+      apiClient.post('/theme', { theme: 'dark' }, { headers: {"X-Frontend-Auth-Check": "true"}, withCredentials: true })
         .catch(error => {
           console.error('There was an error updating the theme:', error);
         });
 
     }else {
-      document.body.classList.remove('dark');
       localStorage.setItem('darkMode', JSON.stringify(false));
       setBtnText('☀️');
-
       // 위와 동일하게 spring boot로 전달
-      axios.post(`${import.meta.env.VITE_API_URL}/smash/theme`, { theme: 'light' }, { withCredentials: true })
+      apiClient.post('/theme', { theme: 'light' }, { headers: {"X-Frontend-Auth-Check": "true"}, withCredentials: true })
         .catch(error => {
           console.error('There was an error updating the theme:', error);
         });
     }
   };
+
+  const logoutHandler = async () => {
+    try {
+      await axios.post(`${baseUrl}/logout`, {}, { headers: {"X-Frontend-Auth-Check": "true"}, withCredentials: true });
+      setIsLoggedIn(false);
+      alert('로그아웃 되었습니다.');
+      // 로그아웃 후 홈으로 새로고침
+      window.location.href = '/';
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  }
+
+  const secessionHandler = async () => {
+    if(!window.confirm('정말로 탈퇴하시겠습니까?')) return;
+    try {
+      await apiClient.delete('/member/delete', { withCredentials: true });
+      setIsLoggedIn(false);
+      alert('탈퇴가 완료되었습니다.');
+      // 탈퇴 후 홈으로 새로고침
+      window.location.href = '/';
+    } catch (error) {
+      console.error('탈퇴 실패:', error);
+    }
+  }
 
   return (
     <div className="top-bar">
@@ -50,23 +113,16 @@ const TopBar = ({ isDarkMode, setIsDarkMode }) => {
         <input type="checkbox" className="toggle-input" id="toggle" onChange={toggleTheme} checked={isChecked} />
         <label className="toggle-label" htmlFor="toggle"></label>
       </div>
-      <Link to="/profile"><button className="login-btn">로그인</button></Link>
+      {isLoggedIn ?
+      (
+        <>
+          <button className="login-btn" onClick={logoutHandler}>로그아웃</button>
+          {/* <button className="secession-btn" onClick={secessionHandler}>탈퇴하기</button> */}
+        </>
+      )
+      :
+      (<Link to="/profile"><button className="login-btn">로그인</button></Link>)}
+      
     </div>
   );
 }
-
-const Home = ({ isDarkMode, setIsDarkMode }) => {
-  return (
-    <>
-      <TopBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-      <div className="home">
-        {!isDarkMode && <img src="/images/logo3.png" alt="Smash Logo" />}
-        {isDarkMode && <img src="/images/logo4.png" alt="Smash Logo" />}
-        <h1>Welcome to the Home Page</h1>
-        <p>This is the main page of our application.</p>
-      </div>
-    </>
-  );
-}
-
-export default Home;

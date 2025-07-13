@@ -4,7 +4,7 @@
   text-align: center;
 }
 
-.container {
+.main_container {
   width: 100%;
   max-width: 1200px;
   min-width: 320px;
@@ -44,9 +44,12 @@
 .toggle-input:checked + .toggle-label::before {background-color: #FFFA8D;background-color: black;}
 /* 토글 ON인 경우에 버튼 위치 지정 */
 .toggle-input:checked + .toggle-label::before {transform: translateX(16px);}
-.toggle-text{position:absolute;left:-1.6rem;top: -2px;z-index: 1;}
+.toggle-text{position:absolute;left:-1.6rem;top: 1px;z-index: 1;}
 
 /* Navigation */
+body.dark nav {background-color: #171717;}
+body.dark nav ul.nav-list li a, body.dark nav ul.nav-list li i{color: #808080;}
+body.dark nav ul.nav-list li.active a, body.dark nav ul.nav-list li.active i{color: #ececec;}
 nav {
   position: fixed;
   bottom: 0;
@@ -63,11 +66,57 @@ nav ul.nav-list {
   display: flex;
   justify-content: space-around;
 }
+nav ul.nav-list li {position: relative;}
 nav ul.nav-list li a {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 44px;
 }
 nav ul.nav-list li a i {font-size: 24px; margin-bottom: 4px;}
 nav ul.nav-list li a, nav ul.nav-list li i {color: gray;}
 nav ul.nav-list li.active a, nav ul.nav-list li.active i {color: black;}
+nav ul.nav-list li a span, .unread_alarm {
+  background: rgb(255, 99, 71);
+  color: rgb(255, 255, 255);
+  font-weight: bold;
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  border-radius: 30px;
+  font-size: 12px;
+  margin-left: 6px;
+  padding: 3px 6px;
+}
+
+/* TitleBar */
+.titleBar_container {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 99;
+}
+.titleBar_container span.title_badge {background-color: #e0f9ff; color: #25b2d1;padding: 0.3rem 0.5rem;border-radius: 30px;margin-left: 0.5rem;}
+.titleBar_container span.title_badge.partner_badge{background-color: #ffecce; color: #fd8300;}
+/* body.dark .titleBar_container span.title_badge {background-color: #FFFA8D; color: #e98f00;padding: 0.3rem 0.5rem;border-radius: 30px;margin-left: 0.5rem;} */
+body.dark .titleBar_container {background: #1d1d1d;}
+
+
+/* 글작성 버튼 */
+.home .reg_button_box {width:100%; background-color: pink; position: fixed; margin: auto; max-width: 1200px;bottom: 3rem;}
+.home .register_btn{position: absolute; right: calc(24% - 16vw); bottom: 4rem; z-index: 1;height: auto; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4); border-radius: 30px;}
+.home .register_btn i {font-size: 26px;}
+
+@media (max-width: 768px) {
+  .titleBar_container i.fa-chevron-left {font-size: 22px !important;}
+  .titleBar_container h1 {font-size: 22px !important;
+}}
+@media (max-width: 500px) {
+  .main_container {padding:none;}
+}

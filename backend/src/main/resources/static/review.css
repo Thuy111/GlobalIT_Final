@@ -1,0 +1,278 @@
+/* ================================
+   공통: 리뷰 등록/수정 폼 및 리뷰 페이지
+   (review_container 기준)
+==================================*/
+
+/* 컨테이너 기본 스타일 */
+.review_container {
+  max-width: 480px;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.review_container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* 폼 내부 전체 스타일 */
+.review_container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 별점 라디오 그룹 */
+.review_container .star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-direction: row-reverse;
+}
+
+.review_container .star-rating input[type="radio"] {
+  display: none;
+}
+
+.review_container .star-rating label {
+  font-size: 2rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+body.dark .review_container .star-rating label {color: #606060;}
+
+.review_container .star-rating input[type="radio"]:checked ~ label,
+.review_container .star-rating label:hover,
+.review_container .star-rating label:hover ~ label {
+  color: #4ED7F1; 
+}
+body.dark .review_container .star-rating input[type="radio"]:checked ~ label,
+body.dark .review_container .star-rating label:hover,
+body.dark .review_container .star-rating label:hover ~ label {
+  /* color: #ffc107; */
+  color: #FFFA8D;
+}
+
+/* 텍스트 입력, textarea */
+.review_container input[type="number"],
+.review_container textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+/* .review_container input[type="number"]:focus,
+.review_container textarea:focus {
+  border-color: #3ea5b8;
+  outline: none;
+  box-shadow: 0 0 6px #3ea5b8aa;
+} */
+
+/* 이미지 업로드 박스 */
+.review_container .image_preview_wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 1rem auto;
+}
+
+.review_container .camera_wrapper_box {width: 100%; justify-content: center;align-items: center;}
+.review_container .camera_wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.review_container .camera_wrapper label {margin: 0;}
+.review_container .camera_wrapper button {margin: 0;}
+
+.review_container .image_upload_box {
+  cursor: pointer;
+  /* color: #3ea5b8; */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.review_container .image_thumb {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 6px #8888;
+}
+
+.review_container .image_thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review_container .remove_btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* 초기화 버튼 */
+.review_container #image_reset_btn {
+  color: #333 !important;
+  background-color: #f0f0f0 !important;
+  border: 1px solid #ccc !important;
+  padding: 6px 14px !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+.review_container #image_reset_btn:hover{background-color: #d9d9d9 !important;border: 1px solid #bdbdbd !important;}
+body.dark .review_container #image_reset_btn{background-color: #3a3a3a !important;color: #c3c3c3 !important; border: 1px solid #191919 !important;}
+body.dark .review_container #image_reset_btn:hover{background-color: rgb(49, 49, 49) !important;}
+
+
+/* 제출 버튼 */
+.review_container button[type="submit"] {
+  border: none;
+  font-size: 1.1rem;
+  border-radius: 30px !important;
+  cursor: pointer;
+  font-weight: 700;
+  width: 240px;
+  margin:0 auto;
+  transition: background-color 0.3s;
+}
+
+/* .review_container button[type="submit"]:hover {
+  background-color: #357a8a;
+} */
+
+/* ================================
+   리뷰 목록 페이지 스타일 (list.html 전용)
+==================================*/
+
+/* 리뷰 목록 컨테이너 */
+.review_container .review_box {
+  margin-bottom: 2em;
+}
+
+.review_container .review_box .review_card {
+  border-radius: 1.5em;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  margin: 1em;
+  padding: 1em;
+  text-align: left;
+  position: relative; /* 수정/삭제 버튼 위치 위해 필요 */
+}
+
+/* 리뷰 헤더 */
+.review_container .review_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.review_container .review_header .review_meta {
+  display: flex;
+  align-items: end;
+}
+
+.review_container .review_header .review_title {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.review_container .review_header span {
+  border: 2px solid;
+  border-radius: 2em;
+  font-size: 0.8em;
+  font-weight: bolder;
+  text-align: center;
+  display: inline-block;
+  width: 6em;
+  margin-right: 0.6em;
+  padding: 0.3em;
+}
+
+.review_container .review_header span.standby {
+  color: darkgrey;
+  border-color: darkgrey;
+}
+
+.review_container .review_header span.unselected {
+  color: red;
+  border-color: red;
+}
+
+.review_container .review_header span.selected {
+  color: green;
+  border-color: green;
+}
+
+/* 별점 및 액션 */
+.review_container .stars_box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.review_container .stars_box h3 {font-weight: bold;margin: 0;color: #393939;font-size: 18px;}
+body.dark .review_container .stars_box h3 {color: #c8c8c8;}
+.review_container .review_header .review_actions {
+  display: flex;
+}
+
+.review_container .review_header .review_actions form {
+  margin-right: 0.5em;
+}
+
+/* 작성일 */
+.review_container .review_card .review_date {
+  font-size: 0.8em;
+  text-align: right;
+  color: dimgrey;
+}
+
+/* 카드 내 수정/삭제 버튼 */
+.review_container .review_actions_top {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+/* 통합 버튼 위치 (등록, 수정 등) */
+.review_container .review_box form {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 2.5em;
+}
+
+/* 폼 기본 텍스트 정렬 */
+.review_container form {
+  text-align: left;
+}

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/icon/favicon.ico" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SMaSh | Sports rentalMatching Service</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="/basic.css" />
+    <link rel="stylesheet" href="/estimate.css" />
+    <link rel="stylesheet" href="/request.css" />
+    <link rel="stylesheet" href="/chat.css" />
+    <link rel="stylesheet" href="/reviewlist.css" />
+    <!-- fontawsome -->
+    <script src="https://kit.fontawesome.com/e7c9242ec2.js" crossorigin="anonymous"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>    
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Websoket(SockJS, STOMP.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+    <style>
+      .up_scroll {bottom: 4rem;position: absolute;}
+    </style>
+  </head>
+
+  <body th:classappend="${theme} == 'dark' ? 'dark' : ''">
+    <div class="root">
+      <div class="main_container chat_cont">
+        <!-- 타이틀 바 -->
+        <div class="titleBar_container">
+          <i class="fa-solid fa-chevron-left" onclick="window.history.back()"></i>
+          <h1 th:text="${title}">페이지 제목</h1>
+          <!-- 내가 일반유저일 때 -->
+          <span
+            class="chat_profile_badge store_info_button"
+            th:attr="data-role=${currentUser.role},data-email=${partnerUser}"
+            onclick="openProfileModal(this)"
+            th:if="${room != null and 
+              sender != null and 
+              memberUser != null and
+              currentUser.role == 0 and
+              sender == memberUser}">
+            <i class="fa-solid fa-circle-info"></i> 업체 정보
+          </span>
+          <!-- 내가 업체일 때 -->
+          <span
+            class="chat_profile_badge user_info_button"
+            th:attr="data-role=${currentUser.role},data-email=${memberUser}"
+            onclick="openProfileModal(this)"
+            th:if="${room != null and 
+              sender != null and 
+              partnerUser != null and
+              currentUser.role == 1 and
+              sender == partnerUser}">
+            <i class="fa-solid fa-circle-info"></i> 유저 정보
+          </span>
+        </div>
+
+        <div id="profileModal" class="modal-backdrop" style="display:none;">
+          <div class="modal-card">
+            <div id="profileModalContent">
+              <div class="modal-loading">정보를 불러오는 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 컨텐츠 영역 -->
+        <div class="chatRoom_container">
+          <div class="chat_start"><span>대화가 시작 되었습니다.</span></div>
+          <div class="messageArea"></div>
+
+          <div th:if="${title != '탈퇴한 사용자'}" class="inputArea">
+            <input type="text" placeholder="보낼 메세지를 입력하세요." class="content">
+            <button type="button" value="전송" class="sendBtn" onclick="sendmessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            <!-- <button type="button" value="방나가기" class="quit" onclick="quit()">방 나가기 </button> -->
+          </div>
+        </div>
+      </div>
+      <nav class="navigation">
+        <ul class="nav-list">
+          <li th:if="${currentUser}" class="alarm">
+            <a th:href="${@environment.getProperty('front.server.url') + '/alarm'}">
+              <i class="fa-solid fa-bell"></i>알림
+              <span th:if="${currentUser != null and currentUser.unreadAlarm > 0}" class="unread_alarm" >[[${currentUser.unreadAlarm}]]</span>
+            </a>
+          </li>
+          <li class="contact">
+            <a th:href="${@environment.getProperty('front.server.url') + '/contact'}">
+              <i class="fa-regular fa-circle-question"></i>문의
+            </a>
+          </li>
+          <li class="home active">
+            <a th:href="${@environment.getProperty('front.server.url') + '/'}">
+              <i class="fa-solid fa-house"></i>홈
+            </a>
+          </li>
+          <li th:if="${currentUser}" class="chat">
+            <div class="new_msg_point" th:if="${currentUser != null and hasUnread}"></div>
+            <a th:href="@{'/smash/chat/roomList?user=' + ${currentUser.emailId}}">
+              <i class="fa-solid fa-comment"></i>채팅
+            </a>
+          </li>
+          <li class="profile">
+            <a th:href="${@environment.getProperty('front.server.url') + '/profile'}">
+              <i class="fa-solid fa-user"></i>프로필
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="scroll_box">
+      <div class="up_scroll"><i class="fa-solid fa-angle-down"></i></div>
+    </div>
+    <div class='loading'><i class="fa-solid fa-circle-notch"></i></div>
+  
+
+  <script th:inline="javascript">
+    // 기본 =========================================
+    document.addEventListener('DOMContentLoaded', function() {
+      // 프로필 모달 열기
+      document.getElementById('profileModal').onclick = function(e) {
+        if (e.target === this) this.style.display = "none";
+      };
+
+      // 로딩 애니메이션
+      const loadingElement = document.querySelector('.loading');
+      document.body.style.overflow = 'hidden'; // 페이지 로딩 중 스크롤 방지
+      setTimeout(function() {
+        window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+        document.body.style.overflow = ''; // 로딩 후 스크롤 허용
+        loadingElement.style.display = 'none'; // 1초 후에 로딩 애니메이션 숨김
+      }, 1000); // 1초 후에 로딩 애니메이션 숨김
+
+      // 스크롤 시 하단으로 이동하는 버튼
+      const scrollBox = document.querySelector('.scroll_box');
+      const upScrollButton = document.querySelector('.up_scroll');
+      upScrollButton.addEventListener('click', function() {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      });
+
+      window.addEventListener('scroll', function() {
+        // (window.scrollY + window.innerHeight) : 현재 화면의 하단 위치
+        // document.body.scrollHeight : 전체 문서 높이
+        if (window.scrollY + window.innerHeight < document.body.scrollHeight - 100) {
+          // 아직 맨 아래가 아니면 버튼 보이기
+          scrollBox.style.display = 'flex';
+        } else {
+          // 거의 맨 아래에 있으면 버튼 숨기기
+          scrollBox.style.display = 'none';
+        }
+      });
+    });
+    $(document).ready(function(){
+      // 현재 페이지의 URL
+      var currentUrl = window.location.href;
+      //console.log("Current URL: " + currentUrl);
+      
+      // navigation 메뉴 활성화
+      if (currentUrl.includes('/request') || currentUrl.includes('/estimate')) {
+        $('.navigation .nav-list li').removeClass('active');
+        $('.nav-list .home').addClass('active');
+      } else if (currentUrl.includes('/profile')) {
+        $('.navigation .nav-list li').removeClass('active');
+        $('.nav-list .profile').addClass('active');
+      } else if(currentUrl.includes('/chat')) {
+        $('.navigation .nav-list li').removeClass('active');
+        $('.nav-list .chat').addClass('active');
+      } else if(currentUrl.includes('/contact')){
+        $('.navigation .nav-list li').removeClass('active');
+        $('.nav-list .contact').addClass('active');
+      }else {
+        $('.navigation .nav-list li').removeClass('active');
+        $('.nav-list .alarm').addClass('active');
+      }
+
+      // controller에서 설정한 테마를 가져와서 적용
+      // /**/ 를 사용하면 값이 있을때는 해당 값이 사용되고, 없을 때는 기본값이 사용됨
+      let theme = /*[[${theme}]]*/ 'light';  // "dark" or "light"
+      // console.log("Server-side theme:", theme);
+
+      // 로컬 스토리지에 저장된 다크 모드 설정을 확인하고, 서버에서 설정된 테마가 없을 경우 로컬 스토리지 값을 사용
+      const hasServerTheme = /*[[${theme != null}]]*/ false;
+      if (!hasServerTheme) {
+        const darkMode = JSON.parse(localStorage.getItem('darkMode'));
+        axios.post('/smash/theme', { theme: darkMode ? 'dark' : 'light' });
+      }
+
+      if (theme == 'dark'|| localStorage.getItem('darkMode') == true) {
+        localStorage.setItem('darkMode', JSON.stringify(true));
+        document.body.classList.add('dark');
+      } else {
+        localStorage.setItem('darkMode', JSON.stringify(false));
+        document.body.classList.remove('dark');
+      }
+    });
+      
+ 
+    // 전역으로 선언
+    let stompClient = null;
+    let lastReadMessageId = null;
+    let messageArea = document.querySelector('.messageArea');
+    const memberUser = /*[[${memberUser}]]*/ ""; // 일반유저 사용자
+    const partnerUser = /*[[${partnerUser}]]*/ ""; // 상대 사용자
+    let sender = /*[[${sender}]]*/ ""; // 현재 사용자 
+    let roomId = /*[[${room != null ? room.roomId : ''}]]*/ ""; // null일 수 있음
+  
+    //메세지 보내기 버튼
+    function sendmessage() {
+        let content = document.querySelector('.content').value;
+        if (!content || !content.trim()) return;
+  
+        if (!roomId) {
+        // roomId 없으면: 최초 메시지 (방 만들기 + 메시지 저장)
+        axios.post('/smash/chat/firstMessage', {
+            memberUser,
+            partnerUser,
+            sender,
+            message: content,
+            messageType: 'TALK'
+        }).then(res => {
+          // 소켓 메시지 전송(저장)
+          // const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
+          // stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+          // connectWebSocketAndSendMessage(content); // 소켓 연결 및 메시지 전송
+  
+          roomId = res.data.roomId;
+          window.location.href = `/smash/chat/chatRoom?roomId=${roomId}`;
+        }).catch(err => {
+            console.error('메시지 전송 실패:', err);
+            alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
+        });
+      } else {
+        // 소켓 메시지 전송
+        // const talkmessage = {"roomId": roomId, "sender": sender, "message": content, "messageType": "TALK", "senderNickname": /*[[${memberUser}]]*/ ""};
+        // stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+        sendSocketMessage(content);
+        document.querySelector('.content').value = '';
+      }
+  
+      // 새로 추가: 최초 생성 시 WebSocket 연결 후 메시지 전송
+      function connectWebSocketAndSendMessage(content) {
+        let socket = new SockJS("http://localhost:8080/ws/chat");
+        stompClient = Stomp.over(socket);
+  
+        stompClient.connect({}, function(frame) {
+          // 연결되면 바로 메시지 전송
+          const talkmessage = {
+            "roomId": roomId,
+            "sender": sender,
+            "message": content,
+            "messageType": "TALK",
+            "senderNickname": sender
+          };
+          stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+          // 필요시 입력창 비우기
+          document.querySelector('.content').value = '';
+          // 채팅방 리다이렉트 등 추가 작업
+          // window.location.href = `/smash/chat/chatRoom?roomId=${roomId}`;
+        });
+      }
+  
+      function sendSocketMessage(content) {
+        if (!stompClient) {
+          console.warn('채팅 서버와 연결이 되지 않았습니다. 잠시 후 새로고침 후 사용해주세요.');
+          return;
+        }
+        const talkmessage = {
+          "roomId": roomId,
+          "sender": sender,
+          "message": content,
+          "messageType": "TALK",
+          "senderNickname": sender
+        };
+        stompClient.send(`/app/chat/${roomId}/sendMessage`, {}, JSON.stringify(talkmessage));
+      }
+  
+      // 스크롤을 맨 아래로 내리기
+      window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+    }
+    
+    // 방 나가기 버튼 (필요X)
+    function quit(){
+        const quitmessage = {"roomId": roomId, "sender": sender, "message": "", "messageType": "QUIT", "senderNickname": /*[[${memberUser}]]*/ ""};
+        stompClient.send("/app/chat.quit", {}, JSON.stringify(quitmessage));
+        stompClient.disconnect();
+    }
+
+    // 읽음 점 체크
+    const checkUnreadDot = async () => {
+      try {
+        const res = await axios.get('/smash/chat/has-unread');
+        const data = res.data;
+        const dot = document.querySelector('nav .new_msg_point');
+        if(dot) dot.style.display = data.hasUnread ? 'block' : 'none';
+      } catch (e) {
+        console.error(e);
+      }
+    };
+  
+    // 채팅 =========================================
+    document.addEventListener('DOMContentLoaded', function() {
+      // 입장하면 가장 아래로 스크롤
+      window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+      
+      // 엔터키로 메세지 전송
+      document.querySelector('.content').addEventListener('keyup', function(e){
+        e.preventDefault(); // 기본 동작(폼 submit 등) 방지, 버블링 방지 
+        if(e.key === 'Enter') sendmessage();
+      });
+  
+      if( !memberUser || !partnerUser) {
+        alert('채팅방에 참여할 수 없습니다. 다시 시도해주세요.');
+        window.location.href = '/smash'; // 홈으로 이동
+      }
+  
+      // (메세지) 단순 렌더링. 이전 메시지 불러오기용
+      function renderMessages(messages) {
+      let lastDateStr = '';
+      messages.forEach((msg, idx) => {
+        // console.log(msg);
+  
+        const dateObj = new Date(msg.time);
+        const dateStr = dateObj.getFullYear() + '/' +
+                        String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+                        String(dateObj.getDate()).padStart(2, '0');
+        if (lastDateStr !== dateStr) {
+          let dateLabel = document.createElement('div');
+          dateLabel.className = 'date_label';
+          dateLabel.innerText = dateStr;
+          messageArea.append(dateLabel);
+          lastDateStr = dateStr;
+        }
+  
+        let hours = dateObj.getHours();
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const ampm = hours < 12 ? '오전' : '오후';
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+        const timeStr = `${ampm} ${hours}:${minutes}`;
+  
+        let msgBox = document.createElement('div');
+        msgBox.className = 'msg_box ' + (msg.sender === sender ? 'me' : 'you');
+        msgBox.id = 'msg_' + msg.id; // 메시지 ID로 고유하게 식별 (읽음 처리를 위함)
+  
+        let infoBox1 = document.createElement('div');
+        infoBox1.className = 'info_box';
+  
+        // console.log("메시지: " + msg);
+        // console.dir(msg);
+        if (msg.sender === sender) {
+          let idRead = document.createElement('div');
+          idRead.className = 'idRead';
+          idRead.innerText = msg.read ? '읽음' : '전송됨';
+          infoBox1.appendChild(idRead);
+  
+          let createdAt = document.createElement('div');
+          createdAt.className = 'created_at';
+          createdAt.innerText = timeStr;
+          infoBox1.appendChild(createdAt);
+        }
+  
+          let msgDiv = document.createElement('div');
+          msgDiv.className = 'msg ' + (msg.sender === sender ? 'me' : 'you');
+          msgDiv.innerText = msg.message;
+  
+          let infoBox2 = document.createElement('div');
+          infoBox2.className = 'info_box';
+          if (msg.sender !== sender) {
+            let createdAt = document.createElement('div');
+            createdAt.className = 'created_at';
+            createdAt.innerText = timeStr;
+            infoBox2.appendChild(createdAt);
+          }
+  
+          msgBox.appendChild(infoBox1);
+          msgBox.appendChild(msgDiv);
+          msgBox.appendChild(infoBox2);
+  
+          messageArea.append(msgBox);
+          window.scrollTo(0, document.body.scrollHeight + 64);
+        });
+      }
+  
+      // (메세지) 단일 메시지 추가. 실시간 수신용
+      function appendMessage(msg) {
+        let lastDateStr = ''; // 같은 날에 여러 번 오면 날짜 라벨은 생략하도록 로직 보완 가능
+  
+        const dateObj = new Date(msg.time);
+        const dateStr = dateObj.getFullYear() + '/' +
+                        String(dateObj.getMonth() + 1).padStart(2, '0') + '/' +
+                        String(dateObj.getDate()).padStart(2, '0');
+  
+        let hours = dateObj.getHours();
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const ampm = hours < 12 ? '오전' : '오후';
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+        const timeStr = `${ampm} ${hours}:${minutes}`;
+        const isMe = msg.sender === sender;
+  
+        let msgBox = document.createElement('div');
+        msgBox.className = 'msg_box ' + (isMe ? 'me' : 'you');
+        msgBox.id = 'msg_' + msg.id; // id 부여
+  
+        let infoBox1 = document.createElement('div');
+        infoBox1.className = 'info_box';
+  
+        if (isMe) {
+          let idRead = document.createElement('div');
+          idRead.className = 'idRead';
+          idRead.innerText = msg.read ? '읽음' : '전송됨'; // 처음은 '전송됨'
+          infoBox1.appendChild(idRead);
+  
+          let createdAt = document.createElement('div');
+          createdAt.className = 'created_at';
+          createdAt.innerText = timeStr;
+          infoBox1.appendChild(createdAt);
+        }
+  
+        let msgDiv = document.createElement('div');
+        msgDiv.className = 'msg ' + (isMe ? 'me' : 'you');
+        msgDiv.innerText = msg.message;
+  
+        let infoBox2 = document.createElement('div');
+        infoBox2.className = 'info_box';
+        if (!isMe) {
+          let createdAt = document.createElement('div');
+          createdAt.className = 'created_at';
+          createdAt.innerText = timeStr;
+          infoBox2.appendChild(createdAt);
+        }
+  
+        msgBox.appendChild(infoBox1);
+        msgBox.appendChild(msgDiv);
+        msgBox.appendChild(infoBox2);
+  
+        messageArea.append(msgBox);
+        window.scrollTo(0, document.body.scrollHeight + 64);
+      }
+  
+      // 읽음 처리 메시지 STOMP로 전송
+      function sendReadEvent() {
+        const payload = {
+          roomId: roomId,
+          sender: sender
+          // 메시지ID목록은 서버에서 markAsRead가 반환
+        };
+        stompClient.send(`/app/chat/${roomId}/read`, {}, JSON.stringify(payload));
+      }
+      
+      if(roomId !== null && roomId !== '') {
+          // 페이지가 로드되면 메시지를 불러오면서 스크롤을 맨 아래로 내림.
+          window.scrollTo(0, document.body.scrollHeight + 64); // 4rem
+          
+          // 1. 메시지 불러오기 (axios)
+          axios.get(`/smash/chat/rooms/${roomId}/messages`)
+          .then(res => {
+            messageArea.innerHTML = '';
+            const messages = res.data;
+            renderMessages(messages); // 메시지 전체 렌더링
+            let messageInput = document.querySelector('.inputArea input'); // 메시지 영역 선택
+            messageInput.value = ''; // 입력창 비우기
+          })
+          .then(() => {
+            // 2. WebSocket 연결 및 이벤트 등록
+            connectWebSocket();
+          });
+        
+  
+        function connectWebSocket() {
+          let socket = new SockJS("http://localhost:8080/ws/chat");
+          stompClient = Stomp.over(socket);
+  
+          stompClient.connect({}, function(frame) {
+          console.log('Connected: ' + frame);
+  
+          // 구독: 서버에서 메시지가 오면 이 콜백 실행
+          stompClient.subscribe("/topic/chat/" + roomId, function(message) {
+            const payload = JSON.parse(message.body);
+  
+            // 읽음 처리 분기
+            if (payload.messageType === "READ" && Array.isArray(payload.messageIds)) {
+              payload.messageIds.forEach(id => {
+                let msgBox = document.getElementById('msg_' + id);
+                if (msgBox) {
+                  let idReadDiv = msgBox.querySelector('.idRead');
+                  if (idReadDiv) idReadDiv.innerText = '읽음';
+                }
+              });
+              // 최신 읽음 id 기록 (여러개라면 가장 큰 id로)
+              if (payload.messageIds.length > 0) {
+                lastReadMessageId = Math.max(...payload.messageIds);
+              }
+
+              checkUnreadDot(); // 읽음 점 체크
+              return;
+            }
+  
+            // 메세지 추가
+            appendMessage(payload);
+  
+            // 자동 읽음 처리 (상대가 보낸 메시지면 즉시 읽음 이벤트 전송)
+            if (payload.sender !== sender && payload.messageType === "TALK") {
+              // 중복 호출 방지: 이미 읽은 메시지는 넘어감
+              if (payload.id && payload.id !== lastReadMessageId) {
+                sendReadEvent();
+                lastReadMessageId = payload.id;
+              }
+            }
+          });
+  
+          sendReadEvent(); // 읽음 처리 이벤트 전송  
+        });
+        }
+      }
+    });
+  
+    // 모달 관련 스크립트 =========================================
+    // Thymeleaf 변수 JS로 할당
+    const frontServerUrl = /*[[${@environment.getProperty('front.server.url')}]]*/ 'http://localhost:5173';
+    const partnerStoreName = /*[[${room != null ? room.partnerStoreName : ''}]]*/ '업체명';
+    const memberNickname = /*[[${room != null ? room.memberNickname : ''}]]*/ '유저 닉네임';
+
+    // 모달 닫기 이벤트
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = "none";
+    }
+  
+    // 모달 열기
+    async function openProfileModal(el) {
+      const $modal = document.getElementById('profileModal');
+      const $content = document.getElementById('profileModalContent');
+      const role = Number(el.getAttribute('data-role'));
+      const email = el.getAttribute('data-email');
+
+      console.log('openProfileModal role:', role, typeof role, 'email:', email);
+  
+      $modal.style.display = "flex";
+      $content.innerHTML = "<div class='modal-loading'>정보를 불러오는 중...</div>";
+  
+      if(role === 0) { // 내가 일반유저 → 업체 정보
+        try {
+          const res = await axios.post('/smash/partner/code', {}, { params: { email: email } });
+          const partnerCode = res.data;
+          $content.innerHTML = `
+            <div class="user_card">
+              <button class="modal-close" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+              <h2><i class="fa-solid fa-store"></i>${partnerStoreName}</h2>
+              <div><strong>이메일</strong> ${email}</div>
+              <a href="${frontServerUrl}/store/${partnerCode}" class="contact_badge btn">자세히</a>
+            </div>
+          `;
+        } catch (err) {
+          $content.innerHTML = `<div class="user_card"><div>업체 코드 조회 실패</div></div>`;
+        }
+      } else if(role === 1) { // 내가 업체 → 유저 정보
+        $content.innerHTML = `
+          <div class="user_card">
+            <button class="modal-close" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2><i class="fa-solid fa-user"></i>${memberNickname}</h2>
+            <div><strong>이메일</strong> ${email}</div>
+            <h3 style="cursor:pointer;border-top: 1px solid #cdcdcd;margin-top: 1rem;" onclick="showUserRequest('${email}')">작성한 의뢰서<i class="fa-solid fa-angle-right"></i></h3>
+            <h3 style="cursor:pointer;" onclick="showUserReview('${email}')">작성한 리뷰<i class="fa-solid fa-angle-right"></i></h3>
+          </div>
+        `;
+      }
+    }
+  
+    // 유저 의뢰서/리뷰 함수
+    async function showUserRequest(email) {
+      let requestCount = 0;
+      await axios.get('/smash/request/userlist/count', { params: { memberId: email } })
+      .then(res => {
+        requestCount = res.data;
+        alert('유저가 작성한 의뢰서 갯수: ' + requestCount);
+        if (requestCount === 0) {
+          alert('유저가 작성한 의뢰서가 없습니다.');
+          return;
+        }
+        window.location.href = `/smash/request/list?memberId=${email}`;
+      })
+      .catch(err => {
+        console.error('의뢰서 갯수 조회 실패:', err);
+      });
+    }
+    async function showUserReview(email) {
+      let reviewCount = 0;
+      await axios.get('/smash/review/userlist/count', { params: { memberId: email } })
+      .then(res => {
+        reviewCount = res.data
+        alert('유저가 작성한 리뷰 갯수: ' + reviewCount);
+        if (reviewCount === 0) {
+          alert('유저가 작성한 리뷰가 없습니다.');
+          return;
+        }
+        window.location.href = `/smash/review/list?memberId=${email}`;
+      })
+      .catch(err => {
+        console.error('리뷰 갯수 조회 실패:', err);
+      });
+    }
+  
+  </script>
+  </body>
+</html>

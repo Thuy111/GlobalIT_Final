@@ -1,0 +1,15 @@
+<th:block th:fragment="title(title)">
+  <div class="titleBar_container">
+    <i class="fa-solid fa-chevron-left" onclick="window.history.back()"></i>
+    <h1 th:text="${title}">페이지 제목</h1>
+  </div>
+
+  <div id="profileModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <button class="modal-close">&times;</button>
+      <div id="profileModalContent">
+        <div class="modal-loading">정보를 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+</th:block>

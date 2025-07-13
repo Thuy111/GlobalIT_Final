@@ -1,0 +1,92 @@
+.review_list {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.review_list .star_area {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  justify-content: end;
+  margin: 1.2em 0;
+  gap: 0.5em;
+}
+.review_list .star_area p {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  gap: 0.2em;
+  /* color: #f39c12; */
+  color: #3bb8d4;
+}
+body.dark .review_list .star_area p {color: #FFFA8D;}
+.review_list .star_area .point {color: rgb(55, 55, 55); font-weight: bold;}
+body.dark .review_list .star_area .point {color: rgb(192, 192, 192);}
+.review_list .star_area p.star i {
+  font-size: 1.5rem;
+}
+
+body.dark .review_list .review-card {border-color: #535353;}
+.review_list .review-card {
+  /* border: 1px solid #ccc;
+  border-radius: 10px; */
+  padding: 1rem 1rem 2rem 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.review_list .review-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.review_list .nickname {
+  font-size: 24px !important;
+  font-weight: bold;
+  white-space: nowrap;
+  width: calc(100% - 88px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* color: #333; */
+}
+
+.review_list .created {
+  color: rgb(157, 157, 157);
+  font-size: 15px !important;
+}
+
+.review_list .comment {
+  margin-top: 0.5rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
+  color: #444;
+}
+body.dark .review_list .comment {color: #aaaaaa;}
+
+.review_list .images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.review_list .images img {
+  width: 120px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
+
+@media (max-width: 500px) {
+  .review_list{padding: 0;}
+  .review_list .review-card {padding: 0 0 2rem 0;}
+  .review_list .star_area p {font-size: 16px;}
+  .review_list .star_area p.star i {font-size: 16px;}
+  .review_list .star_area {margin: 0;display: flex;flex-direction: row;justify-content: start;}
+  .review_list .nickname {font-size: 20px !important;}
+}

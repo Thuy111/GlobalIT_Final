@@ -5,7 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-.env
+# application properties
+src/main/resources/application-oauth.properties
+src/main/resources/application-api.properties
 
 ### STS ###
 .apt_generated
